@@ -1,0 +1,27 @@
+
+composite Multwo(output stream<int x>Out, input stream<int x>In)
+{
+	Out = multwo(In)
+	{
+		work
+		{
+			Out[0].x = In[0].x*2;
+		}
+		window{
+			Out tumbling(1);
+			In  sliding(1,1);
+		}
+	};
+			
+}
+
+composite Main()
+{
+	stream<int x> KeySource,BSK;
+	
+	KeySource = FileReader()("kk.txt");
+		
+	BSK= Multwo(KeySource)();
+		
+	FileWriter(BSK)("resu.xml");
+}

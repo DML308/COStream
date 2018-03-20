@@ -1,0 +1,55 @@
+//本测试用例用来测试任务水平分裂 add by wangliang
+int a[8] = {1,2,3,4,5,6,7,8};
+composite B(output stream<int x>Out,input stream<int x>In)
+{
+	param
+		int size1,int size2;
+	Out = A(In)
+	{
+		
+		work
+		{
+			int i,j;
+			Out[0].x = In[0].x;
+			for(i = 0;i < 10000;i++){
+				j = i * i;
+			}
+		}
+		window{
+			In  sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite Main(){
+	int N;
+	stream<int x>S,P;
+	S=Source(){
+		int i;
+		init{
+			i=0;
+		}
+		work{
+			for(i = 0;i < 8;i++){
+				S[i].x=a[i];
+			}
+		}
+		window{
+			S tumbling(8);
+		}
+	};
+	P = B(S)(88,99);
+	Sink(P){
+		work{
+			println(P[0].x);
+		}
+		window{
+			P tumbling(1);
+		}
+	};
+}
+
+
+
+

@@ -1,0 +1,422 @@
+#ifndef GOP_HANDLE
+#define GOP_HANDLE (0)
+#endif
+
+#ifndef WPP_HANDLE
+#define WPP_HANDLE (1)
+#endif
+
+#ifndef ENTROPY_HANDLE
+#define ENTROPY_HANDLE (2)
+#endif
+
+#ifndef PREDICT_HANDLE
+#define PREDICT_HANDLE (3)
+#endif
+
+#ifndef LOOPFILTER_HANDLE
+#define LOOPFILTER_HANDLE (4)
+#endif
+
+unsigned long HM_costream_pop(int type); // COStream using
+void HM_costream_push(int type,unsigned long ul_handle); // COStream using
+unsigned long HM_cpp_pop(int type); // CPP using
+void HM_cpp_push(int type, unsigned long ul_handle); // CPP using
+
+typedef struct HM_gop_encoder_handle_t HM_gop_encoder_handle_t;
+unsigned long HM_gop_encoder_open(int argc, unsigned long ul_argv);
+void HM_gop_encoder_close(unsigned long ul_handle);
+void HM_gop_encoder_init(unsigned long ul_handle);
+void HM_gop_encoder_encode(unsigned long ul_handle);
+void HM_gop_encoder_wait_finish(unsigned long ul_handle);
+
+#define GOP_ENCODER_NUMS (6)
+
+#define STREAM stream<unsigned long handle>
+ struct GOPInfoEx
+{
+	int start_frame_index;
+	int end_frame_index;
+	int gop_size;
+	int is_big_gop;
+	int gop_index;
+	unsigned long gop_encoder;
+} ;
+
+
+struct GOPRdCost 
+{
+	double  m_dLambda;
+	double m_sqrtLamda;
+	int  m_uiLambdaMotionSAD;
+	int   m_uiCost;
+	
+};
+typedef struct GOPRdCost GOPRdCost;
+typedef struct GOPInfoEx GOPInfoEx;
+
+
+
+// 对单个图像组进行编码
+composite GOPEncoder(output STREAM Out,input STREAM In)
+{
+	Out=Process(In)
+	{
+		int gop_id;
+		init
+		{
+			
+		}
+		work
+		{
+			struct GOPInfoEx g_gop_info;
+			struct GOPRdCost g_gop_rd_cost;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_info.start_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.end_frame_index = g_gop_info.start_frame_index +g_gop_info.gop_size;
+			g_gop_info.gop_size = g_gop_info.gop_size;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_info.gop_size = 0;
+			g_gop_info.gop_index = g_gop_info.gop_index + 1;
+			g_gop_info.gop_encoder = In[0].handle;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			g_gop_rd_cost.m_uiCost = g_gop_rd_cost.m_uiCost * 2 /3 +0.369;
+			g_gop_rd_cost.m_dLambda = g_gop_rd_cost.m_dLambda * 2 / 3;
+			g_gop_rd_cost.m_sqrtLamda = g_gop_rd_cost.m_sqrtLamda + 20 /3 + 0.635;
+			g_gop_rd_cost.m_uiLambdaMotionSAD = g_gop_rd_cost.m_uiLambdaMotionSAD *6 / 7+ 0.698;
+			HM_gop_encoder_init(In[0].handle);
+			HM_gop_encoder_encode(In[0].handle);
+			Out[0].handle = In[0].handle;
+		}
+		
+		window
+		{
+			In sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+// 图像组并行编码入口
+composite Encode(output STREAM Out,input STREAM In)
+{
+	param
+		int size;
+	Out = splitjoin(In)
+	{	
+		int i;
+		split duplicate(1);
+		for (i = 0; i < GOP_ENCODER_NUMS; i++)
+		{
+			add GOPEncoder();
+		}
+		join roundrobin(1);
+	};
+	
+}
+
+composite Main()
+{
+
+	stream<unsigned long handle> In,S1;
+	
+	In = Source()
+	{
+		init
+		{
+		}
+		work
+		{
+
+			In[0].handle = HM_costream_pop(GOP_HANDLE);
+		}
+		
+		window
+		{
+			In tumbling(1);
+		}
+	};
+	
+	S1 = Encode(In)(0);
+
+	Merge(S1)
+	{
+		int num;
+		init
+		{
+			num = 0;
+		}
+		work
+		{
+			if(num == 0)
+			{
+				//HM_close_gop_encoder(g_gop_encoder_handle);
+			}
+			++num;
+		}
+			
+		window
+		{
+			S1 sliding(1,1);
+		}
+	};
+	
+}

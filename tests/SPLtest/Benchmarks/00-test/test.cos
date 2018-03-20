@@ -1,0 +1,38 @@
+//#include "file.spl2.cc"
+#include <stdlib.h>
+composite FileReader(output stream<double x>Out,input stream<double x>In)
+{
+	param
+		int lens,char path[lens];
+	Out = FileReader(){
+		FILE *fp;
+		init
+		{
+			fp = fopen(path,"r");
+		}
+		work
+		{
+			Out[0].x = fgetc(fp);
+		}
+	};
+	
+	
+}
+
+
+composite Main()
+{
+	stream<double x> FloatOneSource;
+	//FloatOneSource =Add()(4.3,2.7);
+	char path[] = "input.txt";
+	FloatOneSource = FileReader(10,path)();
+	
+	Sink(FloatOneSource)
+	{
+		work
+		{
+			println(FloatOneSource[0].x);
+		}
+	};
+}
+

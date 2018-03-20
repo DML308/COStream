@@ -1,0 +1,78 @@
+/*计算三维向量的平移，旋转，拉伸*/
+/*节点数*/
+int N=8;
+
+composite TranslateCalculate(output stream<float x,float y,float z,float w>Out,input stream<float x,float y,float z,float w>In)
+{
+	param
+		float Tx,float Ty,float Tz;
+
+	Out=Calculate(In)
+	{
+		
+		work
+		{
+			Out[0].x=1*In[0].x +Tx*In[0].w;
+			Out[0].y=1*In[0].y +Ty*In[0].w;
+			Out[0].z=1*In[0].z +Tz*In[0].w;
+			Out[0].w=1*In[0].w;
+		}
+		window
+		{
+			Out	tumbling(1);
+			In	sliding(1,1);
+		}
+	};
+}
+composite Translate3D(output stream<float x,float y,float z,float w>Out,input stream<float x,float y,float z,float w>In)
+{
+	/*三个参数，分别移动方向,用于构造平移矩阵*/
+	param
+		float Tx,float Ty,float Tz;
+
+	Out=splitjoin(In)
+	{
+		int i;
+		split roundrobin(1);
+		for(i=0;i<N;i++)
+		{
+			add TranslateCalculate(Tx,Ty,Tz);
+		}
+		join roundrobin(1);
+	};
+}
+
+composite Main()
+{
+	stream<float x,float y,float z,float w> SVector,NewVector;
+	
+	/*从rectpoint.txt读取数据*/
+	SVector = FileReader()("rectpoint.bin");
+	
+	/*计算*/
+	NewVector=Translate3D(SVector)(1,2,3);
+
+	/*输出结果*/
+	Sink(NewVector)
+	{
+        int i;	
+		work
+		{	
+			for (i=0; i<N; i++)
+			{
+				print(NewVector[i].x);
+				print("  ");
+				print(NewVector[i].y);
+				print("  ");
+				print(NewVector[i].z);
+				print("  ");
+				print(NewVector[i].w);
+				print("\n");
+			}
+		}
+		window {
+			NewVector sliding(N,N);
+		}
+	};
+
+}

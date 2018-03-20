@@ -1,0 +1,248 @@
+int bounds = 32;
+
+double pi=3.141592654;
+composite LowPassFilter(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		double g, double cutoffFreq, int N;
+		  
+	Out = LowPassFilterX(In)
+	{
+		double h[N];	
+		init
+		{
+			int OFFSET = N/2;
+			int i, idx;
+			for( i=0; i<N; i++)
+			{
+				idx = i + 1;
+				if (idx == OFFSET) 
+					h[i] = g * cutoffFreq / pi; 
+				else 
+					h[i] = g * sin(cutoffFreq * (idx-OFFSET)) / (pi*(idx-OFFSET));
+			}
+		}
+		work
+		{
+			double sum = 0;
+			int i;
+			for ( i=0; i<N; i++) 
+			{ 
+				sum += h[i]*In[i].x;
+			}
+			Out[0].x = sum;
+		}
+		window {
+			In sliding(N,1);
+		}
+	};
+}
+
+composite HighPassFilter(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		double g, double ws, int N;		  
+
+	Out = HighPassFilterX(In)
+	{		
+		double h[N];
+		double cutoffFreq;
+		init
+		{
+			int OFFSET = N/2;
+			int i, idx, sign;
+			cutoffFreq = pi - ws;
+			for( i=0; i<N; i++)
+			{
+				idx = i + 1;
+				sign = ((i%2) == 0) ? 1 : -1;
+				if (idx == OFFSET) 
+					h[i] = sign * g * cutoffFreq / pi; 
+				else 
+					h[i] = sign * g * sin(cutoffFreq * (idx-OFFSET)) / (pi*(idx-OFFSET));
+			}
+		}
+		work
+		{
+			double sum = 0;
+			int i;
+			for ( i=0; i<N; i++) 
+			{ 
+				sum += h[i]*In[i].x;
+			}
+			Out[0].x = sum;
+		}
+		window {
+			In sliding(N,1);
+		}
+	};
+}
+composite Adder(output stream<double x>Out,input stream<double x> In)
+{
+	param
+		int M;
+
+	Out = Adder(In)
+	{
+		work
+		{
+			double sum = 0;
+			int i;					
+			for ( i=0; i<M; i++) 
+				sum += In[i].x;						
+				Out[0].x = sum;					
+			}
+		window {
+			In sliding (M,M);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite BandStopFilter(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		double gain, double wp, double ws, int numSamples;
+		
+	Out = pipeline(In){
+		add splitjoin{
+			split duplicate();
+			add LowPassFilter(gain, wp, numSamples);
+			add	HighPassFilter(gain, ws, numSamples);	
+			join roundrobin();		
+		};
+		add Adder(2);
+	};
+}
+
+composite BandPassFilter(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		double gain, double ws, double wp, int numSamples;
+		
+	Out = pipeline(In) {
+		add LowPassFilter(1, wp, numSamples);	
+		add HighPassFilter(gain, ws, numSamples);
+	};
+}
+
+composite Compressor(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		int M;
+		
+	Out=Compressor(In)
+	{
+		work
+		{
+			Out[0].x = In[0].x;
+		}
+		window {
+			In sliding(M,M);
+		}
+	};
+}
+composite Expander(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		int M;
+
+	Out = Expander(In)
+	{
+		work
+		{
+			int i;
+			Out[0].x = In[0].x;
+			for ( i=1; i<M; i++)
+				Out[i].x = 0;
+		}
+		window {
+			Out tumbling(M);
+		}
+	};	
+}
+
+composite Processingpipeline(output stream<double x>Out, input stream<double x>In)
+{
+	param 
+		int M, int i;
+		
+	stream<double x> BC,PF;
+	BC = pipeline(In)
+	{
+		add BandPassFilter(1, (i*pi/M), ((i+1)*pi/M), 128);		
+		add Compressor(M);		
+	};
+	 
+	PF  = ProcessFilter(BC)
+	{
+		work
+		{
+			PF[0].x = BC[0].x;
+		}
+	};
+	
+	Out = pipeline(PF)
+	{
+		add Expander(M);
+		add BandStopFilter(M, (i*pi/M), ((i+1)*pi/M), 128);		
+	};	
+}
+
+composite FilterBankSplitJoin(output stream<double x>Out,input stream<double x> In)
+{
+	param 
+		int M;
+		
+	Out = splitjoin(In)
+	{
+		int i;
+		split duplicate();
+		for(i=0;i<M;i++)
+		{
+			add Processingpipeline(M,i);
+		}	
+		join roundrobin();
+	};
+}
+
+
+
+composite FilterBankpipeline(output stream<double x>Out,input stream<double x> In)
+{
+	param 
+		int M;
+	Out = pipeline(In){
+		add FilterBankSplitJoin(M);
+		add Adder(M);
+	};
+}
+
+composite Main()
+{
+	stream<double x> Source,FBP;
+	Source = DataSource()
+	{	
+		int n = 0;
+		double w1 = pi/10;
+		double w2 = pi/20;
+		double w3 = pi/30;
+	
+		work
+		{
+			Source[0].x = ( cos(w1*n) + cos(w2*n) + cos(w3*n) );
+			n++;
+		}
+	};
+	
+	FBP = FilterBankpipeline(Source)(bounds);
+	
+	FloatSink(FBP)
+	{
+		work
+		{
+			//println(FBP[0].x);
+		}
+	};
+}
+

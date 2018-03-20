@@ -1,0 +1,59 @@
+composite Multwo(output stream<char x[2], int k>Out, input stream<char x[2], int k >In)
+{
+	Out = multwo(In)
+	{
+		work
+		{
+			Out[0].x[1] = In[0].x[1];
+			Out[0].x[0] = In[0].x[0];
+			Out[0].k = In[0].k*10;
+		}
+		window{
+			Out tumbling(1);
+			In  sliding(1,1);
+		}
+	};	
+}
+
+composite Main()
+{
+	stream<char x[2], int k> KeySource,BSK;	
+	KeySource = Source()
+	{			
+		int A[8] = {5,3,6,7,9,4,8,2};
+		int i;
+		work
+		{
+			for (i=0; i<8; i++)
+			{
+				KeySource[i].k = A[i];
+				KeySource[i].x[0] = 'a' + i;
+				KeySource[i].x[1] = 'A' + i;
+			}
+		}
+		
+		window {
+			KeySource tumbling(8);
+		}
+	};
+	
+	BSK= Multwo(KeySource)();
+		
+	Sink(BSK)
+	{		
+		int i;
+		work
+		{			
+			for (i=0; i<8; i++)
+				print(BSK[i].k);
+			for(i = 0; i < 8; i++)
+				print(BSK[i].x[0]);
+			for(i = 0; i < 8; i++)
+				print(BSK[i].x[1]);
+		}		
+		window {
+			BSK sliding(8,8);
+		}
+	};
+
+}

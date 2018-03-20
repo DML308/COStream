@@ -1,0 +1,102 @@
+/*计算三维向量的平移，旋转，拉伸*/
+/*节点数*/
+//每次输入8个数组
+int N=8;
+
+composite TranslateCalculate(output stream<int x,int y,int z,int w>Out,input stream<int x,int y,int z,int w>In)
+
+{
+	param
+		int Tx,int Ty,int Tz;
+
+	Out=Calculate(In)
+	{
+		
+		work
+		{
+			Out[0].x=1*In[0].x +Tx*In[0].w;
+			Out[0].y=1*In[0].y +Ty*In[0].w;
+			Out[0].z=1*In[0].z +Tz*In[0].w;
+			Out[0].w=1*In[0].w;
+		}
+		window
+		{
+			Out	tumbling(1);
+			In	sliding(1,1);
+		}
+		
+	};
+}
+composite Translate3D(output stream<int x,int y,int z,int w>Out,input stream<int x,int y,int z,int w>In)
+{
+	/*三个参数，分别移动方向,用于构造平移矩阵*/
+	param
+		int Tx,int Ty,int Tz;
+
+	Out=splitjoin(In)
+	{
+		int i;
+		split roundrobin(1);
+		for(i=0;i<N;i++)
+		{
+			add TranslateCalculate(Tx,Ty,Tz);
+		}
+		join roundrobin(1);
+	};
+	
+}
+composite Main()
+{
+	
+	
+	stream<int x,int y,int z,int w> SVector,NewVector;
+	SVector = Source()
+	{
+	
+		int i;
+		int j = 0;
+		work
+		{
+			if(j < N)
+			{
+				for (i=0; i<N; i++)
+				{
+					SVector[i].x = Vector[i][0];
+					SVector[i].y = Vector[i][1];
+					SVector[i].z = Vector[i][2];
+					SVector[i].w = Vector[i][3];
+				}
+				j++;
+			}
+
+		}
+		window {
+			SVector tumbling(8);
+		}
+	};
+	
+	/*计算*/
+	NewVector=Translate3D(SVector)(1,2,3);
+	/*输出结果*/
+	Sink(NewVector)
+	{
+        int i;	
+		work
+		{	
+			for (i=0; i<N; i++)
+			{
+				print(NewVector[i].x);
+				print("  ");
+				print(NewVector[i].y);
+				print("  ");
+				print(NewVector[i].z);
+				print("  ");
+				print(NewVector[i].w);
+				print("\n");
+			}
+		}
+		window {
+			NewVector sliding(N,N);
+		}
+	};
+}

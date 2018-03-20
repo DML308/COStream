@@ -1,0 +1,181 @@
+typedef struct HM_predict_encoder_t HM_predict_encoder_t;
+void HM_predict_encoder_cu64x64(unsigned long ul_handle);
+void HM_predict_encoder_cu32x32(unsigned long ul_handle);
+void HM_predict_encoder_cu16x16(unsigned long ul_handle);
+void HM_predict_encoder_cu8x8(unsigned long ul_handle);
+void HM_predict_encoder_cu4x4(unsigned long ul_handle);
+
+#define STREAM stream<unsigned long handle>
+ 
+composite compress_64x64(output STREAM Out,input STREAM In)
+{
+	Out=Process(In)
+	{
+		int gop_id;
+		init
+		{
+			
+		}
+		work
+		{
+			HM_predict_encoder_cu64x64(In[0].handle);
+			Out[0].handle = In[0].handle;
+		}
+		
+		window
+		{
+			In sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite compress_32x32(output STREAM Out,input STREAM In)
+{
+	Out=Process(In)
+	{
+		int gop_id;
+		init
+		{
+			
+		}
+		work
+		{
+			HM_predict_encoder_cu32x32(In[0].handle);
+			Out[0].handle = In[0].handle;
+		}
+		
+		window
+		{
+			In sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite compress_16x16(output STREAM Out,input STREAM In)
+{
+	Out=Process(In)
+	{
+		int gop_id;
+		init
+		{
+			
+		}
+		work
+		{
+			HM_predict_encoder_cu16x16(In[0].handle);
+			Out[0].handle = In[0].handle;
+		}
+		
+		window
+		{
+			In sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite compress_8x8(output STREAM Out,input STREAM In)
+{
+	Out=Process(In)
+	{
+		int gop_id;
+		init
+		{
+			
+		}
+		work
+		{
+			HM_predict_encoder_cu8x8(In[0].handle);
+			Out[0].handle = In[0].handle;
+		}
+		
+		window
+		{
+			In sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite compress_4x4(output STREAM Out,input STREAM In)
+{
+	Out=Process(In)
+	{
+		int gop_id;
+		init
+		{
+			
+		}
+		work
+		{
+			HM_predict_encoder_cu4x4(In[0].handle);
+			Out[0].handle = In[0].handle;
+		}
+		
+		window
+		{
+			In sliding(1,1);
+			Out tumbling(1);
+		}
+	};
+}
+
+composite Encode(output STREAM Out,input STREAM In)
+{
+	
+	Out = pipeline(In){
+		add compress_64x64();
+		add compress_32x32();
+		add compress_16x16();
+		add compress_8x8();
+		add compress_4x4();
+	};
+	
+}
+
+
+unsigned long g_predict_encoder_handle;
+
+composite Main()
+{
+
+	stream<unsigned long handle> In,S1;
+	
+	In = Source()
+	{
+		init
+		{
+		}
+		work
+		{
+			In[0].handle = g_predict_encoder_handle;
+		}
+		
+		window
+		{
+			In tumbling(1);
+		}
+	};
+	
+	S1 = Encode(In)();
+
+	Merge(S1)
+	{
+		int num;
+		init
+		{
+			num = 0;
+		}
+		work
+		{
+		}
+			
+		window
+		{
+			S1 sliding(1,1);
+		}
+	};
+	
+}
