@@ -536,14 +536,26 @@ body {
   padding: 0px 0 20px 0px;
   background: url(../images/body-background.png) #eae6d1; }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #333;
   margin: 0 0 10px; }
 
-p, ul, ol, table, pre, dl {
+p,
+ul,
+ol,
+table,
+pre,
+dl {
   margin: 0 0 20px; }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   line-height: 1.1; }
 
 h1 {
@@ -553,7 +565,10 @@ h2 {
   font-size: 24px;
   color: #393939; }
 
-h3, h4, h5, h6 {
+h3,
+h4,
+h5,
+h6 {
   color: #666666; }
 
 h3 {
@@ -706,6 +721,15 @@ header {
   #banner .fork {
     position: fixed;
     left: 50%;
+    margin-left: -200px;
+    padding: 10px 12px;
+    margin-top: 6px;
+    line-height: 14px;
+    font-size: 14px;
+    background-color: #FFE788; }
+  #banner .document {
+    position: fixed;
+    left: 50%;
     margin-left: -325px;
     padding: 10px 12px;
     margin-top: 6px;
@@ -799,9 +823,13 @@ footer {
   nav {
     display: none; }
 
-  header, section, footer {
+  header,
+  section,
+  footer {
     float: none; }
-    header h1, section h1, footer h1 {
+    header h1,
+    section h1,
+    footer h1 {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -860,7 +888,8 @@ footer {
     margin-bottom: 0px;
     width: auto; }
 
-  header ul, header p.view {
+  header ul,
+  header p.view {
     position: static; } }
 @media print, screen and (max-width: 480px) {
   header {
