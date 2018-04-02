@@ -721,13 +721,22 @@ header {
   #banner .fork {
     position: fixed;
     left: 50%;
-    margin-left: -200px;
+    margin-left: -95px;
     padding: 10px 12px;
     margin-top: 6px;
     line-height: 14px;
     font-size: 14px;
     background-color: #FFE788; }
   #banner .document {
+    position: fixed;
+    left: 50%;
+    margin-left: -220px;
+    padding: 10px 12px;
+    margin-top: 6px;
+    line-height: 14px;
+    font-size: 14px;
+    background-color: #FFE788; }
+  #banner .homepage {
     position: fixed;
     left: 50%;
     margin-left: -325px;
