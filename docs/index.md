@@ -160,4 +160,4 @@ COStream各actor的输入输出速率在运行时恒定。一些应用程序需�
 
 * * *
 
-关于COStream语言的定义、编程规范和编译器行为（包括静态和动态）的详细说明等，详见[《COStream流语言编程指南》](another-page)。
+关于COStream语言的定义、编程规范和编译器行为（包括静态和动态）的详细说明等，详见[《COStream流语言编程指南》](book/index.html)。
