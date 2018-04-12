@@ -2,9 +2,7 @@
 #define _PARTITION_H_
 
 #include "schedulerSSG.h"
-#include "X86Cluster/ClusterPartition.h"
-#include "DynamicX86Backend/DividedStaticGraph.h"
-
+#include "ClusterPartition.h"
 
 extern "C"
 {
@@ -27,8 +25,6 @@ public:
 	Partition();
 	int getParts();//返回划分个数mnparts
 	void setCpuCoreNum(int,SchedulerSSG*);//设置place数目（即进程数目）
-	void setCpuCoreNum(int,DividedStaticGraph*);
-
 	int findID(SchedulerSSG *sssg,FlatNode *flatnode);//根据flatnode找到其下标号 如source_0中的0
 	std::vector<FlatNode *>findNodeSetInPartition(int partitionNum);//根据编号num查找其中的节点，将节点集合返回给PartitonNumSet(编号->节点)
 	int findPartitionNumForFlatNode(FlatNode *flatnode);//根据节点返回其所在划分区的编号(节点->编号)
@@ -44,15 +40,11 @@ public:
 	int UnLock(const std::vector<FlatNode *> &, const std::vector<FlatNode *> &, const int);//解锁，直接死锁
 	//以下是划分成员方法，具体实现由子类实现
 	virtual void SssgPartition(SchedulerSSG *sssg ,int level)=0;//划分成员方法，具体实现由子类实现
-	virtual void SssgPartition(DividedStaticGraph*, int){}
 	virtual ~Partition(){}
 	inline std::map<FlatNode *,int>GetFlatNode2PartitionNum(void)
 	{
 		return FlatNode2PartitionNum;
 	}
-
-	virtual int getPartEdge(int index){ return 0; } // add by wangliang 
-	virtual int orderPartitionResult(){ return getParts(); }// add by wangliang 
 protected:
 	std::multimap<FlatNode *, FlatNode *> currentSrc2Dest, currentDest2Src;
 	std::vector<FlatNode *> currentSrcUp, currentSrcDown, currentDestUp, currentDestDown; 

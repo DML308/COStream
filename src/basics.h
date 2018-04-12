@@ -12,9 +12,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
-
 #include "config.h"
+
+#ifdef WIN32
+#include <conio.h>
+#endif
 
 #ifdef NO_PROTOTYPES
 extern int      fprintf();
@@ -80,6 +82,19 @@ typedef int Bool;
 typedef struct nodeStruct Node;
 typedef struct tablestruct SymbolTable;
 typedef int OpType;
+typedef struct paramstruct paramList;
+typedef struct constArrayStruct constArrayList;
+//cwb：将composite中param存放于各operator中
+struct paramstruct
+{
+	Node *paramnode;
+	struct paramstruct *next;
+};
+struct constArrayStruct
+{
+	Node *arraynode;
+	struct constArrayStruct *next;
+};
 
 //zww:表示op的类型
 typedef enum {
@@ -89,7 +104,7 @@ typedef enum {
 }opDataType;
 
 /***********************--------------Define For SPL----------****************************/
-typedef struct tablestruct SymbolTable;
+//typedef struct tablestruct SymbolTable;
 typedef struct ASTtablestruct ASTSymbolTable;//zww
 
 #ifndef SPL_DEBUG

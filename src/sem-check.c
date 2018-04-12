@@ -153,10 +153,11 @@ GLOBAL List *SemanticCheckProgram(List *program)
 			//SPL的全局变量都是const的，这样写是为了后面的常量传播能顺利进行
 			if (item->u.decl.init == NULL && item->u.decl.type->typ!=Sdcl )	//zww：添加对Sdcl条件的判断	12.2.13
 			{
-				/*if(STORAGE_CLASS(item->u.decl.tq) != T_EXTERN){
+				/*
+				if(STORAGE_CLASS(item->u.decl.tq) != T_EXTERN){
 					SyntaxErrorCoord(item->coord, "Syntax error: '%s' is not a const variable!",item->u.id.text);
 					assert(FALSE);
-				}*/
+				} */
 				continue;
 			}
 			if (item->u.decl.type->typ!=Sdcl )AddDeclNodeConstTq(item);	//zww：添加对Sdcl条件的判断   12.2.13
@@ -899,8 +900,9 @@ PRIVATE inline Node *SemCheckDecl(Node *node, declNode *u)
   u->init    = SemCheckNode(u->init);
   u->bitsize = SemCheckNode(u->bitsize);
   
-  if (u->init&&u->init->typ!=Call)
-    SemCheckDeclInit(node, NodeDeclLocation(node) == T_BLOCK_DECL);
+//  if (u->init)
+	if (u->init&&u->init->typ!=Call)
+		SemCheckDeclInit(node, NodeDeclLocation(node) == T_BLOCK_DECL);
   
   return node;
 }
@@ -1119,10 +1121,9 @@ PRIVATE inline Node *SemCheckSTRdcl(Node *node, strdclNode *u)
 	return node;
 }
 
-int numOfMain = 0;//modify by wangliang
 PRIVATE inline Node *SemCheckComposite(Node *node, compositeNode *u)
 {
-	//static int numOfMain = 0;//modify by wangliang
+	static int numOfMain = 0;
 	Node *type = NULL;
 	Node *inout = NULL;
 
@@ -1295,12 +1296,7 @@ PRIVATE inline Node *SemCheckWindow(Node *node, windowNode *u)
 
 	return node;
 }
-PRIVATE inline Node* SemCheckUncertainty(Node*node, uncertaintyNode *u)
-{
-	if (u->uncertainty_value != NULL)
-		SyntaxErrorCoord(node->coord, "Syntax error:Uncertainty_value must be empty!");
-	return node;
-}
+
 PRIVATE inline Node *SemCheckSliding(Node *node, slidingNode *u)
 {
 	List *aptr;
@@ -1339,6 +1335,11 @@ PRIVATE inline Node *SemCheckAdd(Node *node, addNode *u)
 		SyntaxErrorCoord(node->coord,	"Syntax error: Add node must in splitJoin or PipeLine! ");
 	u->content = SemCheckNode(u->content);
 
+	return node;
+}
+
+PRIVATE inline Node *SemCheckItco(Node *node, itcoNode *u)
+{
 	return node;
 }
 

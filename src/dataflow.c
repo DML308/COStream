@@ -1059,9 +1059,12 @@ PRIVATE inline FlowValue DataFlowParam(Node *node, paramNode *u, FlowValue v)
 				Exit(node,v)));
 }
 
-//数据流进入自定义的Operator
+//cwb数据流进入自定义的Operator
+operatorNode *tempoperatornode;
 PRIVATE inline FlowValue DataFlowOperator_(Node *node, operatorNode *u, FlowValue v)
 {
+	tempoperatornode = u;
+	tempoperatornode->params = NULL;
 	if (Forw)
 	{
 		u->oper_values.undefined = TRUE;
@@ -1069,13 +1072,12 @@ PRIVATE inline FlowValue DataFlowOperator_(Node *node, operatorNode *u, FlowValu
 		u->oper_values.undefined = FALSE;
 		DataFlow(u->body, u->oper_values);
 		return Exit(node,v);
-	}		 
+	}
 	else
 		return Entry(node,
 			FlowInto(&u->oper_values, 
 				DataFlow(u->body, 
 					Exit(node, v))));
-	
 }
 
 PRIVATE inline FlowValue DataFlowOperdcl(Node *node, operDeclNode *u, FlowValue v)
@@ -1153,10 +1155,7 @@ PRIVATE inline FlowValue DataFlowSliding(Node *node, slidingNode *u, FlowValue v
 		return e;
 	}
 }
-PRIVATE inline FlowValue DataFlowUncertainty(Node *node, uncertaintyNode*u, FlowValue v)
-{
 
-}
 PRIVATE inline FlowValue DataFlowTumbling(Node *node, tumblingNode *u, FlowValue v)
 {
 	if(Forw){
@@ -1389,6 +1388,11 @@ PRIVATE inline FlowValue DataFlowAdd(Node *node, addNode *u, FlowValue v)
 			DataFlow(u->content,
 				Exit(node,v)));
 }
+
+PRIVATE inline FlowValue DataFlowItco(Node *node, itcoNode *u, FlowValue v)
+{
+	return v;
+}
 /***********************--------------Define For SPL----------****************************/
 
 
@@ -1584,5 +1588,5 @@ GLOBAL void IteratePropagatorDataFlow(Node *mainNode, FlowValue init, Direction 
 	/* Make final pass to capture data-flow information in permanent form */
 	Final = TRUE;
 	DataFlow(mainNode, init);
-	printf( "end.......\n");
+
 }

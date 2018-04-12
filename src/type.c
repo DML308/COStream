@@ -53,6 +53,7 @@ GLOBAL void InitTypes()
   TypeNames[Void] = "void";
   TypeNames[Ellipsis] = "...";
 
+  
   EllipsisNode = MakePrim(EMPTY_TQ, Ellipsis);
   Undeclared   = MakeDecl("undeclared!", EMPTY_TQ, NULL, NULL, NULL);
 
@@ -405,21 +406,17 @@ GLOBAL TypeQual NodeDeclQuals(Node *node)
 
 GLOBAL TypeQual NodeDeclLocation(Node *node)
 {
-	if (node == NULL)
-	{
-		return 0;
-	}
-	if (node->typ == Id && strcmp(node->u.text.text, "splExtern") == 0)
+	if(node->typ == Id && strcmp(node->u.text.text, "splExtern") == 0)
 	{
 		return DECL_LOCATION(node->u.id.decl->u.decl.tq);
 	}
 
-	if (node->typ == Id)
+	if(node->typ == Id)
 	{
 		return DECL_LOCATION(node->u.id.decl->u.decl.tq);
 	}
-	assert(node->typ == Decl || node->typ == Binop);  //cz,Ìí¼ÓBinopµÄÅÐ¶Ï
-	return DECL_LOCATION(node->u.decl.tq);
+  assert(node->typ == Decl);
+  return DECL_LOCATION(node->u.decl.tq);
 }
 
 GLOBAL void NodeSetDeclLocation(Node *node, TypeQual dl)
@@ -858,6 +855,7 @@ GLOBAL Node *LookupPostfixExpression(Node *post)
 	  case CompositeCall:
 	  case Pipeline:
 	  case SplitJoin:
+	  case Itco:
 	break;
       case Id:
 	post->u.id.decl = lookup_identifier(post);
@@ -1007,7 +1005,7 @@ GLOBAL int NodeSizeof(Node *node, Node *node_type)
     if (IsStringConstant(node)) {
       return strlen(NodeConstantStringValue(node)) + 1 /* for null terminator */;
     }
-    else if (IsUnsizedArray(type)) {
+    else if (IsUnsizedArray(type)&&node->coord.includedp!=1) {
       SyntaxErrorCoord(node->coord, 
 		       "Can't compute size of undimensioned array");
       return 1;

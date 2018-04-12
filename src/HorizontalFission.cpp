@@ -1427,6 +1427,7 @@ void HorizontalFission::HorizontalFissionPRPartitions(SchedulerSSG *sssg,float b
 		int maxPartition = -1;
 		int cur_max_partition; //当前权重最大的划分的迭代器
 		int cur_min_partition; //当前权重最小的划分的迭代器
+		bool maxNodeInMaxPartition = true;
 		FissionNodeInfo *maxWorkFlatNode = NULL;//存放要被分裂的节点
 		int maxWork = 0;
 		Bool partiotion_flag = FALSE;
@@ -1457,22 +1458,46 @@ void HorizontalFission::HorizontalFissionPRPartitions(SchedulerSSG *sssg,float b
 				if(stateful && fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount==1)cout<<fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->name<<"不可分 "<<endl;
 				else cout<<"也许可分" <<fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->name<<": SteadyCount= "<< fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount <<"  单入单出  "<<SInSOutOPerator(fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->contents)<<"  状态:"<<fissionNodeVector[fissionNodeVector_iter]->fiss_state<<endl; 
 #endif
-				if(!stateful && fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount>1 &&fissionNodeVector[fissionNodeVector_iter]->fiss_state==TRUE&& SInSOutOPerator(fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->contents))//分裂的条件
-				{
-//					cout<<"条件" <<fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->name<<": SteadyCount= "<< fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount <<"  单入单出 " <<"    "<<SInSOutOPerator(fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->contents)<<endl; 
-					int operatorWork = fissionNodeVector[fissionNodeVector_iter]->operatorWeight; // 单个operator的工作量
-					int operatorCount = fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount;	 //在稳定状态下operator的执行次数
-					int work_Weight= operatorWork*operatorCount;
-					if(maxWork<work_Weight)	
-					{
-						maxWorkFlatNode = fissionNodeVector[fissionNodeVector_iter];//找工作量最大的核中工作量最大的operator
-						maxWork = work_Weight;
+				if(maxNodeInMaxPartition){
+					for (int fissionNodeVector_iter = 0;fissionNodeVector_iter!=fissionNodeVector.size();fissionNodeVector_iter++){
+						int operatorWork = fissionNodeVector[fissionNodeVector_iter]->operatorWeight; // 单个operator的工作量
+						int operatorCount = fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount;	 //在稳定状态下operator的执行次数
+						int work_Weight= operatorWork*operatorCount;
+						if(maxWork<work_Weight)	
+						{
+							maxWorkFlatNode = fissionNodeVector[fissionNodeVector_iter];//找工作量最大的核中工作量最大的operator
+							maxWork = work_Weight;
+						}
 					}
-					partiotion_flag = TRUE;//找到分裂的核和可分裂的operator,修改标志位
+					if(maxWork>10000&&maxWorkFlatNode->fissingFlatNode->inPeekWeights[0]<=64&&maxWorkFlatNode->fissingFlatNode->outPushWeights[0]<=64)
+					//if(maxWork>10000)
+					maxWorkFlatNode->fissingFlatNode->memorizedNode = true;
+					maxNodeInMaxPartition = false;
 				}
+				maxWork = 0;
+				maxWorkFlatNode = NULL;
+				if(!stateful&&fissionNodeVector[fissionNodeVector_iter]->fiss_state==TRUE&& SInSOutOPerator(fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->contents))
+					if(fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount>1)//分裂的条件
+					{
+						//						cout<<"条件" <<fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->name<<": SteadyCount= "<< fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount <<"  单入单出 " <<"    "<<SInSOutOPerator(fissionNodeVector[fissionNodeVector_iter]->fissingFlatNode->contents)<<endl; 
+						int operatorWork = fissionNodeVector[fissionNodeVector_iter]->operatorWeight; // 单个operator的工作量
+						int operatorCount = fissionNodeVector[fissionNodeVector_iter]->fissedSteadycount;	 //在稳定状态下operator的执行次数
+						int work_Weight= operatorWork*operatorCount;
+						if(maxWork<work_Weight)	
+						{
+							maxWorkFlatNode = fissionNodeVector[fissionNodeVector_iter];//找工作量最大的核中工作量最大的operator
+							maxWork = work_Weight;
+						}
+						partiotion_flag = TRUE;//找到分裂的核和可分裂的operator,修改标志位
+					}
 			}
+			
 			if(partiotion_flag ) break;
-			else PartiotionFlag[cur_max_partition] = FALSE;	//该划分中没有可分裂节点
+			else{ 
+				PartiotionFlag[cur_max_partition] = FALSE;	//该划分中没有可分裂节点
+				if(maxWork>10000&&maxWorkFlatNode->fissingFlatNode->inPeekWeights[0]<=64&&maxWorkFlatNode->fissingFlatNode->outPushWeights[0]<=64)
+					maxWorkFlatNode->fissingFlatNode->memorizedNode = true;
+			}
 		}
 		/*没有满足条件的分裂节点*/
 		if(!partiotion_flag || maxWorkFlatNode == NULL)

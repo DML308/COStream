@@ -117,6 +117,7 @@ PRIVATE void VerifyStmtList(List *list);
 PRIVATE void VerifyTq(TypeQual tq);
 PRIVATE void VerifyScAndDq(TypeQual tq);
 PRIVATE inline void VerifyAdd(Node *node, addNode *u, Context c);
+PRIVATE inline void VerifyItco(Node *node, itcoNode *u, Context c);
 
 
 GLOBAL void VerifyParse(List *program)
@@ -362,11 +363,11 @@ PRIVATE inline void VerifyFdcl(Node *node, fdclNode *u, Context c)
 PRIVATE inline void VerifySdcl(Node *node, sdclNode *u, Context c)
 {
 
-	// #ifdef SPL_GRAMMAR   //zww：注释，增加对结构体的支持
-	// 	SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Struct type currently!\n");
-	// 	system("pause"); 
-	// 	exit(1);
-	// #endif // SPL 11.30
+// #ifdef SPL_GRAMMAR   //zww：注释，增加对结构体的支持
+// 	SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Struct type currently!\n");
+// 	system("pause"); 
+// 	exit(1);
+// #endif // SPL 11.30
 
 	VerifyTq(u->tq);
 	assert(u->type != NULL);
@@ -380,15 +381,13 @@ PRIVATE inline void VerifySdcl(Node *node, sdclNode *u, Context c)
 
 PRIVATE inline void VerifyUdcl(Node *node, udclNode *u, Context c)
 {
-
-	//	if(node->coord.includedp!=1){      //yy：注释，增加对结构体的支持
-	//#ifdef SPL_GRAMMAR
-	//	SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Union type currently!\n");
-	//	system("pause"); 
-	//	exit(1);
-	//#endif // SPL 11.30
-	//	}
-
+	if(node->coord.includedp!=1){
+#ifdef SPL_GRAMMAR
+	SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Union type currently!\n");
+	system("pause"); 
+	exit(1);
+#endif // SPL 11.30
+	}
 	VerifyTq(u->tq);
 	assert(u->type != NULL);
 	assert(u->type->typ == Udcl);
@@ -402,13 +401,13 @@ PRIVATE inline void VerifyUdcl(Node *node, udclNode *u, Context c)
 PRIVATE inline void VerifyEdcl(Node *node, edclNode *u, Context c)
 {
 
-	//	if(node->coord.includedp!=1){   //yy：注释，增加对结构体的支持
-	//#ifdef SPL_GRAMMAR
-	//		SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Enum type currently!\n");
-	//		system("pause");
-	//		exit(1);
-	//#endif // SPL 11.30
-	//	}
+	if(node->coord.includedp!=1){
+#ifdef SPL_GRAMMAR
+	SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Enum type currently!\n");
+	system("pause"); 
+	exit(1);
+#endif // SPL 11.30
+	}
 	VerifyTq(u->tq);
 	assert(u->type != NULL);
 	/* fix: verify list? */
@@ -612,11 +611,7 @@ PRIVATE inline void VerifyTumbling(Node *node, tumblingNode *u, Context c)
 	VerifyNode(u->tumbling_value, Other);
 }
 
-PRIVATE inline void VerifyUncertainty(Node*node, uncertaintyNode*u, Context c)
-{
-	assert(u->tq == EMPTY_TQ);
-	assert(u->uncertainty_value == NULL);
-}
+
 
 /*--------------New For SPL----------*/
 PRIVATE inline void VerifyCompositeCall(Node *node, comCallNode *u, Context c)
@@ -819,4 +814,10 @@ PRIVATE inline void VerifyAdd(Node *node, addNode *u, Context c)
 	assert(u->content);
 	VerifyNode(u->content, Other);
 }
+
+PRIVATE inline void VerifyItco(Node *node, itcoNode *u, Context c)
+{
+	assert(u->text != NULL);
+}
+
 

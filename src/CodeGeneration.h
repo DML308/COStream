@@ -7,7 +7,7 @@
 #include "ActorStageAssignment.h"
 #include "MetisPartiton.h"
 #define Buffer_Size 100
-GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg, string substring, StageAssignment *psa, Partition *Mp, MAFLPartition *maflp);
+GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring,StageAssignment *psa,MetisPartiton *Mp,HAFLPartition *haflp,TemplateClass *tc,DNBPartition*);
 
 extern "C"
 {
@@ -19,6 +19,5 @@ extern "C"
 	extern Bool Win;
 	extern Bool Linux;
 	extern int MultiNum;
-	extern GLOBAL Bool realnCpucore;
 };
 #endif

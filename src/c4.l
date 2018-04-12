@@ -335,10 +335,25 @@ hwhite ([ \011])
 
 <INITIAL,C>"\n"             {  Line++; WHITE_RETURN(' ');  }
 
+<INITIAL,C>__restrict	|									//添加对gcc预处理器的支持
+<INITIAL,C>__extension__    {  WHITE_RETURN(' ');  }
+<INITIAL,C>__word__  { yylval.n = int_constant("8", TRUE, FALSE);
+                      RETURN_TOKEN(INTEGERconstant);}
+<INITIAL,C>__QI__  { yylval.n = int_constant("8", TRUE, FALSE);
+                      RETURN_TOKEN(INTEGERconstant);}
+<INITIAL,C>__HI__  { yylval.n = int_constant("16", TRUE, FALSE);
+                      RETURN_TOKEN(INTEGERconstant);}
+<INITIAL,C>__SI__  { yylval.n = int_constant("32", TRUE, FALSE);
+                      RETURN_TOKEN(INTEGERconstant);}
+<INITIAL,C>__DI__  { yylval.n = int_constant("64", TRUE, FALSE);
+                      RETURN_TOKEN(INTEGERconstant);}
+
 <INITIAL,C>auto                {PA_KEYWORD_RETURN(AUTO);}
 <INITIAL,C>break               {PA_KEYWORD_RETURN(BREAK);}
 <INITIAL,C>case                {PA_KEYWORD_RETURN(CASE);}
+<INITIAL,C>__builtin_va_list	|							//
 <INITIAL,C>char                {PA_KEYWORD_RETURN(CHAR);}
+<INITIAL,C>__const	|										//添加对gcc预处理的支持
 <INITIAL,C>const               {PA_KEYWORD_RETURN(CONST);}
 <INITIAL,C>continue            {PA_KEYWORD_RETURN(CONTINUE);}
 <INITIAL,C>default             {PA_KEYWORD_RETURN(DEFAULT);}
@@ -403,11 +418,11 @@ hwhite ([ \011])
 <INITIAL,C>split			   {PA_KEYWORD_RETURN(SPLIT);}
 <INITIAL,C>join				   {PA_KEYWORD_RETURN(JOIN);}
 <INITIAL,C>duplicate		   {PA_KEYWORD_RETURN(DUPLICATE);}
-<INITIAL,C>roundrobin		   {PA_KEYWORD_RETURN(ROUNDROBIN);}
+<INITIAL,C>roundrobin		   {PA_KEYWORD_RETURN(ROUNDROBIN);}/*******----Define For SPL---2011.11.14-LXX-*********/
 
-<INITIAL,C>uncertainty			{PA_KEYWORD_RETURN(UNCERTAINTY);}
 
 <INITIAL,C>inline   |
+<INITIAL,C>__inline   |
 <INITIAL,C>__inline__   {PA_KEYWORD_RETURN(INLINE); }
 <INITIAL,C>__attribute__   {PA_KEYWORD_RETURN(ATTRIBUTE); }
 

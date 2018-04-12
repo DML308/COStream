@@ -9,6 +9,7 @@
 #include "dataflow.h"
 
 
+
 /* definition of Node data structure */
 
 typedef enum {
@@ -60,7 +61,8 @@ typedef enum {
   Duplicate,
   
   /********1********新文法**********/
-  Add,Uncertainty
+  Add,
+  Itco			/*iterator count*/
   /*
   删除掉的节点： Var,Graph,StreamFor,StreamIf,StreamIfElse,Eviction,Trigger,logic
   修改过的节点： comBodyNode,PipelineNode,SplitJoinNode,slidingNode,tumblingNode
@@ -306,7 +308,6 @@ typedef struct {
    into a cycle. -- rcm */
 typedef Node ChildNode;
 typedef List ChildList;
-
 
 
 /*************************************************************************/
@@ -710,11 +711,17 @@ typedef struct {
 	ChildList *arguments;/*argument.expression.list*/
 } operDeclNode;
 
+
+
 typedef struct {      
 	ChildNode *decl;  /*type->streamif.operator | splitjoin.operator | pipeline.operator | operator.invoke | operator.stream.define */
 	ChildNode *body;  /*body != null, it is a self-define operator*/
 	FlowValue oper_values;
 	OperatorType ot;
+	paramList *params; //chenwenbin 20140723 operator引用的param变量
+	int paramSize;  //chenwenbin 引用的param变量个数
+	paramList *dimParams;//chenwenbin 用作数组维度的param变量
+	constArrayList *ArrayInit; //cwb 记录初始化的数组变量aaa
 } operatorNode;
 
 typedef struct {
@@ -731,10 +738,7 @@ typedef struct {
 	TypeQual tq;
 	ChildNode *tumbling_value;
 } tumblingNode;
-typedef struct {
-	TypeQual tq;
-	ChildNode*uncertainty_value;
-}uncertaintyNode;
+
 /*-------7-------New For SPL----------*/
 typedef struct {
 	ChildNode *call;/*call->operDeclNode*/
@@ -795,6 +799,10 @@ typedef struct {
 typedef struct {
 	ChildNode *content;/* */
 } addNode;
+
+typedef struct {
+	const char* text;/*iterator count node*/
+} itcoNode;
 
 
 /***********************Define Nodes For SPL----over**********************/
@@ -877,7 +885,7 @@ struct nodeStruct {
 		windowNode		window;
 		slidingNode		sliding;
 		tumblingNode	tumbling;
-		uncertaintyNode uncertainty;
+		
 		/*-------7-------New For SPL----------*/
 		comCallNode		comCall;
 		PipelineNode	pipeline;
@@ -889,6 +897,7 @@ struct nodeStruct {
 		
 		/**********1*****新文法*******************/
 		addNode			add;
+		itcoNode		itco;
 		
 	} u;
 };
@@ -1025,7 +1034,6 @@ switch (n->typ) { \
  case Join:			 CODE(Join, n, &n->u.join); break; \
  case RoundRobin:	 CODE(RoundRobin, n, &n->u.roundrobin); break; \
  case Duplicate:	 CODE(Duplicate, n, &n->u.duplicate); break; \
- case Uncertainty:	 CODE(Uncertainty, n, &n->u.uncertainty); break;\
  /**************新文法******2*************/\
  case Add:	 		CODE(Add, n, &n->u.add); break; \
  /***********************--------------Define For SPL----------****************************/ \
@@ -1094,7 +1102,6 @@ switch ((n)->typ) { \
  case Join:			 if ((n)->u.join.type) {CODE((n)->u.join.type);} break; \
  case RoundRobin:	 if ((n)->u.roundrobin.arguments){LISTWALK((n)->u.roundrobin.arguments ,CODE);}break; \
  case Duplicate:	 if ((n)->u.duplicate.expr) {CODE((n)->u.duplicate.expr);} break; \
- case Uncertainty:   break;\
  /***********1***新文法***************/\
  case Add:	 		if ((n)->u.add.content){CODE((n)->u.add.content);} break;\
  /***********************--------------zww:Define For SPL----------****************************/ \
@@ -1248,9 +1255,6 @@ GLOBAL inline Node *MakeWindowSlidingCoord(TypeQual tq, Node *sliding_value, Coo
 GLOBAL inline Node *MakeWindowTumbling(TypeQual tq, Node *tumbling_value);
 GLOBAL inline Node *MakeWindowTumbingCoord(TypeQual tq, Node *tumbling_value, Coord coord);
 
-GLOBAL inline Node* MakeWindowUncertainty(TypeQual tq, Node*uncertainty_value);
-GLOBAL inline Node* MakeWindowUncertaintyCoord(TypeQual tq, Node*uncertaintyNode, Coord coord);
-
 /*--------------New For SPL----------*/
 GLOBAL inline Node *MakeCompositeCall(Node *call, Node *operdcl, Bool style);
 GLOBAL inline Node *MakeCompositeCallCoord(Node *call, Node *operdcl, Bool style, Coord coord);
@@ -1283,6 +1287,10 @@ GLOBAL inline Node *MakeOutput(Node *node,Node *output);
 GLOBAL inline Node *MakeOutputList(Node *node,List *outputs);
 
 /**************新文法结束***************/
+
+/**************文法优化***************/
+GLOBAL inline Node *MakeIterCount();
+GLOBAL inline Node *MakeIterCountCoord(Coord coord);
 
 GLOBAL Node *LookupCompositeIdsNode(Node *id);
 GLOBAL Node *LookupStreamIdsNode(Node *id);

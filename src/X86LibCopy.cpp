@@ -20,21 +20,90 @@ X86LibCopy::X86LibCopy()
 	makefile_name_ = "Makefile";
 	time_file_name_ = "rdtsc.h";		//获取时钟周期函数
 	setCpu_name_ = "setCpu.h";
-	setCpu_src_name_ = "setCpu.cpp"; // add by mobinsheng 把setCpu函数从头文件提取到源文件，避免了编译错误
+	lsh_header_ = "p-stable_lsh.h";
+	lsh_source_ = "p-stable_lsh.cpp";
 	content_ = NULL;
-	//DSGname = "DSG.h";
-	//DSG YSZ
-	//DSGproducer_file_name = "DSGProducer.h";
-	//DSGconsumer_file_name = "DSGConsumer.h";
 
-	//tinystrh = "tinystr.h";
-	//tinyxmlh = "tinyxml.h";
-	//tinystrcpp = "tinystr.cpp";
-	//tinyxmlcpp = "tinyxml.cpp";
-	//tinyxmlerrorcpp = "tinyxmlerror.cpp";
-	//tinyxmlparsercpp = "tinyxmlparser.cpp";
+	tinystrh = "tinystr.h";
+	tinyxmlh = "tinyxml.h";
+	tinystrcpp = "tinystr.cpp";
+	tinyxmlcpp = "tinyxml.cpp";
+	tinyxmlerrorcpp = "tinyxmlerror.cpp";
+	tinyxmlparsercpp = "tinyxmlparser.cpp";
 }
 
+#ifndef WIN32
+void X86LibCopy::copyfile(const char *dir)
+{	
+	char *tmp = new char[4096];
+	string comLibPath = "";
+	string path = getenv("COSTREAM_LIB");
+
+	printf("comLibPath = %s\n" , comLibPath.c_str());
+
+	if(NoCheckBuffer)	//无边界检查
+	{
+		comLibPath = "noCheckBoundary/";	
+	}
+	else
+	{
+		comLibPath = "CheckBoundary/";	
+	}
+	string str1 = path;
+	str1 += comLibPath;
+	str1 += producer_file_name_;
+	content_ = TextFileRead(str1.c_str());
+	sprintf(tmp,"%s%s",dir,producer_file_name_);
+	TextFileWrite(tmp, content_);
+
+	string str2 = path;
+	str2 += comLibPath;
+	str2 += consumer_file_name_;
+	content_ = TextFileRead(str2.c_str());
+	sprintf(tmp,"%s%s",dir,consumer_file_name_);
+	TextFileWrite(tmp, content_);
+
+	string str3 = path;
+	str3 += comLibPath;
+	str3 += buffer_file_name_;
+	content_ = TextFileRead(str3.c_str());
+	sprintf(tmp,"%s%s",dir,buffer_file_name_);
+	TextFileWrite(tmp, content_);
+
+	string str4 = path;
+	str4 += lock_free_h_;
+	content_ = TextFileRead(str4.c_str());
+	sprintf(tmp,"%s%s",dir,lock_free_h_);
+	TextFileWrite(tmp, content_);
+
+	string str5 = path;
+	str5 += lock_free_c_;
+	content_ = TextFileRead(str5.c_str());
+	sprintf(tmp,"%s%s",dir,lock_free_c_);
+	TextFileWrite(tmp, content_);
+
+	string str6 = path;
+	str6 += Math_name_;
+	content_ =  TextFileRead(str6.c_str());
+	sprintf(tmp,"%s%s",dir,Math_name_);
+	TextFileWrite(tmp, content_);
+	
+	string str7 = path;
+	str7 += time_file_name_;
+	content_ = TextFileRead(str7.c_str());
+	sprintf(tmp,"%s%s",dir, time_file_name_);
+	TextFileWrite(tmp, content_);
+
+	string str9 = path;
+	str9 += setCpu_name_;
+	content_ = TextFileRead(str9.c_str());
+	sprintf(tmp,"%s%s",dir, setCpu_name_);
+	TextFileWrite(tmp, content_);
+
+	delete tmp;
+	tmp = NULL;
+}
+#endif
 
 void X86LibCopy::Run(const char *dir)
 {
@@ -106,8 +175,6 @@ void X86LibCopy::Run(const char *dir)
 	sprintf(tmp,"%s%s",dir, makefile_name_);
 	TextFileWrite(tmp, content_);
 	
-	//XML文件读写，混合编程部分最早的，见实验室论文肖硕 没啥用删了2017/11/13
-	/*
 	string str10 = libDir_;
 	str10 += tinystrh;
 	content_ = TextFileRead(str10.c_str());
@@ -143,23 +210,20 @@ void X86LibCopy::Run(const char *dir)
 	content_ = TextFileRead(str15.c_str());
 	sprintf(tmp,"%s%s",dir, tinyxmlparsercpp);
 	TextFileWrite(tmp, content_);
-	*/
-	/*动态数据流，也没啥用了 2017/11/13
-	string str16 = libDir_;
-	str16 += comLibPath;
-	str16 += DSGname;
-	content_ = TextFileRead(str16.c_str());
-	sprintf(tmp, "%s%s", dir, DSGname);
-	TextFileWrite(tmp, content_);
-	*/
-	// add by mobinsheng 把setCpu函数从头文件提取到源文件，避免了编译错误-begin
-	string str17 = libDir_;
-	str17 += setCpu_src_name_;
-	content_ = TextFileRead(str17.c_str());
-	sprintf(tmp, "%s%s", dir, setCpu_src_name_);
-	TextFileWrite(tmp, content_);
-	// add by mobinsheng 把setCpu函数从头文件提取到源文件，避免了编译错误-end
+	
+	if(1){
+		string str16 = libDir_;
+		str16 += lsh_header_;
+		content_ = TextFileRead(str16.c_str());
+		sprintf(tmp,"%s%s",dir, lsh_header_);
+		TextFileWrite(tmp, content_);
 
+		string str17 = libDir_;
+		str17 += lsh_source_;
+		content_ = TextFileRead(str17.c_str());
+		sprintf(tmp,"%s%s",dir, lsh_source_);
+		TextFileWrite(tmp, content_);
+	}
 	delete tmp;
 	tmp = NULL;
 }

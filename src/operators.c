@@ -86,7 +86,7 @@ GLOBAL OpEntry Operator[MAX_OPERATORS];
 PRIVATE void SET_OP(int i, const char *text, const char *name, int unary, int binary)
 {
   assert(i >= 0 && i < MAX_OPERATORS);
- // assert(Operator[i].text == NULL);  //modify by wangliang
+  assert(Operator[i].text == NULL);
 
   Operator[i].text = text;
   Operator[i].name = name;

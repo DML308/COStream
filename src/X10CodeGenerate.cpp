@@ -1,5 +1,10 @@
 #include "X10CodeGenerate.h"
 
+#ifndef WIN32
+#include <sys/stat.h> 
+#define mkdir(tmp) mkdir(tmp,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+
 using namespace std;
 
 #define  Default_Repeat_Count 10
@@ -39,13 +44,24 @@ X10CodeGenerate::X10CodeGenerate(SchedulerSSG *Sssg, int nCpucore, int buffer_si
 		str1 = dir_.substr(0, pos); 
 
 		if(pos == -1) break; 
+		//else if(i > 0) _mkdir(str1.c_str()); 
+#ifdef WIN32
 		else if(i > 0) _mkdir(str1.c_str()); 
+#else
+		else if(i > 0) mkdir(str1.c_str()); 
+#endif
 		i++; 
 		index = pos + 1; 
 	} 
 
 	string tmp = dir_ + "lib\\";
-	_mkdir(tmp.c_str()); 
+	//_mkdir(tmp.c_str());
+#ifdef WIN32	
+	_mkdir(tmp.c_str());
+#else
+	mkdir(tmp.c_str());
+#endif 
+
 
 	extractDecl = false;
 	isInParam = false;
@@ -872,85 +888,85 @@ string X10CodeGenerate::GetOpType(OpType op)
 	}
 }
 
-////取基本数据成员的类型
-//string X10CodeGenerate::GetPrimDataType(Node *from)
-//{
-//	string type;
-//
-//	switch(from->u.prim.basic){
-//		 case Sshort:
-//		 case Sint:
-//			 type = "Int";;
-//			 break;
-//			 /*Manish 2/3 hack to print pointer constants */
-//		 case Uint:
-//		 case Ushort:
-//			 type = "UInt";;
-//			 break;
-//		 case Slong:
-//			 type = "Long";;
-//			 break;
-//		 case Ulong:
-//			 type = "ULong";;
-//			 break;
-//		 case Float:
-//			 type = "Float";
-//			 break;
-//		 case Double:
-//			 type = "Double";
-//			 break;
-//		 case Char:
-//		 case Schar:
-//		 case Uchar:
-//			type = "Char";
-//			 break;
-//		 default: type = "Any";
-//			break;
-//	}
-//	/*if (from->u.prim.basic >= Uchar && from->u.prim.basic <= Char)
-//	{
-//		type = "Char";
-//	}else if (from->u.prim.basic >= Ushort && from->u.prim.basic <= Int_ParseOnly)
-//	{
-//		type = "Int";
-//	}else if (from->u.prim.basic >= Ulong && from->u.prim.basic <= Slonglong)
-//	{
-//		type = "Long";
-//	}else if (from->u.prim.basic == Float)
-//	{
-//		type = "Float";
-//	}else if(from->u.prim.basic >= Double && from->u.prim.basic <= Longdouble){
-//		type = "Double";
-//	}else if (from->u.prim.basic == string8)
-//	{
-//		type = "String";
-//	}else
-//		type = "Any";*/
-//	return type;
-//}
+//取基本数据成员的类型
+string X10CodeGenerate::GetPrimDataType(Node *from)
+{
+	string type;
+
+	switch(from->u.prim.basic){
+		 case Sshort:
+		 case Sint:
+			 type = "Int";;
+			 break;
+			 /*Manish 2/3 hack to print pointer constants */
+		 case Uint:
+		 case Ushort:
+			 type = "UInt";;
+			 break;
+		 case Slong:
+			 type = "Long";;
+			 break;
+		 case Ulong:
+			 type = "ULong";;
+			 break;
+		 case Float:
+			 type = "Float";
+			 break;
+		 case Double:
+			 type = "Double";
+			 break;
+		 case Char:
+		 case Schar:
+		 case Uchar:
+			type = "Char";
+			 break;
+		 default: type = "Any";
+			break;
+	}
+	/*if (from->u.prim.basic >= Uchar && from->u.prim.basic <= Char)
+	{
+		type = "Char";
+	}else if (from->u.prim.basic >= Ushort && from->u.prim.basic <= Int_ParseOnly)
+	{
+		type = "Int";
+	}else if (from->u.prim.basic >= Ulong && from->u.prim.basic <= Slonglong)
+	{
+		type = "Long";
+	}else if (from->u.prim.basic == Float)
+	{
+		type = "Float";
+	}else if(from->u.prim.basic >= Double && from->u.prim.basic <= Longdouble){
+		type = "Double";
+	}else if (from->u.prim.basic == string8)
+	{
+		type = "String";
+	}else
+		type = "Any";*/
+	return type;
+}
 
 //取数组成员的类型
-//string X10CodeGenerate::GetArrayDataType(Node *node)
-//{
-//	string type;
-//	if (node->typ == Prim) //基本类型
-//	{
-//		type = GetPrimDataType(node);
-//	}
-//	else if (node->typ == Adcl) // 也是个数组则递归查找类型
-//	{
-//		stringstream ss;
-//		ss<<"Array["<<GetArrayDataType(node->u.adcl.type)<<"]";
-//		type = ss.str();
-//	}
-//	else // 如果数组的成员是复杂类型，则有待扩展
-//	{
-//		Warning(1,"this arrayDataType can not be handle!");
-//		type = "Any";// 暂时返回一种通用类型
-//		UNREACHABLE;
-//	}
-//	return type;
-//}
+string X10CodeGenerate::GetArrayDataType(Node *node)
+{
+	string type;
+	if (node->typ == Prim) //基本类型
+	{
+		type = GetPrimDataType(node);
+	}
+	else if (node->typ == Adcl) // 也是个数组则递归查找类型
+	{
+		stringstream ss;
+		ss<<"Array["<<GetArrayDataType(node->u.adcl.type)<<"]";
+		type = ss.str();
+	}
+	else // 如果数组的成员是复杂类型，则有待扩展
+	{
+		Warning(1,"this arrayDataType can not be handle!");
+		type = "Any";// 暂时返回一种通用类型
+		UNREACHABLE;
+	}
+	return type;
+}
 
 //取指针指向的类型
 string X10CodeGenerate::GetPtrDataType(Node *node)

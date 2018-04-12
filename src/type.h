@@ -348,7 +348,8 @@ GLOBAL unsigned long NodeConstantUlongValue(Node *node);
 GLOBAL float         NodeConstantFloatValue(Node *node);
 GLOBAL double        NodeConstantDoubleValue(Node *node);
 GLOBAL const char   *NodeConstantStringValue(Node *node);
-GLOBAL unsigned long NodeConstantIntegralValue(Node *node);
+//GLOBAL unsigned long NodeConstantIntegralValue(Node *node);
+GLOBAL double NodeConstantIntegralValue(Node *node);
 GLOBAL Bool          NodeConstantBooleanValue(Node *node);
 
 GLOBAL void          NodeSetCharValue(Node *node, int i);

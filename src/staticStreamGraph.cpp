@@ -29,6 +29,7 @@ int StaticStreamGraph::GetInitWork(FlatNode *n)
 	else
 		return pos->second;
 }
+
 /*重置ssg结点flatnodes内所有flatnode内的visttimes*/
 void StaticStreamGraph::ResetFlatNodeVisitTimes()
 {
@@ -42,14 +43,59 @@ void StaticStreamGraph::ResetFlatNodeVisitTimes()
 /*重置ssg内flatnode结点内所有flatnode的name值,保持每个flatnode的name都是唯一*/
 void StaticStreamGraph::ResetFlatNodeNames()
 {
-	for (int i=0;i<this->flatNodes.size();i++)
+	for (int i=0;i<flatNodes.size();i++)
 	{
-		stringstream newName;
-		newName<<this->flatNodes[i]->name<<"_"<<i;
-		this->flatNodes[i]->name = newName.str();
+		stringstream ss;
+		string temp;
+		ss<<i;
+		ss>>temp;
+		flatNodes[i]->name = flatNodes[i]->name + "_" + temp;
+		//flatNodes[i]->PreName = flatNodes[i]->PreName + "_" + temp;
 	}
 }
+bool StaticStreamGraph::IsUpBorder(FlatNode *actor)
+{
+	bool flag = false;   //cwb 如果是cpu与gpu的边界结点
+	vector<FlatNode *>::iterator iter1;
+	if (actor->inFlatNodes.size() != 0)
+	{
+		for (iter1 = actor->inFlatNodes.begin(); iter1 != actor->inFlatNodes.end(); ++iter1)
+		{
+			if(actor->GPUPart != (*iter1)->GPUPart)
+			{
+				flag = true;
+				break;
+			}
+		}
+	}
+	return flag;
+}
 
+bool StaticStreamGraph::IsDownBorder(FlatNode *actor)
+{
+	bool flag = false;   //cwb 如果是cpu与gpu的边界结点
+	vector<FlatNode *>::iterator iter1;
+	if (actor->outFlatNodes.size() != 0)
+	{
+		for (iter1 = actor->outFlatNodes.begin(); iter1 != actor->outFlatNodes.end(); ++iter1)
+		{
+			if(actor->GPUPart != (*iter1)->GPUPart)
+			{
+				flag = true;
+				break;
+			}
+		}
+	}
+	return flag;
+}
+
+void StaticStreamGraph::GetPreName()
+{
+	for (int i = 0; i < flatNodes.size(); i++)
+	{
+		flatNodes[i]->PreName = flatNodes[i]->name;
+	}
+}
 
 void StaticStreamGraph::GenerateFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite)
 {
@@ -88,15 +134,6 @@ void StaticStreamGraph::GenerateFlatNodes(operatorNode *u, compositeNode *oldCom
 		dest->AddInEdges(src);
 	}
 }
-
-void StaticStreamGraph::GetPreName()
-{
-	for (int i = 0; i < flatNodes.size(); i++)
-	{
-		flatNodes[i]->PreName = flatNodes[i]->name;
-	}
-}
-
 
 FlatNode * StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,FlatNode *oldFlatNode)
 {//20120917 zww 添加
@@ -363,7 +400,7 @@ void StaticStreamGraph::SetFlatNodesWeights()
 						}
 							
 					}
-					else if(nodeType==Tumbling)// tumbling window
+					else // tumbling window
 					{
 						val = GetValue(item->u.window.wtype->u.tumbling.tumbling_value);
 						flatNode->inPeekWeights[j] = val->u.Const.value.i;
@@ -374,40 +411,21 @@ void StaticStreamGraph::SetFlatNodesWeights()
 						//flatNode->inPeekString[j] = val->u.Const.value.i;
 						//flatNode->inPopString[j] = flatNode->inPeekWeights[j];
 					}
-
 				}
 				else // 说明该window指示的是push值
 				{
 					int total = mapEdge2DownFlatNode.count(type); // 该map为multimap，所以会有多个对应值，要逐一查找
-					NodeType nodeType = item->u.window.wtype->typ;
-					if (nodeType == Tumbling)
+
+					val = GetValue(item->u.window.wtype->u.tumbling.tumbling_value);
+					posMulti = mapEdge2DownFlatNode.find(type);
+					for(int k = 0; k < total ; k++)
 					{
-						val = GetValue(item->u.window.wtype->u.tumbling.tumbling_value);
-						posMulti = mapEdge2DownFlatNode.find(type);
-						for (int k = 0; k < total; k++)
-						{
-							dest = posMulti->second;
-							for (j = 0; dest != flatNode->outFlatNodes[j]; j++);
-							flatNode->outPushWeights[j] = val->u.Const.value.i;
-							//flatNode->outPushString[j] = val->u.Const.value.i;
-							posMulti++;
-						}
+						dest = posMulti->second;
+						for(j = 0; dest != flatNode->outFlatNodes[j]; j++);
+						flatNode->outPushWeights[j] = val->u.Const.value.i;
+						//flatNode->outPushString[j] = val->u.Const.value.i;
+						posMulti++;
 					}
-					else
-					{
-						val = NULL;
-						posMulti = mapEdge2DownFlatNode.find(type);
-						for (int k = 0; k < total; k++)
-						{
-							dest = posMulti->second;
-							for (j = 0; dest != flatNode->outFlatNodes[j]; j++);
-							flatNode->outPushWeights[j] = 0;
-							//flatNode->outPushString[j] = val->u.Const.value.i;
-							posMulti++;
-						}
-					}
-					
-					
 				}
 			}
 		}

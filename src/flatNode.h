@@ -70,6 +70,9 @@ public:
 	// opeator在ssg的flatnodes中的顺序编号
 	int num;
 
+	// opeator是否生成缓存化类型
+	bool memorizedNode;
+
 	//GPU节点划分时专用变量 cwb
 	int GPUPart;
 	bool BorderFlag;

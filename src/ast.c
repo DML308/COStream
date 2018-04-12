@@ -1472,18 +1472,7 @@ GLOBAL inline Node *MakeWindowTumbingCoord(TypeQual tq, Node *tumbling_value, Co
 
 	return(create);
 }
-GLOBAL inline Node*MakeWindowUncertainty(TypeQual tq, Node*uncertainty_value)
-{
-	Node*create = NewNode(Uncertainty);
-	create->u.uncertainty.tq = tq;
-	create->u.uncertainty.uncertainty_value = uncertainty_value;
-}
-GLOBAL inline Node*MakeWindowUncertaintyCoord(TypeQual tq, Node*uncertainty_value, Coord coord)
-{
-	Node*create = MakeWindowUncertainty(tq, uncertainty_value);
-	create->coord = coord;
-	return (create);
-}
+
 GLOBAL inline Node *MakeWindow(Node *id, Node *wtype)
 {
 	Node *create = NewNode(Window);
@@ -1672,6 +1661,19 @@ GLOBAL inline Node *MakeAddCoord(Node *content,Coord coord)
 	return(create);
 }
 
+GLOBAL inline Node *MakeIterCount()
+{
+	Node *create = NewNode(Itco);
+	create->u.itco.text = "_iterator_count";
+	return(create);
+}
+GLOBAL inline Node *MakeIterCountCoord(Coord coord)
+{
+	Node *create = MakeIterCount();
+	create->coord = coord;
+	return(create);
+}
+
 GLOBAL inline Node *MakeOutput(Node *node,Node *output)
 {
 	if(node->typ == Pipeline){
@@ -1732,12 +1734,6 @@ PRIVATE inline Kinds KindsOfSliding()
 
 PRIVATE inline Kinds KindsOfTumbling()
 {return KIND_STMT;}
-/*DSG*/
-PRIVATE inline Kinds KindsOfUncertainty()
-{
-	return KIND_STMT;
-}
-
 
 /*------------7--New For SPL----------*/
 PRIVATE inline Kinds KindsOfCompositeCall()
@@ -1988,9 +1984,7 @@ GLOBAL Node *NodeCopy(Node *from, TreeOpDepth d)  //zww
 	case Operator_: break;      
 	case Window:  break;       
 	case Sliding:  break;  
-	case Tumbling: break;
-		/*DSG*/
-	case Uncertainty:break;
+	case Tumbling: break;   
 		/*--------------New For SPL----------*/
 	case CompositeCall:	break;
 	case Pipeline: 	newNode->u.pipeline.decl=ListCopy(newNode->u.pipeline.decl);newNode->u.pipeline.stmts=ListCopy(newNode->u.pipeline.stmts);break;	

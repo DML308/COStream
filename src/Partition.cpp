@@ -13,12 +13,15 @@ int Partition::getParts(){
 	return this->mnparts;
 }
 //设置place数目（即进程数目）
-
 void Partition::setCpuCoreNum(int nplaces,SchedulerSSG *sssg)
 {
 	this->mnparts = 2;
-	if (nplaces != 0){//modify by wangliang
-		mnparts = nplaces;
+	if(nplaces != 0){
+		vector<FlatNode *> tmp = sssg->GetFlatNodes();
+		if(nplaces > tmp.size())
+			this->mnparts = tmp.size();//如果图中结点数少于place数目，则取结点数目即可
+		else
+			mnparts = nplaces;
 	}
 }
 //根据flatnode找到其下标号 如source_0中的0

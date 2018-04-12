@@ -1,4 +1,5 @@
 #include "MetisPartiton.h"
+#include "3rdpart/include/metis.h"
 
 using namespace std;
 
@@ -25,14 +26,12 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 	mncon=1;
 }
 
-
  void  MetisPartiton::SssgPartition(SchedulerSSG *sssg , int level)
 {
 	assert(level==1);
 	nvtxs=sssg->GetFlatNodes().size();
-	if(this->mnparts ==1 )
-	{//如果只有一个place则不作划分
-		if (X86Backend || DynamicX86Backend)
+	if(this->mnparts ==1 ){//如果只有一个place则不作划分
+		if (X86Backend)
 		{
 			for (int i=0;i<nvtxs;i++)
 				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//建立节点到划分编号的映射
@@ -67,7 +66,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 		
 
 #if 1 //打印图
-		//DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
+		DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
 #endif
 
 		return;
@@ -93,12 +92,10 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 		int flag=0;//保证sum只加一次
 		int sum=0;
 		sum+=xadj[i];             
-		if (sssg->GetFlatNodes()[i]->nOut!=0&&(i!=sssg->flatNodes.size()-1)){  /*YSZ增加判断条件2*/
+		if (sssg->GetFlatNodes()[i]->nOut!=0){  
 			flag=1;
 			xadj[i+1]=sum+sssg->GetFlatNodes()[i]->nOut;
 			for (int j=0;j<sssg->GetFlatNodes()[i]->nOut;j++){
-				
-				
 			  adjncy[k]=findID(sssg,sssg->GetFlatNodes()[i]->outFlatNodes[j]);
 			  adjwgt[k]=sssg->GetFlatNodes()[i]->outPushWeights[j]*sssg->GetSteadyCount(sssg->GetFlatNodes()[i]);
 			  vsize[i]+=adjwgt[k];
@@ -106,7 +103,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 			}
 		}
 		// cout<<"here"<<endl;
-		if (sssg->GetFlatNodes()[i]->nIn != 0&&i!=0){			/*YSZ增加判断条件2*/
+		if (sssg->GetFlatNodes()[i]->nIn!=0){
 			if (flag==0){
 				xadj[i+1]=sum+sssg->GetFlatNodes()[i]->nIn;
 			}else{
@@ -127,7 +124,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 
 		//cout<<(sssg->GetFlatNodes())[i]->name<<endl;
 		 // cout<<iter->second<<endl;;
-		if (X86Backend || DynamicX86Backend)
+		if (X86Backend)
 		{
 			vwgt[i]=sssg->GetSteadyCount(sssg->GetFlatNodes()[i])*iter->second;
 		}
@@ -154,7 +151,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 	mvwgt=&vwgt[0];
 
 	METIS_PartGraphKway(&nvtxs,&mncon,mxadj,madjncy,mvwgt,mvsize,madjwgt,&mnparts,tpwgts,ubvec,options,&objval,mpart);
-	if (X86Backend || DynamicX86Backend)
+	if (X86Backend)
 	{
 		for (int i=0;i<nvtxs;i++){
 			//cout<<part[i]<<endl;
@@ -185,8 +182,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 	cout<<"The total communication volume or edge-cut of the solution is:"<<objval<<endl;
 
 #if 1 //打印图
-	
-	//DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
+	DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
 #endif
 }
 

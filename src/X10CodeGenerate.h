@@ -3,7 +3,6 @@
 
 #include "schedulerSSG.h"
 #include "X10LibCopy.h"
-#include "ActorEdgeInfo.h"
 
 //生成多个文件，包括接口，actor类，主控程序
 class X10CodeGenerate
@@ -60,9 +59,9 @@ public:
 
 public:
 	void OutputToFile(std::string, std::string);//输出到文件
-	//string GetPrimDataType(Node *);
-	//string GetNodeDataType(Node *);
-	//string GetArrayDataType(Node *);
+	string GetPrimDataType(Node *);
+	string GetNodeDataType(Node *);
+	string GetArrayDataType(Node *);
 	string GetPtrDataType(Node *);
 	string GetArrayDim(Node *);
 	string GetDataInitVal(string );
@@ -142,7 +141,6 @@ private:
 	void SPL2X10_Window(Node *node, windowNode *u, int offset) { }
 	void SPL2X10_Sliding(Node *node, slidingNode *u, int offset) { }
 	void SPL2X10_Tumbling(Node *node, tumblingNode *u, int offset) { }
-	void SPL2X10_Uncertainty(Node*node, uncertaintyNode*u, int offset){}
 	/*****--------------New For SPL----------*****/
 	void SPL2X10_CompositeCall(Node *node, comCallNode *u, int offset) { }
 	void SPL2X10_Pipeline(Node *node, PipelineNode *u, int offset) { }

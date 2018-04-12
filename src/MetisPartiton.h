@@ -12,7 +12,6 @@ public:
 	MetisPartiton(int objtype=-1,int contig=1);
 	~MetisPartiton();
 	void SssgPartition(SchedulerSSG *sssg , int level);//利用metis进行划分
-	
 	void metisPartition(int nvtx,int mncon,int *mxadj,int *madjncy,int *mvwgt,int *mvsize,int *madjwgt,int mnparts,float *tpwgts,float *ubvec,int objval,int *mpart);//zww 20120924 添加
 private:
 	//束调度（BS）metis会需要用到的成员变量
@@ -34,6 +33,5 @@ extern "C"
 {
 	extern GLOBAL Bool X86Backend;
 	extern GLOBAL Bool GPUBackend;
-	extern GLOBAL Bool DynamicX86Backend;
 };
 #endif 

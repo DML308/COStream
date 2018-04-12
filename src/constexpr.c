@@ -175,7 +175,8 @@ GLOBAL const char *NodeConstantStringValue(Node *node)
   return val->u.Const.value.s;
 }
 
-GLOBAL unsigned long NodeConstantIntegralValue(Node *node)
+//GLOBAL unsigned long NodeConstantIntegralValue(Node *node)
+GLOBAL double NodeConstantIntegralValue(Node *node)
 {
   Node *val = NodeGetConstantValue(node);
   Node *type = NodeDataType(val);
@@ -189,10 +190,12 @@ GLOBAL unsigned long NodeConstantIntegralValue(Node *node)
     case Uint:   return val->u.Const.value.u;
     case Slong:  return val->u.Const.value.l;
     case Ulong:  return val->u.Const.value.ul;
-#if 0
-    case Float:  return val->u.Const.value.f;
-    case Double: return val->u.Const.value.d;
-#endif
+	case Float:  return val->u.Const.value.f;
+	case Double: return val->u.Const.value.d;
+//#if 0
+//    case Float:  return val->u.Const.value.f;
+//    case Double: return val->u.Const.value.d;
+//#endif
     default:     break;
     }
   }

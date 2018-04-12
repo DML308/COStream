@@ -21,8 +21,7 @@
 #define INIT 0
 #define STEADY 1
 #define STREAM_OP 20
-#define PRINTLN_OP 60 // modify by wangliang
-#define FRTA_OP 60 // modify by wangliang
+#define PRINTLN_OP -60 
 int totalWork = 0;
 Bool isSTREAM = 0;
 Bool state;

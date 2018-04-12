@@ -5,12 +5,20 @@
 #include "ActorStageAssignment.h"
 #include "MetisPartiton.h"
 #include "GPULibCopy.h"
-#include "stdio.h"
-#include "set"
+#include <iostream>
+//#include <io.h>
+#include <cstdio>
+#include <cstdlib>
+//#include <direct.h>
+#include <cstring>
+#include <map>
+#include <set>
 #include <stack>
 #include "GPUClusterPartition.h"
-#include "MAFLPartition.h"
+#include "HAFLPartition.h"
 #include "ActorEdgeInfo.h"
+#include "TemplateClass.h"
+#include "DNBPartition.h"
 //#include "process.h"
 using namespace std;
 /***************************************************/
@@ -22,12 +30,12 @@ class GPUCodeGenerate
 {
 public:
 	/******************构造函数******************/
-	GPUCodeGenerate(SchedulerSSG *, int, int, const char *,StageAssignment *,MAFLPartition*);
+	GPUCodeGenerate(SchedulerSSG *, int, int, const char *,StageAssignment *,HAFLPartition*,TemplateClass*,string,DNBPartition*);
 	/********************************************/
 	void OutputToFile(std::string, std::string);//输出到文件
-	//string GetPrimDataType(Node *);
-	//string GetNodeDataType(Node *);
-	//string GetArrayDataType(Node *);
+	string GetPrimDataType(Node *);
+	string GetNodeDataType(Node *);
+	string GetArrayDataType(Node *);
 	string GetArrayDim(Node *);
 	string GetDataInitVal(string );
 	void GetArrayDataInitVal(Node *, stringstream &);
@@ -37,7 +45,7 @@ public:
 	void AdclInit(Node * from,int offset);
 	/***********************************************/
 	void CGactors(); // 生成各个actor程序
-	void CGactor(FlatNode *actor, OperatorType ot);//生成指定actor程序
+	void CGactor(FlatNode *actor,string name, OperatorType ot);//生成指定actor程序
 	void CGwork(FlatNode *actor, OperatorType ot, stringstream &);
 	/***********************************************/
 	void OutputCRSpaceAndTabs(int );
@@ -76,7 +84,7 @@ public:
 	void CGdeclList(FlatNode *actor, OperatorType ot, stringstream &);
 	void CGinitVarAndState(FlatNode *actor, OperatorType ot, stringstream &);
 	void CGlogicInit(FlatNode *actor, OperatorType ot, stringstream &, stringstream &);
-	void CGthis(FlatNode *actor, OperatorType ot, stringstream &);
+	void CGthis(FlatNode *actor, OperatorType ot, stringstream &,string);
 	void CGEdgeParam(FlatNode *actor,stringstream &);
 	/********************************************/
 	void CGGlobalvar(); // 生成全局变量
@@ -88,6 +96,7 @@ public:
 	void CGThreads();//生成所有线程文件
 	void CGThread(int,stringstream&);
 	void CGdatatag(FlatNode *,stringstream &);//为分配在GPU上的Actor生成读写标志
+	void CGCreateBuffer(FlatNode *,stringstream &);//cwb为actor创建GPU空间
 	void CGdatataginit(FlatNode *,stringstream &);//在构造函数中对上述标志位进行初始化
 	void InitBufferSize();//往Edge2Buffersize中填数据
 	void SetMultiNum();//自动设置扩大因子
@@ -112,17 +121,23 @@ public:
 	string ReturnTypeOfEdgestr(string typestr);
 	string ReturnNameOfTheEdge(string searchstring);//返回边的名称
 	int ReturnNumBiger(int size);//返回比size大的最小的数，该数是2的幂级数
-	bool IsUpBorder(FlatNode *);   //cwb判断父结点是否有边界结点
-	bool IsDownBorder(FlatNode *); //cwb判断子结点是否有边界结点
 	bool DataDependence(FlatNode *,FlatNode *); //cwb判断两个actor间数据依赖关系，peek>pop
 	bool ExistDependence(FlatNode *); //cwb判断该actor中存在peek>pop
 private:
+	string BenchmarkName;
 	StageAssignment *pSa;
-	MAFLPartition *Maflp;
+	HAFLPartition *Haflp;
 	//MetisPartiton *pPp;
 	//GPUClusterPartition *pPp;
-	SchedulerSSG *sssg_;	
+	SchedulerSSG *sssg_;
+	TemplateClass *Tc;
+	DNBPartition *Dnbp;
 	std::vector<FlatNode *> flatNodes_;
+	std::vector<FlatNode *> vTemplateNode_; //chenwenbin 20140724 存储所有模板结点
+	std::vector<std::string> vTemplateName_; //chenwenbin 记录每个模板类的名字
+	std::map<FlatNode *,std::string> mapFlatnode2Template_; //chenwenbin 存放flatnode对应的模板类
+	int nTemplateNode_;  //cwb
+	ActorEdgeInfo* pEdgeInfo;//存放各个边的类型信息
 	map<string,string> mapOperator2EdgeName;
 	int nGpu_;
 	int nActors_;
@@ -144,9 +159,9 @@ private:
 	map<int,set<int> > mapNum2Stage;//处理器编号到stage的对应关系
 	multimap<string,string> mapedge2xy;//存放各边的类型
 	multimap<string,string> mapedge2xy2;//mapedge2xy的副本
-	map<map<FlatNode *,FlatNode *>,map<string,string>>edge2nameandtype;//存储边的类型,前面两个FlatNode表示结点，第一个string表示该边对应的结构体包含变量的类型如double，第二个string表示其名称如x
+	map<map<FlatNode *,FlatNode *>,map<string,string> > edge2nameandtype;//存储边的类型,前面两个FlatNode表示结点，第一个string表示该边对应的结构体包含变量的类型如double，第二个string表示其名称如x
 	map<string,string>nameandtypeofedge;//边的名称以及类型,目前只支持单个类型，不支持数组和结构体
-	map<string,map<string,string>>edgestrnameandtype;//
+	map<string,map<string,string> > edgestrnameandtype;//
 	map<string,string>edge2name;//存储边与其名称的对应关系
 	map<string,string>allnameandtype;//用于存储所有的边的名称和类型，主要作用是生成globalheader中的自定义结构体
 	//map<string,string> mapStruct2Struct;//存放每个operate的struct的映射
@@ -154,22 +169,22 @@ private:
 	vector<string> ptrname;//用于存放每个actor中动态生成的数组的名称，以便于后面的delete操作
 	vector<string> ptrtype;//用于存放与上面vector对应参数的类型
 	multimap<string,string>ptrdim;//用于保存与上面对应的数组的位数
-	multimap<FlatNode *,map<string,string>>actor2ptr;//用于存放所有的actor中动态生成的数组参数信息
+	multimap<FlatNode *,map<string,string> > actor2ptr;//用于存放所有的actor中动态生成的数组参数信息
 	vector<string> kernelparam;//用于存放传给每个actor的kernel的参数，此参数不包括边以及读写标志，目前仅仅包括每个actor的logic state部分的参数
 	vector<string> kernelparamtype;//与上面的数组对应，记录了参数的类型
-	map<FlatNode *,vector<string>>Actor2KernelPar;//用于存放传给每个actor与其kernel的参数映射关系
-	map<FlatNode *,vector<string>>Actor2KernelParType;//用于存放传给每个actor与其kernel的参数类型映射关系
-	map<FlatNode*,vector<string>>OutbufferOfActor;//用于存放每个actor输出buffer
-	map<FlatNode*,vector<string>>InbufferOfActor;//用于存放每个actor中为输入actor在CPU上时创建的输入buffer
+	map<FlatNode *,vector<string> >Actor2KernelPar;//用于存放传给每个actor与其kernel的参数映射关系
+	map<FlatNode *,vector<string> >Actor2KernelParType;//用于存放传给每个actor与其kernel的参数类型映射关系
+	map<FlatNode*,vector<string> >OutbufferOfActor;//用于存放每个actor输出buffer
+	map<FlatNode*,vector<string> >InbufferOfActor;//用于存放每个actor中为输入actor在CPU上时创建的输入buffer
 	map<map<FlatNode*,FlatNode*>,string>BufferNameOfEdge;//用于存放结点之间边的名称
 	map<int,int>thread2queue;//将线程号映射到队列号
 	string structdatatype;//结构体中数据(x,y)的类型
-	multimap<FlatNode *,map<string,map<string,string>>>alllocalvariable;//用于存储所有actor动态生成的局部数组
-	multimap<FlatNode *,map<string,map<string,string>>>allstaticvariable;//用于存储所有actor的静态变量
-	vector<map<string,map<string,string>>>staticvariable,staticvariablefinal;//用于存储actor的静态变量，第一个string参数是变量名，第二个map中：若参数为二维数组则string存储其维数，为一维数组则第二个string为0，为常数则两个string都为0
+	multimap<FlatNode *,map<string,map<string,string> > >alllocalvariable;//用于存储所有actor动态生成的局部数组
+	multimap<FlatNode *,map<string,map<string,string> > >allstaticvariable;//用于存储所有actor的静态变量
+	vector<map<string,map<string,string> > >staticvariable,staticvariablefinal;//用于存储actor的静态变量，第一个string参数是变量名，第二个map中：若参数为二维数组则string存储其维数，为一维数组则第二个string为0，为常数则两个string都为0
 	vector<string>staticvartype,staticvartypefinal;//用于存储与上面map对应的参数的类型
-	multimap<FlatNode *,vector<string>>allstatictype;
-	vector<map<string,map<string,string>>>globalvariable,globalvariablefinal;//同上
+	multimap<FlatNode *,vector<string> >allstatictype;
+	vector<map<string,map<string,string> > >globalvariable,globalvariablefinal;//同上
 	vector<string>globalvartype,globalvartypefinal;//同上
 	set<string>array2Dname,array2Dnamefinal;//将static和global中的二维数组名称存储起来，用于kernel的生成
 	set<string>array1Dname,array1Dnamefinal;//
@@ -246,7 +261,6 @@ private:
 	void SPL2GPU_Join(Node *node, joinNode *u, int offset) { }
 	void SPL2GPU_RoundRobin(Node *node, roundrobinNode *u, int offset) { }
 	void SPL2GPU_Duplicate(Node *node, duplicateNode *u, int offset) { }
-	void SPL2GPU_Uncertainty(Node*node, uncertaintyNode *u, int offset){}
 	//void SPL2GPU_StreamFor(Node *node, StreamForNode *u, int offset) { }
 	//void SPL2GPU_StreamIf(Node *node, StreamIfNode *u, int offset) { }
 	//void SPL2GPU_StreamIfElse(Node *node, StreamIfElseNode *u, int offset) { }
@@ -269,6 +283,8 @@ extern "C"
 	extern GLOBAL Bool TimeCount;
 	extern GLOBAL int Comm_num;
 	extern GLOBAL Bool PrintTime;
+	extern GLOBAL Bool TimeofEverycore;
 	extern GLOBAL int NCpuThreads;
+	extern GLOBAL Bool DNBPFlag;
 };
 #endif

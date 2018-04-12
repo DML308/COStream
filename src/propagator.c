@@ -1,9 +1,9 @@
 #include"propagator.h"
 
 
-
 List *DeclArrayListInWork = NULL;//用于在work中构造对数组各个元素的赋值语句（该数组的定义一般在param，var中）
-
+extern operatorNode *tempoperatornode;
+GLOBAL Bool DimFlag = FALSE; //cwb 标识param变量是否是数组空间维度
 GLOBAL List *gfrtaCallList = NULL;//用于frta调用
 
 GLOBAL  Node *GetValue(Node *node)
@@ -809,11 +809,6 @@ PRIVATE inline FlowValue TransformDecl(Node *node, FlowValue v)
 		if(IsScalarType(NodeDataType(node))&& (sc != T_TYPEDEF )&&(!IsSueType(NodeDataType(node))))
 		{
 			return InitDeclNode(node, v);
-		}
-		if (!IsScalarType(NodeDataType(node)) && sc == T_TYPEDEF && IsSueType(NodeDataType(node))) //对结构体类型重定义，typedef
-		{
-			node->typ = Tdef; //更新节点类型
-			return InsertSUEdecltoFlow(node, v);
 		}
 		else if(node->u.decl.type->typ == Adcl)
 		{
@@ -2161,7 +2156,7 @@ GLOBAL List *PropagateProgram(List *program)
 	ListMarker marker;
 	Node *item = NULL;
 	propagatorNode *pNode = HeapNew(propagatorNode);
-	gDeclList = NULL;//将全局声明重置为空 add by wangliang
+
 #ifdef SPL_DEBUG
 	printf("\n-----------------------------DataFlow Module-----------------------------\n");
 #endif
@@ -2175,19 +2170,13 @@ GLOBAL List *PropagateProgram(List *program)
 
 	IterateList(&marker, program);
 	//将全局变量加入数据流并加入到gDeclList中，将全局函数定义加入到gProcList中
-	while (NextOnList(&marker, (GenericREF)&item))
+	while (NextOnList(&marker, (GenericREF) &item))
 	{
-		if (item->typ == Decl && (IsScalarType(NodeDataType(item)) || item->u.decl.type->typ == Adcl || item->u.decl.type->typ == Sdcl ||
-			item->u.decl.type->typ == Udcl || item->u.decl.type->typ == Edcl || item->u.decl.type->typ == Tdef || item->u.decl.type->typ == Fdcl
+		if (item->typ == Decl && (IsScalarType(NodeDataType(item)) || item->u.decl.type->typ == Adcl || item->u.decl.type->typ == Sdcl || item->u.decl.type->typ == Tdef
 			))
-		{
+		{ 
 			//变量是全局的则将其加入到数据流中
 			initflow.u.ptr = (TransformDecl(item, initflow)).u.ptr;
-			gDeclList = JoinLists(gDeclList, MakeNewList(item));
-		}
-		if (item->typ == Sdcl || item->typ == Udcl || item->typ == Edcl)//用于输出struct定义到Globar.h中
-		{
-			//initflow.u.ptr = (TransformDecl(item, initflow)).u.ptr;
 			gDeclList = JoinLists(gDeclList, MakeNewList(item));
 		}
 		if (item->typ == Proc)
@@ -2228,22 +2217,91 @@ void RWV_astwalk(Node *n,FlowValue v)
 	case Const:         break; 
 	case Id:		  {
 						constIdNode *cn= FindIdNode(n->u.id.decl,v);
+						paramList *temp = NULL,*p = NULL,*temp2 = NULL;
 						Node *id_value = NULL;
 						if (cn==NULL) break;
-						id_value=GetValue(cn->n->u.id.value);
+						//cwb 将param常量与operator绑定，但在代码生成时不进行传播
+						id_value = GetValue(cn->n->u.id.value);
 						n->u.id.value = id_value;
-						if(id_value!=NULL&&id_value->typ == Const)
-						{//直接将用id的value替换原来的id节点 zww-20120314
-							n->typ = Const;
-							n->u.Const.type=id_value->u.Const.type;
-							n->u.Const.text=NULL;
-							n->u.Const.value.d=id_value->u.Const.value.d;
-							n->u.Const.value.f=id_value->u.Const.value.f;
-							n->u.Const.value.s=id_value->u.Const.value.s;
-							n->u.Const.value.ul=id_value->u.Const.value.ul;
-							n->u.Const.value.u=id_value->u.Const.value.u;
-							n->u.Const.value.l=id_value->u.Const.value.l;
-							n->u.Const.value.i=id_value->u.Const.value.i;
+						if (!DimFlag)
+						{
+							temp = (paramList *)malloc(sizeof(paramList));
+							temp->paramnode = n;
+							temp->next = NULL;
+							p = tempoperatornode->params;
+							if(p == NULL)
+							{
+								tempoperatornode->params = temp;
+								tempoperatornode->paramSize = 1;
+							}
+							else
+							{
+								while(p != NULL)
+								{
+									if(p->paramnode->u.id.text == temp->paramnode->u.id.text)
+									{
+										free(temp);
+										break;
+									}
+									else
+									{
+										if(p->next != NULL)
+											p = p->next;
+										else
+										{
+											p->next = temp;
+											tempoperatornode->paramSize++;
+											break;
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							temp2 = (paramList *)malloc(sizeof(paramList));
+							temp2->paramnode = n;
+							temp2->next = NULL;
+							p = tempoperatornode->dimParams;
+							if(p == NULL)
+							{
+								tempoperatornode->dimParams = temp2;
+							}
+							else
+							{
+								while(p != NULL)
+								{
+									if(p->paramnode->u.id.text == temp2->paramnode->u.id.text)
+									{
+										free(temp2);
+										break;
+									}
+									else
+									{
+										if(p->next != NULL)
+											p = p->next;
+										else
+										{
+											p->next = temp2;
+											break;
+										}
+									}
+								}
+							}
+							if(id_value!=NULL&&id_value->typ == Const)
+							{//直接将用id的value替换原来的id节点 zww-20120314
+								n->typ = Const;
+								n->u.Const.type=id_value->u.Const.type;
+								n->u.Const.text=NULL;
+								n->u.Const.value.d=id_value->u.Const.value.d;
+								n->u.Const.value.f=id_value->u.Const.value.f;
+								n->u.Const.value.s=id_value->u.Const.value.s;
+								n->u.Const.value.ul=id_value->u.Const.value.ul;
+								n->u.Const.value.u=id_value->u.Const.value.u;
+								n->u.Const.value.l=id_value->u.Const.value.l;
+								n->u.Const.value.i=id_value->u.Const.value.i;
+							}
+							DimFlag = FALSE;
 						}
 						break;
 					   }
@@ -2287,52 +2345,86 @@ void RWV_astwalk(Node *n,FlowValue v)
 	case Comma:         if ((n)->u.comma.exprs) {RWV_listwalk((n)->u.comma.exprs,v);} break; 
 	case Array:         
 		{
-			Node *tmpCGNode = NULL;
-			while (n->u.array.name->typ == Binop)
+			Node *tmpCGNode=NULL; // 13-5-20 YQJ 结构体的成员中含有数组时作为临时结点
+			if(n->u.array.name->typ == Binop)
 			{
 				tmpCGNode = n->u.array.name;
-				 n->u.array.name = n->u.array.name->u.binop.left;
-			 }
-			if (FindItem(DeclArrayListInWork,n->u.array.name->u.id.decl) == NULL && NodeDeclLocation(n->u.array.name->u.id.decl)!=T_TOP_DECL)
-			{
-				Node *arrayDecl = NULL;
-				Node *init = NewNode(Initializer);//定义一个数组初始化的节点；
-				constArrayNode *tmpNode = NULL;
-				List *list = ((propagatorNode*)(v.u.ptr))->arrayFlowList;
-				char *name = n->u.array.name;
-				Node *decl = NULL;
-				int i;
-				Node *dtype = NULL;
-				tmpNode=FindArrayNode(n,v);//在数据流中查找
-				if(tmpNode!=NULL) 
-				{
-					arrayDecl = NodeCopy(n->u.array.name->u.id.decl,Subtree);
-					dtype = NodeDataType(arrayDecl->u.decl.type);
-					decl = arrayDecl;
-					assert(arrayDecl->typ == Decl);
-					for(i = 0;i<tmpNode->num;i++)
-					{
-						if (tmpNode->element[i] == NULL){//数组默认初值为0 add by wangliang
-							tmpNode->element[i] = MakeConstSint(0);
-						}
-						assert(tmpNode->element[i]!=NULL);
-						init->u.initializer.exprs = AppendItem(init->u.initializer.exprs, tmpNode->element[i]);					
-					}
-					assert(init);
-					assert(init->typ == Initializer);
-					assert(ListLength(init->u.initializer.exprs)==tmpNode->num);
-					arrayDecl->u.decl.prim_init= NodeCopy(init,NodeOnly);
-					arrayDecl->u.decl.init = SemCheckInitList(arrayDecl, dtype, NodeCopy(arrayDecl->u.decl.prim_init,NodeOnly), TRUE);
-					DeclArrayListInWork = AppendItem(DeclArrayListInWork,arrayDecl);
-				}
+				n->u.array.name = n->u.array.name->u.binop.left;
+			//	RWV_astwalk(n->u.array.name, v);
 			}
+			else
+			{
+				if (FindItem(DeclArrayListInWork,n->u.array.name->u.id.decl) == NULL && NodeDeclLocation(n->u.array.name->u.id.decl)!=T_TOP_DECL)
+				{
+					Node *arrayDecl = NULL;
+					Node *init = NewNode(Initializer);//定义一个数组初始化的节点；
+					constArrayList *p = NULL,*temp = NULL;
+					constArrayNode *tmpNode = NULL;
+					List *list = ((propagatorNode*)(v.u.ptr))->arrayFlowList;
+					char *name = n->u.array.name;
+					Node *decl = NULL;
+					int i;
+					Node *dtype = NULL;
+					tmpNode=FindArrayNode(n,v);//在数据流中查找
+					if(tmpNode!=NULL) 
+					{
+						arrayDecl = NodeCopy(n->u.array.name->u.id.decl,Subtree);
+						dtype = NodeDataType(arrayDecl->u.decl.type);
+						decl = arrayDecl;
+						assert(arrayDecl->typ == Decl);
+						for(i = 0;i<tmpNode->num;i++)
+						{
+							assert(tmpNode->element[i]!=NULL);
+							init->u.initializer.exprs = AppendItem(init->u.initializer.exprs, tmpNode->element[i]);					
+						}
+						assert(init);
+						assert(init->typ == Initializer);
+						assert(ListLength(init->u.initializer.exprs)==tmpNode->num);
+						//cwb 初始化数组成operator绑定
+						temp = (constArrayList *)malloc(sizeof(constArrayList));
+						temp->arraynode = init;
+						temp->next = NULL;
+						p = tempoperatornode->ArrayInit;
+						if(p == NULL)
+						{
+							tempoperatornode->ArrayInit = temp;
+						}
+						else
+						{
+							while(p != NULL)
+							{
+								if(p->arraynode == temp->arraynode)
+								{
+									free(temp);
+									break;
+								}
+								else
+								{
+									if(p->next != NULL)
+										p = p->next;
+									else
+									{
+										p->next = temp;
+										break;
+									}
+								}
+							}
+						}
+						arrayDecl->u.decl.prim_init= NodeCopy(init,NodeOnly);
+						arrayDecl->u.decl.init = SemCheckInitList(arrayDecl, dtype, NodeCopy(arrayDecl->u.decl.prim_init,NodeOnly), TRUE);
+						DeclArrayListInWork = AppendItem(DeclArrayListInWork,arrayDecl);
+					}
+				}
 
-			if((n)->u.array.type) {RWV_astwalk((n)->u.array.type,v);}
-			if((n)->u.array.name) {RWV_astwalk((n)->u.array.name,v);}
-			if(n->u.array.dims) {RWV_listwalk(n->u.array.dims,v);}		
-			TransformArray(n,v);			
-				 
-			
+				if((n)->u.array.type) {RWV_astwalk((n)->u.array.type,v);}
+				if((n)->u.array.name) {RWV_astwalk((n)->u.array.name,v);}
+				if(n->u.array.dims) {RWV_listwalk(n->u.array.dims,v);}		
+				TransformArray(n,v);			
+				if(tmpCGNode !=NULL){
+					tmpCGNode->u.binop.left = n->u.array.name;
+					n->u.array.name = tmpCGNode;
+				} 
+			}
 			break;
 		}
 	case Call:           
@@ -2348,15 +2440,18 @@ void RWV_astwalk(Node *n,FlowValue v)
 	case IfElse:        if ((n)->u.IfElse.expr) {RWV_astwalk((n)->u.IfElse.expr,v);} if ((n)->u.IfElse.true_) {RWV_astwalk((n)->u.IfElse.true_,v);} if ((n)->u.IfElse.false_) {RWV_astwalk((n)->u.IfElse.false_,v);} break; 
 	case While:         if ((n)->u.While.expr) {RWV_astwalk((n)->u.While.expr,v);} if ((n)->u.While.stmt) {RWV_astwalk((n)->u.While.stmt,v);} break; 
 	case Do:            if ((n)->u.Do.stmt) {RWV_astwalk((n)->u.Do.stmt,v);} if ((n)->u.Do.expr) {RWV_astwalk((n)->u.Do.expr,v);} break; 
-	case For:           if ((n)->u.For.init) {RWV_astwalk((n)->u.For.init,v);}if ((n)->u.For.cond) {RWV_astwalk((n)->u.For.cond,v);} if ((n)->u.For.next) {RWV_astwalk((n)->u.For.next,v);} 
-						if ((n)->u.For.stmt) {RWV_astwalk((n)->u.For.stmt,v);} break; 
+	case For:           if ((n)->u.For.init) {RWV_astwalk((n)->u.For.init,v);}
+						if ((n)->u.For.cond) {RWV_astwalk((n)->u.For.cond,v);} 
+						if ((n)->u.For.next) {RWV_astwalk((n)->u.For.next,v);} 
+						if ((n)->u.For.stmt) {RWV_astwalk((n)->u.For.stmt,v);}
+						break; 
 	case Goto:          break; 
 	case Continue:      break; 
 	case Break:         break; 
 	case Return:        if ((n)->u.Return.expr) {RWV_astwalk((n)->u.Return.expr,v);} break; //spl少有
 	case Block:         if ((n)->u.Block.decl) {RWV_listwalk((n)->u.Block.decl,v);} if ((n)->u.Block.stmts) {RWV_listwalk((n)->u.Block.stmts,v);} break; 
 	case Prim:          break; 
-	case Adcl:          if((n)->u.adcl.type){RWV_astwalk((n)->u.adcl.type,v);}if((n)->u.adcl.dim){RWV_astwalk((n)->u.adcl.dim,v);}break; 
+	case Adcl:          if((n)->u.adcl.type){RWV_astwalk((n)->u.adcl.type,v);}if((n)->u.adcl.dim){if((n)->u.adcl.dim->typ != Const && ((n)->u.adcl.dim->typ == Id || (n)->u.adcl.dim->u.binop.right->typ == Id || (n)->u.adcl.dim->u.binop.left->typ == Id))DimFlag = TRUE;RWV_astwalk((n)->u.adcl.dim,v);}break; 
 	case Decl:          if ((n)->u.decl.type) {RWV_astwalk((n)->u.decl.type,v);}if ((n)->u.decl.init) {RWV_astwalk((n)->u.decl.init,v);}  break;
 	case Text:          break;   
 	default:            break; 

@@ -227,48 +227,31 @@ void rWorkCompute(Node *from)
 		  if ((GetValue(from->u.For.cond->u.binop.right)==NULL)) 
 			  tmp = LOOP_COUNT;
 		  else if (GetValue(from->u.For.cond->u.binop.right)->typ == Const)//获取for 循环的次数,for条件表达式必须已完成常量传播
-		  {/* Begin —— wangliang */
-			  int condition = 0, init = 0, step = 0;
-			  tmp = 0;
-			  condition = GetValue(from->u.For.cond->u.binop.right)->u.Const.value.i;//condition
-			  if (GetValue(from->u.For.init->u.binop.right))
-				  init = GetValue(from->u.For.init->u.binop.right)->u.Const.value.i;//init
-			  else
-				  init = condition / 2;
-
-			  tmp = abs(condition - init);
-			  if (from->u.For.cond->u.binop.op == '<' || from->u.For.cond->u.binop.op == '>')
-				  tmp += 0;
-			  else
-				  tmp += 1;
-
-			  if (from->u.For.next->typ == Binop)
-			  {
-
-				  step = GetValue(from->u.For.next->u.binop.right)->u.Const.value.i;
-				  //printf("%d\n",step);
-				  OpType op = from->u.For.next->u.binop.op;
-				  switch (op)
-				  {
-				  case MULTassign://printf("*=*=*=*=\n");
-					  if (condition >= init)tmp = condition / init;
-					  else tmp = init / condition;
-					  tmp = log(tmp) / log(step);
-					  //printf("%d %d %d\n", condition, init,tmp);
-					  break;
-				  case DIVassign://printf("/=/=/=/=\n"); 
-					  if (condition >= init)tmp = condition / init;
-					  else tmp = init / condition;
-					  tmp = log(tmp) / log(step);
-					  //printf("%d\n", tmp);
-					  break;
-				  default:
-					  tmp = (tmp + step - 1) / step;
-					  break;
-				  }
-
-			  }
-		  }/* End —— wangliang */
+			{
+				int condition = 0,init = 0,step =0;
+				tmp = 0;
+				condition=GetValue(from->u.For.cond->u.binop.right)->u.Const.value.i;//condition
+				if(GetValue(from->u.For.init->u.binop.right))
+					init = GetValue(from->u.For.init->u.binop.right)->u.Const.value.i;//condition
+				else
+					init = condition/2;
+				if(from->u.For.cond->u.binop.op == '<' || from->u.For.cond->u.binop.op == '>')
+					tmp = condition - init;
+				else 
+					tmp = condition -init + 1;
+				if(from->u.For.next->typ  == Unary)		//一元操作符
+				{
+					if(from->u.For.next->u.unary.op == DECR)		
+						tmp *= -1;
+				}
+				else if(from->u.For.next->typ  == Binop)
+				{
+					if(from->u.For.next->u.binop.op == MINUSassign)
+						tmp *= -1;
+					step = GetValue(from->u.For.next->u.binop.right)->u.Const.value.i;
+					tmp = (tmp + step-1)/step; 
+				}
+			}
 		  else
 			  tmp = LOOP_COUNT;
 		  WEST_astwalk(from);
@@ -373,8 +356,6 @@ void rWorkCompute(Node *from)
 				  totalWork += 60/1;
 			  else if (strcmp(ident,"min")==0) 
 				  totalWork += 60/1;
-			  else if(strcmp(ident,"frta")==0)
-				  totalWork += FRTA_OP/1;			//修改		
 			  else if(strcmp(ident,"println")==0)
 				  totalWork += PRINTLN_OP/1;			//修改		
 			  else

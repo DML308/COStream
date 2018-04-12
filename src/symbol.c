@@ -663,10 +663,10 @@ GLOBAL void MoveToOuterScope(SymbolTable *table, const char *name)
 }
 
 /***********************************************************************\
-* ly:LookupExternalsSymbol
+* ly:LookupExternalsSymbol，不能写GLOBAL否则会出现重复声明
 \***********************************************************************/
 
-GLOBAL Bool LookupExternalsSymbol(SymbolTable *table,
+Bool LookupExternalsSymbol(SymbolTable *table,
 	const char *name,
 	const char *newName,
 	GenericREF var)

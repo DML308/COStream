@@ -7,6 +7,9 @@
 extern "C"
 {
 	extern int NThreads;
+	extern GLOBAL Bool X86Backend;
+	extern GLOBAL Bool GPUBackend;
+	extern GLOBAL int GpuNum;
 };
 
 class StaticStreamGraph
@@ -20,6 +23,7 @@ protected:
 public://将访问属性由protected修改成public，以便能对其进行修改
 	
 	std::vector<FlatNode *> flatNodes;// SDF图所有节点集合
+	
 	std::map<Node *, FlatNode *>  mapEdge2UpFlatNode; // 将有向边与其上端绑定
 	std::multimap<Node *, FlatNode *>  mapEdge2DownFlatNode;//将有向边与其下端绑定
 	
@@ -35,7 +39,7 @@ public:
 	}
 	inline void SetTopLevel()
 	{
-		//assert (flatNodes[0] != NULL && flatNodes[0]->nIn == 0); 
+		assert (flatNodes[0] != NULL && flatNodes[0]->nIn == 0); 
 		topLevel = flatNodes[0];
 	}
 	void PrintFlatNodes(); // 打印SDF图
@@ -48,6 +52,9 @@ public:
 	void SetFlatNodesWeights(); // 给各节点设置权重
 	void SetFlatNodesWeights(FlatNode *flatNode); // 重载，为了使每个FlatNode能够单独设置权重，给各节点设置权重   zww-20120312
 	void ResetFlatNodeNames(); // 重置每个flatnode的name值
+	bool IsUpBorder(FlatNode *);   //cwb判断父结点是否有边界结点
+	bool IsDownBorder(FlatNode *); //cwb判断子结点是否有边界结点
+	void GetPreName();   //cwb获取各actor被重命名前的名字
 	void ResetFlatNodeVisitTimes(); // 重置每个flastnode的visttimes值
 	inline FlatNode *GetTopLevel(void)
 	{ return topLevel;}
@@ -57,11 +64,10 @@ public:
 	int GetInitWork(FlatNode *n);
 	std::vector<FlatNode *> GetFlatNodes(int place_id); //lxx.2012.03.28
 	std::vector<FlatNode *> GetFlatNodes(int place_id, int thread_id); //lxx.2012.03.28
-	void GetPreName();   //cwb获取各actor被重命名前的名字
 	inline std::string GetName(){ return comName;}
-
 	inline std::vector<FlatNode *> GetFlatNodes(void)
 	{ return flatNodes;}
+	
 	inline std::map<Node *,FlatNode *>  GetMapEdge2UpFlatNode(void)
 	{ return mapEdge2UpFlatNode;}
 	inline std::multimap<Node *,FlatNode *>  GetMapEdge2DownFlatNode(void)
@@ -75,9 +81,5 @@ public:
 GLOBAL extern StaticStreamGraph *SSG;
 GLOBAL StaticStreamGraph *AST2FlatStaticStreamGraph(Node *mainComposite);
 GLOBAL void GenerateWorkEst(StaticStreamGraph *ssg,bool WorkEstimateByDataFlow);
-GLOBAL bool CheckSplitUncertainty(StaticStreamGraph*ssg);
 
-
-GLOBAL bool CheckSplitUncertaintybeifen(StaticStreamGraph *ssg);
-GLOBAL bool hasUncertainty(StaticStreamGraph*ssg);
 #endif

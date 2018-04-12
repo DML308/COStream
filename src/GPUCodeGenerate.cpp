@@ -1,4 +1,10 @@
 #include "GPUCodeGenerate.h"
+
+#ifndef WIN32
+#include <sys/stat.h> 
+#define mkdir(tmp) mkdir(tmp,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+
 using namespace std;
 #define  Default_Repeat_Count 10
 static bool isInComma = false;//表示当前处于逗号表达式中
@@ -10,14 +16,22 @@ static bool isInFileWriter = false;//表示当前处于FileWriter中
 static bool existFileWriter = true;//用于标识是否存在FileWriter，默认为存在
 //static bool kernelmake = false;//用于标识kernel生成时花括号的产生
 map<string,string>mapStruct2Struct2OfGPU;//存放global.h文件中边的typedef映射关系
-GPUCodeGenerate::GPUCodeGenerate(SchedulerSSG *Sssg, int ngpu, int buffer_size, const char *currentDir,StageAssignment *psa,MAFLPartition *maflptemp)
+GPUCodeGenerate::GPUCodeGenerate(SchedulerSSG *Sssg, int ngpu, int buffer_size, const char *currentDir,StageAssignment *psa,HAFLPartition *haflptemp,TemplateClass *tc,string name,DNBPartition *dnbp)
 {
+	Dnbp = dnbp;
+	BenchmarkName = name;
+	Tc = tc;
 	pSa = psa;
-	Maflp=maflptemp;
+	Haflp=haflptemp;
 	sssg_ = Sssg;
 	flatNodes_ = Sssg->GetFlatNodes();
+	pEdgeInfo = new ActorEdgeInfo(Sssg);
 	nGpu_ = ngpu;
 	nActors_ = flatNodes_.size();
+	vTemplateNode_ = Tc->GetTemplateNode();
+	nTemplateNode_ = vTemplateNode_.size();
+	vTemplateName_ = Tc->GetTemplateName();
+	mapFlatnode2Template_ = Tc->GetFlatnode2Template();
 	dir_ = currentDir;
 	buffer_size_ = buffer_size;
 	int index = 0; 
@@ -29,7 +43,11 @@ GPUCodeGenerate::GPUCodeGenerate(SchedulerSSG *Sssg, int ngpu, int buffer_size, 
 		str1 = dir_.substr(0, pos); 
 
 		if(pos == -1) break; 
+#ifdef WIN32
 		else if(i > 0) _mkdir(str1.c_str()); 
+#else
+		else if(i > 0) mkdir(str1.c_str()); 
+#endif	
 		i++; 
 		index = pos + 1; 
 	} 
@@ -54,8 +72,8 @@ GPUCodeGenerate::GPUCodeGenerate(SchedulerSSG *Sssg, int ngpu, int buffer_size, 
 	for (int i=0;i<ngpu+1;i++)
 	{
 		tempstageset.clear();
-		tempactors=Maflp->FindNodeInOneDevice(i);
-		multimap<int,map<FlatNode*,int>>::iterator iter_datastage;
+		tempactors=Haflp->FindNodeInOneDevice(i);
+		multimap<int,map<FlatNode*,int> >::iterator iter_datastage;
 		map<FlatNode*,int>::iterator iter_submap;
 		for (iter=tempactors.begin();iter!=tempactors.end();++iter)
 		{
@@ -137,17 +155,130 @@ void GPUCodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	declList.str(""); // 清空declList内容
 	kernelparam.clear();
 	kernelparamtype.clear();
+	//chenwenbin将composite中param加入模板类中
+	buf<<"\t//将composite中param加入模板类中"<<endl;
+	paramList *plist = actor->contents->params;
+	for (int i = 0; i < actor->contents->paramSize; i++)
+	{
+		buf<<"\t"<<GetPrimDataType(plist->paramnode->u.id.value->u.Const.type)<<" ";
+		buf<<plist->paramnode->u.id.text<<";\n";
+		plist = plist->next;
+	}
 	SPL2GPU_List(state, 0);
 	Actor2KernelPar.insert(make_pair(actor,kernelparam));
 	Actor2KernelParType.insert(make_pair(actor,kernelparamtype));
 	buf << "\t/* *****logic state***** */\n\t" << declList.str();
+	//chenwenbin 增加pop,push数据变量
+	buf<<"\t//增加pop,push变量"<<endl;
+	int popSize = actor->inFlatNodes.size();
+	int pushSize = actor->outFlatNodes.size();
+	bool typeFlag = true;
+	if (actor->GPUPart >= nGpu_)
+	{
+		for (int i = 0; i < pushSize; i++)
+		{
+			if (DataDependence(actor,actor->outFlatNodes[i]))
+			{
+				if (typeFlag)
+				{
+					buf<<"\tint ";
+					typeFlag = false;
+				}
+				buf<<"pushValue"<<i;
+				if(i == pushSize-1)
+					buf<<";"<<endl;
+				else
+					buf<<",";
+			}
+		}
+		typeFlag = true;
+		for (int i = 0; i < popSize; i++)
+		{
+			if (DataDependence(actor->inFlatNodes[i],actor))
+			{
+				if (typeFlag)
+				{
+					buf<<"\tint ";
+					typeFlag = false;
+				}
+				buf<<"popValue"<<i;
+				if(i == popSize-1)
+					buf<<";"<<endl;
+				else
+					buf<<",";
+			}
+		}
+	}
+	else
+	{
+		//GPU端每次执行work时读写的数据个数
+		if (pushSize > 0)
+		{
+			buf<<"\tint ";
+			for (int i = 0; i < pushSize; i++)
+			{
+				buf<<"pushValue"<<i;
+				if(i == pushSize-1)
+					buf<<";"<<endl;
+				else
+					buf<<",";
+			}
+		}
+		if (popSize > 0)
+		{
+			buf<<"\tint ";
+			for (int i = 0; i < popSize; i++)
+			{	
+				buf<<"popValue"<<i;
+				if(i == popSize-1)
+					buf<<";"<<endl;
+				else
+					buf<<",";
+			}
+		}
+		//cwb GPU端边界节点的pop值,即通信时popToken值
+		if (sssg_->IsUpBorder(actor))
+		{
+			for (int i = 0; i < popSize; i++)
+			{
+				if (DataDependence(actor->inFlatNodes[i],actor))
+				{
+					if (typeFlag)
+					{
+						buf<<"\tint ";
+						typeFlag = false;
+					}
+					buf<<"popComm"<<i;
+					if(i == popSize-1)
+						buf<<";"<<endl;
+					else
+						buf<<",";
+				}
+			}
+		}
+		typeFlag = true;
+		if (sssg_->IsDownBorder(actor))
+		{
+			for (int i = 0; i < pushSize; i++)
+			{
+				if (DataDependence(actor,actor->outFlatNodes[i]))
+				{
+					if (typeFlag)
+					{
+						buf<<"\tint ";
+						typeFlag = false;
+					}
+					buf<<"pushComm"<<i;
+					if(i == pushSize-1)
+						buf<<";"<<endl;
+					else
+						buf<<",";
+				}
+			}
+		}
+	}
 	extractDecl = false;
-	/*vector<string>& vecEdgeName = mapOperator2OutEdgeName.find(actor)->second;
-	for(int i=0;i<vecEdgeName.size();i++){
-	declInitList<<"int "<<vecEdgeName[i]<<"_index;\n";
-	}*/
 	stateInit << declInitList.str();
-
 	declInitList.str(""); // 清空declInitList内容
 	//declInitList << tmp.str();
 }
@@ -186,10 +317,45 @@ void GPUCodeGenerate::CGlogicInit(FlatNode *actor, OperatorType ot, stringstream
 
 	declInitList.str(""); // 清空
 }
-void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf)
+void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf,string templatename)
 {
 	buf <<"\t// Constructor\n";
-	buf << "\t"<<actor->name<<"(";
+	buf << "\t"<<templatename<<"(" ;
+	//chenwenbin 构造param变量
+	paramList *plist = actor->contents->params;
+	for (int i = 0; i < actor->contents->paramSize; i++)
+	{
+		//buf<<NodeConstantIntegralValue(plist->paramnode->u.id.value)<<" ";
+		buf<<GetPrimDataType(plist->paramnode->u.id.value->u.Const.type)<<" ";
+		buf<<plist->paramnode->u.id.text<<", ";
+		plist = plist->next;
+	}
+	if (actor->GPUPart < nGpu_)
+	{
+		for (int i = 0; i < actor->inFlatNodes.size(); i++)
+		{
+			buf<<"int pop"<<i<<",";
+		}
+		for (int i = 0; i < actor->outFlatNodes.size(); i++)
+		{
+			buf<<"int push"<<i<<",";
+		}
+	}
+	else
+	{
+		for (int i = 0; i < actor->inFlatNodes.size(); i++)
+		{
+			if(DataDependence(actor->inFlatNodes[i],actor))
+				buf<<"int pop"<<i<<",";
+		}
+		for (int i = 0; i < actor->outFlatNodes.size(); i++)
+		{
+			if(DataDependence(actor,actor->outFlatNodes[i]))
+				buf<<"int push"<<i<<",";
+		}
+	}
+	//chenwenbin 初态稳态执行次数
+	buf<<"int steadyCount,int initCount,";
 	multimap<FlatNode*,string>::iterator iter1,iter2;
 	List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
 	List *outputList = actor->contents->decl->u.decl.type->u.operdcl.outputs;
@@ -206,10 +372,9 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		string inputString;
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
-		if(DataDependence(actor->inFlatNodes[index],actor) && (actor->GPUPart == nGpu_ || (actor->GPUPart != nGpu_ && actor->inFlatNodes[index]->GPUPart == nGpu_)))
-			buf<<"Buffer<mystruct_x>&"<<inputString<<",";
+		if((actor->GPUPart >= nGpu_ || (actor->GPUPart < nGpu_ && sssg_->IsUpBorder(actor)))&& DataDependence(actor->inFlatNodes[index],actor))
+			buf<<"Buffer<U>& "<<inputString<<",";
 		edge2name.insert(make_pair(iter1->second,inputString));
-		//buf<<"BufferControl<"<<iter1->second<<"_str>"<<inputString<<",";
 		++iter1;
 		++index;
 	}
@@ -222,25 +387,91 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		string outputString;
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
-		if(DataDependence(actor,actor->outFlatNodes[index]) && (actor->outFlatNodes[index]->GPUPart == nGpu_ || (actor->outFlatNodes[index]->GPUPart != nGpu_ && actor->GPUPart == nGpu_)))
-			buf<<"Buffer<mystruct_x>&"<<outputString<<",";
+		if((actor->GPUPart >= nGpu_ || (actor->GPUPart < nGpu_ && sssg_->IsDownBorder(actor)))&& DataDependence(actor,actor->outFlatNodes[index]))
+			buf<<"Buffer<T>& "<<outputString<<",";
 		edge2name.insert(make_pair(iter2->second,outputString));
 		++iter2;
 		++index;
 	}
-	/*buf<<parameterBuf.str();
-	if (parameterBuf.str()=="")
+	//构造GPU存储空间
+	if(actor->GPUPart < nGpu_)
 	{
-		buf.seekp((int)buf.tellp()-1);
+		vector<FlatNode*>::iterator iter,iter_1;
+		for (int i = 0; i < nGpu_; i++)
+		{
+			for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
+			{
+				if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
+				{
+					buf<<"cl::Buffer Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<",";
+				}
+			}
+			for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
+			{
+				if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter))
+				{
+					buf<<"cl::Buffer Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<",";
+				}
+			}
+			for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
+			{	
+				if((actor->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter_1)))
+				{
+					buf<<"cl::Buffer Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<",";
+				}
+			}
+			for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
+			{
+				if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter_1))
+				{
+					buf<<"cl::Buffer Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<",";	
+				}
+			}
+		}
 	}
-	else
-	{
-		buf.seekp((int)buf.tellp()-2);
-	}*/
 	buf<<"void *lazy = NULL):";
+	//cwb
+	if(actor->GPUPart < nGpu_)
+	{
+		//cwb
+		vector<FlatNode*>::iterator iter,iter_1;
+		for (int i = 0; i < nGpu_; i++)
+		{
+			for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
+			{
+				if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
+				{
+					buf<<"Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"),";
+				}
+			}
+			for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
+			{
+				if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter))
+				{
+					buf<<"Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"(Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"),";
+				}
+			}
+			for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
+			{	
+				if((actor->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter_1)))
+				{
+					buf<<"Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<"(Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<"),";
+				}
+			}
+			for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
+			{
+				if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter_1))
+				{
+					buf<<"Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<"(Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<"),";	
+				}
+			}
+		}
+	}
 	index = 0;
 	iter1=mapActor2InEdge.find(actor);
 	iter2=mapActor2OutEdge.find(actor);
+	inputNode = NULL;
+	outputNode = NULL;
 	IterateList(&input_maker,inputList);
 	while(NextOnList(&input_maker,(GenericREF)&inputNode))
 	{
@@ -248,8 +479,8 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		string inputString;
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
-		if(DataDependence(actor->inFlatNodes[index],actor) && (actor->GPUPart == nGpu_ || (actor->GPUPart != nGpu_ && actor->inFlatNodes[index]->GPUPart == nGpu_)))
-			buf<<inputString<<"(Consumer<mystruct_x>("<<inputString<<")),";
+		if((actor->GPUPart >= nGpu_ || (actor->GPUPart < nGpu_ && sssg_->IsUpBorder(actor)))&& DataDependence(actor->inFlatNodes[index],actor))
+			buf<<inputString<<"("<<inputString<<"),";
 		++iter1;
 		++index;
 	}
@@ -261,17 +492,47 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		string outputString;
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
-		if(DataDependence(actor,actor->outFlatNodes[index]) && (actor->outFlatNodes[index]->GPUPart == nGpu_ || (actor->outFlatNodes[index]->GPUPart != nGpu_ && actor->GPUPart == nGpu_)))
-			buf<<outputString<<"(Producer<mystruct_x>("<<outputString<<")),";
+		if((actor->GPUPart >= nGpu_ || (actor->GPUPart < nGpu_ && sssg_->IsDownBorder(actor)))&& DataDependence(actor,actor->outFlatNodes[index]))
+			buf<<outputString<<"("<<outputString<<"),";
 		++iter2;
 		++index;
+	}
+	plist = actor->contents->params;
+	for (int i = 0; i < actor->contents->paramSize; i++)
+	{
+		buf<<plist->paramnode->u.id.text<<"("<<plist->paramnode->u.id.text<<"),";
+		plist = plist->next;
 	}
 	buf.seekp((int)buf.tellp()-1);
 	buf<<"{\n";
 	buf << thisBuf.str();
-	//buf << "\t\tRepeatCount = rc;\n ";
-	buf<< "\t\tsteadyScheduleCount = "<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]/NCpuThreads<<";\n";
-	buf<< "\t\tinitScheduleCount = "<<sssg_->GetInitCount(actor)<<";\n";
+	//cwb
+	if (actor->GPUPart < nGpu_)
+	{
+		for (int i = 0; i < actor->inFlatNodes.size(); i++)
+		{
+			buf<<"\t\tpopValue"<<i<<" = pop"<<i<<";"<<endl;
+		}
+		for (int i = 0; i < actor->outFlatNodes.size(); i++)
+		{
+			buf<<"\t\tpushValue"<<i<<" = push"<<i<<";"<<endl;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < actor->inFlatNodes.size(); i++)
+		{
+			if(DataDependence(actor->inFlatNodes[i],actor))
+				buf<<"\t\tpopValue"<<i<<" = pop"<<i<<";"<<endl;
+		}
+		for (int i = 0; i < actor->outFlatNodes.size(); i++)
+		{
+			if(DataDependence(actor,actor->outFlatNodes[i]))
+				buf<<"\t\tpushValue"<<i<<" = push"<<i<<";"<<endl;
+		}
+	}
+	buf<< "\t\tsteadyScheduleCount = steadyCount;\n";
+	buf<< "\t\tinitScheduleCount = initCount;\n";
 	CGdatataginit(actor,buf);
 	buf << "\t}\n"; // init方法结束
 }
@@ -327,27 +588,29 @@ void GPUCodeGenerate::CGpopToken(FlatNode *actor,stringstream &buf, string popin
 	Node *inputNode = NULL;
 	Node *outputNode = NULL;
 	IterateList(&input_maker,inputList);
+	map<FlatNode*,FlatNode*>tempinedgename;
 	vector<int>::iterator iter=actor->inPopWeights.begin();
 	vector<FlatNode*>inflatnodes = actor->inFlatNodes;
 	vector<FlatNode*>::iterator iter_inflatnodes = inflatnodes.begin();
-	map<FlatNode*,FlatNode*>tempinedgename;
-	tempinedgename.clear();
 	if(ExistDependence(actor))
 	{
 		buf << "\t// popToken\n";
 		buf << "\tvoid popToken() {";
 	}
+	int index = 0;
 	while(NextOnList(&input_maker,(GenericREF)&inputNode)&&iter_inflatnodes!=inflatnodes.end())
 	{
 		string inputString;
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
 		if(DataDependence(*iter_inflatnodes,actor))
-			buf<<"\n\t"<<inputString<<".updatehead"<<"("<<(*iter)<<");\n";
+			buf<<"\n\t"<<inputString<<".updatehead"<<"(popValue"<<index<<");\n";
+		tempinedgename.clear();
 		tempinedgename.insert(make_pair(*iter_inflatnodes,actor));
 		BufferNameOfEdge.insert(make_pair(tempinedgename,inputString));
 		iter++;
 		iter_inflatnodes++;
+		index++;
 	}
 	if (ExistDependence(actor))
 	{
@@ -365,7 +628,6 @@ void GPUCodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf, string push
 	vector<FlatNode*>outflatnodes = actor->outFlatNodes;
 	vector<FlatNode*>::iterator iter_outflatnodes = outflatnodes.begin();
 	map<FlatNode*,FlatNode*>tempoutedgename;
-	tempoutedgename.clear();
 	bool flag = false;
 	for (;iter_outflatnodes != outflatnodes.end(); ++iter_outflatnodes)
 	{
@@ -381,17 +643,20 @@ void GPUCodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf, string push
 		buf << "\tvoid pushToken() {";
 	}
 	iter_outflatnodes = outflatnodes.begin();
+	int index = 0;
 	while(NextOnList(&output_maker,(GenericREF)&outputNode))
 	{
 		string outputString;
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
 		if(DataDependence(actor,*iter_outflatnodes) && flag)
-			buf<<"\n\t"<<outputString<<".updatetail"<<"("<<(*iter)<<");\n";
+			buf<<"\n\t"<<outputString<<".updatetail"<<"(pushValue"<<index<<");\n";
+		tempoutedgename.clear();
 		tempoutedgename.insert(make_pair(actor,*iter_outflatnodes));
 		BufferNameOfEdge.insert(make_pair(tempoutedgename,outputString));
 		iter++;
 		iter_outflatnodes++;
+		index++;
 	}
 	if (flag)
 	{
@@ -401,11 +666,10 @@ void GPUCodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf, string push
 }
 void GPUCodeGenerate::CGpopTokenForGPU(FlatNode *actor,stringstream &buf, string popingBuf)
 {
-	if (IsUpBorder(actor) && ExistDependence(actor))
+	if (sssg_->IsUpBorder(actor) && ExistDependence(actor))
 	{
 		buf << "\t// popToken\n";
-		buf << "\tvoid popToken(int count) {\n\t";
-		buf<<"if(count == initScheduleCount)\n\t{";
+		buf << "\tvoid popToken() {\n\t";
 	}
 	stringstream steadybuf;
 	List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
@@ -419,29 +683,33 @@ void GPUCodeGenerate::CGpopTokenForGPU(FlatNode *actor,stringstream &buf, string
 	vector<FlatNode*>inflatnodes = actor->inFlatNodes;
 	vector<FlatNode*>::iterator iter_inflatnodes = inflatnodes.begin();
 	map<FlatNode*,FlatNode*>tempinedgename;
-	tempinedgename.clear();
+	int index = 0;
 	while(NextOnList(&input_maker,(GenericREF)&inputNode)&&iter_inflatnodes!=inflatnodes.end())
 	{
 		string inputString;
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
-		if (IsUpBorder(actor) && ExistDependence(actor))
+		if (sssg_->IsUpBorder(actor) && ExistDependence(actor))
 		{
-			buf<<"\n\t\t"<<inputString<<".updatehead"<<"("<<sssg_->GetInitCount(*iter_inflatnodes)*ReturnPushWeight(*iter_inflatnodes,actor)<<");\n";
-			steadybuf<<"\n\t\t"<<inputString<<".updatehead"<<"("<<sssg_->GetSteadyCount(*iter_inflatnodes)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter_inflatnodes,actor)<<"/com_num);\n";
+			buf<<"\t"<<inputString<<".updatehead"<<"(popComm"<<index<<");\n";
+			//buf<<"\n\t\t"<<inputString<<".updatehead"<<"("<<sssg_->GetInitCount(*iter_inflatnodes)*ReturnPushWeight(*iter_inflatnodes,actor)<<");\n";
+			//steadybuf<<"\n\t\t"<<inputString<<".updatehead"<<"("
+			//steadybuf<<"\n\t\t"<<inputString<<".updatehead"<<"("<<sssg_->GetSteadyCount(*iter_inflatnodes)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter_inflatnodes,actor)<<"/com_num);\n";
 		}
+		tempinedgename.clear();
 		tempinedgename.insert(make_pair(*iter_inflatnodes,actor));
 		BufferNameOfEdge.insert(make_pair(tempinedgename,inputString));
 		iter++;
 		iter_inflatnodes++;
+		index++;
 	}
-	if (IsUpBorder(actor) && ExistDependence(actor))
+	if (sssg_->IsUpBorder(actor) && ExistDependence(actor))
 	{
 		buf << popingBuf;
-		buf<<"\n\t}";
-		buf<<"\n\telse\n\t{";
+		//buf<<"\t}";
+		/*buf<<"\n\telse\n\t{";
 		buf<<steadybuf.str();
-		buf<<"\n\t}\n";
+		buf<<"\n\t}\n";*/
 		buf << "\t}\n"; // popToken方法结束
 	}
 }
@@ -456,7 +724,6 @@ void GPUCodeGenerate::CGpushTokenForGPU(FlatNode *actor,stringstream &buf, strin
 	vector<FlatNode*>outflatnodes = actor->outFlatNodes;
 	vector<FlatNode*>::iterator iter_outflatnodes = outflatnodes.begin();
 	map<FlatNode*,FlatNode*>tempoutedgename;
-	tempoutedgename.clear();
 	bool flag = false;
 	for (; iter_outflatnodes != outflatnodes.end(); ++iter_outflatnodes)
 	{
@@ -466,35 +733,34 @@ void GPUCodeGenerate::CGpushTokenForGPU(FlatNode *actor,stringstream &buf, strin
 			break;
 		}
 	}
-	if (IsDownBorder(actor) && flag)
+	if (sssg_->IsDownBorder(actor) && flag)
 	{
 		buf << "\t// pushToken\n";
-		buf << "\tvoid pushToken(int count) {\n\t";
-		buf<<"if(count == initScheduleCount)\n\t{";
+		buf << "\tvoid pushToken() {\n\t";
 	}
 	iter_outflatnodes = outflatnodes.begin();
+	int index = 0;
 	while(NextOnList(&output_maker,(GenericREF)&outputNode))
 	{
 		string outputString;
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
-		if (IsDownBorder(actor) && flag)
+		if (sssg_->IsDownBorder(actor) && flag)
 		{
-			buf<<"\n\t"<<outputString<<".updatetail"<<"("<<(*iter)*sssg_->GetInitCount(actor)<<");\n";
-			steadybuf<<"\n\t"<<outputString<<".updatetail"<<"("<<(*iter)*sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]<<"/com_num);\n";
+			buf<<"\t"<<outputString<<".updatetail"<<"(pushComm"<<index<<");\n";
+			//buf<<"\n\t"<<outputString<<".updatetail"<<"("<<(*iter)*sssg_->GetInitCount(actor)<<");\n";
+			//steadybuf<<"\n\t"<<outputString<<".updatetail"<<"("<<(*iter)*sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]<<"/com_num);\n";
 		}
+		tempoutedgename.clear();
 		tempoutedgename.insert(make_pair(actor,*iter_outflatnodes));
 		BufferNameOfEdge.insert(make_pair(tempoutedgename,outputString));
 		iter++;
 		iter_outflatnodes++;
+		index++;
 	}
-	if (IsDownBorder(actor) && flag)
+	if (sssg_->IsDownBorder(actor) && flag)
 	{
 		buf << pushingBuf;
-		buf<<"\n\t}";
-		buf<<"\n\telse\n\t{";
-		buf<<steadybuf.str();
-		buf<<"\n\t}\n";
 		buf << "\t}\n"; // pushToken方法结束
 	}
 }
@@ -539,7 +805,7 @@ void GPUCodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
 		if(!DataDependence(actor->inFlatNodes[index],actor))
-			buf<<"mystruct_x *"<<inputString<<",";
+			buf<<pEdgeInfo->getEdgeInfo(actor->inFlatNodes[index],actor).typeName<<" *"<<inputString<<",";
 		++index;
 	//	++iter1;
 	}
@@ -551,7 +817,7 @@ void GPUCodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
 		if(!DataDependence(actor,actor->outFlatNodes[index]))
-			buf<<"mystruct_x *"<<outputString<<",";
+			buf<<pEdgeInfo->getEdgeInfo(actor,actor->outFlatNodes[index]).typeName<<" *"<<outputString<<",";
 		++index;
 		//++iter2;
 	}
@@ -628,7 +894,7 @@ void GPUCodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
 		if(!DataDependence(actor->inFlatNodes[index],actor))
-			buf<<"mystruct_x *"<<inputString<<",";
+			buf<<pEdgeInfo->getEdgeInfo(actor->inFlatNodes[index],actor).typeName<<" *"<<inputString<<",";
 		++index;
 	//	++iter1;
 	}
@@ -640,7 +906,7 @@ void GPUCodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
 		if(!DataDependence(actor,actor->outFlatNodes[index]))
-			buf<<"mystruct_x *"<<outputString<<",";
+			buf<<pEdgeInfo->getEdgeInfo(actor,actor->outFlatNodes[index]).typeName<<" *"<<outputString<<",";
 		++index;
 	//	++iter2;
 	}
@@ -689,7 +955,7 @@ void GPUCodeGenerate::CGrunSteadyScheduleWorkforGPU(FlatNode *actor,stringstream
 	for (int i = 0; i < nGpu_; i++)
 	{
 		buf << "\tvoid runSteadyScheduleWork_"<<i<<"() {\n";
-		buf<<"\t\twork_"<<i<<"("<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]<<");\n";
+		buf<<"\t\twork_"<<i<<"("<<sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor]<<");\n";
 		buf << "\t}\n"; // CGrunSteadyScheduleWork方法结束
 	}
 }
@@ -712,8 +978,9 @@ void GPUCodeGenerate::CGEdgeParam(FlatNode *actor,stringstream &buf)
 		string inputString;
 		if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 		else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
-		if(DataDependence(actor->inFlatNodes[index],actor) && (actor->GPUPart == nGpu_ || (actor->GPUPart != nGpu_ && actor->inFlatNodes[index]->GPUPart == nGpu_)))
-			buf<<"Consumer<mystruct_x>"<<inputString<<";\n";
+		if(DataDependence(actor->inFlatNodes[index],actor) && (actor->GPUPart >= nGpu_ || (actor->GPUPart < nGpu_ && actor->inFlatNodes[index]->GPUPart >= nGpu_)))
+			buf<<"\tConsumer<U> "<<inputString<<";\n";
+			//buf<<"Consumer<mystruct_x>"<<inputString<<";\n";
 		++iter1;
 		++index;
 	}
@@ -727,8 +994,9 @@ void GPUCodeGenerate::CGEdgeParam(FlatNode *actor,stringstream &buf)
 		string outputString;
 		if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 		else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
-		if(DataDependence(actor,actor->outFlatNodes[index]) && (actor->outFlatNodes[index]->GPUPart == nGpu_ || (actor->outFlatNodes[index]->GPUPart != nGpu_ && actor->GPUPart == nGpu_)))
-			buf<<"Producer<mystruct_x>"<<outputString<<";\n";
+		if(DataDependence(actor,actor->outFlatNodes[index]) && (actor->outFlatNodes[index]->GPUPart >= nGpu_ || (actor->outFlatNodes[index]->GPUPart < nGpu_ && actor->GPUPart >= nGpu_)))
+			buf<<"\tProducer<T> "<<outputString<<";\n";
+			//buf<<"Producer<mystruct_x>"<<outputString<<";\n";
 		++iter2;
 		++index;
 		vecOutEdgeName.push_back(outputString);
@@ -768,12 +1036,12 @@ void GPUCodeGenerate::CGdatatag(FlatNode *actor,stringstream &buf)
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 		{
 			//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(Maflp->UporDownStatelessNode(*iter)!=3)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
-			if(actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
+			if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter))
 			{
 				buf<<"\tint readtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
 			}
 			//if ((!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(DetectiveFilterState(*iter)||(Maflp->UporDownStatelessNode(*iter)==3)))||(!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(Maflp->UporDownStatelessNode(*iter)!=3)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
 			{
 				buf<<"\tint readtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
 				buf<<"\tint writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
@@ -782,11 +1050,11 @@ void GPUCodeGenerate::CGdatatag(FlatNode *actor,stringstream &buf)
 		for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
 		{
 			//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(Maflp->UporDownStatelessNode(*iter_1)!=3)&&!DetectiveFilterState(*iter_1)&&Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter_1))
-			if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter_1))
+			if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter_1))
 			{
 				buf<<"\tint writetag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";
 			}
-			if((actor->GPUPart != nGpu_ && (*iter_1)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter_1)))
+			if((actor->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter_1)))
 			{
 				buf<<"\tint writetag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";
 				buf<<"\tint readdatatag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";
@@ -804,18 +1072,18 @@ void GPUCodeGenerate::CGdatataginit(FlatNode *actor,stringstream &buf)
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 		{
 			//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(Maflp->UporDownStatelessNode(*iter)!=3)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
-			if(actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
+			if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter))
 			{
 				buf<<"\t\treadtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" = 0;\n";
 			}
 			//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(Maflp->UporDownStatelessNode(*iter)!=3)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter))
-			if(actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter))
+			if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter))
 			{
 				buf<<"\t\treadtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" = 0;\n";
 				buf<<"\t\twritedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" = 0;\n";
 			}
 			//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3)&&(DetectiveFilterState(*iter)||(Maflp->UporDownStatelessNode(*iter)==3)))
-			if(actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_)
+			if(actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_)
 			{
 				buf<<"\t\treadtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" = 0;\n";
 				buf<<"\t\twritedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" = 0;\n";
@@ -823,16 +1091,16 @@ void GPUCodeGenerate::CGdatataginit(FlatNode *actor,stringstream &buf)
 		}
 		for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
 		{
-			if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter_1))
+			if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter_1))
 			{
 				buf<<"\t\twritetag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<" = 0;\n";
 			}
-			if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter_1))
+			if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter_1))
 			{
 				buf<<"\t\twritetag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<" = 0;\n";
 				buf<<"\t\treaddatatag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<" = 0;\n";
 			}
-			if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart == nGpu_)
+			if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_)
 			{
 				buf<<"\t\twritetag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<" = 0;\n";
 				buf<<"\t\treaddatatag_"<<(actor)->name<<"_"<<(*iter_1)->name<<"_"<<i<<" = 0;\n";
@@ -844,13 +1112,6 @@ void GPUCodeGenerate::CGdatataginit(FlatNode *actor,stringstream &buf)
 void GPUCodeGenerate::CGexternbuffer(FlatNode *actor,stringstream &buf)
 {
 	vector<FlatNode*>::iterator iter,iter_1;
-	/*if (PrintFlag)
-	{
-	for (int i = 0; i < nGpu_; i++)
-	{
-	buf<<"extern bool printflag_"<<i<<";\n";
-	}
-	}*/
 	buf<<"extern int com_num;\n";
 	buf<<"extern vector<cl::Platform>platforms;\n";
 	buf<<"extern vector<cl::Device>platformsDevices;\n";
@@ -860,56 +1121,7 @@ void GPUCodeGenerate::CGexternbuffer(FlatNode *actor,stringstream &buf)
 		buf<<"extern cl::CommandQueue queue_"<<i+1<<"_0;\n";
 		buf<<"extern cl::CommandQueue queue_"<<i+1<<"_1;\n";
 	}
-	/*buf<<"extern cl::CommandQueue queue_1;\n";
-	buf<<"extern cl::CommandQueue queue_2;\n";
-	buf<<"extern cl::CommandQueue queue_3;\n";*/
 	buf<<"extern cl::Program program;\n";
-	//各个GPU存储cwb
-	for (int i = 0; i < nGpu_; i++)
-	{
-		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
-		{
-			//if ((!DetectiveFilterState(actor)&&DetectiveFilterState(*iter))||(!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
-			{
-				buf<<"extern cl::Buffer Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmPinnedBufIn_"<<(*iter)->name<<"_"<<actor->name<<"_init_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmDevBufIn_"<<(*iter)->name<<"_"<<actor->name<<"_init_"<<i<<";\n";
-				buf<<"extern mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<" *Inst_"<<(*iter)->name<<"_"<<actor->name<<"_init_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmPinnedBufIn_"<<(*iter)->name<<"_"<<actor->name<<"_steady_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmDevBufIn_"<<(*iter)->name<<"_"<<actor->name<<"_steady_"<<i<<";\n";
-				buf<<"extern mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<" *Inst_"<<(*iter)->name<<"_"<<actor->name<<"_steady_"<<i<<";\n";
-			}
-		}
-		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
-		{
-			//if (!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
-			if(actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
-			{
-				buf<<"extern cl::Buffer Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
-			}
-		}
-		for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
-		{	
-			if((actor->GPUPart != nGpu_ && (*iter_1)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter_1)))
-			{
-				buf<<"extern cl::Buffer Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmPinnedBufOut_"<<actor->name<<"_"<<(*iter_1)->name<<"_init_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmDevBufOut_"<<actor->name<<"_"<<(*iter_1)->name<<"_init_"<<i<<";\n";
-				buf<<"extern mystruct_"<<ReturnTypeOfEdge(actor,*iter_1)<<" *Outst_"<<actor->name<<"_"<<(*iter_1)->name<<"_init_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmPinnedBufOut_"<<actor->name<<"_"<<(*iter_1)->name<<"_steady_"<<i<<";\n";
-				buf<<"extern cl::Buffer cmDevBufOut_"<<actor->name<<"_"<<(*iter_1)->name<<"_steady_"<<i<<";\n";
-				buf<<"extern mystruct_"<<ReturnTypeOfEdge(actor,*iter_1)<<" *Outst_"<<actor->name<<"_"<<(*iter_1)->name<<"_steady_"<<i<<";\n";
-			}
-		}
-		for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
-		{
-			if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter_1))
-			{
-				buf<<"extern cl::Buffer Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";	
-			}
-		}
-	}
 }
 string GPUCodeGenerate::FindNumofNode(FlatNode *actor)
 {
@@ -926,18 +1138,19 @@ int GPUCodeGenerate::ReturnBufferSize(FlatNode *actora,FlatNode *actorb)//a->b
 		if ((*iter_nodes)->name == actorb->name)
 		{
 			stageminus = pSa->FindStage(actorb) - pSa->FindStage(actora);
-			if(actora->GPUPart != nGpu_ && actorb->GPUPart == nGpu_)
-				size=(sssg_->GetInitCount(actora)+sssg_->GetSteadyCount(actora)*Maflp->MultiNum2FlatNode[actora]*stageminus)*(*iter_push);
-			else if(actora->GPUPart == nGpu_ && actorb->GPUPart != nGpu_)
-				size=(sssg_->GetInitCount(actora)+sssg_->GetSteadyCount(actora)*Maflp->MultiNum2FlatNode[actora]/nGpu_*stageminus)*(*iter_push);
+			if(actora->GPUPart < nGpu_ && actorb->GPUPart >= nGpu_)
+				size=(sssg_->GetInitCount(actora)+sssg_->GetSteadyCount(actora)*Haflp->MultiNum2FlatNode[actora]*stageminus)*(*iter_push);
+			else if(actora->GPUPart >= nGpu_ && actorb->GPUPart < nGpu_)
+				size=(sssg_->GetInitCount(actora)+sssg_->GetSteadyCount(actora)*Haflp->MultiNum2FlatNode[actora]/nGpu_*stageminus)*(*iter_push);
 			else
-				size=(sssg_->GetInitCount(actora)+sssg_->GetSteadyCount(actora)*Maflp->MultiNum2FlatNode[actora]*(stageminus+1))*(*iter_push);
+				size=(sssg_->GetInitCount(actora)+sssg_->GetSteadyCount(actora)*Haflp->MultiNum2FlatNode[actora]*(stageminus+1))*(*iter_push);
 			break;
 		}
 		iter_push++;
 	}
 	return size;
 }
+
 void GPUCodeGenerate::CGAllKernel()
 {
 	stringstream buf;
@@ -948,133 +1161,66 @@ void GPUCodeGenerate::CGAllKernel()
 		buf<<"typedef struct\n";
 		buf<<"{\n";
 		buf<<"\t"<<iter_nametype->first<<" "<<iter_nametype->second<<";\n";
-		buf<<"}mystruct_"<<iter_nametype->first<<";\n";
+		buf<<"}"<<iter_nametype->first<<"_x;\n";
 	}
 	int stageminus,size;
 	vector<FlatNode*>::iterator iter,iter_1;
 	vector<int>::iterator iter_2;
-	/*for (iter_1 = flatNodes_.begin();iter_1 != flatNodes_.end();iter_1 ++)
+	for (iter_1 = vTemplateNode_.begin();iter_1 != vTemplateNode_.end();iter_1++)
 	{
-		if (!DetectiveFilterState((*iter_1)))
+		if((*iter_1)->GPUPart < nGpu_)
 		{
-		}
-	}*/
-	/*for (iter_1 = flatNodes_.begin();iter_1 != flatNodes_.end();iter_1 ++)
-	{
-		for (iter=(*iter_1)->inFlatNodes.begin();iter!=(*iter_1)->inFlatNodes.end();iter++)
-		{
-			if(((*iter_1)->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_))
-			{
-				map<map<FlatNode*,FlatNode*>,string>::iterator iter_buffername;
-				map<FlatNode*,FlatNode*>searchmap;
-				searchmap.clear();
-				searchmap.insert(make_pair(*iter,*iter_1));
-				iter_buffername = BufferNameOfEdge.find(searchmap);
-				size=ReturnBufferSize(*iter,*iter_1);
-				if (!IsMod)
-				{
-					size = ReturnNumBiger(size);
-				}
-				buf<<"__kernel void kernel_"<<(*iter)->name<<"_"<<(*iter_1)->name<<"_dataget(";
-				buf<<"__global const mystruct_"<<ReturnTypeOfEdge(*iter,*iter_1)<<" *Inbuffer_"<<(*iter)->name<<"_"<<(*iter_1)->name<<"_data, ";
-				buf<<"__global mystruct_"<<ReturnTypeOfEdge(*iter,*iter_1)<<" *"<<iter_buffername->second<<", ";
-				buf<<"int writedatatag_"<<(*iter)->name<<"_"<<(*iter_1)->name<<")";
-				buf<<"\n{\n";
-				buf<<"\t\tint id = get_global_id(0);\n";
-				if (IsMod)
-				{
-					buf<<"\t\t"<<iter_buffername->second<<"[(id+writedatatag_"<<(*iter)->name<<"_"<<(*iter_1)->name<<")%"<<size<<"] = Inbuffer_"<<(*iter)->name<<"_"<<(*iter_1)->name<<"_data[id];\n";
-				}
-				else
-				{
-					buf<<"\t\t"<<iter_buffername->second<<"[(id+writedatatag_"<<(*iter)->name<<"_"<<(*iter_1)->name<<")&("<<size<<"-1)] = Inbuffer_"<<(*iter)->name<<"_"<<(*iter_1)->name<<"_data[id];\n";
-				}
-				buf<<"}\n\n";
-			}
-		}
-	}
-	for (iter_1 = flatNodes_.begin();iter_1 != flatNodes_.end();iter_1 ++)
-	{
-		for (iter=(*iter_1)->outFlatNodes.begin();iter!=(*iter_1)->outFlatNodes.end();iter++)
-		{
-			if(((*iter_1)->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || ((*iter_1)->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(*iter_1)!=Maflp->findPartitionNumForFlatNode(*iter)))
-			{
-				map<map<FlatNode*,FlatNode*>,string>::iterator iter_buffername;
-				map<FlatNode*,FlatNode*>searchmap;
-				searchmap.clear();
-				searchmap.insert(make_pair(*iter_1,*iter));
-				iter_buffername = BufferNameOfEdge.find(searchmap);
-				size=ReturnBufferSize(*iter_1,*iter);
-				if (!IsMod)
-				{
-					size = ReturnNumBiger(size);
-				}
-				buf<<"__kernel void kernel_"<<(*iter_1)->name<<"_"<<(*iter)->name<<"_datasend(";
-				buf<<"__global  mystruct_"<<ReturnTypeOfEdge(*iter_1,*iter)<<" *Outbuffer_"<<(*iter_1)->name<<"_"<<(*iter)->name<<"_data, ";
-				buf<<"__global const mystruct_"<<ReturnTypeOfEdge(*iter_1,*iter)<<" *"<<iter_buffername->second<<", ";
-				buf<<"int readdatatag_"<<(*iter_1)->name<<"_"<<(*iter)->name<<")";
-				buf<<"\n{\n";
-				buf<<"\t\tint id = get_global_id(0);\n";
-				if (IsMod)
-				{
-					buf<<"\t\tOutbuffer_"<<(*iter_1)->name<<"_"<<(*iter)->name<<"_data[id] = "<<iter_buffername->second<<"[(id+readdatatag_"<<(*iter_1)->name<<"_"<<(*iter)->name<<")%"<<size<<"];\n";
-				}
-				else
-				{
-					buf<<"\t\tOutbuffer_"<<(*iter_1)->name<<"_"<<(*iter)->name<<"_data[id] = "<<iter_buffername->second<<"[(id+readdatatag_"<<(*iter_1)->name<<"_"<<(*iter)->name<<")&("<<size<<"-1)];\n";
-				}
-				buf<<"}\n\n";
-			}
-		}
-	}*/
-	for (iter_1 = flatNodes_.begin();iter_1 != flatNodes_.end();iter_1 ++)
-	{
-		if((*iter_1)->GPUPart != nGpu_)
-		{
-			buf<<"__kernel void kernel"<<(*iter_1)->name<<"(";
+			buf<<"__kernel void kernel"<<mapFlatnode2Template_[*iter_1]<<"(";
 			map<map<FlatNode*,FlatNode*>,string>::iterator iter_buffername;
 			map<FlatNode*,FlatNode*>searchmap;
 			for (iter=(*iter_1)->inFlatNodes.begin();iter!=(*iter_1)->inFlatNodes.end();iter++)
 			{
-				if((*iter)->GPUPart == nGpu_)
+				if((*iter)->GPUPart >= nGpu_)
 				{
 					searchmap.clear();
 					searchmap.insert(make_pair(*iter,*iter_1));
 					iter_buffername = BufferNameOfEdge.find(searchmap);
-					buf<<"__global const mystruct_"<<ReturnTypeOfEdge(*iter,*iter_1)<<" *"<<iter_buffername->second<<", ";
+					buf<<"__global "<<pEdgeInfo->getEdgeInfo((*iter),(*iter_1)).typeName<<" *"<<iter_buffername->second<<", ";
 					buf<<"int readtag_"<<(*iter)->name<<"_"<<(*iter_1)->name<<", ";
-					//buf<<"\t\tkernel.setArg("<<argnum++<<",writedatatag_"<<(*iter)->name<<"_"<<actor->name<<");\n";
 				}
-				if((*iter)->GPUPart != nGpu_)
+				if((*iter)->GPUPart < nGpu_)
 				{
 					searchmap.clear();
 					searchmap.insert(make_pair(*iter,*iter_1));
 					iter_buffername = BufferNameOfEdge.find(searchmap);
-					buf<<"__global const mystruct_"<<ReturnTypeOfEdge(*iter,*iter_1)<<" *"<<iter_buffername->second<<", ";
+					buf<<"__global "<<pEdgeInfo->getEdgeInfo((*iter),(*iter_1)).typeName<<" *"<<iter_buffername->second<<", ";
 					buf<<"int readtag_"<<(*iter)->name<<"_"<<(*iter_1)->name<<", ";
 				}
 			}
 			for (iter=(*iter_1)->outFlatNodes.begin();iter!=(*iter_1)->outFlatNodes.end();iter++)
 			{	
-				if((*iter)->GPUPart == nGpu_)
+				if((*iter)->GPUPart >= nGpu_)
 				{
 					searchmap.clear();
 					searchmap.insert(make_pair(*iter_1,*iter));
 					iter_buffername = BufferNameOfEdge.find(searchmap);
-					buf<<"__global mystruct_"<<ReturnTypeOfEdge(*iter_1,*iter)<<" *"<<iter_buffername->second<<", ";
+					buf<<"__global "<<pEdgeInfo->getEdgeInfo((*iter_1),(*iter)).typeName<<" *"<<iter_buffername->second<<", ";
 					buf<<"int writetag_"<<(*iter_1)->name<<"_"<<(*iter)->name<<", ";
 				}
-				if((*iter)->GPUPart != nGpu_)
+				if((*iter)->GPUPart < nGpu_)
 				{
 					searchmap.clear();
 					searchmap.insert(make_pair(*iter_1,*iter));
 					iter_buffername = BufferNameOfEdge.find(searchmap);
-					buf<<"__global mystruct_"<<ReturnTypeOfEdge(*iter_1,*iter)<<" *";
+					buf<<"__global "<<pEdgeInfo->getEdgeInfo((*iter_1),(*iter)).typeName<<" *";
 					buf<<iter_buffername->second<<", ";
 					buf<<"int writetag_"<<(*iter_1)->name<<"_"<<(*iter)->name<<", ";
 				}
 			}
-			map<FlatNode *,vector<string>>::iterator iter_param,iter_paramtype;
+			//chenwenbin 将param变量加入到kernel函数中
+			paramList *plist = (*iter_1)->contents->params;
+			for (int i = 0; i < (*iter_1)->contents->paramSize; i++)
+			{
+				buf<<GetPrimDataType(plist->paramnode->u.id.value->u.Const.type)<<" ";
+				buf<<plist->paramnode->u.id.text<<", ";
+				plist = plist->next;
+			}
+			map<FlatNode *,vector<string> >::iterator iter_param,iter_paramtype;
 			vector<string>paramofactor,paramtypeofactor;
 			vector<string>::iterator iter_paofac,iter_patyofac;
 			iter_param = Actor2KernelPar.find((*iter_1));
@@ -1085,7 +1231,7 @@ void GPUCodeGenerate::CGAllKernel()
 			{
 				buf<<(*iter_patyofac)<<" "<<(*iter_paofac)<<", ";
 			}
-			pair<multimap<FlatNode*,map<string,string>>::iterator,multimap<FlatNode*,map<string,string>>::iterator>pos_ptr = actor2ptr.equal_range(*iter_1);
+			pair<multimap<FlatNode*,map<string,string> >::iterator,multimap<FlatNode*,map<string,string> >::iterator>pos_ptr = actor2ptr.equal_range(*iter_1);
 			map<string,string>::iterator iter_ptr;
 			while (pos_ptr.first != pos_ptr.second)
 			{
@@ -1107,9 +1253,9 @@ void GPUCodeGenerate::CGAllKernel()
 			int num = allstaticvariable.size();
 			staticvariable.clear();
 			staticvariablefinal.clear();
-			map<string,map<string,string>>tempmapofstatic,tempmapofstaticfinal;
-			pair<multimap<FlatNode *,map<string,map<string,string>>>::iterator,multimap<FlatNode *,map<string,map<string,string>>>::iterator>pos_static;
-			map<string,map<string,string>>::iterator iter_substatic;
+			map<string,map<string,string> >tempmapofstatic,tempmapofstaticfinal;
+			pair<multimap<FlatNode *,map<string,map<string,string> > >::iterator,multimap<FlatNode *,map<string,map<string,string> > >::iterator>pos_static;
+			map<string,map<string,string> >::iterator iter_substatic;
 			pos_static = allstaticvariable.equal_range(*iter_1);
 			while (pos_static.first != pos_static.second)
 			{
@@ -1124,7 +1270,7 @@ void GPUCodeGenerate::CGAllKernel()
 				}
 				pos_static.first++;
 			}
-			pair<multimap<FlatNode *,vector<string>>::iterator,multimap<FlatNode *,vector<string>>::iterator>pos_statictype;
+			pair<multimap<FlatNode *,vector<string> >::iterator,multimap<FlatNode *,vector<string> >::iterator>pos_statictype;
 			vector<string>::iterator iter_type;
 			pos_statictype = allstatictype.equal_range(*iter_1);
 			while (pos_statictype.first != pos_statictype.second)
@@ -1136,13 +1282,13 @@ void GPUCodeGenerate::CGAllKernel()
 				}
 				pos_statictype.first++;
 			}
-			map<string,map<string,string>>::iterator iter_staticvar;
+			map<string,map<string,string> >::iterator iter_staticvar;
 			map<string,string>::iterator iter_submapofstatic;
 			vector<string>::iterator iter_typeofstatic = staticvartypefinal.begin();
-			map<string,map<string,string>>::iterator iter_globalvar;
+			map<string,map<string,string> >::iterator iter_globalvar;
 			map<string,string>::iterator iter_submapofglobal;
 			vector<string>::iterator iter_typeofglobal = globalvartypefinal.begin();
-			vector<map<string,map<string,string>>>::iterator iter_vecofstatic,iter_vecofglobal;
+			vector<map<string,map<string,string> > >::iterator iter_vecofstatic,iter_vecofglobal;
 			for (iter_vecofstatic = staticvariablefinal.begin();iter_vecofstatic != staticvariablefinal.end();++iter_vecofstatic)
 			{
 				iter_staticvar = (*iter_vecofstatic).begin();
@@ -1183,10 +1329,10 @@ void GPUCodeGenerate::CGAllKernel()
 							{
 								buf<<"__global "<<*iter_typeofglobal<<" *"<<iter_globalvar->first<<", ";
 							}
-							else
+							/*else
 							{
 								buf<<"__global "<<*iter_typeofglobal<<" "<<iter_globalvar->first<<", ";
-							}
+							}*/
 						}
 						startpos = pos+1;
 					}
@@ -1497,7 +1643,7 @@ void GPUCodeGenerate::CGAllKernel()
 			//////////////////////////////////////////////////////////////////////////
 			//对kernel函数中的二维全局变量以及二维静态变量进行下标的修改，使之变为一维数组
 			set<string>::iterator iter_2Darray;
-			map<string,map<string,string>>::iterator iter_2Dimarray;
+			map<string,map<string,string> >::iterator iter_2Dimarray;
 			map<string,string>::iterator iter_submap;
 			string searchstring;
 			for (iter_2Darray = array2Dname.begin();iter_2Darray != array2Dname.end();iter_2Darray++)
@@ -1520,8 +1666,8 @@ void GPUCodeGenerate::CGAllKernel()
 					pos6 = kernelstring.find("]",pos5);
 					num1string = kernelstring.substr(pos3+1,pos4-pos3-1);
 					num2string = kernelstring.substr(pos5+1,pos6-pos5-1);
-					vector<map<string,map<string,string>>>::iterator iter_vecofglobal;
-					map<string,map<string,string>>::iterator iter_subvecofglobal;
+					vector<map<string,map<string,string> > >::iterator iter_vecofglobal;
+					map<string,map<string,string> >::iterator iter_subvecofglobal;
 					for (iter_vecofglobal = globalvariablefinal.begin();iter_vecofglobal != globalvariablefinal.end();++iter_vecofglobal)
 					{
 						iter_subvecofglobal = (*iter_vecofglobal).begin();
@@ -1541,8 +1687,8 @@ void GPUCodeGenerate::CGAllKernel()
 					}
 					else
 					{
-						vector<map<string,map<string,string>>>::iterator iter_vecofstatic;
-						map<string,map<string,string>>::iterator iter_subvecofstatic;
+						vector<map<string,map<string,string> > >::iterator iter_vecofstatic;
+						map<string,map<string,string> >::iterator iter_subvecofstatic;
 						for (iter_vecofstatic = staticvariablefinal.begin();iter_vecofstatic != staticvariablefinal.end();iter_vecofstatic++)
 						{
 							iter_subvecofstatic = (*iter_vecofstatic).begin();
@@ -1568,10 +1714,10 @@ void GPUCodeGenerate::CGAllKernel()
 			cout<<kernelstring<<endl;*/
 			//////////////////////////////////////////////////////////////////////////
 			//对kernel中的局部二维数组的访问进行修改
-			pair<multimap<FlatNode *,map<string,map<string,string>>>::iterator,multimap<FlatNode *,map<string,map<string,string>>>::iterator>pos_local;
+			pair<multimap<FlatNode *,map<string,map<string,string> > >::iterator,multimap<FlatNode *,map<string,map<string,string> > >::iterator>pos_local;
 			pos_local = alllocalvariable.equal_range(*iter_1);
-			map<string,map<string,string>>localsubmap;
-			map<string,map<string,string>>::iterator iter_local;
+			map<string,map<string,string> > localsubmap;
+			map<string,map<string,string> >::iterator iter_local;
 			while (pos_local.first != pos_local.second)
 			{
 				for (iter_local = pos_local.first->second.begin();iter_local != pos_local.first->second.end();iter_local++)
@@ -1616,15 +1762,51 @@ void GPUCodeGenerate::CGAllKernel()
 	fileName<<dir_<<"allkernel.cl";
 	OutputToFile(fileName.str(),buf.str());
 }
-void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
+void GPUCodeGenerate::CGCreateBuffer(FlatNode *actor,stringstream &buf)
 {
+	vector<FlatNode *>::iterator iter,iter_1;
+	for (int i = 0; i < nGpu_; i++)
+	{
+		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
+		{
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
+			{
+				buf<<"\tcl::Buffer Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
+			}
+		}
+		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
+		{
+			if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter))
+			{
+				buf<<"\tcl::Buffer Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<";\n";
+			}
+		}
+		for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
+		{	
+			if((actor->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter_1)))
+			{
+				buf<<"\tcl::Buffer Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";
+			}
+		}
+		for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
+		{
+			if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter_1))
+			{
+				buf<<"\tcl::Buffer Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<";\n";	
+			}
+		}
+	}
+}
+void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType ot)
+{
+	string classNmae = templatename;
 	stringstream buf, SRbuf, pFlush, pushingBuf, popingBuf,buf1,buf2;
 	stringstream initPushBuf, initPeekBuf, initWorkBuf;
 	stringstream logicInitBuf, workBuf ;
 	vector<string>::iterator iter;
 	map<string,string>tempprt;
 	vector<string>::iterator iter_ptrtype,iter_ptrname;
-	string classNmae = actor->name, streamName = "Token_Temp";
+	string streamName = "Token_Temp";
 	curactor=actor;
 	assert(actor);
 	//cout<<actor->name<<"       "<<endl;
@@ -1640,7 +1822,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	buf<<"#include \"GlobalVar.h\"\n";
 	buf<<"using namespace std;\n";
 	//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3))
-	if(actor->GPUPart != nGpu_)//cwb
+	if(actor->GPUPart < nGpu_)//cwb
 	{
 		CGexternbuffer(actor,buf);
 	}
@@ -1648,6 +1830,12 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	ptrtype.clear();
 	ptrdim.clear();
 	//buf<<"\tinclude \""<<classNmae<<".h\"\n";
+	if((actor->inFlatNodes.size() == 0 && actor->outFlatNodes.size() != 0))
+		buf<<"template<typename T>\n";
+	else if((actor->inFlatNodes.size() != 0 && actor->outFlatNodes.size() == 0))
+		buf<<"template<typename U>\n";
+	else if(actor->inFlatNodes.size() != 0 && actor->outFlatNodes.size() != 0)
+		buf<<"template<typename T,typename U>\n";
 	buf <<"class "<<classNmae<<"{\n"; // 类块开始
 	// 写入发送、接收信息
 	parameterBuf.str(""); // 清空parameterBuf内容
@@ -1659,7 +1847,9 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	buf << SRbuf.str();
 	// 写入循环次数信息
 	//buf << "\tint RepeatCount;\n";
-	buf<<"private:\n\t";
+	buf<<"private:\n";
+	//cwb 模板中GPU存储空间
+	CGCreateBuffer(actor,buf);
 	//写入读写标志位
 	CGdatatag(actor,buf);
 	//写入边的私有变量
@@ -1672,7 +1862,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	CGlogicInit(actor, ot, buf, logicInitBuf);
 	// 写入popToken函数
 	//if (DetectiveFilterState(actor)||(Maflp->UporDownStatelessNode(actor)==3)) //cwb
-	if(actor->GPUPart == nGpu_)
+	if(actor->GPUPart >= nGpu_)
 	{
 		CGpopToken(actor,buf, popingBuf.str());
 		CGpushToken(actor,buf,popingBuf.str());
@@ -1686,7 +1876,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	// 写入构造函数信息
 	buf<<"\tint steadyScheduleCount;\t//稳态时一次迭代的执行次数\n";
 	buf<<"\tint initScheduleCount;\n";
-	CGthis(actor, ot, buf);
+	CGthis(actor, ot, buf,classNmae);
 	// 写入成员函数信息
 	buf <<"\t// ------------Member Mehods------------\n";
 	// 写入flush函数
@@ -1703,14 +1893,14 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	CGwork(actor, ot, buf);
 	//为分配在GPU上的actor写入数据传输函数(输入到GPU缓冲区中)
 	//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3))//cwb
-	if(actor->GPUPart != nGpu_)
+	if(actor->GPUPart < nGpu_)
 	{
 		bool inactorofcpu = false;
 		vector<FlatNode*>::iterator iter;
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 		{
 			//if ((!DetectiveFilterState(actor)&&(DetectiveFilterState(*iter)||Maflp->UporDownStatelessNode(actor)==3))||((!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter)&&(Maflp->UporDownStatelessNode(*iter)!=3)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter))))
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
 			{
 				inactorofcpu = true;
 			}
@@ -1722,14 +1912,14 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	}
 	//为分配在GPU上的actor写入数据传输函数(输出到CPU缓冲区中)
 	//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3))//cwb
-	if(actor->GPUPart != nGpu_)
+	if(actor->GPUPart < nGpu_)
 	{
 		bool outactorofcpu = false;
 		vector<FlatNode*>::iterator iter;
 		for (iter=actor->outFlatNodes.begin();iter!=actor->outFlatNodes.end();iter++)
 		{
 			//if ((!DetectiveFilterState(actor)&&(DetectiveFilterState(*iter)||Maflp->UporDownStatelessNode(actor)==3))||(!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter)&&(Maflp->UporDownStatelessNode(*iter)!=3)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
 			{
 				outactorofcpu = true;
 			}
@@ -1741,7 +1931,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	}
 	//打印输出结果cwb
 
-	if (actor->outFlatNodes.size() ==0 && PrintFlag && actor->GPUPart != nGpu_)
+	if (actor->outFlatNodes.size() ==0 && PrintFlag && actor->GPUPart < nGpu_)
 	{
 		for (int i = 0; i < nGpu_; i++)
 		{
@@ -1749,8 +1939,8 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 			int queuenum = i+1;
 			vector<FlatNode*>::iterator iter = actor->inFlatNodes.begin();
 			vector<int>::iterator iter_pop = actor->inPopWeights.begin();
-			buf<<"\t\tmystruct_"<<ReturnTypeOfEdge(*iter,actor)<<" *Outst = new mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"[count*"<<*iter_pop<<"];\n";
-			buf<<"\t\tqueue_"<<queuenum<<"_1.enqueueReadBuffer(Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<queuenum-1<<",CL_TRUE,0,count*"<<*iter_pop<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"),Outst,NULL,NULL);\n";
+			buf<<"\t\t"<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<" *Outst = new "<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<"[count*"<<*iter_pop<<"];\n";
+			buf<<"\t\tqueue_"<<queuenum<<"_1.enqueueReadBuffer(Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<queuenum-1<<",CL_TRUE,0,count*"<<*iter_pop<<"*sizeof("<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<"),Outst,NULL,NULL);\n";
 			buf<<"\t\t\tfor(int i = 0;i < count*"<<*iter_pop<<";i++)\n";
 			buf<<"\t\t\t\tcout<<Outst[i].x<<endl;\n";
 			buf<<"\t\tdelete [] Outst;\n\t}\n";
@@ -1761,7 +1951,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	//写入runInitScheduleWork函数
 	//写入runSteadyScheduleWork函数
 	//if (DetectiveFilterState(actor)||(Maflp->UporDownStatelessNode(actor)==3))
-	if(actor->GPUPart == nGpu_)
+	if(actor->GPUPart >= nGpu_)
 	{
 		CGrunInitScheduleWork(actor,buf);
 		CGrunSteadyScheduleWork(actor,buf);
@@ -1780,16 +1970,17 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 		buf1<<(*iter);
 	}
 	//输出到文件
-	stringstream fileName,fileName1;
+	stringstream fileName;
 	fileName<<dir_<<classNmae<<".h";
-	fileName1<<dir_<<classNmae<<".cpp";
+	//fileName1<<dir_<<classNmae<<".cpp";
 	//fileName<<dir_<<"ActorClass.cpp";
-	OutputToFile(fileName.str(),buf.str());
 	if (staticname2value.size()!=0)
 	{
-		buf2<<buf1.str();
-		OutputToFile(fileName1.str(),buf2.str());
+		buf<<"\n"<<buf1.str();
+		//OutputToFile(fileName1.str(),buf2.str());
 	}
+	buf<<endl;
+	OutputToFile(fileName.str(),buf.str());
 	for (iter_ptrtype = ptrtype.begin(),iter_ptrname = ptrname.begin();(iter_ptrtype != ptrtype.end())&&(iter_ptrname != ptrname.end());++iter_ptrtype,++iter_ptrname)
 	{
 		tempprt.clear();
@@ -1803,7 +1994,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf)
 {
 	//if (DetectiveFilterState(actor)||(Maflp->UporDownStatelessNode(actor)==3))
-	if (actor->GPUPart == nGpu_)
+	if (actor->GPUPart >= nGpu_)
 	{
 		buf << "\t// work\n";
 		buf << "\tvoid work(";
@@ -1828,7 +2019,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 			else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
 			if(!DataDependence(actor->inFlatNodes[index],actor))
-				buf<<"mystruct_x *"<<inputString<<",";
+				buf<<pEdgeInfo->getEdgeInfo(actor->inFlatNodes[index],actor).typeName<<" *"<<inputString<<",";
 			++index;
 		//	++iter1;
 		}
@@ -1840,7 +2031,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 			else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
 			if(!DataDependence(actor,actor->outFlatNodes[index]))
-				buf<<"mystruct_x *"<<outputString<<",";
+				buf<<pEdgeInfo->getEdgeInfo(actor,actor->outFlatNodes[index]).typeName<<" *"<<outputString<<",";
 			++index;
 		//	++iter2;
 		}
@@ -1880,26 +2071,21 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			int pos = actor->name.find('_');
 			num = actor->name.substr(pos+1);
 			int argnum = 0;//kernel函数的参数个数
-			buf<<"\t\tcl::Kernel kernel(program,\"kernel"<<actor->name<<"\");\n";
+			buf<<"\t\tcl::Kernel kernel(program,\"kernel"<<mapFlatnode2Template_[actor]<<"\");\n";
 			vector<FlatNode*>::iterator iter,iter_1;
-			map<FlatNode*,vector<string>>::iterator iterofOut,iterofIn;
+			map<FlatNode*,vector<string> >::iterator iterofOut,iterofIn;
 			vector<string>curkerpar,othkerpar,tempstring;
 			vector<string>::iterator cur_iter,oth_iter;
 			for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 			{
 				//if ((!DetectiveFilterState(actor)&&DetectiveFilterState(*iter))||(!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
-				if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
+				if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
 				{
 					buf<<"\t\tkernel.setArg("<<argnum++<<",Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<");\n";
-					buf<<"\t\tkernel.setArg("<<argnum++<<",readtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<");\n";
-					//buf<<"\t\tkernel.setArg("<<argnum++<<",writedatatag_"<<(*iter)->name<<"_"<<actor->name<<");\n";
+					buf<<"\t\tkernel.setArg("<<argnum++<<",readtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<");\n";//buf<<"\t\tkernel.setArg("<<argnum++<<",writedatatag_"<<(*iter)->name<<"_"<<actor->name<<");\n";
 				}
-				//if (!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter)&&Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
-				if(actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter))
+				if(actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter))
 				{
-					//othkerpar = OutbufferOfActor.find(*iter)->second;
-					//for (oth_iter = othkerpar.begin();oth_iter != othkerpar.end();oth_iter++)
-					//{
 					buf<<"\t\tkernel.setArg("<<argnum++<<","<<"Outbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<");\n";
 					buf<<"\t\tkernel.setArg("<<argnum++<<",readtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<");\n";
 					//}
@@ -1907,15 +2093,14 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			}
 			for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
 			{	
-				//if ((!DetectiveFilterState(actor)&&DetectiveFilterState(*iter_1))||(!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter_1)&&Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter_1)))
-				if((actor->GPUPart != nGpu_ && (*iter_1)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter_1)))
+				if((actor->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter_1)))
 				{
 					buf<<"\t\tkernel.setArg("<<argnum++<<",Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<");\n";
 					buf<<"\t\tkernel.setArg("<<argnum++<<",writetag_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<");\n";
 				}
 				tempstring.clear();
 				//if (!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter_1)&&Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter_1))
-				if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)==Maflp->findPartitionNumForFlatNode(*iter_1))
+				if(actor->GPUPart < nGpu_ && (*iter_1)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)==Haflp->findPartitionNumForFlatNode(*iter_1))
 				{
 					buf<<"\t\tkernel.setArg("<<argnum++<<",Outbuffer_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<");\n";
 					buf<<"\t\tkernel.setArg("<<argnum++<<",writetag_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<");\n";
@@ -1923,7 +2108,14 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 				}
 				OutbufferOfActor.insert(make_pair(actor,tempstring));
 			}
-			map<FlatNode *,vector<string>>::iterator iter_param;
+			//chenwenbin 将param变量传给kernel函数
+			paramList *pList = actor->contents->params;
+			for (int i = 0; i < actor->contents->paramSize; i++)
+			{
+				buf<<"\t\tkernel.setArg("<<argnum++<<","<<pList->paramnode->u.id.text<<");\n";
+				pList = pList->next;
+			}
+			map<FlatNode *,vector<string> >::iterator iter_param;
 			vector<string>paramofactor;
 			vector<string>::iterator iter_paofac;
 			iter_param = Actor2KernelPar.find(actor);
@@ -1993,13 +2185,13 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			//cout<<declInitList.str()<<endl;
 			//////////////////////////////////////////////////////////////////////////
 			//需要在work部分寻找相关的全局以及静态变量
-			map<string,map<string,string>>::iterator iter_staticvar;
+			map<string,map<string,string> >::iterator iter_staticvar;
 			map<string,string>::iterator iter_submapofstatic;
 			vector<string>::iterator iter_typeofstatic = staticvartypefinal.begin();
-			map<string,map<string,string>>::iterator iter_globalvar;
+			map<string,map<string,string> >::iterator iter_globalvar;
 			map<string,string>::iterator iter_submapofglobal;
 			vector<string>::iterator iter_typeofglobal = globalvartypefinal.begin();
-			vector<map<string,map<string,string>>>::iterator iter_vecofstatic,iter_vecofglobal;
+			vector<map<string,map<string,string> > >::iterator iter_vecofstatic,iter_vecofglobal;
 			for (iter_vecofstatic = staticvariablefinal.begin();iter_vecofstatic != staticvariablefinal.end();++iter_vecofstatic)
 			{
 				for (iter_staticvar = (*iter_vecofstatic).begin();iter_staticvar != (*iter_vecofstatic).end();iter_staticvar++,iter_typeofstatic++)
@@ -2084,10 +2276,10 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 								buf<<"\t\tcl::Buffer "<<iter_globalvar->first<<"_buffer(context,CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,"<<num1<<"*sizeof("<<(*iter_typeofglobal)<<"),"<<(iter_globalvar->first)<<",NULL);\n";
 								buf<<"\t\tkernel.setArg("<<argnum++<<","<<iter_globalvar->first<<"_buffer);\n";
 							}
-							else
+							/*else
 							{
 								buf<<"\t\tkernel.setArg("<<argnum++<<","<<iter_globalvar->first<<");\n";
-							}
+							}*/
 						}
 						startpos = pos + 1;
 					}
@@ -2099,21 +2291,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			buf<<"\t\tcl::NDRange offset(0);\n";
 			buf<<"\t\tcl::NDRange global_size(count/com_num);\n";
 			int queuenum = i + 1;
-			/*map<int,int>::iterator iter_thread2queue;
-			iter_thread2queue = thread2queue.find(Maflp->findPartitionNumForFlatNode(actor));
-			if ((iter_thread2queue == thread2queue.end()) && (thread2queue.size() == 0))
-			{
-				queuenum = 1;
-			}
-			else if ((iter_thread2queue == thread2queue.end()) && (thread2queue.size() != 0))
-			{
-				queuenum = thread2queue.size()+1;
-			}
-			else
-			{
-				queuenum = iter_thread2queue->second;
-			}*/
-			Node2QueueID.insert(make_pair(actor,queuenum));
+			//Node2QueueID.insert(make_pair(actor,queuenum));
 			buf<<"\t\tif((count/com_num)%"<<LocalSizeofWork<<" == 0)\n";
 			buf<<"\t\t{\n";
 			buf<<"\t\t\tcl::NDRange local_size("<<LocalSizeofWork<<");\n";
@@ -2128,39 +2306,19 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			{
 				
 			}
-			thread2queue.insert(make_pair(Maflp->findPartitionNumForFlatNode(actor),queuenum));
+			thread2queue.insert(make_pair(Haflp->findPartitionNumForFlatNode(actor),queuenum));
+			int index = 0;
 			for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 			{
-				//if (!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter))
-				if(actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_)
-				{
-					buf<<"\t\treadtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" += count/com_num*"<<(*iter_inpopweight)<<";\n";
-				}
-				//if (!DetectiveFilterState(actor)&&DetectiveFilterState(*iter))
-				if(actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_)
-				{
-					buf<<"\t\treadtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" += count/com_num*"<<(*iter_inpopweight)<<";\n";
-				}
-				iter_inpopweight++;
+				buf<<"\t\treadtag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" += count/com_num*popValue"<<index<<";\n";
+				index++;
 			}
+			index = 0;
 			for (iter_1=actor->outFlatNodes.begin();iter_1!=actor->outFlatNodes.end();iter_1++)
 			{
-				//if (!DetectiveFilterState(actor)&&!DetectiveFilterState(*iter_1))
-				if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart != nGpu_)
-				{
-					buf<<"\t\twritetag_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<" += count/com_num*"<<(*iter_outpushweight)<<";\n";
-				}
-				//if (!DetectiveFilterState(actor)&&DetectiveFilterState(*iter_1))
-				if(actor->GPUPart != nGpu_ && (*iter_1)->GPUPart == nGpu_)
-				{
-					buf<<"\t\twritetag_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<" += count/com_num*"<<(*iter_outpushweight)<<";\n";
-				}
-				iter_outpushweight++;
+				buf<<"\t\twritetag_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<" += count/com_num*pushValue"<<index<<";\n";
+				index++;
 			}
-			/*for(iter_prname=ptrname.begin();iter_prname!=ptrname.end();++iter_prname)
-			{
-			buf<<"\n\t\tdelete "<<(*iter_prname)<<";\n";
-			}*/
 			buf << "\t}\n"; // work方法结束
 			declInitList.str(""); // 清空
 		}
@@ -2223,8 +2381,8 @@ void GPUCodeGenerate::CGdataGetforGPU(FlatNode *actor,stringstream &buf)
 			string inputString;
 			if(inputNode->typ == Id)inputString = inputNode->u.id.text;
 			else if (inputNode->typ == Decl) inputString = inputNode->u.decl.name;
-			if(IsDownBorder(actor->inFlatNodes[inflatnodeindex]) && !DataDependence(actor->inFlatNodes[inflatnodeindex],actor))
-				buf<<"mystruct_x *"<<inputString<<",";
+			if(sssg_->IsDownBorder(actor->inFlatNodes[inflatnodeindex]) && !DataDependence(actor->inFlatNodes[inflatnodeindex],actor))
+				buf<<pEdgeInfo->getEdgeInfo(actor->inFlatNodes[inflatnodeindex],actor).typeName<<" *"<<inputString<<",";
 			++inflatnodeindex;
 			InPutString.push_back(inputString);
 		}
@@ -2237,60 +2395,73 @@ void GPUCodeGenerate::CGdataGetforGPU(FlatNode *actor,stringstream &buf)
 		buf<<"\t\tif(count == initScheduleCount)\n";
 		buf<<"\t\t{\n";
 		buf<<"\t\t\tif(count){\n";
+		int index = 0;
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 		{
 			int argnum = 0;
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_))
 			{
 				int queuenum = i + 1;
 				pos = mapedge2xy2.equal_range(iterxy->first);
 				string searchstring = (*iter)->name+"_"+actor->name;
-				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE, 0, "<<sssg_->GetInitCount(*iter)<<"*"<<ReturnPushWeight(*iter,actor)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0], NULL,NULL);\n";
+				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE, 0, "<<sssg_->GetInitCount(*iter)<<"*"<<ReturnPushWeight(*iter,actor)<<"*sizeof("<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0], NULL,NULL);\n";
 
 				buf<<"\t\t\t\twritedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" += "<<sssg_->GetInitCount(*iter)<<"*"<<ReturnPushWeight(*iter,actor)<<";\n";
+				if(ExistDependence(actor))
+				{
+					buf<<"\t\t\t\tpopComm"<<index<<" = "<<sssg_->GetInitCount(*iter)*ReturnPushWeight(*iter,actor)<<";\n";
+				}
+					//buf<<"\t\t\t\tpopToken("<<sssg_->GetInitCount(*iter)*ReturnPushWeight(*iter,actor)<<");\n";
 				//buf<<"\t\t\t}\n";
 			}
 			iter_inpopweight++;
 			iter_instring++;
+			index++;
 		}
 		buf<<"\t\t\t}\n";
 		buf<<"\t\t}\n";
 		iter_inpopweight = actor->inPopWeights.begin();
 		iterxy=mapedge2xy2.begin();
 		iter_instring = InPutString.begin();
+		index = 0;
 		buf<<"\t\telse if(count == steadyScheduleCount)\n";
 		buf<<"\t\t{\n";
 		buf<<"\t\t\tif(count){\n";
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
 		{
 			int argnum = 0;
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_) || (actor->GPUPart != nGpu_ && (*iter)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(actor)!=Maflp->findPartitionNumForFlatNode(*iter)))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_) || (actor->GPUPart < nGpu_ && (*iter)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(actor)!=Haflp->findPartitionNumForFlatNode(*iter)))
 			{
 				int queuenum = i + 1;
 				int stagemins = pSa->FindStage(actor) - pSa->FindStage(*iter);
 				pos = mapedge2xy2.equal_range(iterxy->first);
 				string searchstring = (*iter)->name+"_"+actor->name;
-				buf<<"\t\t\t\tif(writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"+"<<sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter,actor)<<" > ";
-				buf<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<")\n";
+				buf<<"\t\t\t\tif(writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"+"<<sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter,actor)<<" > ";
+				buf<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<")\n";
 				buf<<"\t\t\t\t{\n";
-				buf<<"\t\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE,writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"), ("<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<")*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0], NULL,NULL);\n";
-				buf<<"\t\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE,0, ("<<sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter,actor)<<"-("<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"))*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0+"<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"], NULL,NULL);\n";
-				buf<<"\t\t\t\t\twritedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" = "<<sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter,actor)<<"-("<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<");";
+				buf<<"\t\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE,writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"*sizeof("<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<"), ("<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<")*sizeof("<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0], NULL,NULL);\n";
+				buf<<"\t\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE,0, ("<<sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter,actor)<<"-("<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"))*sizeof("<<pEdgeInfo->getEdgeInfo((*iter),actor).typeName<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0+"<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<"-writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"], NULL,NULL);\n";
+				buf << "\t\t\t\t\twritedatatag_" << (*iter)->name << "_" << actor->name << "_" << i << " = " << sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(*iter, actor) << "-(" << (sssg_->GetInitCount(*iter) + sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor] * stagemins)*ReturnPushWeight(*iter, actor) << "-writedatatag_" << (*iter)->name << "_" << actor->name << "_" << i << ");";
 				buf<<"\n\t\t\t\t}\n";
 				buf<<"\t\t\t\telse{\n";
-				buf<<"\t\t\t\t\tqueue_"<<queuenum<<"_0.enqueueWriteBuffer(Inbuffer_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<", CL_FALSE,writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"), "<<sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(*iter,actor)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter,actor)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0], NULL,NULL);\n";
-				buf<<"\t\t\t\t\twritedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" += "<<sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]<<"*"<<ReturnPushWeight(*iter,actor)<<";\n";
+				buf << "\t\t\t\t\tqueue_" << queuenum << "_0.enqueueWriteBuffer(Inbuffer_" << (*iter)->name << "_" << actor->name << "_" << i << ", CL_FALSE,writedatatag_" << (*iter)->name << "_" << actor->name << "_" << i << "*sizeof(" << pEdgeInfo->getEdgeInfo((*iter), actor).typeName << "), " << sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(*iter, actor) << "*sizeof(" << pEdgeInfo->getEdgeInfo((*iter), actor).typeName << "),&" << ReturnNameOfTheEdge(searchstring) << "[0], NULL,NULL);\n";
+				buf << "\t\t\t\t\twritedatatag_" << (*iter)->name << "_" << actor->name << "_" << i << " += " << sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor] << "*" << ReturnPushWeight(*iter, actor) << ";\n";
 				//buf<<"\t\t\t\t\tif(writedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" == "<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<")\n";
-				buf<<"\t\t\t\t\twritedatatag_"<<(*iter)->name<<"_"<<actor->name<<"_"<<i<<" %= "<<(sssg_->GetInitCount(*iter)+sssg_->GetSteadyCount(*iter)*Maflp->MultiNum2FlatNode[actor]*stagemins)*ReturnPushWeight(*iter,actor)<<";\n";
+				buf << "\t\t\t\t\twritedatatag_" << (*iter)->name << "_" << actor->name << "_" << i << " %= " << (sssg_->GetInitCount(*iter) + sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor] * stagemins)*ReturnPushWeight(*iter, actor) << ";\n";
 				buf<<"\t\t\t\t}\n";
+				if(ExistDependence(actor))
+				{
+					buf << "\t\t\t\tpopComm" << index << " = " << sssg_->GetSteadyCount(*iter)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(*iter, actor) << ";\n";
+				}
 			}
 			iter_instring++;
 			iter_inpopweight++;
+			index++;
 		}
 		buf<<"\t\t\t}\n";
 		buf<<"\t\t}\n";
 		if(ExistDependence(actor))
-			buf<<"\t\tpopToken(count);\n";
+			buf<<"\t\tpopToken();\n";
 		buf<<"\t}\n";
 	}
 	
@@ -2298,6 +2469,15 @@ void GPUCodeGenerate::CGdataGetforGPU(FlatNode *actor,stringstream &buf)
 
 void GPUCodeGenerate::CGdataSendforGPU(FlatNode *actor,stringstream &buf)
 {
+	bool pushflag = false;
+	for (int outindex = 0; outindex < actor->outFlatNodes.size(); ++outindex)
+	{
+		if (DataDependence(actor,actor->outFlatNodes[outindex]))
+		{
+			pushflag = true;
+			break;
+		}
+	}
 	for (int i = 0; i < nGpu_; i++)
 	{
 		buf<<"\tvoid datasend_"<<i<<"(int count,";
@@ -2316,8 +2496,8 @@ void GPUCodeGenerate::CGdataSendforGPU(FlatNode *actor,stringstream &buf)
 			string outputString;
 			if(outputNode->typ == Id)outputString = outputNode->u.id.text;
 			else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
-			if(IsUpBorder(actor->outFlatNodes[outflatnodeindex]) && !DataDependence(actor,actor->outFlatNodes[outflatnodeindex]))
-				buf<<"mystruct_x *"<<outputString<<",";
+			if(sssg_->IsUpBorder(actor->outFlatNodes[outflatnodeindex]) && !DataDependence(actor,actor->outFlatNodes[outflatnodeindex]))
+				buf<<pEdgeInfo->getEdgeInfo(actor,actor->outFlatNodes[outflatnodeindex]).typeName<<" *"<<outputString<<",";
 			++outflatnodeindex;
 			OutPutString.push_back(outputString);
 		}
@@ -2331,17 +2511,23 @@ void GPUCodeGenerate::CGdataSendforGPU(FlatNode *actor,stringstream &buf)
 		buf<<"\t\t{\n";
 		buf<<"\t\t\tif(count){\n";
 		iter_outpushweight = actor->outPushWeights.begin();
+		int index = 0;
 		for (iter=actor->outFlatNodes.begin();iter!=actor->outFlatNodes.end();iter++)
 		{
 			int argnum = 0;
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_))
 			{
 				int queuenum = i + 1;
 				string searchstring = actor->name+"_"+(*iter)->name;
-				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueReadBuffer(Outbuffer_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<",CL_FALSE,0,"<<sssg_->GetInitCount(*iter)*(*iter_outpushweight)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(actor,*iter)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0],NULL,NULL);\n";
+				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueReadBuffer(Outbuffer_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<",CL_FALSE,0,"<<sssg_->GetInitCount(*iter)*(*iter_outpushweight)<<"*sizeof("<<pEdgeInfo->getEdgeInfo(actor,(*iter)).typeName<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0],NULL,NULL);\n";
 				buf<<"\t\t\t\treaddatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<" += "<<sssg_->GetInitCount(*iter)*(*iter_outpushweight)<<";\n";
+			    if(pushflag)
+				{
+					buf<<"\t\t\tpushComm"<<index<<" = "<<sssg_->GetInitCount(*iter)*(*iter_outpushweight)<<";\n";
+				}
 			}
 			iter_outpushweight++;
+			index++;
 		}
 		buf<<"\t\t\t}\n";
 		buf<<"\t\t}\n";
@@ -2350,40 +2536,37 @@ void GPUCodeGenerate::CGdataSendforGPU(FlatNode *actor,stringstream &buf)
 		iterxy=mapedge2xy2.begin();
 		buf<<"\t\telse\n";
 		buf<<"\t\t{\n";
+		index = 0;
 		for (iter=actor->outFlatNodes.begin();iter!=actor->outFlatNodes.end();iter++)
 		{
 			int argnum = 0;
-			if((actor->GPUPart != nGpu_ && (*iter)->GPUPart == nGpu_))
+			if((actor->GPUPart < nGpu_ && (*iter)->GPUPart >= nGpu_))
 			{
 				int queuenum = i + 1;
 				string searchstring = actor->name+"_"+(*iter)->name;
 				int stageminus = pSa->FindStage(*iter)-pSa->FindStage(actor);
-				buf<<"\t\t\tif(readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<"+"<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(actor,*iter)<<" > "<<(sssg_->GetInitCount(actor)+sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*stageminus)*ReturnPushWeight(actor,*iter)<<")\n";
+				buf << "\t\t\tif(readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << "+" << sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(actor, *iter) << " > " << (sssg_->GetInitCount(actor) + sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * stageminus)*ReturnPushWeight(actor, *iter) << ")\n";
 				buf<<"\t\t\t{\n";
-				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueReadBuffer(Outbuffer_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<",CL_FALSE,readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(actor,*iter)<<"),("<<(sssg_->GetInitCount(actor)+sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*stageminus)*ReturnPushWeight(actor,*iter)<<"-readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<")*sizeof(mystruct_"<<ReturnTypeOfEdge(actor,*iter)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0],NULL,NULL);\n";
-				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueReadBuffer(Outbuffer_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<",CL_FALSE,0,("<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(actor,*iter)<<"-("<<(sssg_->GetInitCount(actor)+sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*stageminus)*ReturnPushWeight(actor,*iter)<<"-readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<"))*sizeof(mystruct_"<<ReturnTypeOfEdge(actor,*iter)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0+"<<(sssg_->GetInitCount(actor)+sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*stageminus)*ReturnPushWeight(actor,*iter)<<"-readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<"],NULL,NULL);\n";
-				buf<<"\t\t\t\treaddatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<" = "<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(actor,*iter)<<"-("<<(sssg_->GetInitCount(actor)+sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*stageminus)*ReturnPushWeight(actor,*iter)<<"-readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<");\n";
+				buf << "\t\t\t\tqueue_" << queuenum << "_0.enqueueReadBuffer(Outbuffer_" << actor->name << "_" << (*iter)->name << "_" << i << ",CL_FALSE,readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << "*sizeof(" << pEdgeInfo->getEdgeInfo(actor, (*iter)).typeName << "),(" << (sssg_->GetInitCount(actor) + sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * stageminus)*ReturnPushWeight(actor, *iter) << "-readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << ")*sizeof(" << pEdgeInfo->getEdgeInfo(actor, (*iter)).typeName << "),&" << ReturnNameOfTheEdge(searchstring) << "[0],NULL,NULL);\n";
+				buf << "\t\t\t\tqueue_" << queuenum << "_0.enqueueReadBuffer(Outbuffer_" << actor->name << "_" << (*iter)->name << "_" << i << ",CL_FALSE,0,(" << sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(actor, *iter) << "-(" << (sssg_->GetInitCount(actor) + sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * stageminus)*ReturnPushWeight(actor, *iter) << "-readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << "))*sizeof(" << pEdgeInfo->getEdgeInfo(actor, (*iter)).typeName << "),&" << ReturnNameOfTheEdge(searchstring) << "[0+" << (sssg_->GetInitCount(actor) + sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * stageminus)*ReturnPushWeight(actor, *iter) << "-readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << "],NULL,NULL);\n";
+				buf << "\t\t\t\treaddatatag_" << actor->name << "_" << (*iter)->name << "_" << i << " = " << sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(actor, *iter) << "-(" << (sssg_->GetInitCount(actor) + sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * stageminus)*ReturnPushWeight(actor, *iter) << "-readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << ");\n";
 				buf<<"\t\t\t}\n";
 				buf<<"\t\t\telse{\n";
-				buf<<"\t\t\t\tqueue_"<<queuenum<<"_0.enqueueReadBuffer(Outbuffer_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<",CL_FALSE,readdatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(actor,*iter)<<"),"<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(actor,*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(actor,*iter)<<"),&"<<ReturnNameOfTheEdge(searchstring)<<"[0],NULL,NULL);\n";
-				buf<<"\t\t\t\treaddatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<" += "<<sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*ReturnPushWeight(actor,*iter)<<";\n";
-				buf<<"\t\t\t\treaddatatag_"<<actor->name<<"_"<<(*iter)->name<<"_"<<i<<" %= "<<(sssg_->GetInitCount(actor)+sssg_->GetSteadyCount(actor)*Maflp->MultiNum2FlatNode[actor]*stageminus)*ReturnPushWeight(actor,*iter)<<";\n";
+				buf << "\t\t\t\tqueue_" << queuenum << "_0.enqueueReadBuffer(Outbuffer_" << actor->name << "_" << (*iter)->name << "_" << i << ",CL_FALSE,readdatatag_" << actor->name << "_" << (*iter)->name << "_" << i << "*sizeof(" << pEdgeInfo->getEdgeInfo(actor, (*iter)).typeName << ")," << sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(actor, *iter) << "*sizeof(" << pEdgeInfo->getEdgeInfo(actor, (*iter)).typeName << "),&" << ReturnNameOfTheEdge(searchstring) << "[0],NULL,NULL);\n";
+				buf << "\t\t\t\treaddatatag_" << actor->name << "_" << (*iter)->name << "_" << i << " += " << sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(actor, *iter) << ";\n";
+				buf << "\t\t\t\treaddatatag_" << actor->name << "_" << (*iter)->name << "_" << i << " %= " << (sssg_->GetInitCount(actor) + sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * stageminus)*ReturnPushWeight(actor, *iter) << ";\n";
 				buf<<"\t\t\t}\n";
+				if (pushflag)
+				{
+					buf << "\t\t\tpushComm" << index << " = " << sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor] * ReturnPushWeight(actor, *iter) << ";\n";
+				}
 			}
 			iter_outpushweight++;
+			index++;
 		}
 		buf<<"\t\t}\n";
-		bool pushflag = false;
-		for (int outindex = 0; outindex < actor->outFlatNodes.size(); ++outindex)
-		{
-			if (DataDependence(actor,actor->outFlatNodes[outindex]))
-			{
-				pushflag = true;
-				break;
-			}
-		}
 		if(pushflag)
-			buf<<"\t\t\tpushToken(count);\n";
+			buf<<"\t\t\tpushToken();\n";
 		buf<<"\t}\n";
 	}
 }
@@ -2404,29 +2587,28 @@ void GPUCodeGenerate::CGactors()
 	stringstream ss,buf;
 	std::map<operatorNode *, string>::iterator pos;
 
-	for (int i = 0; i < nActors_; ++i)//生成 各个 类模板
+	for (int i = 0; i < nTemplateNode_; ++i)//生成 各个 类模板
 	{
-		int len = ListLength(flatNodes_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs);
-		int nOut = flatNodes_[i]->nOut;
-		OperatorType ot = flatNodes_[i]->oldContents->ot;
+		int len = ListLength(vTemplateNode_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs);
+		int nOut = vTemplateNode_[i]->nOut;
+		OperatorType ot = vTemplateNode_[i]->oldContents->ot;
 
-		pos = mapOperator2ClassName.find(flatNodes_[i]->oldContents);
+		pos = mapOperator2ClassName.find(vTemplateNode_[i]->oldContents);
 		//if (pos == mapOperator2ClassName.end()) // 新的类模板进入了
 		{
-			string name = flatNodes_[i]->name;
+			string name = vTemplateNode_[i]->name;
 			int index = name.find_first_of('_');
 			string tmp = name.substr(0, index);
-			mapOperator2ClassName.insert(make_pair(flatNodes_[i]->oldContents, flatNodes_[i]->name));
+			mapOperator2ClassName.insert(make_pair(vTemplateNode_[i]->oldContents, vTemplateNode_[i]->name));
 
 			if (len == nOut)			//nOut为每个operator的输出边个数
 			{
-				buf<<"#include \""<<flatNodes_[i]->name<<".h\"\n";
+				buf<<"#include \""<<vTemplateName_[i]<<".h\"\n";
 				if (strcmp(tmp.c_str(), "FileReader") == 0)
 					isInFileReader = true;
 				if (strcmp(tmp.c_str(), "FileWriter") == 0)
 					isInFileWriter = true; 
-
-				CGactor(flatNodes_[i], ot);
+				CGactor(vTemplateNode_[i],vTemplateName_[i], ot);
 
 				isInFileReader = isInFileWriter = false;
 			}
@@ -2478,7 +2660,7 @@ string GPUCodeGenerate::ReturnTypeOfEdge(FlatNode *actorA,FlatNode *actorB)
 {
 	map<FlatNode *,FlatNode *>searchmap;
 	searchmap.insert(make_pair(actorA,actorB));
-	map<map<FlatNode *,FlatNode *>,map<string,string>>::iterator iter = edge2nameandtype.find(searchmap);
+	map<map<FlatNode *,FlatNode *>,map<string,string> >::iterator iter = edge2nameandtype.find(searchmap);
 	map<string,string>::iterator iter_str;
 	iter_str = iter->second.begin();
 	return iter_str->first;
@@ -2487,21 +2669,21 @@ string GPUCodeGenerate::ReturnNameOfEdge(FlatNode *actorA,FlatNode *actorB)
 {
 	map<FlatNode *,FlatNode *>searchmap;
 	searchmap.insert(make_pair(actorA,actorB));
-	map<map<FlatNode *,FlatNode *>,map<string,string>>::iterator iter = edge2nameandtype.find(searchmap);
+	map<map<FlatNode *,FlatNode *>,map<string,string> >::iterator iter = edge2nameandtype.find(searchmap);
 	map<string,string>::iterator iter_str;
 	iter_str = iter->second.begin();
 	return iter_str->second;
 }
 string GPUCodeGenerate::ReturnTypeOfEdgestr(string typestr)
 {
-	map<string,map<string,string>>::iterator iter = edgestrnameandtype.find(typestr);
+	map<string,map<string,string> >::iterator iter = edgestrnameandtype.find(typestr);
 	map<string,string>::iterator iter_str;
 	iter_str = iter->second.begin();
 	return iter_str->first;
 }
 string GPUCodeGenerate::ReturnNameOfEdgestr(string namestr)
 {
-	map<string,map<string,string>>::iterator iter = edgestrnameandtype.find(namestr);
+	map<string,map<string,string> >::iterator iter = edgestrnameandtype.find(namestr);
 	map<string,string>::iterator iter_str;
 	iter_str = iter->second.begin();
 	return iter_str->second;
@@ -2530,7 +2712,7 @@ void GPUCodeGenerate::CGglobalHeader()
 	{
 		buf<<"#define MAX_ITER 10\n";
 	}
-
+	pEdgeInfo->DeclEdgeType(buf);
 	//cout<<flatNodes_.size();
 	string notCommonEdgeStrName;
 	vector<bool> vecEdgeDefine(flatNodes_.size(),0);
@@ -2552,10 +2734,10 @@ void GPUCodeGenerate::CGglobalHeader()
 			string declaredEdgeStr;
 			flag = 0;
 			edgename=(*iter_1)->name+"_"+(*iter_2)->name;
-			if (!printStruct)
+			/*if (!printStruct)
 			{
 				buf<<"struct mystruct_x\n{\n";
-			}
+			}*/
 			if(!flag&&(*iter_1)->contents->ot != Common_)
 			{
 				if(( iterName= mapOperator2EdgeName.find((*iter_1)->name))!=mapOperator2EdgeName.end())
@@ -2579,8 +2761,6 @@ void GPUCodeGenerate::CGglobalHeader()
 			}
 			if(flag)
 			{
-				//if((*iter_1)->GPUPart != (*iter_2)->GPUPart)
-				//	buf<<"typedef "<<declaredEdgeStr<<"_str "<<edgename<<"_str;\n";
 				vector<FlatNode *>::iterator iter_3 = iter_1;
 				map<string,string>submap;
 				submap.clear();
@@ -2632,8 +2812,8 @@ void GPUCodeGenerate::CGglobalHeader()
 					string s = edgexy.str();
 					mapedge2xy.insert(make_pair(edgename,s));
 					mapedge2xy2.insert(make_pair(edgename,s));
-					if(!printStruct)
-						buf<<declList.str();
+					/*if(!printStruct)
+						buf<<declList.str();*/
 				}	
 				edge2nameandtype.insert(make_pair(submapofstruct,nameandtypeofedge));
 				edgestrnameandtype.insert(make_pair((*iter_1)->name+"_"+(*iter_2)->name,nameandtypeofedge));
@@ -2647,33 +2827,33 @@ void GPUCodeGenerate::CGglobalHeader()
 					UpdateFlatNodeEdgeName(iter_2,edgename);
 				}
 			}	
-			if(!printStruct)
+			/*if(!printStruct)
 			{
 				buf<<"};\n";
 				printStruct = true;
-			}
+			}*/
 			stageminus = pSa->FindStage(*iter_2) - pSa->FindStage(*iter_1);
-			if((*iter_1)->GPUPart == nGpu_ || (*iter_2)->GPUPart == nGpu_)
+			if((*iter_1)->GPUPart >= nGpu_ || (*iter_2)->GPUPart >= nGpu_)
 			{
 				if (!DataDependence(*iter_1,*iter_2))
 				{
-					if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_1)->GPUPart == nGpu_)
-						buf<<"extern mystruct_x "<<edgename<<"["<<stageminus<<"]["<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1])*(*iter_1)->outPushWeights[outflatnodeindex]<<"];\n";
-					else if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_2)->GPUPart == nGpu_)
-						buf<<"extern mystruct_x "<<edgename<<"["<<stageminus<<"]["<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*nGpu_)*(*iter_1)->outPushWeights[outflatnodeindex]<<"];\n";
+					if((*iter_2)->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_)
+						buf << "extern " << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << " " << edgename << "[" << stageminus << "][" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1])*(*iter_1)->outPushWeights[outflatnodeindex] << "];\n";
+					else if((*iter_1)->GPUPart < nGpu_ && (*iter_2)->GPUPart >= nGpu_)
+						buf << "extern " << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << " " << edgename << "[" << stageminus << "][" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1] * nGpu_)*(*iter_1)->outPushWeights[outflatnodeindex] << "];\n";
 					else	
-						buf<<"extern mystruct_x "<<edgename<<"["<<stageminus+1<<"]["<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1])*(*iter_1)->outPushWeights[outflatnodeindex]<<"];\n";
+						buf << "extern " << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << " " << edgename << "[" << stageminus + 1 << "][" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1])*(*iter_1)->outPushWeights[outflatnodeindex] << "];\n";
 				}
 				else
 				{
-					if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_1)->GPUPart == nGpu_)
-						buf<<"extern Buffer<mystruct_x> "<<edgename<<";\n";
+					if((*iter_2)->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_)
+						buf<<"extern Buffer<"<<pEdgeInfo->getEdgeInfo(*iter_1,*iter_2).typeName<<"> "<<edgename<<";\n";
 						//<<"("<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*stageminus)*(*iter_1)->outPushWeights[outflatnodeindex]<<");\n";
-				    else if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_2)->GPUPart == nGpu_)
-						buf<<"extern Buffer<mystruct_x> "<<edgename<<";\n";
+				    else if((*iter_1)->GPUPart < nGpu_ && (*iter_2)->GPUPart >= nGpu_)
+						buf<<"extern Buffer<"<<pEdgeInfo->getEdgeInfo(*iter_1,*iter_2).typeName<<"> "<<edgename<<";\n";
 						//<<"("<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*nGpu_*stageminus)*(*iter_1)->outPushWeights[outflatnodeindex]<<");\n";
 				    else
-						buf<<"extern Buffer<mystruct_x> "<<edgename<<";\n";
+						buf<<"extern Buffer<"<<pEdgeInfo->getEdgeInfo(*iter_1,*iter_2).typeName<<"> "<<edgename<<";\n";
 						//<<"("<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*(stageminus+1))*(*iter_1)->outPushWeights[outflatnodeindex]<<");\n";
 				}
 			}
@@ -2735,14 +2915,14 @@ void GPUCodeGenerate::CGglobalHeader()
 	}	
 	/*multimap<string,string>::iterator iterxy=mapedge2xy2.begin();
 	pair<multimap<string,string>::iterator,multimap<string,string>::iterator>pos = mapedge2xy2.equal_range(iterxy->first);*/
-	map<string,string>::iterator iter_nametype;
+	/*map<string,string>::iterator iter_nametype;
 	for (iter_nametype = allnameandtype.begin();iter_nametype != allnameandtype.end();++iter_nametype)
 	{
 		buf<<"typedef struct\n";
 		buf<<"{\n";
 		buf<<"\t"<<iter_nametype->first<<" "<<iter_nametype->second<<";\n";
 		buf<<"}mystruct_"<<iter_nametype->first<<";\n";
-	}
+	}*/
 	/*while (pos.first != pos.second)
 	{
 	buf<<"\t"<<structdatatype<<" "<<pos.first->second<<";\n";
@@ -2785,25 +2965,25 @@ void GPUCodeGenerate::CGglobalCpp()
 		{
 			edgename=(*iter_1)->name+"_"+(*iter_2)->name;
 			stageminus=pSa->FindStage(*iter_2)-pSa->FindStage(*iter_1);
-			if ((*iter_1)->GPUPart == nGpu_ || (*iter_2)->GPUPart == nGpu_)
+			if ((*iter_1)->GPUPart >= nGpu_ || (*iter_2)->GPUPart >= nGpu_)
 			{
 				if (!DataDependence(*iter_1,*iter_2))
 				{
-					if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_1)->GPUPart == nGpu_)
-						buf<<"mystruct_x "<<edgename<<"["<<stageminus<<"]["<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1])*(*iter)<<"];\n";
-					else if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_2)->GPUPart == nGpu_)
-						buf<<"mystruct_x "<<edgename<<"["<<stageminus<<"]["<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*nGpu_)*(*iter)<<"];\n";
+					if((*iter_2)->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_)
+						buf << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << " " << edgename << "[" << stageminus << "][" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1])*(*iter) << "];\n";
+					else if((*iter_1)->GPUPart < nGpu_ && (*iter_2)->GPUPart >= nGpu_)
+						buf << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << " " << edgename << "[" << stageminus << "][" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1] * nGpu_)*(*iter) << "];\n";
 					else	
-						buf<<"mystruct_x "<<edgename<<"["<<stageminus+1<<"]["<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1])*(*iter)<<"];\n";
+						buf << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << " " << edgename << "[" << stageminus + 1 << "][" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1])*(*iter) << "];\n";
 				}
 				else
 				{
-					if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_1)->GPUPart == nGpu_)
-						buf<<"Buffer<mystruct_x> "<<edgename<<"("<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*stageminus)*(*iter)<<");\n";
-					else if((*iter_1)->GPUPart != (*iter_2)->GPUPart && (*iter_2)->GPUPart == nGpu_)
-						buf<<"Buffer<mystruct_x> "<<edgename<<"("<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*nGpu_*stageminus)*(*iter)<<");\n";
+					if((*iter_2)->GPUPart < nGpu_ && (*iter_1)->GPUPart >= nGpu_)
+						buf << "Buffer<" << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << "> " << edgename << "(" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1] * stageminus)*(*iter) << ");\n";
+					else if((*iter_1)->GPUPart < nGpu_ && (*iter_2)->GPUPart >= nGpu_)
+						buf << "Buffer<" << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << "> " << edgename << "(" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1] * nGpu_*stageminus)*(*iter) << ");\n";
 					else
-						buf<<"Buffer<mystruct_x> "<<edgename<<"("<<(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*Maflp->MultiNum2FlatNode[*iter_1]*(stageminus+1))*(*iter)<<");\n";
+						buf << "Buffer<" << pEdgeInfo->getEdgeInfo(*iter_1, *iter_2).typeName << "> " << edgename << "(" << (sssg_->GetInitCount(*iter_1) + sssg_->GetSteadyCount(*iter_1)*Haflp->MultiNum2FlatNode[*iter_1] * (stageminus + 1))*(*iter) << ");\n";
 				}
 				iter++;
 			}
@@ -2972,32 +3152,54 @@ void GPUCodeGenerate::CGThreads()
 	stringstream buf;
 	char a[10];  
 	string numname;//存储thread结尾数字转化为字符串
-	for (int i=0;i<nGpu_*2+NCpuThreads;i++)
+	if (Haflp->CPUNodes.size() > 0)
 	{
-		buf<<"/*该文件定义各thread的入口函数，在函数内部完成软件流水迭代*/\n";
-		stringstream ss;
-		itoa(i, a, 10);  
-		numname=a;
-		threadname="thread_"+numname;
-		ss<<dir_<<threadname<<".cpp";
-		CGThread(i,buf);
-		OutputToFile(ss.str(),buf.str());
-		ss.str("");
-		buf.str("");
+		for (int i=0;i<nGpu_*2+NCpuThreads;i++)
+		{
+			buf<<"/*该文件定义各thread的入口函数，在函数内部完成软件流水迭代*/\n";
+			stringstream ss;
+			//itoa(i, a, 10);  
+			sprintf(a, "%d", i);
+			numname=a;
+			threadname="thread_"+numname;
+			ss<<dir_<<threadname<<".cpp";
+			CGThread(i,buf);
+			OutputToFile(ss.str(),buf.str());
+			ss.str("");
+			buf.str("");
+		}
 	}
-
+	else
+	{
+		for (int i=0;i<nGpu_;i++)
+		{
+			buf<<"/*该文件定义各thread的入口函数，在函数内部完成软件流水迭代*/\n";
+			stringstream ss;
+			//itoa(i, a, 10);  
+			sprintf(a, "%d", i);
+			numname=a;
+			threadname="thread_"+numname;
+			ss<<dir_<<threadname<<".cpp";
+			CGThread(i,buf);
+			OutputToFile(ss.str(),buf.str());
+			ss.str("");
+			buf.str("");
+		}
+	}
 }
  void GPUCodeGenerate::CGThread(int index,stringstream&buf)
 {
 	char a[10]; 
-	itoa(index, a, 10);  
+	//itoa(index, a, 10);  
+	sprintf(a, "%d", index);
 	string numname=a;
 	int totalstagenum=pSa->MaxStageNumForGPU();
 	vector<FlatNode *>tempactorset;
+	map<FlatNode*,string> actor2name;
 	vector<FlatNode *>::iterator iter;
 	set<int>*ptempstagenum;
 	pair<multimap<FlatNode *,string>::iterator,multimap<FlatNode *,string>::iterator>pos1,pos2;
-	map<int,set<int>>::iterator iter1;
+	map<int,set<int> >::iterator iter1;
 	buf<<"#include \"Buffer.h\"\n";
 	buf<<"#include \"Producer.h\"\n";
 	buf<<"#include \"Consumer.h\"\n";
@@ -3040,12 +3242,70 @@ void GPUCodeGenerate::CGThreads()
 		IsDataTransfer = true;
 		//tempactorset=Maflp->findNodeSetInPartition(index-nGpu_-1);
 	}
-	tempactorset = Maflp->FindNodeInOneDevice(index);
+	//cwb
+	typedef multimap<int,pair<FlatNode*,string> >::iterator index_iter;
+	if (DNBPFlag)
+	{
+		if (index == nGpu_)
+		{
+			pair<index_iter,index_iter> pos = Dnbp->Cputhread2Actor.equal_range(0);
+			while(pos.first != pos.second)
+			{
+				tempactorset.push_back(pos.first->second.first);
+				actor2name.insert(pos.first->second);
+				pos.first++;
+			}
+		}
+		else if (index >= 2*nGpu_+1)
+		{
+			pair<index_iter,index_iter> pos = Dnbp->Cputhread2Actor.equal_range(index-2*nGpu_);
+			while(pos.first != pos.second)
+			{
+				tempactorset.push_back(pos.first->second.first);
+				actor2name.insert(pos.first->second);
+				pos.first++;
+			}
+		}
+		else
+			tempactorset = Haflp->FindNodeInOneDevice(index);
+	}
+	else
+	{
+		tempactorset = Haflp->FindNodeInOneDevice(index);
+		if (index == nGpu_ || index >= 2*nGpu_+1)
+		{
+			for (int i = 0; i < tempactorset.size(); i++)
+			{
+				actor2name.insert(make_pair(tempactorset[i],tempactorset[i]->name));
+			}
+		}
+	}
 	if(!CHECKBARRIERTIME)
 	{
-		for (iter=tempactorset.begin();iter!=tempactorset.end();++iter)
+		if ((index == nGpu_ || index >= 2*nGpu_+1))
 		{
-			buf<<"extern "<<(*iter)->name<<" "<<(*iter)->name<<"_obj;\n";
+			map<FlatNode*,string>::iterator mapiter;
+			for (mapiter = actor2name.begin(); mapiter != actor2name.end(); ++mapiter)
+			{
+				if((mapiter->first)->inFlatNodes.size() == 0 && (mapiter->first)->outFlatNodes.size() != 0)
+					buf<<"extern "<<mapFlatnode2Template_[(mapiter->first)]<<"<"<<pEdgeInfo->getEdgeInfo((mapiter->first),(mapiter->first)->outFlatNodes[0]).typeName<<"> "<<mapiter->second<<"_obj;\n";
+				else if((mapiter->first)->inFlatNodes.size() != 0 && (mapiter->first)->outFlatNodes.size() == 0)
+					buf<<"extern "<<mapFlatnode2Template_[(mapiter->first)]<<"<"<<pEdgeInfo->getEdgeInfo((mapiter->first)->inFlatNodes[0],(mapiter->first)).typeName<<"> "<<mapiter->second<<"_obj;\n";
+				else if((mapiter->first)->inFlatNodes.size() != 0 && (mapiter->first)->outFlatNodes.size() != 0)
+					buf<<"extern "<<mapFlatnode2Template_[(mapiter->first)]<<"<"<<pEdgeInfo->getEdgeInfo((mapiter->first),(mapiter->first)->outFlatNodes[0]).typeName<<","<<pEdgeInfo->getEdgeInfo((mapiter->first)->inFlatNodes[0],(mapiter->first)).typeName<<"> "<<mapiter->second<<"_obj;\n";
+			}
+		}
+		else
+		{
+			for (iter=tempactorset.begin();iter!=tempactorset.end();++iter)
+			{
+				if((*iter)->inFlatNodes.size() == 0 && (*iter)->outFlatNodes.size() != 0)
+					buf<<"extern "<<mapFlatnode2Template_[(*iter)]<<"<"<<pEdgeInfo->getEdgeInfo(*iter,(*iter)->outFlatNodes[0]).typeName<<"> "<<(*iter)->name<<"_obj;\n";
+				else if((*iter)->inFlatNodes.size() != 0 && (*iter)->outFlatNodes.size() == 0)
+					buf<<"extern "<<mapFlatnode2Template_[(*iter)]<<"<"<<pEdgeInfo->getEdgeInfo((*iter)->inFlatNodes[0],*iter).typeName<<"> "<<(*iter)->name<<"_obj;\n";
+				else if((*iter)->inFlatNodes.size() != 0 && (*iter)->outFlatNodes.size() != 0)
+					buf<<"extern "<<mapFlatnode2Template_[(*iter)]<<"<"<<pEdgeInfo->getEdgeInfo(*iter,(*iter)->outFlatNodes[0]).typeName<<","<<pEdgeInfo->getEdgeInfo((*iter)->inFlatNodes[0],*iter).typeName<<"> "<<(*iter)->name<<"_obj;\n";
+			}
 		}
 	}
 	if (TRACE)
@@ -3090,7 +3350,7 @@ void GPUCodeGenerate::CGThreads()
 	}
 	ptempstagenum=&iter1->second;
 	set<int>::iterator enditer = ptempstagenum->end();
-
+	map<FlatNode*,string>::iterator actorEnditer = actor2name.end();
 	buf<<"\tfor(int _stageNum=0;_stageNum<"<<totalstagenum<<";_stageNum++)\n";
 	buf<<"\t{\n";
 		
@@ -3107,72 +3367,66 @@ void GPUCodeGenerate::CGThreads()
 				{	
 					if (!IsDataTransfer)
 					{
-						if (index == nGpu_)
+						if (index == nGpu_ || index >= 2*nGpu_+1)
 						{
-							//if(flatVec[0] == flatNodes_[0])
-								buf<<"\t\tif("<<i<<"==_stageNum)\n\t\t{\n";
-							/*else
-								buf<<"\t\tif("<<i+nGpu_-1<<"==_stageNum)\n\t\t{\n";
-							*/
+							bool stageFlag = true;
 							for(iter1=flatVec.begin();iter1!=flatVec.end();++iter1)
 							{
-								if(Maflp->findPartitionNumForFlatNode(*iter1) == Maflp->Index2Device(index))
+								map<FlatNode*,string>::iterator actorIter = actor2name.find(*iter1);
+								if (actorIter != actorEnditer)
 								{
-									buf<<"\t\t\t"<<(*iter1)->name<<"_obj.runInitScheduleWork(";
-									multimap<FlatNode*,string>::iterator iter3,iter2;
-									List *inputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.inputs;
-									List *outputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.outputs;
-									ListMarker input_maker;
-									ListMarker output_maker;
-									Node *inputNode = NULL;
-									Node *outputNode = NULL;
-									iter3=mapActor2InEdge.find((*iter1));
-									int inflatnodeindex = 0;
-									IterateList(&input_maker,inputList);
-									while(NextOnList(&input_maker,(GenericREF)&inputNode))
+									if (stageFlag)
 									{
-										if (!DataDependence((*iter1)->inFlatNodes[inflatnodeindex],*iter1))
+										buf<<"\t\tif("<<i<<"==_stageNum)\n\t\t{\n";
+										stageFlag = false;
+									}
+									if (Haflp->findPartitionNumForFlatNode(*iter1) == Haflp->Index2Device(index))
+									{
+										buf<<"\t\t\t"<<actor2name[*iter1]<<"_obj.runInitScheduleWork(";
+										multimap<FlatNode*,string>::iterator iter3,iter2;
+										List *inputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.inputs;
+										List *outputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.outputs;
+										ListMarker input_maker;
+										ListMarker output_maker;
+										Node *inputNode = NULL;
+										Node *outputNode = NULL;
+										iter3=mapActor2InEdge.find((*iter1));
+										int inflatnodeindex = 0;
+										IterateList(&input_maker,inputList);
+										while(NextOnList(&input_maker,(GenericREF)&inputNode))
 										{
-											//if (IsUpBorder(*iter1) && IsDownBorder((*iter1)->inFlatNodes[inflatnodeindex]))
-											//{
-												buf<<"&"<<iter3->second<<"[0][0],";
-											//}
-											/*else
+											if (!DataDependence((*iter1)->inFlatNodes[inflatnodeindex],*iter1))
 											{
-												buf<<"&"<<iter3->second<<"[(_stageNum-"<<i<<")%"<<(pSa->FindStage(*iter1)-pSa->FindStage((*iter1)->inFlatNodes[inflatnodeindex])+1)<<"][0],";
-											}*/
+												buf<<"&"<<iter3->second<<"[0][0],";
+											}
+											++iter3;
+											++inflatnodeindex;
 										}
-										++iter3;
-										++inflatnodeindex;
-									}
-									iter2=mapActor2OutEdge.find((*iter1));
-									int outflatnodeindex = 0;
-									IterateList(&output_maker,outputList);
-									while(NextOnList(&output_maker,(GenericREF)&outputNode))
-									{
-										if (!DataDependence(*iter1,(*iter1)->outFlatNodes[outflatnodeindex]))
+										iter2=mapActor2OutEdge.find((*iter1));
+										int outflatnodeindex = 0;
+										IterateList(&output_maker,outputList);
+										while(NextOnList(&output_maker,(GenericREF)&outputNode))
 										{
-											//if (IsDownBorder(*iter1) && IsUpBorder((*iter1)->outFlatNodes[outflatnodeindex]))
-											//{
+											if (!DataDependence(*iter1,(*iter1)->outFlatNodes[outflatnodeindex]))
+											{
 												buf<<"&"<<iter2->second<<"[0][0],";
-											//}
-											/*else
-												buf<<"&"<<iter2->second<<"[(_stageNum-"<<i<<")%"<<(pSa->FindStage((*iter1)->outFlatNodes[outflatnodeindex])-pSa->FindStage(*iter1)+1)<<"][0],";
-										*/}
-										++iter2;
-										++outflatnodeindex;
+											}
+											++iter2;
+											++outflatnodeindex;
+										}
+										buf<<"NULL);\n";
 									}
-									buf<<"NULL);\n";
 								}
 							}
-							buf<<"\t\t}\n";
+							if(!stageFlag)
+								buf<<"\t\t}\n";
 						}
 						else if(index < nGpu_)
 						{
 							buf<<"\t\tif("<<i<<"==_stageNum)\n\t\t{\n";
 							for(iter1=flatVec.begin();iter1!=flatVec.end();++iter1)
 							{
-								if(Maflp->findPartitionNumForFlatNode(*iter1) == Maflp->Index2Device(index))
+								if (Haflp->findPartitionNumForFlatNode(*iter1) == Haflp->Index2Device(index))
 								{
 									buf<<"\t\t\t"<<(*iter1)->name<<"_obj.runInitScheduleWork_"<<index<<"();\n";
 								}
@@ -3190,8 +3444,8 @@ void GPUCodeGenerate::CGThreads()
 						map<FlatNode*,int>::iterator iter_subdatastage;
 						for(iter1=flatVec.begin();iter1!=flatVec.end();++iter1)
 						{
-							pair<multimap<int,map<FlatNode*,int>>::iterator,multimap<int,map<FlatNode*,int>>::iterator>pos = pSa->datastage.equal_range(i);
-							if(Maflp->Index2Device(index-nGpu_-1) == Maflp->findPartitionNumForFlatNode(*iter1))
+							pair<multimap<int,map<FlatNode*,int> >::iterator,multimap<int,map<FlatNode*,int> >::iterator>pos = pSa->datastage.equal_range(i);
+							if (Haflp->Index2Device(index - nGpu_ - 1) == Haflp->findPartitionNumForFlatNode(*iter1))
 							{
 
 								while(pos.first!=pos.second)
@@ -3214,7 +3468,7 @@ void GPUCodeGenerate::CGThreads()
 												{
 													if (!DataDependence((*iter1)->inFlatNodes[inflatnodeindex],*iter1))
 													{
-														if(IsDownBorder((*iter1)->inFlatNodes[inflatnodeindex]) && IsUpBorder(*iter1))
+														if(sssg_->IsDownBorder((*iter1)->inFlatNodes[inflatnodeindex]) && sssg_->IsUpBorder(*iter1))
 														{
 															buf<<"&"<<iter3->second<<"[0][0],";
 														}
@@ -3238,7 +3492,7 @@ void GPUCodeGenerate::CGThreads()
 												{
 													if (!DataDependence(*iter1,(*iter1)->outFlatNodes[outflatnodeindex]))
 													{
-														if(IsUpBorder((*iter1)->outFlatNodes[outflatnodeindex]) && IsDownBorder(*iter1))
+														if(sssg_->IsUpBorder((*iter1)->outFlatNodes[outflatnodeindex]) && sssg_->IsDownBorder(*iter1))
 															buf<<"&"<<iter2->second<<"[0][0],";
 													}
 													++iter2;
@@ -3312,86 +3566,77 @@ void GPUCodeGenerate::CGThreads()
 					{
 						if (index == nGpu_ || index >= 2*nGpu_+1)
 						{
-							/*if (i == totalstagenum-1)
-							{
-								buf<<"\t\tif(stage["<<i+nGpu_-1<<"])\n\t\t{\n";
-							}
-							else*/
-								buf<<"\t\tif(stage["<<i<<"])\n\t\t{\n";
+							bool stageFlag = true;
 							for(iter1=flatVec.begin();iter1!=flatVec.end();++iter1)
 							{
-								if(Maflp->findPartitionNumForFlatNode(*iter1) == Maflp->Index2Device(index))
+								map<FlatNode*,string>::iterator actorIter = actor2name.find(*iter1);
+								if (actorIter != actorEnditer)
 								{
-									buf<<"\t\t\t"<<(*iter1)->name<<"_obj.runSteadyScheduleWork(";
-									multimap<FlatNode*,string>::iterator iter3,iter2;
-									List *inputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.inputs;
-									List *outputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.outputs;
-									ListMarker input_maker;
-									ListMarker output_maker;
-									Node *inputNode = NULL;
-									Node *outputNode = NULL;
-									iter3=mapActor2InEdge.find((*iter1));
-									int inflatnodeindex = 0;
-									IterateList(&input_maker,inputList);
-									while(NextOnList(&input_maker,(GenericREF)&inputNode))
+									if (stageFlag)
 									{
-										if (!DataDependence((*iter1)->inFlatNodes[inflatnodeindex],*iter1))
+										buf<<"\t\tif("<<i<<"==_stageNum)\n\t\t{\n";
+										stageFlag = false;
+									}
+									if (Haflp->findPartitionNumForFlatNode(*iter1) == Haflp->Index2Device(index))
+									{
+										buf<<"\t\t\t"<<actor2name[*iter1]<<"_obj.runSteadyScheduleWork(";
+										multimap<FlatNode*,string>::iterator iter3,iter2;
+										List *inputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.inputs;
+										List *outputList =(*iter1)->contents->decl->u.decl.type->u.operdcl.outputs;
+										ListMarker input_maker;
+										ListMarker output_maker;
+										Node *inputNode = NULL;
+										Node *outputNode = NULL;
+										iter3=mapActor2InEdge.find((*iter1));
+										int inflatnodeindex = 0;
+										IterateList(&input_maker,inputList);
+										while(NextOnList(&input_maker,(GenericREF)&inputNode))
 										{
-											/*if (IsUpBorder(*iter1) && IsDownBorder((*iter1)->inFlatNodes[inflatnodeindex]))
+											if (!DataDependence((*iter1)->inFlatNodes[inflatnodeindex],*iter1))
 											{
-												if(index == nGpu_)*/
+												if(DNBPFlag)
+													buf<<"&"<<iter3->second<<"[(_stageNum-"<<i<<")%(sizeof("<<(*iter1)->inFlatNodes[inflatnodeindex]->name<<"_"<<(*iter1)->name<<")/sizeof("<<(*iter1)->inFlatNodes[inflatnodeindex]->name<<"_"<<(*iter1)->name<<"[0]))]["<<(sssg_->GetInitCount(*iter1)+(Dnbp->actorName2count[actor2name[*iter1]]).first)*(*iter1)->inPopWeights[inflatnodeindex]<<"],";
+											    else
 													buf<<"&"<<iter3->second<<"[(_stageNum-"<<i<<")%(sizeof("<<(*iter1)->inFlatNodes[inflatnodeindex]->name<<"_"<<(*iter1)->name<<")/sizeof("<<(*iter1)->inFlatNodes[inflatnodeindex]->name<<"_"<<(*iter1)->name<<"[0]))]["<<sssg_->GetInitCount(*iter1)*(*iter1)->inPopWeights[inflatnodeindex]<<"],";
-											/*	else
-													buf<<"&"<<iter3->second<<"[(_stageNum-"<<i<<")%2]["<<sssg_->GetInitCount(*iter1)*(*iter1)->inPopWeights[inflatnodeindex]+sssg_->GetSteadyCount(*iter1)*Maflp->MultiNum2FlatNode[*iter1]/NCpuThreads*(index-2*nGpu_)<<"],";
 											}
-											else
-											{
-												buf<<"&"<<iter3->second<<"[(_stageNum-"<<i<<")%"<<(pSa->FindStage(*iter1)-pSa->FindStage((*iter1)->inFlatNodes[inflatnodeindex])+1)<<"]["<<sssg_->GetInitCount(*iter1)*(*iter1)->inPopWeights[inflatnodeindex]<<"],";
-											}*/
+											++iter3;
+											++inflatnodeindex;
 										}
-										++iter3;
-										++inflatnodeindex;
-									}
-									iter2=mapActor2OutEdge.find((*iter1));
-									int outflatnodeindex = 0;
-									IterateList(&output_maker,outputList);
-									while(NextOnList(&output_maker,(GenericREF)&outputNode))
-									{
-										if (!DataDependence(*iter1,(*iter1)->outFlatNodes[outflatnodeindex]))
+										iter2=mapActor2OutEdge.find((*iter1));
+										int outflatnodeindex = 0;
+										IterateList(&output_maker,outputList);
+										while(NextOnList(&output_maker,(GenericREF)&outputNode))
 										{
-											/*if (IsDownBorder(*iter1) && IsUpBorder((*iter1)->outFlatNodes[outflatnodeindex]))
+											if (!DataDependence(*iter1,(*iter1)->outFlatNodes[outflatnodeindex]))
 											{
-												if(index == nGpu_)*/
+												if(DNBPFlag)
+													buf<<"&"<<iter2->second<<"[(_stageNum-"<<i<<")%(sizeof("<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[outflatnodeindex]->name<<")/sizeof("<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[outflatnodeindex]->name<<"[0]))]["<<(sssg_->GetInitCount(*iter1)+(Dnbp->actorName2count[actor2name[*iter1]]).first)*(*iter1)->outPushWeights[outflatnodeindex]<<"],";
+											    else
 													buf<<"&"<<iter2->second<<"[(_stageNum-"<<i<<")%(sizeof("<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[outflatnodeindex]->name<<")/sizeof("<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[outflatnodeindex]->name<<"[0]))]["<<sssg_->GetInitCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex]<<"],";
-											/*	else
-													buf<<"&"<<iter2->second<<"[(_stageNum-"<<i<<")%2]["<<sssg_->GetInitCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex]+sssg_->GetSteadyCount(*iter1)*Maflp->MultiNum2FlatNode[*iter1]/NCpuThreads*(index-2*nGpu_)<<"],";
 											}
-											else
-											{
-												buf<<"&"<<iter2->second<<"[(_stageNum-"<<i<<")%"<<(pSa->FindStage((*iter1)->outFlatNodes[outflatnodeindex])-pSa->FindStage(*iter1)+1)<<"]["<<sssg_->GetInitCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex]<<"],";
-											}*/
+											++iter2;
+											++outflatnodeindex;
 										}
-										++iter2;
-										++outflatnodeindex;
+										buf<<"NULL);\n";
 									}
-									buf<<"NULL);\n";
 								}
 							}
-							buf<<"\t\t}\n";
+							if(!stageFlag)
+								buf<<"\t\t}\n";
 						}
 						else
 						{
 							buf<<"\t\tif(stage["<<i<<"])\n\t\t{\n";
 							for(iter1=flatVec.begin();iter1!=flatVec.end();++iter1)
 							{
-								if(Maflp->findPartitionNumForFlatNode(*iter1) == Maflp->Index2Device(index))
+								if (Haflp->findPartitionNumForFlatNode(*iter1) == Haflp->Index2Device(index))
 								{
 									buf<<"\t\t\t"<<(*iter1)->name<<"_obj.runSteadyScheduleWork_"<<index<<"();\n";
 									if (PrintFlag)
 									{
-										if ((*iter1)->outFlatNodes.size() == 0 && (*iter1)->GPUPart != nGpu_)
+										if ((*iter1)->outFlatNodes.size() == 0 && (*iter1)->GPUPart < nGpu_)
 										{
-											buf<<"\t\t\t"<<(*iter1)->name<<"_obj.print_"<<index<<"("<<sssg_->GetSteadyCount(*iter1)*Maflp->MultiNum2FlatNode[*iter1]<<");\n";
+											buf << "\t\t\t" << (*iter1)->name << "_obj.print_" << index << "(" << sssg_->GetSteadyCount(*iter1)*Haflp->MultiNum2FlatNode[*iter1] << ");\n";
 										}
 									}
 								}
@@ -3409,8 +3654,8 @@ void GPUCodeGenerate::CGThreads()
 						map<FlatNode*,int>::iterator iter_subdatastage;
 						for(iter1=flatVec.begin();iter1!=flatVec.end();++iter1)
 						{
-							pair<multimap<int,map<FlatNode*,int>>::iterator,multimap<int,map<FlatNode*,int>>::iterator>pos = pSa->datastage.equal_range(i);
-							if(Maflp->Index2Device(index-nGpu_-1) == Maflp->findPartitionNumForFlatNode(*iter1))
+							pair<multimap<int,map<FlatNode*,int> >::iterator,multimap<int,map<FlatNode*,int> >::iterator>pos = pSa->datastage.equal_range(i);
+							if (Haflp->Index2Device(index - nGpu_ - 1) == Haflp->findPartitionNumForFlatNode(*iter1))
 							{
 
 								while(pos.first!=pos.second)
@@ -3434,7 +3679,7 @@ void GPUCodeGenerate::CGThreads()
 												{
 													if (!DataDependence((*iter1)->inFlatNodes[inflatnodeindex],*iter1))
 													{
-														if(IsDownBorder((*iter1)->inFlatNodes[inflatnodeindex]) && IsUpBorder(*iter1))
+														if(sssg_->IsDownBorder((*iter1)->inFlatNodes[inflatnodeindex]) && sssg_->IsUpBorder(*iter1))
 														{
 															int j;
 															for (j = 0; j < (*iter1)->inFlatNodes[inflatnodeindex]->outFlatNodes.size(); ++j)
@@ -3442,7 +3687,7 @@ void GPUCodeGenerate::CGThreads()
 																if((*iter1)->inFlatNodes[inflatnodeindex]->outFlatNodes[j] == *iter1)
 																	break;
 															}
-															buf<<"&"<<iter3->second<<"[(_stageNum-"<<i<<")%(sizeof("<<(*iter1)->inFlatNodes[inflatnodeindex]->name<<"_"<<(*iter1)->name<<")/sizeof("<<(*iter1)->inFlatNodes[inflatnodeindex]->name<<"_"<<(*iter1)->name<<"[0]))]["<<sssg_->GetInitCount((*iter1)->inFlatNodes[inflatnodeindex])*(*iter1)->inFlatNodes[inflatnodeindex]->outPushWeights[j]+sssg_->GetSteadyCount(*iter1)*(*iter1)->inPopWeights[inflatnodeindex]*Maflp->MultiNum2FlatNode[*iter1]*(index-nGpu_-1)<<"],";
+															buf << "&" << iter3->second << "[(_stageNum-" << i << ")%(sizeof(" << (*iter1)->inFlatNodes[inflatnodeindex]->name << "_" << (*iter1)->name << ")/sizeof(" << (*iter1)->inFlatNodes[inflatnodeindex]->name << "_" << (*iter1)->name << "[0]))][" << sssg_->GetInitCount((*iter1)->inFlatNodes[inflatnodeindex])*(*iter1)->inFlatNodes[inflatnodeindex]->outPushWeights[j] + sssg_->GetSteadyCount(*iter1)*(*iter1)->inPopWeights[inflatnodeindex] * Haflp->MultiNum2FlatNode[*iter1] * (index - nGpu_ - 1) << "],";
 														}
 													}
 													++iter3;
@@ -3465,8 +3710,8 @@ void GPUCodeGenerate::CGThreads()
 												{
 													if (!DataDependence(*iter1,(*iter1)->outFlatNodes[outflatnodeindex]))
 													{
-														if(IsUpBorder((*iter1)->outFlatNodes[outflatnodeindex]) && IsDownBorder(*iter1))
-															buf<<"&"<<iter2->second<<"[(_stageNum-"<<i<<")%(sizeof("<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[outflatnodeindex]->name<<")/sizeof("<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[outflatnodeindex]->name<<"[0]))]["<<sssg_->GetInitCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex]+sssg_->GetSteadyCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex]*Maflp->MultiNum2FlatNode[*iter1]*(index-nGpu_-1)<<"],";
+														if(sssg_->IsUpBorder((*iter1)->outFlatNodes[outflatnodeindex]) && sssg_->IsDownBorder(*iter1))
+															buf << "&" << iter2->second << "[(_stageNum-" << i << ")%(sizeof(" << (*iter1)->name << "_" << (*iter1)->outFlatNodes[outflatnodeindex]->name << ")/sizeof(" << (*iter1)->name << "_" << (*iter1)->outFlatNodes[outflatnodeindex]->name << "[0]))][" << sssg_->GetInitCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex] + sssg_->GetSteadyCount(*iter1)*(*iter1)->outPushWeights[outflatnodeindex] * Haflp->MultiNum2FlatNode[*iter1] * (index - nGpu_ - 1) << "],";
 													}
 													++iter2;
 													++outflatnodeindex;
@@ -3574,7 +3819,7 @@ int GPUCodeGenerate::ReturnNumBiger(int size)
 
 int GPUCodeGenerate::RetrunBufferSizeOfGpu(int num)
 {
-	vector<FlatNode *>nodes = Maflp->findNodeSetInPartition(num);
+	vector<FlatNode *>nodes = Haflp->findNodeSetInPartition(num);
 	vector<FlatNode *>Innodes,Outnodes;
 	set<string>ExitedEdge;
 	int sumbuffersize = 0;
@@ -3589,7 +3834,7 @@ int GPUCodeGenerate::RetrunBufferSizeOfGpu(int num)
 			if (!ExitedEdge.count(edgename))
 			{
 				iter = Edge2Buffersize.find(edgename);
-				if((*iter1)->GPUPart == nGpu_ || ((*iter1)->GPUPart != nGpu_ && (*iter2)->GPUPart != nGpu_ && Maflp->findPartitionNumForFlatNode(*iter1)!=Maflp->findPartitionNumForFlatNode(*iter2)))
+				if ((*iter1)->GPUPart >= nGpu_ || ((*iter1)->GPUPart < nGpu_ && (*iter2)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode(*iter1) != Haflp->findPartitionNumForFlatNode(*iter2)))
 				{
 					sumbuffersize += 2*(iter->second);
 				}
@@ -3645,8 +3890,11 @@ void GPUCodeGenerate::CGMain()
 	buf<<"using namespace std;\n";//home/chenwenbin/Desktop/GPU201310/FFT5/barrier_sync.cpp
 	buf<<"int com_num = "<<Comm_num<<";\n"; //cwb
 	if (Linux)
-	{	
-		buf<<"int ThreadNum="<<2*nGpu_+NCpuThreads<<";\n";
+	{
+		if (Haflp->CPUNodes.size() > 0)
+			buf<<"int ThreadNum="<<2*nGpu_+NCpuThreads<<";\n";
+		else
+			buf<<"int ThreadNum="<<nGpu_<<";\n";
 		buf<<"int MAX_ITER=1;//默认的执行次数是1\n";
 	}
 	if(Win)
@@ -3667,16 +3915,6 @@ void GPUCodeGenerate::CGMain()
 			buf<<"double gpu"<<i<<"_compute = 0;\n";
 		}
 	}
-	/*if (PrintFlag)
-	{
-	for(int i = 0; i < nGpu_; i++)
-	{
-	if(i == 0)
-	buf<<"bool printflag_"<<i<<" = true;\n";
-	else
-	buf<<"bool printflag_"<<i<<" = false;\n";
-	}
-	}*/
 	/************************************************************************/
 	/*                     OpenCL环境初始化代码                             */
 	/************************************************************************/
@@ -3703,7 +3941,7 @@ void GPUCodeGenerate::CGMain()
 	vector<FlatNode*>::iterator iter1,iter2;
 	vector<int>::iterator iter;
 	int stageminus,size;
-	map<FlatNode *,int>::iterator iterofqueueid,iterofqueueid1;
+	//map<FlatNode *,int>::iterator iterofqueueid,iterofqueueid1;
 	for (int i = 0; i < nGpu_; i++)
 	{
 		for (iter1 = flatNodes_.begin();iter1!=flatNodes_.end();iter1++)
@@ -3717,93 +3955,249 @@ void GPUCodeGenerate::CGMain()
 				{
 					size = ReturnNumBiger(size);
 				}
-				//if (DetectiveFilterState(*iter1)&&!DetectiveFilterState(*iter2))
-				if ((*iter1)->GPUPart == nGpu_ && (*iter2)->GPUPart != nGpu_)
+				if ((*iter1)->GPUPart >= nGpu_ && (*iter2)->GPUPart < nGpu_)
 				{
-					size=(sssg_->GetInitCount(*iter1)+sssg_->GetSteadyCount(*iter1)*Maflp->MultiNum2FlatNode[*iter1]/nGpu_*stageminus)*(*iter);
+					size = (sssg_->GetInitCount(*iter1) + sssg_->GetSteadyCount(*iter1)*Haflp->MultiNum2FlatNode[*iter1] / nGpu_*stageminus)*(*iter);
 					int pos = (*iter2)->name.find('_');
 					string substring = (*iter2)->name.substr(pos);
-					iterofqueueid = Node2QueueID.find(*iter2);
-					buf<<"cl::Buffer Inbuffer_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_"<<i<<"(context,CL_MEM_READ_ONLY ,"<<size<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"cl::Buffer cmPinnedBufIn_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<"(context,CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,"<<sssg_->GetInitCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"cl::Buffer cmDevBufIn_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<"(context,CL_MEM_READ_ONLY,"<<sssg_->GetInitCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<" *Inst_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<" = (mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"*)queue_"<<iterofqueueid->second<<"_0.enqueueMapBuffer(cmPinnedBufIn_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<",CL_TRUE, CL_MAP_WRITE,0,"<<sssg_->GetInitCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL,NULL);\n";
-					buf<<"cl::Buffer cmPinnedBufIn_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<"(context,CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,"<<Maflp->MultiNum2FlatNode[*iter2]*sssg_->GetSteadyCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"cl::Buffer cmDevBufIn_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<"(context,CL_MEM_READ_ONLY,"<<Maflp->MultiNum2FlatNode[*iter2]*sssg_->GetSteadyCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<" *Inst_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<" = (mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"*)queue_"<<iterofqueueid->second<<"_0.enqueueMapBuffer(cmPinnedBufIn_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<",CL_TRUE, CL_MAP_WRITE,0,"<<Maflp->MultiNum2FlatNode[*iter1]*sssg_->GetSteadyCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL,NULL);\n";
+					buf<<"cl::Buffer Inbuffer_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_"<<i<<"(context,CL_MEM_READ_ONLY ,"<<size<<"*sizeof("<<pEdgeInfo->getEdgeInfo((*iter1),(*iter2)).typeName<<"),NULL,NULL);\n";
 				}
 				
-				if((*iter1)->GPUPart != nGpu_ && (*iter2)->GPUPart != nGpu_)
+				if((*iter1)->GPUPart < nGpu_ && (*iter2)->GPUPart < nGpu_)
 				{
-					size=(sssg_->GetInitCount(*iter1)+sssg_->GetSteadyCount(*iter1)*Maflp->MultiNum2FlatNode[*iter1]*(stageminus+1))*(*iter);
+					size = (sssg_->GetInitCount(*iter1) + sssg_->GetSteadyCount(*iter1)*Haflp->MultiNum2FlatNode[*iter1] * (stageminus + 1))*(*iter);
 					int pos = (*iter1)->name.find('_');
 					string substring = (*iter1)->name.substr(pos);
-					buf<<"cl::Buffer Outbuffer_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_"<<i<<"(context,CL_MEM_WRITE_ONLY ,"<<size<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
+					buf<<"cl::Buffer Outbuffer_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_"<<i<<"(context,CL_MEM_WRITE_ONLY ,"<<size<<"*sizeof("<<pEdgeInfo->getEdgeInfo((*iter1),(*iter2)).typeName<<"),NULL,NULL);\n";
 				}
-				if((*iter1)->GPUPart != nGpu_ && (*iter2)->GPUPart == nGpu_)
+				if((*iter1)->GPUPart < nGpu_ && (*iter2)->GPUPart >= nGpu_)
 				{
-					size=(sssg_->GetInitCount(*iter1)+sssg_->GetSteadyCount(*iter1)*Maflp->MultiNum2FlatNode[*iter1]*stageminus)*(*iter);
+					size = (sssg_->GetInitCount(*iter1) + sssg_->GetSteadyCount(*iter1)*Haflp->MultiNum2FlatNode[*iter1] * stageminus)*(*iter);
 					int pos = (*iter1)->name.find('_');
 					string substring = (*iter1)->name.substr(pos);
-					iterofqueueid = Node2QueueID.find(*iter1);
-					buf<<"cl::Buffer Outbuffer_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_"<<i<<"(context,CL_MEM_WRITE_ONLY ,"<<size<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"cl::Buffer cmPinnedBufOut_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<"(context,CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR,"<<sssg_->GetInitCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"cl::Buffer cmDevBufOut_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<"(context,CL_MEM_WRITE_ONLY,"<<sssg_->GetInitCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<" *Outst_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<" = (mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"*)queue_"<<iterofqueueid->second<<"_0.enqueueMapBuffer(cmPinnedBufOut_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_init_"<<i<<",CL_TRUE, CL_MAP_READ,0,"<<sssg_->GetInitCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL,NULL);\n";
-					buf<<"cl::Buffer cmPinnedBufOut_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<"(context,CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR,"<<Maflp->MultiNum2FlatNode[*iter1]*sssg_->GetSteadyCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"cl::Buffer cmDevBufOut_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<"(context,CL_MEM_WRITE_ONLY,"<<Maflp->MultiNum2FlatNode[*iter1]*sssg_->GetSteadyCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL);\n";
-					buf<<"mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<" *Outst_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<" = (mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"*)queue_"<<iterofqueueid->second<<"_0.enqueueMapBuffer(cmPinnedBufOut_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_steady_"<<i<<",CL_TRUE, CL_MAP_READ,0,"<<Maflp->MultiNum2FlatNode[*iter1]*sssg_->GetSteadyCount(*iter1)*(*iter)<<"*sizeof(mystruct_"<<ReturnTypeOfEdge(*iter1,*iter2)<<"),NULL,NULL,NULL);\n";
+					//iterofqueueid = Node2QueueID.find(*iter1);
+					buf<<"cl::Buffer Outbuffer_"<<(*iter1)->name<<"_"<<(*iter2)->name<<"_"<<i<<"(context,CL_MEM_WRITE_ONLY ,"<<size<<"*sizeof("<<pEdgeInfo->getEdgeInfo((*iter1),(*iter2)).typeName<<"),NULL,NULL);\n";
 				}
-
 				iter++;
 			}
 		}
 	}
 	for (iter1=flatNodes_.begin();iter1!=flatNodes_.end();++iter1)
 	{
-		buf<<(*iter1)->name<<" "<<(*iter1)->name<<"_obj(";
-		int index = 0;
-		for (; index < (*iter1)->inFlatNodes.size(); ++index)
+		//cwb 确定actorfission的个数
+		int actorFissionNum = 1;
+		typedef multimap<FlatNode*,pair<int,int> >::iterator fission_iter;
+		pair<fission_iter,fission_iter> pos;
+		if (DNBPFlag)
 		{
-			if (((IsUpBorder(*iter1)&&IsDownBorder((*iter1)->inFlatNodes[index])) || ((*iter1)->GPUPart == nGpu_&&(*iter1)->inFlatNodes[index]->GPUPart == nGpu_)) && DataDependence((*iter1)->inFlatNodes[index],*iter1))
+			
+			if((*iter1)->GPUPart >= nGpu_)
 			{
-				buf<<(*iter1)->inFlatNodes[index]->name<<"_"<<(*iter1)->name<<",";
+				pos = Dnbp->FissionNodes2count.equal_range(*iter1);
+				if (pos.first != pos.second)
+				{
+					while(pos.first != pos.second){actorFissionNum++;pos.first++;}
+					actorFissionNum--;
+				}
 			}
+			pos = Dnbp->FissionNodes2count.equal_range(*iter1);
 		}
-		for (index = 0; index < (*iter1)->outFlatNodes.size(); ++index)
+		for (int index = 0; index < actorFissionNum; index++)
 		{
-			if(((IsDownBorder(*iter1)&&IsUpBorder((*iter1)->outFlatNodes[index])) || ((*iter1)->GPUPart==nGpu_&&(*iter1)->outFlatNodes[index]->GPUPart==nGpu_)) && DataDependence(*iter1,(*iter1)->outFlatNodes[index]))
-				buf<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[index]->name<<",";
+			//chenwenbin各actor实例化
+			buf<<mapFlatnode2Template_[*iter1]<<"<";
+			if((*iter1)->inFlatNodes.size() == 0 && (*iter1)->outFlatNodes.size() != 0)
+				buf<<pEdgeInfo->getEdgeInfo(*iter1,(*iter1)->outFlatNodes[0]).typeName;
+			else if((*iter1)->inFlatNodes.size() != 0 && (*iter1)->outFlatNodes.size() == 0)
+				buf<<pEdgeInfo->getEdgeInfo((*iter1)->inFlatNodes[0],*iter1).typeName;
+			else if((*iter1)->inFlatNodes.size() != 0 && (*iter1)->outFlatNodes.size() != 0)
+				buf<<pEdgeInfo->getEdgeInfo(*iter1,(*iter1)->outFlatNodes[0]).typeName<<","<<pEdgeInfo->getEdgeInfo((*iter1)->inFlatNodes[0],*iter1).typeName;
+			if (actorFissionNum > 1)
+			{
+				buf<<"> "<<(*iter1)->name<<"_"<<index<<"_obj(";//定义actor对象，actor->name_obj,调用构造函数，参数为输入输出边的全局变量
+			}
+			else
+				buf<<"> "<<(*iter1)->name<<"_obj(";//定义actor对象，actor->name_obj,调用构造函数，参数为输入输出边的全局变量
+			//chenwenbin 将各actor对应的param作为参数传入构造函数
+			paramList *pList = (*iter1)->contents->params;
+			for (int i = 0; i < (*iter1)->contents->paramSize; i++)
+			{
+				if (pList->paramnode->u.id.value->u.Const.type->typ == Prim) {
+					switch (pList->paramnode->u.id.value->u.Const.type->u.prim.basic) {
+					case Sint:   buf<<pList->paramnode->u.id.value->u.Const.value.i<<",";break;
+					case Uint:   buf<<pList->paramnode->u.id.value->u.Const.value.u<<",";break;
+					case Slong:  buf<<pList->paramnode->u.id.value->u.Const.value.l<<",";break;
+					case Ulong:  buf<<pList->paramnode->u.id.value->u.Const.value.ul<<",";break;
+					case Float:  buf<<pList->paramnode->u.id.value->u.Const.value.f<<",";break;
+					case Double: buf<<pList->paramnode->u.id.value->u.Const.value.d<<",";break;
+					default:     break;
+					}
+				}
+				pList = pList->next;
+			}
+			//cwb 将actor每次的读写数据个数传入构造函数
+			if ((*iter1)->GPUPart < nGpu_)
+			{
+				for (int i = 0; i < (*iter1)->inPopWeights.size(); i++)
+				{
+					buf<<(*iter1)->inPopWeights[i]<<",";
+				}
+				for (int i = 0; i < (*iter1)->outPushWeights.size(); i++)
+				{
+					buf<<(*iter1)->outPushWeights[i]<<",";
+				}
+			}
+			else
+			{
+				for (int i = 0; i < (*iter1)->inPopWeights.size(); i++)
+				{
+					if(DataDependence((*iter1)->inFlatNodes[i],(*iter1)))
+						buf<<(*iter1)->inPopWeights[i]<<",";
+				}
+				for (int i = 0; i < (*iter1)->outPushWeights.size(); i++)
+				{
+					if(DataDependence((*iter1),(*iter1)->outFlatNodes[i]))
+						buf<<(*iter1)->outPushWeights[i]<<",";
+				}
+			}
+			//chenwenbin 初态稳态执行次数构造
+			if (DNBPFlag && actorFissionNum > 1)
+			{
+				buf<<pos.first->second.second<<","<<sssg_->GetInitCount(*iter1)<<",";
+				pos.first++;
+			}
+			else
+				buf << sssg_->GetSteadyCount(*iter1)*Haflp->MultiNum2FlatNode[*iter1] << "," << sssg_->GetInitCount(*iter1) << ",";
+			//cwb 
+			if ((*iter1)->GPUPart >= nGpu_)
+			{
+				int index = 0;
+				for (; index < (*iter1)->inFlatNodes.size(); ++index)
+				{
+					if(DataDependence((*iter1)->inFlatNodes[index],(*iter1)))
+						buf<<(*iter1)->inFlatNodes[index]->name<<"_"<<(*iter1)->name<<",";
+				}
+				for (index = 0; index < (*iter1)->outFlatNodes.size(); ++index)
+				{
+					if(DataDependence((*iter1),(*iter1)->outFlatNodes[index]))
+						buf<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[index]->name<<",";
+				}
+			}
+			else
+			{
+				int index = 0;
+				for (; index < (*iter1)->inFlatNodes.size(); ++index)
+				{
+					if(DataDependence((*iter1)->inFlatNodes[index],(*iter1)) && sssg_->IsUpBorder((*iter1)))
+						buf<<(*iter1)->inFlatNodes[index]->name<<"_"<<(*iter1)->name<<",";
+				}
+				for (index = 0; index < (*iter1)->outFlatNodes.size(); ++index)
+				{
+					if(DataDependence((*iter1),(*iter1)->outFlatNodes[index]) && sssg_->IsDownBorder((*iter1)))
+						buf<<(*iter1)->name<<"_"<<(*iter1)->outFlatNodes[index]->name<<",";
+				}
+			}
+			if ((*iter1)->GPUPart < nGpu_)
+			{
+				vector<FlatNode*>::iterator iter3,iter4;
+				for (int i = 0; i < nGpu_; i++)
+				{
+					for (iter3=(*iter1)->inFlatNodes.begin();iter3!=(*iter1)->inFlatNodes.end();iter3++)
+					{
+						if (((*iter1)->GPUPart < nGpu_ && (*iter3)->GPUPart >= nGpu_) || ((*iter1)->GPUPart < nGpu_ && (*iter3)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode((*iter1)) != Haflp->findPartitionNumForFlatNode(*iter3)))
+						{
+							buf<<"Inbuffer_"<<(*iter3)->name<<"_"<<(*iter1)->name<<"_"<<i<<",";
+						}
+					}
+					for (iter3=(*iter1)->inFlatNodes.begin();iter3!=(*iter1)->inFlatNodes.end();iter3++)
+					{
+						if ((*iter1)->GPUPart < nGpu_ && (*iter3)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode((*iter1)) == Haflp->findPartitionNumForFlatNode(*iter3))
+						{
+							buf<<"Outbuffer_"<<(*iter3)->name<<"_"<<(*iter1)->name<<"_"<<i<<",";
+						}
+					}
+					for (iter4=(*iter1)->outFlatNodes.begin();iter4!=(*iter1)->outFlatNodes.end();iter4++)
+					{	
+						if (((*iter1)->GPUPart < nGpu_ && (*iter4)->GPUPart >= nGpu_) || ((*iter1)->GPUPart < nGpu_ && (*iter4)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode((*iter1)) != Haflp->findPartitionNumForFlatNode(*iter4)))
+						{
+							buf<<"Outbuffer_"<<(*iter1)->name<<"_"<<(*iter4)->name<<"_"<<i<<",";
+						}
+					}
+					for (iter4=(*iter1)->outFlatNodes.begin();iter4!=(*iter1)->outFlatNodes.end();iter4++)
+					{
+						if ((*iter1)->GPUPart < nGpu_ && (*iter4)->GPUPart < nGpu_ && Haflp->findPartitionNumForFlatNode((*iter1)) == Haflp->findPartitionNumForFlatNode(*iter4))
+						{
+							buf<<"Outbuffer_"<<(*iter1)->name<<"_"<<(*iter4)->name<<"_"<<i<<",";	
+						}
+					}
+				}
+			}
+			buf<<"NULL);\n";
 		}
-		buf<<"NULL);\n";
 	}
 	if (TRACE)
 	{
 		buf<<"double (*deltatimes)["<<nGpu_<<"][2];\n";
 		buf<<"typedef double time_array["<<nGpu_<<"][2];\n";
 	}
-	for (int i=0;i<nGpu_*2+NCpuThreads;i++)
+	if (Haflp->CPUNodes.size() > 0)
 	{
-		itoa(i, a, 10);  
-		string numname=a;
-		buf<<"extern void thread_"<<numname<<"_fun();\n";
+		for (int i=0;i<nGpu_*2+NCpuThreads;i++)
+		{
+			//itoa(i, a, 10);  
+			sprintf(a, "%d", i);			
+			string numname=a;
+			buf<<"extern void thread_"<<numname<<"_fun();\n";
+		}
+	}
+	else
+	{
+		for (int i=0;i<nGpu_;i++)
+		{
+			//itoa(i, a, 10);  
+			sprintf(a, "%d", i);
+			string numname=a;
+			buf<<"extern void thread_"<<numname<<"_fun();\n";
+		}
 	}
 	if(Win)
-		for(int i=1;i<nGpu_*2+NCpuThreads;i++)
+	if (Haflp->CPUNodes.size() > 0)
 		{
-			buf<<"unsigned int WINAPI thread_"<<i<<"_fun_start(void *)\n{\n\tthread_"<<i<<"_fun();\n\treturn 0;\n}\n";
+			for(int i=1;i<nGpu_*2+NCpuThreads;i++)
+			{
+				buf<<"unsigned int WINAPI thread_"<<i<<"_fun_start(void *)\n{\n\tthread_"<<i<<"_fun();\n\treturn 0;\n}\n";
+			}
+		}
+		else
+		{
+			for(int i=1;i<nGpu_;i++)
+			{
+				buf<<"unsigned int WINAPI thread_"<<i<<"_fun_start(void *)\n{\n\tthread_"<<i<<"_fun();\n\treturn 0;\n}\n";
+			}
 		}
 	else
-		for(int i=1;i<nGpu_*2+NCpuThreads;i++)
+	{
+		if (Haflp->CPUNodes.size() > 0)
 		{
-			buf<<"void* thread_"<<i<<"_fun_start(void *)\n{\n\tset_cpu("<<i<<");\n\tthread_"<<i<<"_fun();\n\treturn 0;\n}\n";
+			for(int i=1;i<nGpu_*2+NCpuThreads;i++)
+			{
+				buf<<"void* thread_"<<i<<"_fun_start(void *)\n{\n\tset_cpu("<<i<<");\n\tthread_"<<i<<"_fun();\n\treturn 0;\n}\n";
+			}
 		}
+		else
+		{
+			for(int i=1;i<nGpu_;i++)
+			{
+				buf<<"void* thread_"<<i<<"_fun_start(void *)\n{\n\tset_cpu("<<i<<");\n\tthread_"<<i<<"_fun();\n\treturn 0;\n}\n";
+			}
+		}
+	}
 		buf<<"int main(int argc,char **argv)\n{\n";
 		buf<<"\tofstream resultfw;\n";
 		if(Linux)
 		{
 			buf<<"\tint oc;\n";
-			buf<<"\tchar *b_opt_arg;\n";
+			//buf<<"\tchar *b_opt_arg;\n";
 			buf<<"\twhile((oc=getopt(argc,argv,\"i:\"))!=-1)\n";
 			buf<<"\t{\n";
 			buf<<"\t\tswitch(oc)\n";
@@ -3813,7 +4207,8 @@ void GPUCodeGenerate::CGMain()
 			buf<<"\t\t\t\tbreak;\n";
 			buf<<"\t\t}\n";
 			buf<<"\t}\n";
-			buf<<"\tcpu_set_t mask;\n\tset_cpu(0);\n";
+			//buf<<"\tcpu_set_t mask;
+			buf<<"\tset_cpu(0);\n";
 		}
 		if(TRACE){
 			buf<<"\tdeltatimes = new time_array[MAX_ITER+"<<2*pSa->MaxStageNum()-1<<"];\n";
@@ -3837,9 +4232,19 @@ void GPUCodeGenerate::CGMain()
 		if(Win)
 		{
 			//for windows thread
-			for (int i=1;i<nGpu_*2+NCpuThreads;i++)
+			if (Haflp->CPUNodes.size() > 0)
 			{
-				buf<<"\t_beginthreadex(NULL,0,thread_"<<i<<"_fun_start,NULL,0,NULL);\n";
+				for (int i=1;i<nGpu_*2+NCpuThreads;i++)
+				{
+					buf<<"\t_beginthreadex(NULL,0,thread_"<<i<<"_fun_start,NULL,0,NULL);\n";
+				}
+			}
+			else
+			{
+				for (int i=1;i<nGpu_;i++)
+				{
+					buf<<"\t_beginthreadex(NULL,0,thread_"<<i<<"_fun_start,NULL,0,NULL);\n";
+				}
 			}
 			buf<<"\tthread_0_fun();\n";
 			if (FileRW&&existFileWriter)
@@ -3851,10 +4256,21 @@ void GPUCodeGenerate::CGMain()
 		{
 			//for linux thread
 			//buf<<"\tpthread_barrier_init (&barrier, NULL, "<<nGpu_<<");\n";
-			buf<<"\tpthread_t tid["<<nGpu_*2+NCpuThreads-1<<"];\n";
-			for (int i=1;i<nGpu_*2+NCpuThreads;i++)
+			if (Haflp->CPUNodes.size() > 0)
 			{
-				buf<<"\tpthread_create (&tid["<<i-1<<"], NULL, thread_"<<i<<"_fun_start, (void*)NULL);\n";
+				buf<<"\tpthread_t tid["<<nGpu_*2+NCpuThreads-1<<"];\n";
+				for (int i=1;i<nGpu_*2+NCpuThreads;i++)
+				{
+					buf<<"\tpthread_create (&tid["<<i-1<<"], NULL, thread_"<<i<<"_fun_start, (void*)NULL);\n";
+				}
+			}
+			else
+			{
+				buf<<"\tpthread_t tid["<<nGpu_-1<<"];\n";
+				for (int i=1;i<nGpu_;i++)
+				{
+					buf<<"\tpthread_create (&tid["<<i-1<<"], NULL, thread_"<<i<<"_fun_start, (void*)NULL);\n";
+				}
 			}
 			buf<<"\tthread_0_fun();\n";
 		}
@@ -3907,18 +4323,40 @@ void GPUCodeGenerate::CGMain()
 		}
 		if (PrintTime)
 		{
-			if(NCpuThreads > 0)
-				for(int i = 0; i < NCpuThreads; i++)
-					buf<<"\tcout<<\"cpu"<<i<<"_compute:  \"<<cpu"<<i<<"_compute<<endl;\n";
-			for (int i = 0; i < nGpu_; i++)
+			if (TimeofEverycore)
 			{
-				buf<<"\tcout<<\"cpu_gpu_com"<<i<<":  \"<<cpu_gpu_com"<<i<<"<<endl;\n";
+				if(NCpuThreads > 0)
+					for(int i = 0; i < NCpuThreads; i++)
+						buf<<"\tcout<<\"cpu"<<i<<"_compute:  \"<<cpu"<<i<<"_compute<<endl;\n";
+				for (int i = 0; i < nGpu_; i++)
+				{
+					buf<<"\tcout<<\"cpu_gpu_com"<<i<<":  \"<<cpu_gpu_com"<<i<<"<<endl;\n";
+				}
+				for(int i = 0; i < nGpu_; i++)
+					buf<<"\tcout<<\"gpu"<<i<<"_compute: \"<<gpu"<<i<<"_compute<<endl;\n";
 			}
-			for(int i = 0; i < nGpu_; i++)
-				buf<<"\tcout<<\"gpu"<<i<<"_compute: \"<<gpu"<<i<<"_compute<<endl;\n";
+			else
+			{
+				buf<<"\tcpu0_compute /= MAX_ITER;"<<endl;
+				for(int i = 0; i < nGpu_; i++)
+				{
+					buf<<"\tgpu"<<i<<"_compute /= MAX_ITER;"<<endl;
+					buf<<"\tcpu_gpu_com"<<i<<" /= MAX_ITER;"<<endl;
+				}
+				buf<<"\tdouble gpu_compute = gpu0_compute,cpu_gpu_com = cpu_gpu_com0;"<<endl;
+				for (int i = 1; i < nGpu_; i++)
+				{
+					buf<<"\tgpu_compute = (gpu_compute > gpu"<<i<<"_compute)?gpu_compute:gpu"<<i<<"_compute;"<<endl;
+				}
+				for (int i = 1; i < nGpu_; i++)
+				{
+					buf<<"\tcpu_gpu_com = (cpu_gpu_com > cpu_gpu_com"<<i<<")?cpu_gpu_com:cpu_gpu_com"<<i<<";"<<endl;
+				}
+				buf<<"\tcout<<\""<<BenchmarkName<<":\"<<cpu0_compute<<\" \"<<gpu_compute<<\" \"<<cpu_gpu_com<<endl;"<<endl;
+			}
 		}
 		buf<<"\treturn 0;\n";
-		buf<<"\n}";
+		buf<<"\n}"<<endl;
 		ss<<dir_<<"main.cpp";
 		OutputToFile(ss.str(),buf.str());
 }
@@ -4357,61 +4795,61 @@ void GPUCodeGenerate::SPL2GPU_Unary(Node *node, unaryNode *u, int offset)
 	if(node->u.unary.op == POSTINC || node->u.unary.op == POSTDEC)
 		declInitList << GetOpType(node->u.binop.op);
 }
-//string GPUCodeGenerate::GetPrimDataType(Node *from)//类型定义
-//{
-//	string type;
-//
-//	switch(from->u.prim.basic){
-//	case Sshort:
-//	case Sint:
-//		type = "int";;
-//		break;
-//		/*Manish 2/3 hack to print pointer constants */
-//	case Uint:
-//	case Ushort:
-//		type = "UInt";;
-//		break;
-//	case Slong:
-//		type = "Long";;
-//		break;
-//	case Ulong:
-//		type = "ULong";;
-//		break;
-//	case Float:
-//		type = "float";
-//		break;
-//	case Double:
-//		type = "double";
-//		break;
-//	case Char:
-//	case Schar:
-//	case Uchar:
-//		type = "char";
-//		break;
-//	default: type = "Any";
-//		break;
-//	}
-//	/*if (from->u.prim.basic >= Uchar && from->u.prim.basic <= Char)
-//	{
-//	type = "Char";
-//	}else if (from->u.prim.basic >= Ushort && from->u.prim.basic <= Int_ParseOnly)
-//	{
-//	type = "Int";
-//	}else if (from->u.prim.basic >= Ulong && from->u.prim.basic <= Slonglong)
-//	{
-//	type = "Long";
-//	}else if (from->u.prim.basic == Float)
-//	{
-//	type = "Float";
-//	}else if(from->u.prim.basic >= Double && from->u.prim.basic <= Longdouble){
-//	type = "Double";
-//	}else if (from->u.prim.basic == string8)
-//	{
-//	type = "String";
-//	}else
-//	type = "Any";*/
-//	return type;
-//}
+string GPUCodeGenerate::GetPrimDataType(Node *from)//类型定义
+{
+	string type;
+
+	switch(from->u.prim.basic){
+	case Sshort:
+	case Sint:
+		type = "int";;
+		break;
+		/*Manish 2/3 hack to print pointer constants */
+	case Uint:
+	case Ushort:
+		type = "UInt";;
+		break;
+	case Slong:
+		type = "Long";;
+		break;
+	case Ulong:
+		type = "ULong";;
+		break;
+	case Float:
+		type = "float";
+		break;
+	case Double:
+		type = "double";
+		break;
+	case Char:
+	case Schar:
+	case Uchar:
+		type = "char";
+		break;
+	default: type = "Any";
+		break;
+	}
+	/*if (from->u.prim.basic >= Uchar && from->u.prim.basic <= Char)
+	{
+	type = "Char";
+	}else if (from->u.prim.basic >= Ushort && from->u.prim.basic <= Int_ParseOnly)
+	{
+	type = "Int";
+	}else if (from->u.prim.basic >= Ulong && from->u.prim.basic <= Slonglong)
+	{
+	type = "Long";
+	}else if (from->u.prim.basic == Float)
+	{
+	type = "Float";
+	}else if(from->u.prim.basic >= Double && from->u.prim.basic <= Longdouble){
+	type = "Double";
+	}else if (from->u.prim.basic == string8)
+	{
+	type = "String";
+	}else
+	type = "Any";*/
+	return type;
+}
 //取数组成员的初始值
 void GPUCodeGenerate::GetArrayDataInitVal(Node *node, stringstream &strInit)
 {
@@ -4506,29 +4944,28 @@ string GPUCodeGenerate::GetArrayDim(Node *from)
 	return dim;
 }
 
-//string GPUCodeGenerate::GetArrayDataType(Node *node)
-//{
-//	string type;
-//	if (node->typ == Prim) //基本类型
-//	{
-//		type = GetPrimDataType(node);
-//	}
-//	else if (node->typ == Adcl) // 也是个数组则递归查找类型
-//	{
-//		stringstream ss;
-//		//ss<<"Array["<<GetArrayDataType(node->u.adcl.type)<<"]";
-//		ss<<GetArrayDataType(node->u.adcl.type);
-//		type = ss.str();
-//	}
-//	else // 如果数组的成员是复杂类型，则有待扩展
-//	{
-//		Warning(1,"this arrayDataType can not be handle!");
-//		type = "Any";// 暂时返回一种通用类型
-//		UNREACHABLE;
-//	}
-//	return type;
-//}
-
+string GPUCodeGenerate::GetArrayDataType(Node *node)
+{
+	string type;
+	if (node->typ == Prim) //基本类型
+	{
+		type = GetPrimDataType(node);
+	}
+	else if (node->typ == Adcl) // 也是个数组则递归查找类型
+	{
+		stringstream ss;
+		//ss<<"Array["<<GetArrayDataType(node->u.adcl.type)<<"]";
+		ss<<GetArrayDataType(node->u.adcl.type);
+		type = ss.str();
+	}
+	else // 如果数组的成员是复杂类型，则有待扩展
+	{
+		Warning(1,"this arrayDataType can not be handle!");
+		type = "Any";// 暂时返回一种通用类型
+		UNREACHABLE;
+	}
+	return type;
+}
 void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 {
 	stringstream tempdeclList,tempdeclInitList;
@@ -4622,7 +5059,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 		if (initNode == NULL) //如果没有初始化，则按数组类型进行初始化
 		{
 			map<string,string>submap1;
-			map<string,map<string,string>>submap2;
+			map<string,map<string,string> >submap2;
 			if(from->u.decl.type->typ == Adcl && ((from->u.decl.type)->u.adcl.type)->typ== Adcl)
 			{
 				dim1= GetArrayDim(from->u.decl.type->u.adcl.type->u.adcl.dim);
@@ -4653,6 +5090,28 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 		{
 			if (1)
 			{
+				int nodeIndex;
+				for (nodeIndex = 0; nodeIndex < vTemplateNode_.size(); nodeIndex++)
+				{
+					if(curactor == vTemplateNode_[nodeIndex])
+						break;
+				}
+				//cwb
+				if(curactor->inFlatNodes.size() == 0 && curactor->outFlatNodes.size() != 0)
+				{
+					tempdeclList<<"template<typename T>\n";
+					tempdeclList<<arrayType<<" "<<vTemplateName_[nodeIndex]<<"<T>";
+				}
+				else if(curactor->inFlatNodes.size() != 0 && curactor->outFlatNodes.size() == 0)
+				{
+					tempdeclList<<"template<typename U>\n";
+					tempdeclList<<arrayType<<" "<<vTemplateName_[nodeIndex]<<"<U>";
+				}
+				else if(curactor->inFlatNodes.size() != 0 && curactor->outFlatNodes.size() != 0)
+				{
+					tempdeclList<<"template<typename T,typename U>\n";
+					tempdeclList<<arrayType<<" "<<vTemplateName_[nodeIndex]<<"<T,U>";
+				}
 				if (isInFileReader||isInFileWriter)
 				{
 					declInitList << "\t\t"<<name<<" = "<<from->u.decl.init->u.Const.text;
@@ -4661,7 +5120,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 				else
 				{
 					map<string,string>submapofstaticvar;
-					map<string,map<string,string>>submapofstatic;
+					map<string,map<string,string> >submapofstatic;
 					if(from->u.decl.type->typ == Adcl && ((from->u.decl.type)->u.adcl.type)->typ== Adcl)
 					{
 						//declList<<arrayType<<" "<<name<<"["<< <<"]"		//GPU-2.2多维数组声明的改动
@@ -4675,7 +5134,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 						staticvartype.push_back(arrayType);
 						allstaticvariable.insert(make_pair(curactor,submapofstatic));
 						allstatictype.insert(make_pair(curactor,staticvartype));
-						tempdeclList<<arrayType<<" "<<curactor->name<<"::"<<name<<"["<<dim<<"]["<<dim1<<"]=";
+						tempdeclList<<"::"<<name<<"["<<dim<<"]["<<dim1<<"]=";
 						array2Dname.insert(name);
 					}   
 					else if (from->u.decl.type->typ == Adcl)
@@ -4689,7 +5148,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 						staticvartype.push_back(arrayType);
 						allstaticvariable.insert(make_pair(curactor,submapofstatic));
 						allstatictype.insert(make_pair(curactor,staticvartype));
-						tempdeclList<<arrayType<<" "<<curactor->name<<"::"<<name<<"["<<dim<<"]=";
+						tempdeclList<<"::"<<name<<"["<<dim<<"]=";
 						array1Dname.insert(name);
 					}
 					else
@@ -5083,7 +5542,7 @@ void GPUCodeGenerate::SPL2GPU_Decl(Node *node, declNode *u, int offset)
 	else
 	{
 		map<string,string>submapofglobalvar;
-		map<string,map<string,string>>submapofvecglobal;
+		map<string,map<string,string> >submapofvecglobal;
 		OutputCRSpaceAndTabs(offset);
 		//declInitList << "\n";
 		SPL2GPU_Node(u->type, offset);
@@ -5181,41 +5640,41 @@ void GPUCodeGenerate::SPL2GPU_Text(Node *node, textNode *u, int offset)
 {
 }
 
-bool GPUCodeGenerate::IsUpBorder(FlatNode *actor)
-{
-	bool flag = false;   //cwb 如果是cpu与gpu的边界结点
-	vector<FlatNode *>::iterator iter1;
-	if (actor != sssg_->GetFlatNodes()[0])
-	{
-		for (iter1 = actor->inFlatNodes.begin(); iter1 != actor->inFlatNodes.end(); ++iter1)
-		{
-			if(actor->GPUPart != (*iter1)->GPUPart)
-			{
-				flag = true;
-				break;
-			}
-		}
-	}
-	return flag;
-}
-
-bool GPUCodeGenerate::IsDownBorder(FlatNode *actor)
-{
-	bool flag = false;   //cwb 如果是cpu与gpu的边界结点
-	vector<FlatNode *>::iterator iter1;
-	if (actor != sssg_->GetFlatNodes()[sssg_->flatNodes.size()-1])
-	{
-		for (iter1 = actor->outFlatNodes.begin(); iter1 != actor->outFlatNodes.end(); ++iter1)
-		{
-			if(actor->GPUPart != (*iter1)->GPUPart)
-			{
-				flag = true;
-				break;
-			}
-		}
-	}
-	return flag;
-}
+//bool GPUCodeGenerate::IsUpBorder(FlatNode *actor)
+//{
+//	bool flag = false;   //cwb 如果是cpu与gpu的边界结点
+//	vector<FlatNode *>::iterator iter1;
+//	if (actor != sssg_->GetFlatNodes()[0])
+//	{
+//		for (iter1 = actor->inFlatNodes.begin(); iter1 != actor->inFlatNodes.end(); ++iter1)
+//		{
+//			if(actor->GPUPart != (*iter1)->GPUPart)
+//			{
+//				flag = true;
+//				break;
+//			}
+//		}
+//	}
+//	return flag;
+//}
+//
+//bool GPUCodeGenerate::IsDownBorder(FlatNode *actor)
+//{
+//	bool flag = false;   //cwb 如果是cpu与gpu的边界结点
+//	vector<FlatNode *>::iterator iter1;
+//	if (actor != sssg_->GetFlatNodes()[sssg_->flatNodes.size()-1])
+//	{
+//		for (iter1 = actor->outFlatNodes.begin(); iter1 != actor->outFlatNodes.end(); ++iter1)
+//		{
+//			if(actor->GPUPart != (*iter1)->GPUPart)
+//			{
+//				flag = true;
+//				break;
+//			}
+//		}
+//	}
+//	return flag;
+//}
 bool GPUCodeGenerate::DataDependence(FlatNode *actora,FlatNode *actorb)//a->b
 {
 	bool flag = false;

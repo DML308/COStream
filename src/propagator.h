@@ -26,6 +26,7 @@ typedef struct{
 	//Bool extern_static;//用于标识节点是否是全局变量和静态变量
 }constIdNode;
 
+
 //下面的结构是为处理结构体，共用体、联合体等复合结构的常量传播而设计的   12.2.13
 
 typedef enum{Prim_Id,Prim_Array,SUE_Id,SUE_Array}SUFieldType ;
@@ -107,4 +108,5 @@ GLOBAL void RWV_listwalk(List *l,FlowValue v);
 GLOBAL void ReplaceWorkVar(Node *node,FlowValue v);
 GLOBAL  Node *GetValue(Node *node);
 GLOBAL void InitConstArrayNode(int dim, int *lenPerDim, int num, constArrayNode *itemArray, Node *init);
+
 #endif /* ifndef _PAOPAGATOR_H_ */

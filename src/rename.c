@@ -13,6 +13,8 @@ void New_astwalk(Node *n);
 int My_rename(const char *name,const char **newName,int *number,TypeQual tq,NodeType typ)
 {
 	char sn[40];
+	int t,i,k;
+	char ch;
 	//char s[2000];
 	char *s = (char*)malloc(sizeof(char)*256);
 	char *prefix;
@@ -55,7 +57,14 @@ int My_rename(const char *name,const char **newName,int *number,TypeQual tq,Node
 	}
 	sn[j++] = '_';
 	sn[j] = '\0';
-	strrev(sn);
+	//strrev(sn);
+	t = !(j%2)?1:0;
+	for(i=j-1,k=0;i>(j/2-t);i--){
+		ch = sn[i];
+		sn[i] = sn[k];
+		sn[k++] = ch;
+	}
+	
 	strcat(s,sn);
 	*newName = s;
 	//printf("%s\n",s);

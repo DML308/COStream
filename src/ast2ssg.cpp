@@ -3,98 +3,6 @@
 using namespace std;
 
 PRIVATE StaticStreamGraph *ssg = NULL;
-GLOBAL bool hasUncertainty(StaticStreamGraph *ssg)			//判断是否存在uncertainty
-{
-	std::vector<FlatNode*> flatNodes = ssg->flatNodes;
-
-	for (int i = 0; i < flatNodes.size(); ++i)
-	{
-		//循环算子
-		List* windowlist = flatNodes[i]->contents->body->u.operBody.window;
-		ListMarker maker;
-		IterateList(&maker, windowlist);
-		Node*node = NULL;
-		while (NextOnList(&maker, (GenericREF)&node))
-		{
-			NodeType nodetype = node->u.window.wtype->typ;
-			if (nodetype == Uncertainty)
-				return true;
-		}
-	}
-	return false;
-}
-GLOBAL bool CheckSplitUncertainty(StaticStreamGraph *ssg)			//判断splitjoin/roundrobin中是否存在uncertain节点,有则返回false，否则返回true
-{
-	//bool splitjoinFlag = false;
-
-	std::vector<FlatNode*> flatNodes = ssg->flatNodes;
-	for (int i = 0; i < flatNodes.size(); i++)
-	{
-
-		if (strstr(flatNodes[i]->name.c_str(), "Duplicate") || strstr(flatNodes[i]->name.c_str(), "Roundrobin") != NULL)		//找到duplicate/roundrobin节点
-		{
-			//接下来需要对其中的join节点进行处理
-			//splitjoinFlag = true;
-			for (int j = i; j < flatNodes.size(); j++)		//从剩下的节点中找到第一个join节点
-			{
-
-				if (strstr(flatNodes[j]->name.c_str(), "Join") != NULL)
-				{
-					break;
-				}
-				else
-				{
-					List * windowlist = flatNodes[j]->contents->body->u.operBody.window;
-					if (ListLength(windowlist) == 1)
-					{
-						Node* windowNode = (Node*)FirstItem(windowlist);
-						if (windowNode->typ == Uncertainty)
-							return false;
-					}
-
-				}
-			}
-		}
-
-	}
-	return true;
-}
-
-GLOBAL bool CheckSplitUncertaintybeifen(StaticStreamGraph *ssg)
-{
-	
-	std::vector<FlatNode*> flatNodes = ssg->flatNodes;
-	for (int i = 0;i < flatNodes.size();i++)
-	{
-		List* windowlist = flatNodes[i]->contents->body->u.operBody.window;
-		ListMarker maker;
-		IterateList(&maker, windowlist);
-		Node*node = NULL;
-		while (NextOnList(&maker, (GenericREF)&node))
-		{
-			NodeType nodetype = node->u.window.wtype->typ;
-			if (nodetype == Uncertainty)
-			{
-				int incount = 0;
-				int outcount = 0;
-				//找到uncertaintynode
-				for (int j = 0;j <=i;j++)
-				{
-					incount += flatNodes[j]->nIn;
-					outcount += flatNodes[j]->nOut;
-				}
-				if (incount == outcount);
-				else 
-				{
-					SyntaxError("uncertainty place error");
-					return false;
-				}
-					
-			}
-		}
-	}
-	return true;
-}
 
 bool CheckCompositeNumber(List *proc, Node **com)
 {
@@ -160,7 +68,11 @@ GLOBAL StaticStreamGraph *AST2FlatStaticStreamGraph(Node *mainComposite)
 
 	ssg->SetTopLevel();
 	ssg->SetFlatNodesWeights();
+	ssg->GetPreName(); //cwb
+	//ssg->SetTemplateNode(); //获取所有模板结点 chenwenbin 20140724
+	//ssg->ResetTemplateName();
 	ssg->ResetFlatNodeNames(); /*重置ssg内flatNodes的每个flatNode的name, 便于打印dot图*/
+	
 
 #if 0
 	ssg->PrintFlatNodes();

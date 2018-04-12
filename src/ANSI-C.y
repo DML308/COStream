@@ -250,8 +250,6 @@ int moo(const int identifier1 (T identifier2 (int identifier3)));
 %token <tok> DUPLICATE        ROUNDROBIN		PIPELINE
 %token <tok> FILEREADER       FILEWRITER		
 /*-----------------Define For SPL-------2011.11.14--Liu Xiaoxian, DML, HUST---------*/
-/*--------DSG----------------*/
-%token <tok> UNCERTAINTY
 
 /* unary op tokens added by Eric Brewer */
 
@@ -564,27 +562,27 @@ operator.add:
 		;
 
 operator.pipeline:
-		  PIPELINE lblock splitjoinPipeline.statement.list rblock      //add ·½Ê½
+		  PIPELINE lblock splitjoinPipeline.statement.list rblock      //add \B7\BDÊ½
 		{
 			$$ = MakePipelineCoord(NULL,NULL,NULL,$3,$1);
 		}
-		| PIPELINE lblock  declaration.list splitjoinPipeline.statement.list rblock      //add ·½Ê½
+		| PIPELINE lblock  declaration.list splitjoinPipeline.statement.list rblock      //add \B7\BDÊ½
 		{
 			$$ = MakePipelineCoord(NULL,NULL,$3,$4,$1);
 		}
 		;  
 
-// »¨À¨ºÅÖÐµÄÍêÕû½á¹¹Îª£º ÉùÃ÷Óï¾ä(¿ÉÑ¡) ³õÊ¼»¯Óï¾ä£¨¿ÉÑ¡£© splitÓï¾ä splitjoinPipelineÓï¾ä joinÓï¾ä
+// \BB\A8\C0\A8\BA\C5\D6Ðµ\C4\CD\EA\D5\FB\BDá¹¹Îª\A3\BA \C9\F9\C3\F7\D3\EF\BE\E4(\BF\C9Ñ¡) \B3\F5Ê¼\BB\AF\D3\EF\BEä£¨\BF\C9Ñ¡\A3\A9 split\D3\EF\BE\E4 splitjoinPipeline\D3\EF\BE\E4 join\D3\EF\BE\E4
 operator.splitjoin:
-		  SPLITJOIN lblock split.statement  splitjoinPipeline.statement.list  join.statement rblock  //add ·½Ê½ add splitjoin{ }
+		  SPLITJOIN lblock split.statement  splitjoinPipeline.statement.list  join.statement rblock  //add \B7\BDÊ½ add splitjoin{ }
 		{
 			$$ = MakeSplitJoinCoord(NULL,NULL,NULL,NULL,$3,$4,$5,$1);
 		}
-		| SPLITJOIN lblock declaration.list split.statement splitjoinPipeline.statement.list join.statement rblock  //add ·½Ê½ add splitjoin{ }
+		| SPLITJOIN lblock declaration.list split.statement splitjoinPipeline.statement.list join.statement rblock  //add \B7\BDÊ½ add splitjoin{ }
 		{
 			$$ = MakeSplitJoinCoord(NULL,NULL,$3,NULL,$4,$5,$6,$1);
 		}
-	    | SPLITJOIN lblock declaration.list statement.list split.statement splitjoinPipeline.statement.list join.statement rblock  //add ·½Ê½ add splitjoin{ }
+	    | SPLITJOIN lblock declaration.list statement.list split.statement splitjoinPipeline.statement.list join.statement rblock  //add \B7\BDÊ½ add splitjoin{ }
 		{
 			$$ = MakeSplitJoinCoord(NULL,NULL,$3,$4,$5,$6,$7,$1);
 		}
@@ -654,7 +652,7 @@ duplicate.statement:
 
 /********************-----------operator.default---------********************/
 operator.default.call:
-		  IDENTIFIER  operator.arguments ';' /*composite call(StreamIt style)*///operator.param.list ²»ÄÜÎª¿ÕÒÔÇø·Öº¯Êýµ÷ÓÃ/*composite call*/
+		  IDENTIFIER  operator.arguments ';' /*composite call(StreamIt style)*///operator.param.list \B2\BB\C4\DCÎª\BF\D5\D2\D4\C7\F8\B7Öº\AF\CA\FD\B5\F7\D3\C3/*composite call*/
 		{
 			///*DEBUG*/printf("have found operator.default.call\n");
 			$$ = MakeCompositeCallCoord(MakeCompositeIdCoord($1->u.id.text, $1->coord), 
@@ -757,11 +755,6 @@ window.type:				 /*node struct*/
 			///*DEBUG*/printf("have found TUMBLING ',' window.trigger\n");
 			$$ = MakeWindowTumbingCoord(EMPTY_TQ, $3, $2); 
 		}
-		| UNCERTAINTY '(' ')'
-		{
-			printf("have found UNCERTAINTY");
-			$$=MakeWindowUncertaintyCoord(EMPTY_TQ,NULL,$2);
-		}
 		;
 
 /*************************************************************************/
@@ -802,17 +795,17 @@ postfix.expression:             /* P */ /* 6.3.2 CLARIFICATION */
             { $$ = ExtendArray($1, $3, $2); }
         | postfix.expression '(' ')'
             { $$ = MakeCallCoord($1, NULL, $2); }
-        | postfix.expression '(' argument.expression.list ')'  //º¯Êýµ÷ÓÃÐÎÊ½£¡
+        | postfix.expression '(' argument.expression.list ')'  //\BA\AF\CA\FD\B5\F7\D3\C3\D0\CEÊ½\A3\A1
             { $$ = MakeCallCoord($1, $3, $2); }
-//++++++++sql ÐÂÎÄ·¨+++++++++++++++++++**********************************************************************************
-		| postfix.expression '('  ')' operator.selfdefine.body //ÄÚÖÃoperator£¡
+//++++++++sql \D0\C2\CEÄ·\A8+++++++++++++++++++**********************************************************************************
+		| postfix.expression '('  ')' operator.selfdefine.body //\C4\DA\D6\C3operator\A3\A1
 		{
 			$1 = ModifyDeclType(ConvertIdToDecl($1, EMPTY_TQ, NULL, NULL, NULL), MakeOperdclCoord(EMPTY_TQ,NULL, NULL, NULL, $1->coord) );
 			$1 = SetDeclType($1, MakeDefaultPrimType(EMPTY_TQ, $1->coord), Redecl) ;
 			$1 = DefineOperator($1);
 			$$ = SetOperatorBody($1, $4);
 		}
-		| postfix.expression '(' argument.expression.list ')' operator.selfdefine.body //ÄÚÖÃoperator£¡
+		| postfix.expression '(' argument.expression.list ')' operator.selfdefine.body //\C4\DA\D6\C3operator\A3\A1
 		{
 			$1 = ModifyDeclType(ConvertIdToDecl($1, EMPTY_TQ, NULL, NULL, NULL), MakeOperdclCoord(EMPTY_TQ,NULL, $3, NULL, $1->coord) );
 			$1 = SetDeclType($1, MakeDefaultPrimType(EMPTY_TQ, $1->coord), Redecl) ;
@@ -845,11 +838,11 @@ postfix.expression:             /* P */ /* 6.3.2 CLARIFICATION */
 		{
 			$$ = MakeSplitJoinCoord(NULL, LookupStreamIdsNode($3),$6,$7,$8,GrabPragmas($9),$10,$1);
 		}
-		|  PIPELINE '(' IDENTIFIER ')' lblock  splitjoinPipeline.statement.list rblock //pipelineÎªµ¥ÊäÈëµ¥Êä³ö½á¹¹
+		|  PIPELINE '(' IDENTIFIER ')' lblock  splitjoinPipeline.statement.list rblock //pipelineÎª\B5\A5\CA\E4\C8ëµ¥\CA\E4\B3\F6\BDá¹¹
 		{
 			$$ = MakePipelineCoord(NULL, LookupStreamIdsNode($3), NULL,$6, $1);
 		}
-		|  PIPELINE '(' IDENTIFIER ')' lblock declaration.list splitjoinPipeline.statement.list rblock //pipelineÎªµ¥ÊäÈëµ¥Êä³ö½á¹¹
+		|  PIPELINE '(' IDENTIFIER ')' lblock declaration.list splitjoinPipeline.statement.list rblock //pipelineÎª\B5\A5\CA\E4\C8ëµ¥\CA\E4\B3\F6\BDá¹¹
 		{
 			$$ = MakePipelineCoord(NULL, LookupStreamIdsNode($3), $6,$7, $1);
 		}
@@ -1485,7 +1478,7 @@ unary.identifier.declarator: /*P293*/
         
 /*                        */    /* ? */ /* ?.?.? */
 postfix.identifier.declarator: /*P296*/
-          paren.identifier.declarator postfixing.abstract.declarator/*¶àÎ¬Êý×é¹æÔ¼µ½ÕâÀï*/
+          paren.identifier.declarator postfixing.abstract.declarator/*\B6\E0Î¬\CA\FD\D7\E9\B9\E6Ô¼\B5\BD\D5\E2\C0\EF*/
             { $$ = ModifyDeclType($1, $2); }
         | '(' unary.identifier.declarator ')'
             { $$ = $2; 
@@ -1884,7 +1877,7 @@ statement:                      /* P */ /* 6.6   */
 
 labeled.statement:              /* P */ /* 6.6.1 */
           IDENTIFIER ':'             
-           { $<n>$ = BuildLabel($1, NULL); }
+           { $<L>$ = BuildLabel($1, NULL); }
           statement
            { $$->u.label.stmt = $4; }
 

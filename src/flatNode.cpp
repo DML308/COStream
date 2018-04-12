@@ -5,6 +5,7 @@ FlatNode::FlatNode(operatorNode *node, compositeNode *com, compositeNode *newCom
 {
 	name = std::string(node->decl->u.decl.name);
 	visitTimes = 0;
+	memorizedNode = false;
 
 	contents = node;
 	composite = newCom;
@@ -41,6 +42,7 @@ FlatNode::FlatNode(operatorNode *node)
 {//20120717 zww Ìí¼Ó 
 	name = std::string(node->decl->u.decl.name);
 	visitTimes = 0;
+	memorizedNode = false;
 
 	contents = node;
 	composite = NULL;

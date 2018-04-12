@@ -1,12 +1,19 @@
-#include "MAFLPartition.h"
+#ifndef GPUSETMULTINUM_H
+#define GPUSETMULTINUM_H
 
+#include "HAFLPartition.h"
+#include "ActorEdgeInfo.h"
+#include "ActorStageAssignment.h"
 class GPUSetMultiNum
 {
 public:
-	GPUSetMultiNum(SchedulerSSG *sssg);
+	GPUSetMultiNum(SchedulerSSG *,StageAssignment*);
 	~GPUSetMultiNum(){};
-	void GetCpuAndGpuNeededBuffer(SchedulerSSG *sssg,MAFLPartition * maflp);
-	void SetMultiNum(SchedulerSSG *sssg,MAFLPartition * maflp);
+	void GetCpuAndGpuNeededBuffer(SchedulerSSG *sssg,HAFLPartition * haflp);
+	void SetMultiNum(SchedulerSSG *sssg,HAFLPartition * maflp);
+
+	ActorEdgeInfo* pEdgeInfo;//存放各个边的类型信息
+	StageAssignment *pSa;
 	
 private:
 	double CpuTotalBufferSize;
@@ -24,3 +31,4 @@ extern "C"
 	extern GLOBAL int MultiNum;
 	extern GLOBAL int GpuNum;
 };
+#endif

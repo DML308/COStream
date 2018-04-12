@@ -93,7 +93,7 @@ GLOBAL Bool LookupSymbol(SymbolTable *, const char *name, Generic **var);
 
 GLOBAL Generic *LookupVariableRenameSymbol(ASTSymbolTable *table,const char **name,Generic *oldID);//ly-20121012
 
-GLOBAL Bool LookupExternalsSymbol(SymbolTable *table,const char *name,const char *newName,Generic *oldID);//ly-20121102
+//GLOBAL Bool LookupExternalsSymbol(SymbolTable *table,const char *name,const char *newName,Generic *oldID);//ly-20121102
 
 GLOBAL Generic *InsertSymbol(SymbolTable *, const char *name, Generic *var,
 			     ConflictProc);

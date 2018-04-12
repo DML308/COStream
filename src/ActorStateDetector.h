@@ -21,5 +21,5 @@ private:
 };
 
 GLOBAL Bool DetectiveActorState(FlatNode *flatNode);
-GLOBAL int UporDownStatelessNode(FlatNode *node);
+
 #endif

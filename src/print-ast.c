@@ -791,9 +791,8 @@ PRIVATE inline void PrintWindow(FILE *out, Node *node, windowNode *u, int offset
 		PrintCRSpaces(out, offset);
 		if (u->wtype->typ == Sliding)
 			fputs("WindowType: slidingWindow ", out);
-		else if (u->wtype->typ==Tumbling)
+		else
 			fputs("WindowType: tumblingWindow ", out);
-		else fputs("WindowType: uncertainty", out);
 		PrintCRSpaces(out, offset + 2);
 		PrintNode(out, u->wtype, offset+2);
 	}
@@ -805,10 +804,7 @@ PRIVATE inline void PrintSliding(FILE *out, Node *node, slidingNode *u, int offs
 	PrintNode(out,u->sliding_value,offset);
 	PrintCRSpaces(out, offset);
 }
-PRIVATE inline void PrintUncertainty(FILE*out, Node*node, uncertaintyNode *u, int offset, Bool norecurse)
-{
-	PrintCRSpaces(out, offset);
-}
+
 
 PRIVATE inline void PrintTumbling(FILE *out, Node *node, tumblingNode *u, int offset, Bool norecurse)
 {
@@ -952,6 +948,10 @@ PRIVATE inline void PrintAdd(FILE *out, Node *node, addNode *u, int offset, Bool
 	PrintNode(out, u->content,    offset + 2);
 }
 
+PRIVATE inline void PrintItco(FILE *out, Node *node, itcoNode *u, int offset, Bool norecurse)
+{
+	fprintf(out, "ItetatorCount: %s", u->text);
+}
 
 /***********************--------------Define For SPL----------****************************/
 
@@ -986,16 +986,14 @@ GLOBAL void PrintNode(FILE *out, Node *node, int offset)
 #define CODE(name, node, union) Print##name(out,node,union,offset,norecurse)
   ASTSWITCH(node, CODE)
 #undef CODE
-
-//2016-12-05 yrrÉ¾³ý #if 0 #endif
-//#if 0
+#if 0
 
   if (node->analysis.livevars) {
     PrintCRSpaces(out, offset+2);
     PrintAnalysis(out, node);
   }
 
-//#endif 
+#endif 
   --PrintInvocations;
 }
 

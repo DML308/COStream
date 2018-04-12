@@ -53,7 +53,7 @@ private:
 	Node *makeHFusionSplit(Node *splitInputNode,Node *splitPopArg,List *splitOutputList, List *splitPushArg, SplitStyle style);//构造split operator
 
 	//注：做window的函数可以统一成一个函数
-	Node *HorizontalFusionSSG::MakeWindowNode(Node *id,Node *decl, Node *count, int style);
+	Node *MakeWindowNode(Node *id,Node *decl, Node *count, int style);
 	List *makeHFusionJoinWindow(List *inputList,List *outputList,List *pop_arg, Node *pushArg);//构造join的window
 	List *makeHFusionRoundRobinWindow(List *inputList,List *outputList,List *push_arg, Node *popArg);
 	List *makeHFusionDuplicateWindow(List *inputList,List *outputList,Node *pop_value);
