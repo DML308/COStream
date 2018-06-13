@@ -25,7 +25,7 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 		}
 
 #if 1 //¥Ú”°Õº
-		DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);
+        //DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);
 #endif
 	}
 	else
@@ -192,7 +192,7 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 		}
 
 #if 1 //¥Ú”°Õº
-		DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);
+        //DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);
 #endif
 	}
 }

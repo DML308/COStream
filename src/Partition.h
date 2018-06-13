@@ -45,6 +45,8 @@ public:
 	{
 		return FlatNode2PartitionNum;
 	}
+
+
 protected:
 	std::multimap<FlatNode *, FlatNode *> currentSrc2Dest, currentDest2Src;
 	std::vector<FlatNode *> currentSrcUp, currentSrcDown, currentDestUp, currentDestDown; 

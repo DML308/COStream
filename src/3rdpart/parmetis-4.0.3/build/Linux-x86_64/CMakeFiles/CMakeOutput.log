@@ -1,0 +1,302 @@
+The system is: Linux - 2.6.32-431.el6.x86_64 - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /opt/mpich-install/bin/mpicc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/2.8.12.2/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/mpich-install/bin/mpicxx 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/2.8.12.2/CompilerIdCXX/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec758193607/fast"
+gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec758193607.dir/build.make CMakeFiles/cmTryCompileExec758193607.dir/build
+gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec758193607.dir/testCCompiler.c.o
+/opt/mpich-install/bin/mpicc    -o CMakeFiles/cmTryCompileExec758193607.dir/testCCompiler.c.o   -c /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTryCompileExec758193607
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec758193607.dir/link.txt --verbose=1
+/opt/mpich-install/bin/mpicc       CMakeFiles/cmTryCompileExec758193607.dir/testCCompiler.c.o  -o cmTryCompileExec758193607 -rdynamic 
+gmake[2]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1343763262/fast"
+gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1343763262.dir/build.make CMakeFiles/cmTryCompileExec1343763262.dir/build
+gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o
+/opt/mpich-install/bin/mpicc    -o CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+Linking C executable cmTryCompileExec1343763262
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1343763262.dir/link.txt --verbose=1
+/opt/mpich-install/bin/mpicc     -v CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec1343763262 -rdynamic  
+mpicc for MPICH version 3.2
+使用内建 specs。
+目标：x86_64-redhat-linux
+配置为：../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre --enable-libgcj-multifile --enable-java-maintainer-mode --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --disable-libjava-multilib --with-ppl --with-cloog --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux
+线程模型：posix
+gcc 版本 4.4.7 20120313 (Red Hat 4.4.7-18) (GCC) 
+COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1343763262' '-rdynamic' '-I/opt/mpich-install/include' '-L/opt/mpich-install/lib' '-mtune=generic'
+ /usr/libexec/gcc/x86_64-redhat-linux/4.4.7/collect2 --eh-frame-hdr --build-id -m elf_x86_64 --hash-style=gnu -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec1343763262 /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtbegin.o -L/opt/mpich-install/lib -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../.. CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o -rpath /opt/mpich-install/lib --enable-new-dtags -lmpi -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crtn.o
+gmake[2]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/gmake "cmTryCompileExec1343763262/fast"]
+  ignore line: [gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1343763262.dir/build.make CMakeFiles/cmTryCompileExec1343763262.dir/build]
+  ignore line: [gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building C object CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/opt/mpich-install/bin/mpicc    -o CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTryCompileExec1343763262]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1343763262.dir/link.txt --verbose=1]
+  ignore line: [/opt/mpich-install/bin/mpicc     -v CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec1343763262 -rdynamic  ]
+  ignore line: [mpicc for MPICH version 3.2]
+  ignore line: [使用内建 specs。]
+  ignore line: [目标：x86_64-redhat-linux]
+  ignore line: [配置为：../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre --enable-libgcj-multifile --enable-java-maintainer-mode --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --disable-libjava-multilib --with-ppl --with-cloog --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux]
+  ignore line: [线程模型：posix]
+  ignore line: [gcc 版本 4.4.7 20120313 (Red Hat 4.4.7-18) (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1343763262' '-rdynamic' '-I/opt/mpich-install/include' '-L/opt/mpich-install/lib' '-mtune=generic']
+  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.4.7/collect2 --eh-frame-hdr --build-id -m elf_x86_64 --hash-style=gnu -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec1343763262 /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtbegin.o -L/opt/mpich-install/lib -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../.. CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o -rpath /opt/mpich-install/lib --enable-new-dtags -lmpi -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crtn.o]
+    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/collect2] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec1343763262] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crti.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtbegin.o] ==> ignore
+    arg [-L/opt/mpich-install/lib] ==> dir [/opt/mpich-install/lib]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../..]
+    arg [CMakeFiles/cmTryCompileExec1343763262.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-rpath] ==> ignore
+    arg [/opt/mpich-install/lib] ==> ignore
+    arg [--enable-new-dtags] ==> ignore
+    arg [-lmpi] ==> lib [mpi]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crtn.o] ==> ignore
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  collapse library dir [/opt/mpich-install/lib] ==> [/opt/mpich-install/lib]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64] ==> [/usr/lib64]
+  collapse library dir [/lib/../lib64] ==> [/lib64]
+  collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../..] ==> [/usr/lib]
+  implicit libs: [mpi;c]
+  implicit dirs: [/opt/mpich-install/lib;/usr/lib/gcc/x86_64-redhat-linux/4.4.7;/usr/lib64;/lib64;/usr/lib]
+  implicit fwks: []
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1644336495/fast"
+gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1644336495.dir/build.make CMakeFiles/cmTryCompileExec1644336495.dir/build
+gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1644336495.dir/testCXXCompiler.cxx.o
+/opt/mpich-install/bin/mpicxx     -o CMakeFiles/cmTryCompileExec1644336495.dir/testCXXCompiler.cxx.o -c /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTryCompileExec1644336495
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1644336495.dir/link.txt --verbose=1
+/opt/mpich-install/bin/mpicxx        CMakeFiles/cmTryCompileExec1644336495.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec1644336495 -rdynamic 
+gmake[2]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec400125320/fast"
+gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec400125320.dir/build.make CMakeFiles/cmTryCompileExec400125320.dir/build
+gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o
+/opt/mpich-install/bin/mpicxx     -o CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec400125320
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec400125320.dir/link.txt --verbose=1
+/opt/mpich-install/bin/mpicxx      -v CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec400125320 -rdynamic  
+mpicxx for MPICH version 3.2
+使用内建 specs。
+目标：x86_64-redhat-linux
+配置为：../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre --enable-libgcj-multifile --enable-java-maintainer-mode --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --disable-libjava-multilib --with-ppl --with-cloog --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux
+线程模型：posix
+gcc 版本 4.4.7 20120313 (Red Hat 4.4.7-18) (GCC) 
+COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec400125320' '-rdynamic' '-I/opt/mpich-install/include' '-L/opt/mpich-install/lib' '-shared-libgcc' '-mtune=generic'
+ /usr/libexec/gcc/x86_64-redhat-linux/4.4.7/collect2 --eh-frame-hdr --build-id -m elf_x86_64 --hash-style=gnu -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec400125320 /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtbegin.o -L/opt/mpich-install/lib -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../.. CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o -lmpicxx -rpath /opt/mpich-install/lib --enable-new-dtags -lmpi -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crtn.o
+gmake[2]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/gmake "cmTryCompileExec400125320/fast"]
+  ignore line: [gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/gmake -f CMakeFiles/cmTryCompileExec400125320.dir/build.make CMakeFiles/cmTryCompileExec400125320.dir/build]
+  ignore line: [gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/opt/mpich-install/bin/mpicxx     -o CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTryCompileExec400125320]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec400125320.dir/link.txt --verbose=1]
+  ignore line: [/opt/mpich-install/bin/mpicxx      -v CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec400125320 -rdynamic  ]
+  ignore line: [mpicxx for MPICH version 3.2]
+  ignore line: [使用内建 specs。]
+  ignore line: [目标：x86_64-redhat-linux]
+  ignore line: [配置为：../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.5.0-gcj-1.5.0.0/jre --enable-libgcj-multifile --enable-java-maintainer-mode --with-ecj-jar=/usr/share/java/eclipse-ecj.jar --disable-libjava-multilib --with-ppl --with-cloog --with-tune=generic --with-arch_32=i686 --build=x86_64-redhat-linux]
+  ignore line: [线程模型：posix]
+  ignore line: [gcc 版本 4.4.7 20120313 (Red Hat 4.4.7-18) (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/:/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec400125320' '-rdynamic' '-I/opt/mpich-install/include' '-L/opt/mpich-install/lib' '-shared-libgcc' '-mtune=generic']
+  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.4.7/collect2 --eh-frame-hdr --build-id -m elf_x86_64 --hash-style=gnu -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec400125320 /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtbegin.o -L/opt/mpich-install/lib -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../.. CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o -lmpicxx -rpath /opt/mpich-install/lib --enable-new-dtags -lmpi -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crtn.o]
+    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.4.7/collect2] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec400125320] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crt1.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crti.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtbegin.o] ==> ignore
+    arg [-L/opt/mpich-install/lib] ==> dir [/opt/mpich-install/lib]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../..]
+    arg [CMakeFiles/cmTryCompileExec400125320.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lmpicxx] ==> lib [mpicxx]
+    arg [-rpath] ==> ignore
+    arg [/opt/mpich-install/lib] ==> ignore
+    arg [--enable-new-dtags] ==> ignore
+    arg [-lmpi] ==> lib [mpi]
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64/crtn.o] ==> ignore
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  collapse library dir [/opt/mpich-install/lib] ==> [/opt/mpich-install/lib]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.4.7]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../lib64] ==> [/usr/lib64]
+  collapse library dir [/lib/../lib64] ==> [/lib64]
+  collapse library dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../..] ==> [/usr/lib]
+  implicit libs: [mpicxx;mpi;stdc++;m;c]
+  implicit dirs: [/opt/mpich-install/lib;/usr/lib/gcc/x86_64-redhat-linux/4.4.7;/usr/lib64;/lib64;/usr/lib]
+  implicit fwks: []
+
+
+Determining if the include file execinfo.h exists passed with the following output:
+Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec2368256642/fast"
+gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2368256642.dir/build.make CMakeFiles/cmTryCompileExec2368256642.dir/build
+gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2368256642.dir/CheckIncludeFile.c.o
+/opt/mpich-install/bin/mpicc    -o CMakeFiles/cmTryCompileExec2368256642.dir/CheckIncludeFile.c.o   -c /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTryCompileExec2368256642
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2368256642.dir/link.txt --verbose=1
+/opt/mpich-install/bin/mpicc       CMakeFiles/cmTryCompileExec2368256642.dir/CheckIncludeFile.c.o  -o cmTryCompileExec2368256642 -rdynamic 
+gmake[2]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+
+
+Determining if the function getline exists passed with the following output:
+Change Dir: /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec383510640/fast"
+gmake[1]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec383510640.dir/build.make CMakeFiles/cmTryCompileExec383510640.dir/build
+gmake[2]: Entering directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec383510640.dir/CheckFunctionExists.c.o
+/opt/mpich-install/bin/mpicc   -DCHECK_FUNCTION_EXISTS=getline   -o CMakeFiles/cmTryCompileExec383510640.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec383510640
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec383510640.dir/link.txt --verbose=1
+/opt/mpich-install/bin/mpicc   -DCHECK_FUNCTION_EXISTS=getline    CMakeFiles/cmTryCompileExec383510640.dir/CheckFunctionExists.c.o  -o cmTryCompileExec383510640 -rdynamic 
+gmake[2]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory `/usr/COStream/NewCOStream/src/3rdpart/parmetis-4.0.3/build/Linux-x86_64/CMakeFiles/CMakeTmp'
+
+

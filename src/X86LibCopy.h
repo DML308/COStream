@@ -1,10 +1,6 @@
 #ifndef _X86_LIB_COPY_H
 #define _X86_LIB_COPY_H
 #include "schedulerSSG.h"
-#include <iostream>
-#include <string>
-#include <cstdio>
-#include <cstdlib>
 
 using namespace std;
 

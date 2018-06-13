@@ -531,9 +531,9 @@ void X86CodeGenerate::CGGlobalvar()
 	buf <<" #include \""<< string(objName) <<"GlobalVar.h\"\n";
 	int len = string(objName).length();
 		
-	buf <<" namespace COStream" << string(objName).substr(0,len-4)<<"{ \n";
+	//buf <<" namespace COStream" << string(objName).substr(0,len-4)<<"{ \n";
 	buf << declInitList.str() << "\n\n";
-	buf <<"} \n";
+	//buf <<"} \n";
 	declInitList.str("");
 	flag_Global=0;
 	//输出到文件
@@ -608,8 +608,8 @@ void X86CodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 		buf<<"#include \"p-stable_lsh.h\"\n";
 	buf<<"using namespace std;\n";
 	//buf<<"\tinclude \""<<classNmae<<".h\"\n";
-	if(CallModelEmbed)	
-		buf <<" namespace COStream" << string(objName)<<"{ \n";//添加名字空间
+	//if(CallModelEmbed)	
+	//	buf <<" namespace COStream" << string(objName)<<"{ \n";//添加名字空间
 	if((actor->inFlatNodes.size() == 0 && actor->outFlatNodes.size() != 0))
 		buf<<"template<typename T>\n";
 	else if((actor->inFlatNodes.size() != 0 && actor->outFlatNodes.size() == 0))
@@ -670,7 +670,7 @@ void X86CodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 	CGrunSteadyScheduleWork(actor,buf);
 		buf <<"};\n";//类块结束
 	if(CallModelEmbed)
-		buf<<"}\n";//名字空间块结束
+		//buf<<"}\n";//名字空间块结束
 	//构造源文件内容
 	//srcBuf<<"#include \""<<actor->name<<".h\"\n";
 	for (iter=staticNameInit.begin();iter!=staticNameInit.end();++iter)
@@ -855,8 +855,8 @@ void X86CodeGenerate::CGglobalHeader()
 	{
 		buf<<"#define MAX_ITER 10\n";
 	}
-	if(CallModelEmbed)
-		buf <<" namespace COStream" << string(objName)<<"{ \n";//名字空间
+	//if(CallModelEmbed)
+	//	buf <<" namespace COStream" << string(objName)<<"{ \n";//名字空间
 	//输出stream结构体类型定义 
 	pEdgeInfo->DeclEdgeType(buf);
 	//输出全局变量Buffer的声明
@@ -885,8 +885,8 @@ void X86CodeGenerate::CGglobalHeader()
 		buf<<"ostream& operator<<(ostream& os, const "<<typeName<<" &object);\n";
 		buf<<"extern int outPutCount;\n";
 	}
-	if(CallModelEmbed)
-		buf<<"}\n";//名字空间结束
+	//if(CallModelEmbed)
+		//buf<<"}\n";//名字空间结束
 	buf<<"#endif\n";
 	//输出到文件
 	stringstream ss;
@@ -901,8 +901,8 @@ void X86CodeGenerate::CGglobalCpp()
 	buf<<"#include \"" << string(objName) <<"global.h\"\n";
 	buf<<"#include <vector>\n";
 	buf<<"using namespace std;\n";
-	if(CallModelEmbed)
-		buf <<" namespace COStream" << string(objName)<<"{ \n";//名字空间
+	//if(CallModelEmbed)
+		//buf <<" namespace COStream" << string(objName)<<"{ \n";//名字空间
 	int init1,init2;//发送actor和接受actor初态调度产生和接受的数据量
 	for (vector<FlatNode *>::iterator iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//遍历所有结点
 	{
@@ -1041,8 +1041,8 @@ void X86CodeGenerate::CGglobalCpp()
 		buf<<"; \n\treturn os;\n";
 		buf<<"}\n";
 	}
-	if(CallModelEmbed)
-		buf<<"}\n";
+	//if(CallModelEmbed)
+		//buf<<"}\n";
 	//输出到文件
 	stringstream ss;
 	ss<<dir_<< string(objName)<<"global.cpp";
@@ -1057,9 +1057,8 @@ void X86CodeGenerate::CGMakefile()
 	string path = getenv("COSTREAM_LIB");
 
 	//string path = COStreamPath;
-	string newObjName = ((string)objName).substr(0,((string)objName).length()-4);
-	buf<<"PROGRAM := "<<newObjName<<"\n";
-
+//	buf<<"PROGRAM := "<<objName<<"\n";
+	buf<<"PROGRAM := "<<"a.out"<<"\n";
 	buf<<"SOURCES := $(wildcard ./*.cpp)\n";
 	buf<<"SOURCES += $(wildcard ./src/*.cpp)\n";
 	buf<<"SOURCES += $(wildcard $COSTREAM_LIB/*.cpp)\n";
@@ -1140,8 +1139,8 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 		buf<<"#include <sstream>\n";
 		
 	}
-	if(CallModelEmbed)		//嵌入在名字空间COStream中
-		buf <<" namespace COStream" << string(objName)<<"{ \n";
+	//if(CallModelEmbed)		//嵌入在名字空间COStream中
+		//buf <<" namespace COStream" << string(objName)<<"{ \n";
 	//声明外部定义的全局变量
 	if (Linux)
 	{	
@@ -1349,21 +1348,29 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 	if(CALRATIO)
 		buf<<"\ttry\n\t{\n\t\ttxtfw.open(\"thread "<<index<<"'s CALRATIO.txt\");\n\t\ttxtfw<<\"计算:\t\"<<cal<<endl<<\"总时间:\t\"<<total<<endl;\n\t\ttxtfw.close();\n\t}\n\tcatch(...)\n\t\t{cout<<\"error:output to file\"<<endl;\n\t}\n";
 	buf<<"}\n";
-	if(CallModelEmbed)
-		buf<<"}";
+	//if(CallModelEmbed)
+		//buf<<"}";
 }
 void X86CodeGenerate::CGAllActorHeader()
 {
 	vector<FlatNode*>::iterator iter;
 	stringstream buf,ss;
+	//添加条件编译
+	buf<<"#ifndef _H"<<string(objName)<<"AllActorHeader_H\n";
+	buf<<"#define _H"<<string(objName)<<"AllActorHeader_H\n";
+	
 	buf<<"/*包含所有actor的头文件，主要是为了方便主文件包含*/\n\n";
 	for (iter=flatNodes_.begin();iter!=flatNodes_.end();++iter)
 	{	
 		buf<<"#include \""<< string(objName) <<(*iter)->name<<".h\"\n";	
 	}
 	ss<<dir_<< string(objName)<<"AllActorHeader.h";
+	
+	buf<<"endif\n";
+	
 	OutputToFile(ss.str(),buf.str());
 }
+
 void X86CodeGenerate::CGAllActorCpp()
 {
 
@@ -1380,17 +1387,20 @@ void X86CodeGenerate::CGMain()
 		buf<<"#include <fstream>\n";
 	}
 	string Tab;
-	if(CallModelEmbed)
+	if(CallModelEmbed)     //此时为混合模式
 	{
 		buf<<"#include \"" << string(objName) <<"RunCOStream.h\"\n";
 		buf<<"#include \"setCpu.h\"\n";
-		buf <<" namespace COStream" << string(objName)<<"{ \n";
+		//buf <<"#include \"DCT2AllActorHeader.h\"\n";
+		buf<<"#include \"" << string(objName)<<"AllActorHeader.h\"\n";
+		buf <<"#include<iostream>\n";
+		buf << "#include <sstream>\n";
+		//buf <<" namespace COStream" << string(objName)<<"{ \n";
 		Tab = "\t";
 	}
 	else
 	{
 		buf<<"#include \"iostream\"\n";
-		buf<<"#include <unistd.h>\n";
 		buf<<"#include \"stdlib.h\"\n";
 		buf<<"#include <pthread.h>\n";
 		buf<<"#include \"setCpu.h\"\n";
@@ -1471,7 +1481,7 @@ void X86CodeGenerate::CGMain()
 	{
 		buf<<Tab<<"void* thread_"<<i<<"_fun_start(void *)\n"<<Tab<<"{\n\t"<<Tab<<"set_cpu("<<i<<");\n\t"<<Tab<<"thread_"<<i<<"_fun();\n\t"<<Tab<<"return 0;\n"<<Tab<<"}\n";
 	}
-	if(CallModelEmbed){
+	if(CallModelEmbed){               // 混合模式
 		if(readerActor)	//存在filereader，构造以输入流in来创建流程序的数据源
 		{
 			int fileReaderPush,fileReaderSteadyCount,fileReaderInitCount;
@@ -1528,17 +1538,53 @@ void X86CodeGenerate::CGMain()
 			buf<<"\t}\n";
 		}
 		else{			//没有filereader节点，表明数据流程序自己生成数据源，只需要定义默认构造函数
-			buf<<"\tRunCOStream::RunCOStream()\n\t{\n\t}\n";	
+			//处理从costream全局变量中的数据
+			buf << "\tRunCOStream::RunCOStream()\n\t{\n\t\n";
+			buf << "\t}\n";
+
+			//处理从C++main函数中传入的数据
+			buf<<"\tRunCOStream::RunCOStream(stringstream& in)\n\t{\n\t\n";
+
+			FlatNode *topleverNode = sssg_->GetTopLevel();
+			StreamEdgeInfo  EdgeInfo = pEdgeInfo->getEdgeInfo(topleverNode, topleverNode->outFlatNodes[0]);
+			
+			buf << "\t\t" <<EdgeInfo.typeName << " temp;\n";
+			//从输入流中传入的数据是基本类型，没有封装在struct中的
+			//将temp结构体中的变量名取出来
+			string name = EdgeInfo.typeName;
+			string val=name.substr(name.find("_")+1);
+			
+			buf << "\t\twhile(in >> temp."<<val<<")\n\t\t\tsourceDataVec.push_back(temp);\n";
+			buf << "\t}\n";
+
+
 		}
 		/*Run,启动stream程序*/	
 		//		if(needExternType)
 		//			buf<<"\tvoid RunCOStream::Run(int iter_num,SPLExternType *splPoint)\n\t{\n";
 		//		else
-		buf<<"\tvoid RunCOStream::Run(int iter_num)\n\t{\n";
+
+
+		buf<<"\tvoid RunCOStream::Run()\n\t{\n";
+		FlatNode *topleverNode = sssg_->GetTopLevel();
+		StreamEdgeInfo  EdgeInfo = pEdgeInfo->getEdgeInfo(topleverNode, topleverNode->outFlatNodes[0]);
+		string name = EdgeInfo.typeName;
+		string val = name.substr(name.find("_") + 1);
+
+		//将接收到的数据拷贝到全局数组中
+		buf << "\t\tfor(int i = 0;i < sourceDataVec.size();i++){\n";
+		buf << "\t\t\tsourceData[i] = sourceDataVec[i]."<<val<<";\n";
+		buf << "\t\t}\n";
+
+		//实现数据的输出，通过全局变量将数据返回
+
+	
 		if(CALRATIO){
 			buf<<"\t\t tsc_counter c0, c1;//标记整个程序run的时间 lihe\n";
 			buf<<"\t\t long totalCal,totalSyn;\n";
 		}
+
+
 		//		buf<<"\t\tMAX_ITER = iter_num;\n";
 		//		if(needExternType)
 		//			buf<<"\t\tsplExtern = splPoint;\n";
@@ -1568,7 +1614,7 @@ void X86CodeGenerate::CGMain()
 			buf<<"\t\toutArray = sink;\n";
 		buf<<"\t}\n";
 
-		buf<<"}\n";
+	//	buf<<"}\n";
 		ss<<dir_<< string(objName) <<"RunCOStream.cpp";
 	}
 	else				//独立模式，生成main
@@ -1689,7 +1735,8 @@ void X86CodeGenerate::CGMain()
 		if(needExternType)
 			buf<<"#include \"ExternType.h\" \n";
 
-
+		buf << "#ifndef RUNCOSTREAM_H_\n";
+		buf << "#define RUNCOSTREAM_H_\n";
 		buf<<"#include \"" << string(objName)<<"COStream.h\"\n";
 		buf<<"#include \"iostream\"\n";
 		buf<<"#include \"stdlib.h\"\n";
@@ -1697,32 +1744,60 @@ void X86CodeGenerate::CGMain()
 		//buf<<"#include \"setCpu.h\"\n";
 		buf<<"#include \"lock_free_barrier.h\"	//包含barrier函数\n";
 		buf<<"#include \"" << string(objName) <<"global.h\"\n";
+		buf << "#include \""<<string(objName)<<"GlobalVar.h\"\n";
 		buf<<"#include <vector>\n";
 		buf<<"using namespace std;\n";
 
-		buf <<" namespace COStream" << string(objName)<<"{ \n";
+		//buf <<" namespace COStream" << string(objName)<<"{ \n";
 		buf<<"\tclass RunCOStream\n\t{\n\tpublic:\n";
 		buf<<"\t\tRunCOStream(stringstream& in);\n";
 		buf<<"\t\tRunCOStream();\n";
 		buf<<"\t\tRunCOStream(string path);\n";
-		buf<<"\t\tvoid Run(void* pSrc,int srcDataCount);\n";
+		buf<<"\t\tvoid Run();\n";
 		/*GetOutputNum，取得输出数据个数*/
-		buf<<"\t\tint GetOutputNum()\n\t\t{\n\t\t\treturn outputNum;\n\t\t}\n";
+		buf<<"\t\tint GetOutputNum()\n\t\t{\n\t\t\treturn  outputNum;\n\t\t}\n";
 		/*GetOutputArray,取得输出数据数组指针*/
-		buf<<"\t\tvoid* GetOutputArray()\n\t\t{\n\t\t\treturn outArray;\n\t\t}\n";
+
+		FlatNode *topleverNode = sssg_->GetTopLevel();
+		StreamEdgeInfo  EdgeInfo = pEdgeInfo->getEdgeInfo(topleverNode, topleverNode->outFlatNodes[0]);
+		string name = EdgeInfo.typeName;
+		string valtype = name.substr(0, name.find("_"));
+		string val = name.substr(name.find("_")+1);
+
+		//返回值直接返回的是vector，vector里是数据类型不是封装在struct中的结构
+		buf << "\n\t\tvector<" << valtype << ">" ;//EdgeInfo.typeName==int_x;
+		buf << " GetOutputArray()\n\t\t{\n";
+		//buf << "\t\tfor(int i=0;i<outputNum;i++){\n";
+		//buf << "\t\t\t EdegeInfo.typeName temp;\n";
+		//buf << "\t\t\t temp."<<val<<"=resultData[i];\n";
+		//buf << "\t\t \tresultDataVec.push_back(temp);\n";
+		//buf << "\t\t}\n";
+		buf << "\t\tvector<" << valtype << "> temp;\n";
+		buf << "\t\tfor(int i=0;i<outputNum;i++){\n";
+		//buf << "\t\t\ttemp.push_back(resultData[i]." << val <<");\n";
+		buf << "\t\ttemp.push_back(resultData[i]);\n";
+		buf << "\t\t}\n";
+		buf << "\t\treturn temp;\n";
+		buf << "\t\t}\n";
+
 		/*析构函数*/
-		buf<<"\t\t~RunCOStream()\n\t\t{\n\t\t\tdelete[] outArray;\n\t\t}\n";
+		buf<<"\t\t~RunCOStream()\n\t\t{\n\t\t}\n";
 		/*私有成员变量*/
-		buf<<"\tprivate:\n\t\tint outputNum;\n\t\tvoid * outArray;\n";
+		//添加接受外部数据的vector
+		buf<<"\tprivate:\n\t\tint outputNum;\n";
+		buf << "\n\t\tvector<" << EdgeInfo.typeName << "> sourceDataVec;\n";
+		buf << "\n\t\tvector<" << EdgeInfo.typeName << "> resultDataVec;\n";
 		buf<<"\t};\n";
-		buf<<"}\n";
+		buf << "#endif\n";
+
+		//buf<<"}\n";
 		ss<<dir_<< string(objName) <<"RunCOStream.h";
 		OutputToFile(ss.str(),buf.str());
 		//生成COStream.h
 		buf.str("");
 		ss.str("");
-		buf <<" namespace COStream" << string(objName)<<"{ \n";
-		buf<<"\tclass RunCOStream;\n}\n";
+		//buf <<" namespace COStream" << string(objName)<<"{ \n";
+		//buf<<"\tclass RunCOStream;\n}\n";
 		ss<<dir_<< string(objName) <<"COStream.h";
 		OutputToFile(ss.str(),buf.str());
 	}
@@ -2568,9 +2643,9 @@ void X86CodeGenerate::SPL2X86_Call(Node *node, callNode *u, int offset)
 		else if (strcmp(ident,"abs")==0) declInitList<<"abs";
 		else if (strcmp(ident,"max")==0) declInitList<<"max";
 		else if (strcmp(ident,"min")==0) declInitList<<"min";
-		else if (strcmp(ident,"println")==0) {declInitList<<"cout<<";flag=2;}
-		else if (strcmp(ident,"printf")==0) {declInitList<<"cout<<";flag=3;}
-		else if (strcmp(ident,"print")==0) {declInitList<<"cout<<";flag=4;}
+		else if (strcmp(ident,"println")==0) {declInitList<<"cout<<fixed<<";flag=2;}
+		else if (strcmp(ident,"printf")==0) {declInitList<<"cout<<fixed<<";flag=3;}
+		else if (strcmp(ident,"print")==0) {declInitList<<"cout<<fixed<<";flag=4;}
 		else //unkonwn methods
 		{
 			declInitList<<u->name->u.id.text;//输出函数名

@@ -22,11 +22,10 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 		string dir = currentDir;
 		dir += "\\X10DistCode\\";
 		dir += substring;
-		cout<<"-----------生成x10代码-----------"<<endl;
+        cout<<"-----------Generate x10 Code-----------"<<endl;
 		//取得命令行指定的place个数，若无指定则设置成与程序actor个数一致
 		int nCpucore = CpuCoreNum > 0 ? CpuCoreNum : sssg->GetFlatNodes().size();
 
-		cout<<"简单工厂模式...";
 		X10CodeGenerate *X10Code = new X10CodeGenerate(sssg, nCpucore, Buffer_Size, dir.c_str());
 
 		// 生成接口文件, 含各个流类型的声明
@@ -59,9 +58,9 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 		strcpy(objName,substring.c_str());
 
 #else
-		if(dir == "./")	//若是没有指定目录，则在当前目录下新建文件夹，新文件夹的名字为当前spl
+        if(dir == "./")	//若是没有指定目录，则在当前目录下新建文件夹，新文件夹的名字为当前spl
 		{
-			dir += substring;
+            dir += substring;
 			dir += "/";
 			mkdir(dir);
 
@@ -76,7 +75,7 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 			first = end;
 			end =  dir.find_first_of('/',first+1);
 		}
-		cout<<"dir_______"<<dir<<endl;
+
 		if(dir.at(dir.size()-1) != '/')
 		{
 			mkdir(dir);
@@ -85,12 +84,10 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 		strcpy(objName,substring.c_str());
 #endif
 
-		cout<<dir<<"*******************"<<endl;
-		cout<<"-----------生成x86代码-----------"<<endl;
+        cout<<"-----------Generate x86 Code-----------"<<endl;
 		//取得命令行指定的place个数，若无指定则设置成与程序actor个数一致
 		int nCpucore = CpuCoreNum > 0 ? CpuCoreNum : sssg->GetFlatNodes().size();
 
-		cout<<"简单工厂模式...";
 		X86CodeGenerate *X86Code = new X86CodeGenerate(sssg, nCpucore, dir.c_str(),psa,Mp,tc);
 		X86Code->CGGlobalvar();//生成流程序引入的全局变量定义文件	GlobalVar.cpp
 		X86Code->CGGlobalvarextern();//生成流程序引入的全局变量的声明文件 GlobalVar.h
@@ -106,7 +103,7 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 #else		
 		cout<<"cgmakefile"<<endl;
 		X86LibCopy tmp;
-		tmp.copyfile(dir.c_str());
+        tmp.copyfile(dir.c_str());
 		X86Code->CGMakefile();
 #endif
 
@@ -123,12 +120,10 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 		else dir +="\\GPUDistCode_Linux\\";
 		dir += substring;
 		dir += "\\";
-		cout<<dir<<"*******************"<<endl;
-		cout<<"-----------生成GPU(OpenCL)代码-----------"<<endl;
+        cout<<"-----------Generate GPU(OpenCL) Code-----------"<<endl;
 		//取得命令行指定的place个数，若无指定则设置成与程序actor个数一致
 		int ngpu = GpuNum > 0 ? GpuNum : sssg->GetFlatNodes().size();
 
-		cout<<"简单工厂模式...";
 		GPUCodeGenerate *GPUCode = new GPUCodeGenerate(sssg, ngpu, Buffer_Size, dir.c_str(),psa,haflp,tc,substring,dnbp);
 		GPUCode->CGGlobalvar();//生成全局变量
 		GPUCode->CGGlobalvarextern();

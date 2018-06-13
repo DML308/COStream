@@ -95,6 +95,7 @@ $(patsubst %$(x),%.o,$(filter %$(x),$(SOURCES))))
 DEPS = $(patsubst %.o,%.d,$(OBJS))
 	
 .PHONY :all objs clean cleanall rebuild yacc lex
+
 	
 all : lex $(PROGRAM)
 # Rules for creating the dependency files (.d).
@@ -166,11 +167,20 @@ rebuild: clean all
 clean :
 	@$(RM) lex.c lex.yy.c parser.c y.tab.[ch] y.output *.o *.d
 
+
 cleanall: clean
 	@$(RM) $(PROGRAM) $(PROGRAM).exe
 
+
+install:
+	make clean	
+	make	
+	./install.sh	
+
+
 # Rules for producing the yacc and lex file.
 #---------------------------------------------------
+
 yacc: ANSI-C.y
 	$(YACC) -dv ANSI-C.y
 	mv y.tab.c parser.c

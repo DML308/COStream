@@ -39,6 +39,7 @@ void X86LibCopy::copyfile(const char *dir)
 	string comLibPath = "";
 	string path = getenv("COSTREAM_LIB");
 
+	printf("path = %s\n" , path.c_str());
 	printf("comLibPath = %s\n" , comLibPath.c_str());
 
 	if(NoCheckBuffer)	//ÎÞ±ß½ç¼ì²é
@@ -49,6 +50,8 @@ void X86LibCopy::copyfile(const char *dir)
 	{
 		comLibPath = "CheckBoundary/";	
 	}
+	printf("comLibPath = %s\n" , comLibPath.c_str());
+
 	string str1 = path;
 	str1 += comLibPath;
 	str1 += producer_file_name_;
@@ -100,8 +103,63 @@ void X86LibCopy::copyfile(const char *dir)
 	sprintf(tmp,"%s%s",dir, setCpu_name_);
 	TextFileWrite(tmp, content_);
 
+	string str10 = path;
+	str10 += lsh_header_;
+	content_ = TextFileRead(str10.c_str());
+	sprintf(tmp,"%s%s",dir, lsh_header_);
+	TextFileWrite(tmp, content_);
+
+	string str11 = path;
+	str11 += lsh_source_;
+	content_ = TextFileRead(str11.c_str());
+	sprintf(tmp,"%s%s",dir, lsh_source_);
+	TextFileWrite(tmp, content_);
+	
+	string str12 = path;
+	str12 += tinystrh;
+	content_ = TextFileRead(str12.c_str());
+	sprintf(tmp,"%s%s",dir, tinystrh);
+	TextFileWrite(tmp, content_);
+
+	string str13 = path;
+	str13 += tinyxmlh;
+	content_ = TextFileRead(str13.c_str());
+	sprintf(tmp,"%s%s",dir, tinyxmlh);
+	TextFileWrite(tmp, content_);
+
+	string str14 = path;
+	str14 += tinystrcpp;
+	content_ = TextFileRead(str14.c_str());
+	sprintf(tmp,"%s%s",dir, tinystrcpp);
+	TextFileWrite(tmp, content_);
+
+	string str15 = path;
+	str15 += tinyxmlcpp;
+	content_ = TextFileRead(str15.c_str());
+	sprintf(tmp,"%s%s",dir, tinyxmlcpp);
+	TextFileWrite(tmp, content_);
+
+	string str16 = path;
+	str16 += tinyxmlerrorcpp;
+	content_ = TextFileRead(str16.c_str());
+	sprintf(tmp,"%s%s",dir, tinyxmlerrorcpp);
+	TextFileWrite(tmp, content_);
+
+	string str17 = path;
+	str17 += tinyxmlparsercpp;
+	content_ = TextFileRead(str17.c_str());
+	sprintf(tmp,"%s%s",dir, tinyxmlparsercpp);
+	TextFileWrite(tmp, content_);
+	
+	string str18 = path;
+	str18 += makefile_name_;
+	content_ = TextFileRead(str18.c_str());
+	sprintf(tmp,"%s%s",dir, makefile_name_);
+	TextFileWrite(tmp, content_);
+
 	delete tmp;
-	tmp = NULL;
+	tmp = NULL;
+
 }
 #endif
 

@@ -66,7 +66,9 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 		
 
 #if 1 //打印图
-		DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
+        // delete by mobinsheng for  BSPartitionGraph.dot generate path error!
+        // DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
+        // delete by mobinsheng for  BSPartitionGraph.dot generate path error!
 #endif
 
 		return;
@@ -182,7 +184,8 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 	cout<<"The total communication volume or edge-cut of the solution is:"<<objval<<endl;
 
 #if 1 //打印图
-	DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
+	// delete by mobinsheng for  BSPartitionGraph.dot generate path error!
+	//DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605添加第四个参数
 #endif
 }
 
