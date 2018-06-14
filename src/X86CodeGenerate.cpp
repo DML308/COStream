@@ -627,6 +627,7 @@ void X86CodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 		buf<<"\tint dataCount;\n";
 		buf<<"\tint steadyScheduleCount;\n";
 		buf<<"\tint initScheduleCount;\n";
+		buf<<"\tint pushValue0;\n";
 		CGpushToken(actor,buf);	
 		CGFileReaderActor(buf);
 	}
