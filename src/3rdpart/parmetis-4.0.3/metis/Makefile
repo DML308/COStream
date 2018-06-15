@@ -57,7 +57,6 @@ PKGNAME=metis-$(VERNUM)
 
 define run-config
 mkdir -p $(BUILDDIR)
-mkdir ../../lib
 cd $(BUILDDIR) && cmake $(CURDIR) $(CONFIG_FLAGS)
 endef
 
