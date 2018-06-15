@@ -1,3 +1,4 @@
 .DS_Store
 */.DS_Store
-src/3rdpart/parmetis-4.0.3/metis/build
+src/3rdpart/parmetis-4.0.3/metis/build/*
+src/3rdpart/parmetis-4.0.3/build/*
