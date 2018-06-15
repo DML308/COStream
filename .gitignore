@@ -2,6 +2,8 @@
 */.DS_Store
 src/3rdpart/parmetis-4.0.3/metis/build/*
 src/3rdpart/parmetis-4.0.3/build/*
+src/3rdpart/include/libmetis.a
+src/3rdpart/lib
 src/COStreamC
 src/*.o
 src/y.output
