@@ -14,63 +14,63 @@ class HorizontalFission
 {
 private:
 	typedef struct {
-		FlatNode *fissingFlatNode;//½«Òª·ÖµÄµÄ½Úµã
-		int fissedSteadycount;//·ÖÁÑºóµ±Ç°¸±±¾µÄÖ´ĞĞ´ÎÊı
-		int operatorWeight;//Ô­Ê¼µÄoperatorÔÚÒ»´ÎÎÈÌ¬Ö´ĞĞÊÇµÄ¹¤×÷Á¿
-		vector<int> fissed_peek;//·ÖÁÑºó½ÚµãÔÚÒ»¸öÎÈÌ¬ÖÜÆÚÖ´ĞĞÖĞµÄpeekµÄ×ÜÖµ
-		vector<int> fissed_pop; //·ÖÁÑºó½ÚµãÔÚÒ»¸öÎÈÌ¬ÖÜÆÚÖ´ĞĞÖĞµÄpopµÄ×ÜÖµ
-		vector<int> fissed_push; //·ÖÁÑºó½ÚµãÔÚÒ»¸öÎÈÌ¬ÖÜÆÚÖ´ĞĞÖĞµÄpushµÄ×ÜÖµ
-		int npart;             //¼ÇÂ¼µ±Ç°µÄfissionNodeËùÔÚµÄ»®·Ö±àºÅ
-		Bool fiss_state; //µ±Ç°½Úµã·ÖÁÑµÄ×´Ì¬£¨Ö÷ÒªÌåÏÖÔÚÊÇ·ñ½«ÎÈÌ¬Ö´ĞĞµÄ´ÎÊıÒÆµ½workÄÚ£¬Ê¹¸Ã¸±±¾µÄworkÔÚÒ»´ÎÎÈÌ¬ÖÜÆÚÖ´ĞĞÖĞÖ»ÔËĞĞÒ»´Î(Falst),TURE±íÊ¾²»Ö¹Ò»´Î£©
+		FlatNode *fissingFlatNode;//å°†è¦åˆ†çš„çš„èŠ‚ç‚¹
+		int fissedSteadycount;//åˆ†è£‚åå½“å‰å‰¯æœ¬çš„æ‰§è¡Œæ¬¡æ•°
+		int operatorWeight;//åŸå§‹çš„operatoråœ¨ä¸€æ¬¡ç¨³æ€æ‰§è¡Œæ˜¯çš„å·¥ä½œé‡
+		vector<int> fissed_peek;//åˆ†è£‚åèŠ‚ç‚¹åœ¨ä¸€ä¸ªç¨³æ€å‘¨æœŸæ‰§è¡Œä¸­çš„peekçš„æ€»å€¼
+		vector<int> fissed_pop; //åˆ†è£‚åèŠ‚ç‚¹åœ¨ä¸€ä¸ªç¨³æ€å‘¨æœŸæ‰§è¡Œä¸­çš„popçš„æ€»å€¼
+		vector<int> fissed_push; //åˆ†è£‚åèŠ‚ç‚¹åœ¨ä¸€ä¸ªç¨³æ€å‘¨æœŸæ‰§è¡Œä¸­çš„pushçš„æ€»å€¼
+		int npart;             //è®°å½•å½“å‰çš„fissionNodeæ‰€åœ¨çš„åˆ’åˆ†ç¼–å·
+		Bool fiss_state; //å½“å‰èŠ‚ç‚¹åˆ†è£‚çš„çŠ¶æ€ï¼ˆä¸»è¦ä½“ç°åœ¨æ˜¯å¦å°†ç¨³æ€æ‰§è¡Œçš„æ¬¡æ•°ç§»åˆ°workå†…ï¼Œä½¿è¯¥å‰¯æœ¬çš„workåœ¨ä¸€æ¬¡ç¨³æ€å‘¨æœŸæ‰§è¡Œä¸­åªè¿è¡Œä¸€æ¬¡(Falst),TUREè¡¨ç¤ºä¸æ­¢ä¸€æ¬¡ï¼‰
 	}FissionNodeInfo;
 
-	Partition *partition;  // ±£´æ³õÊ¼µÄ»®·Ö
-	float balanceFactor; //Æ½ºâÒò×Ó
-	multimap<int ,FissionNodeInfo *>PartitonNum2FissionNode;//»®·ÖµÄ±àºÅÓë·ÖÁÑÖĞ¼ä½ÚµãÖ®¼äµÄÓ³Éä
-	multimap<FlatNode* ,FissionNodeInfo *>FlatNode2FissionNode;//´ı·ÖÁÑµÄ½ÚµãÓë·ÖÁÑÖĞ¼ä½ÚµãÖ®¼äµÄÓ³Éä(Ö»´æ·Å±»·ÖÁÑµÄ½Úµã£¬ÓÃÓÚ×îºóĞŞ¸ÄSDFÍ¼)
+	Partition *partition;  // ä¿å­˜åˆå§‹çš„åˆ’åˆ†
+	float balanceFactor; //å¹³è¡¡å› å­
+	multimap<int ,FissionNodeInfo *>PartitonNum2FissionNode;//åˆ’åˆ†çš„ç¼–å·ä¸åˆ†è£‚ä¸­é—´èŠ‚ç‚¹ä¹‹é—´çš„æ˜ å°„
+	multimap<FlatNode* ,FissionNodeInfo *>FlatNode2FissionNode;//å¾…åˆ†è£‚çš„èŠ‚ç‚¹ä¸åˆ†è£‚ä¸­é—´èŠ‚ç‚¹ä¹‹é—´çš„æ˜ å°„(åªå­˜æ”¾è¢«åˆ†è£‚çš„èŠ‚ç‚¹ï¼Œç”¨äºæœ€åä¿®æ”¹SDFå›¾)
 
 public:
-	/*¹¹Ôìº¯Êı*/
+	/*æ„é€ å‡½æ•°*/
 	HorizontalFission(Partition *p,float balane);
 
-	/*³õÊ¼»¯Àà³ÉÔ±ÖĞµÄPartitonNum2FissionNodeºÍFlatNode2FissionNode*/
+	/*åˆå§‹åŒ–ç±»æˆå‘˜ä¸­çš„PartitonNum2FissionNodeå’ŒFlatNode2FissionNode*/
 	void initFissionNodeMap(SchedulerSSG *sssg);
-	/*²éÕÒÔÚÍ¬Ò»»®·ÖÖĞµÄFissionNodeInfo½Úµã*/
+	/*æŸ¥æ‰¾åœ¨åŒä¸€åˆ’åˆ†ä¸­çš„FissionNodeInfoèŠ‚ç‚¹*/
 	vector<FissionNodeInfo *> findfissionNodeSetInPartition(int partitionNum);
 
 
-	/*ÅĞ¶ÏactorÊÇ·ñÊÇstateful*/
+	/*åˆ¤æ–­actoræ˜¯å¦æ˜¯stateful*/
 	void hasMutableState(operatorNode *opNode);	
-	/*ÅĞ¶ÏÒ»¸ö±äÁ¿ÊÇ·ñÊÇmutable±äÁ¿*/
+	/*åˆ¤æ–­ä¸€ä¸ªå˜é‡æ˜¯å¦æ˜¯mutableå˜é‡*/
 	void IsMutableVar(List *list,Node *node);
-	/*ÓÃÓÚ±éÀúworkº¯ÊıÄÚµÄĞÅÏ¢*/
+	/*ç”¨äºéå†workå‡½æ•°å†…çš„ä¿¡æ¯*/
 	void MS_astwalk(Node *n,List *list);  
 	void MS_listwalk(List *l,List *list);
-	/*µ¥Èëµ¥³ö*/
+	/*å•å…¥å•å‡º*/
 	Bool SInSOutOPerator(operatorNode *oper);
 
-	/*¼ÆËãÃ¿Ò»¸öºË(Ò»¸ö»®·Ö)µÄ¹¤×÷Á¿µÄ×ÜºÍ£¬²ÎÊıÊÇºËµÄ±àºÅ*/
+	/*è®¡ç®—æ¯ä¸€ä¸ªæ ¸(ä¸€ä¸ªåˆ’åˆ†)çš„å·¥ä½œé‡çš„æ€»å’Œï¼Œå‚æ•°æ˜¯æ ¸çš„ç¼–å·*/
 	int computeSumWeightofPlace(int npart);
-	/*µÃµ½»®·ÖºÍÈ¨ÖØµÄÓ³Éä*/
+	/*å¾—åˆ°åˆ’åˆ†å’Œæƒé‡çš„æ˜ å°„*/
 	map<int ,int> computeMapPlace2Weight();
-	/*°´ºËµÄ¹¤×÷Á¿½øĞĞÅÅĞò£¬·µ»ØµÄÊÇºË±àºÅ×é³ÉµÄÊı×é*/
+	/*æŒ‰æ ¸çš„å·¥ä½œé‡è¿›è¡Œæ’åºï¼Œè¿”å›çš„æ˜¯æ ¸ç¼–å·ç»„æˆçš„æ•°ç»„*/
 	vector<int> SortPartitionsByWeight(map<int,int>partition2weight);
-	/*ÕÒÈ¨Öµ×îĞ¡µÄ»®·Ö£¬·µ»ØµÄÊÇ»®·Ö±àºÅ*/
+	/*æ‰¾æƒå€¼æœ€å°çš„åˆ’åˆ†ï¼Œè¿”å›çš„æ˜¯åˆ’åˆ†ç¼–å·*/
 	int MinPartitionWeight(map<int,int>partition2weight);
-	/*ÕÒµ±Ç°È¨Öµ×î´óµÄ»®·Ö£¬·µ»ØµÄÊÇ»®·Ö±àºÅ*/
+	/*æ‰¾å½“å‰æƒå€¼æœ€å¤§çš„åˆ’åˆ†ï¼Œè¿”å›çš„æ˜¯åˆ’åˆ†ç¼–å·*/
 	int NextMaxWeightPartition(map<int,int>partition2weight,vector<Bool> PartiotionFlag); 
 
-	/*½«flatNode½øĞĞÎ±·ÖÁÑ£¬Ö÷ÒªÊÇÔÚPartitonNum2FissionNodeºÍFlatNode2FissionNodeÖĞ½øĞĞÏà¹ØĞÅÏ¢µÄĞŞ¸Ä*/
+	/*å°†flatNodeè¿›è¡Œä¼ªåˆ†è£‚ï¼Œä¸»è¦æ˜¯åœ¨PartitonNum2FissionNodeå’ŒFlatNode2FissionNodeä¸­è¿›è¡Œç›¸å…³ä¿¡æ¯çš„ä¿®æ”¹*/
 	void SplitFissionNode(FissionNodeInfo *,int ,int ,int );
 
-	/*ĞŞ¸ÄpeekĞÅÏ¢*/
+	/*ä¿®æ”¹peekä¿¡æ¯*/
 	void MWISD_List(List *l,List *inputlist,List *outputlist,Node *inputDelt,Node *outputDelt);
 	void MWISD_astwalk(Node *n,List *inputlist,List *outputlist,Node *inputDelt,Node *outputDelt);
 	List *ModifyWorkInOutStreamDim(Node *node,List *inputList,List *outputList,Node* inputdelt,Node* outputdelt);
 	List *ModifyWindow(List *inputList,List *outputList,int popValue,int peekValue,int pushValue);
 	Node *ModifyCompositeName(Node *composite);
 
-	/*½«operator½Úµã×ª»»³Écomposite½Úµã*/
+	/*å°†operatorèŠ‚ç‚¹è½¬æ¢æˆcompositeèŠ‚ç‚¹*/
 	List *MakeReplicateOper(vector<FissionNodeInfo *> splitedNodeVec,FlatNode *flatnode, List *inputList, int steadyCount,SplitStyle style);
 	Node *MakeCompositeNode(Node *operNode);
 
@@ -80,28 +80,28 @@ public:
 	List *MakeDuplicateWindow(List *inputList,List *outputList,Node *pop_value);
 	List *MakeRoundRobinWindow(List *inputList,List *outputList,List *pop_arg);
 	List *MakeJoinWindow(List *inputList,List *outputList,List *pop_arg);
-	/*¹¹ÔìsplitµÄÊä³ö±ß*/
+	/*æ„é€ splitçš„è¾“å‡ºè¾¹*/
 	List *MakeSplitOutputStream(Node *input,int count);
-	/*¹¹Ôìsplit½Úµã,ÊäÈëÄÚÈİÊÇÊäÈë±ß£¨Ò»Ìõ£©£¬Êä³ö±ß£¨¶àÌõ£©£¬Ã¿Ò»Ìõ±ßÏòÃ¿Ò»½ÚµãÌõ±ß·¢ËÍÊı¾İµÄÊıÄ¿*/
+	/*æ„é€ splitèŠ‚ç‚¹,è¾“å…¥å†…å®¹æ˜¯è¾“å…¥è¾¹ï¼ˆä¸€æ¡ï¼‰ï¼Œè¾“å‡ºè¾¹ï¼ˆå¤šæ¡ï¼‰ï¼Œæ¯ä¸€æ¡è¾¹å‘æ¯ä¸€èŠ‚ç‚¹æ¡è¾¹å‘é€æ•°æ®çš„æ•°ç›®*/
 	Node *MakeFissionDuplicate(Node *inputNode,List *outputList, Node *pop_value);
 	Node *MakeFissionRoundRobin(Node *inputNode,List *outputList, List *pop_arg);
-	/*¹¹Ôìjoin½Úµã,ÊäÈëÄÚÈİÊÇÊäÈë±ß£¨¶àÌõ£©£¬Êä³ö±ß£¨Ò»Ìõ£©£¬Ã¿Ò»Ìõ±ßÏòÃ¿Ò»Ìõ±ß·¢ËÍÊı¾İµÄÊıÄ¿*/
+	/*æ„é€ joinèŠ‚ç‚¹,è¾“å…¥å†…å®¹æ˜¯è¾“å…¥è¾¹ï¼ˆå¤šæ¡ï¼‰ï¼Œè¾“å‡ºè¾¹ï¼ˆä¸€æ¡ï¼‰ï¼Œæ¯ä¸€æ¡è¾¹å‘æ¯ä¸€æ¡è¾¹å‘é€æ•°æ®çš„æ•°ç›®*/
 	Node *MakeFissionJoin(List *inputlist,Node *outputNode, List *pop_arg);
 
-	/*¹¹Ôìcomposite*/
+	/*æ„é€ composite*/
 	Node *ConstructNewComposite(Node *node,List *inputList,List *outputList,int count,int popValue,int peekValue,int pushValue,int oldpopValue,int oldpeekValue,int oldpushValue,int deltpeek);
 
-	/*¶ÔÒ»¸öflatnode½øĞĞ·ÖÁÑ£¬ÊäÈëÊÇ´ı·ÖÁÑµÄ½Úµã£¬ÒÔ¼°·ÖÁÑ´ÎÊı£¬Êä³ö·ÖÁÑºó½Úµãflatnode×é³ÉµÄvector£»*/
+	/*å¯¹ä¸€ä¸ªflatnodeè¿›è¡Œåˆ†è£‚ï¼Œè¾“å…¥æ˜¯å¾…åˆ†è£‚çš„èŠ‚ç‚¹ï¼Œä»¥åŠåˆ†è£‚æ¬¡æ•°ï¼Œè¾“å‡ºåˆ†è£‚åèŠ‚ç‚¹flatnodeç»„æˆçš„vectorï¼›*/
 	List *horizontalFissOperator(vector<FissionNodeInfo *> splitedNodeVec,SchedulerSSG *sssg);
 
-	/*ĞŞ¸ÄÒÔ·ÖÁÑµÄflatnodeµÄĞÅÏ¢*/
+	/*ä¿®æ”¹ä»¥åˆ†è£‚çš„flatnodeçš„ä¿¡æ¯*/
 	void Operator2FlatNodeModifyInfo(FlatNode *curFlatNode, List *childOperList,SchedulerSSG *sssg, vector<int >npartVec);
 	void InsertJoinOutStreamToSSG(Node *streamNode,FlatNode *topFlatNode,SchedulerSSG *sssg);
 	void InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,FlatNode *oldFlatNode,SchedulerSSG *sssg);
 
-	/*·ÖÁÑËã·¨*/
+	/*åˆ†è£‚ç®—æ³•*/
 	void HorizontalFissionPRPartitions(SchedulerSSG *sssg,float balanceFactor);
-	/*Îö¹¹º¯Êı*/
+	/*ææ„å‡½æ•°*/
 	~HorizontalFission(){};
 };
 

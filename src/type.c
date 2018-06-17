@@ -850,8 +850,8 @@ GLOBAL Node *LookupPostfixExpression(Node *post)
       case Block:
       case Ternary:
       case Cast:
-	  case Decl:  //for spl 等号操作
-	  case Operator_: //for sql 等号操作
+	  case Decl:  //for spl 绛夊彿鎿嶄綔
+	  case Operator_: //for sql 绛夊彿鎿嶄綔
 	  case CompositeCall:
 	  case Pipeline:
 	  case SplitJoin:
@@ -1257,7 +1257,7 @@ GLOBAL Bool IsArithmeticType(Node *node)
   return IsIntegralType(node) || IsFloatingType(node);
 }
 
-/*lxxgreat：哪些数据类型是 整型*/
+/*lxxgreat锛氬摢浜涙暟鎹被鍨嬫槸 鏁村瀷*/
 GLOBAL Bool IsIntegralType(Node *node)
 {
   assert(node);

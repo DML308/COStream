@@ -1,10 +1,10 @@
 #include"propagator.h"
 
 
-List *DeclArrayListInWork = NULL;//ÓÃÓÚÔÚworkÖĞ¹¹Ôì¶ÔÊı×é¸÷¸öÔªËØµÄ¸³ÖµÓï¾ä£¨¸ÃÊı×éµÄ¶¨ÒåÒ»°ãÔÚparam£¬varÖĞ£©
+List *DeclArrayListInWork = NULL;//ç”¨äºåœ¨workä¸­æ„é€ å¯¹æ•°ç»„å„ä¸ªå…ƒç´ çš„èµ‹å€¼è¯­å¥ï¼ˆè¯¥æ•°ç»„çš„å®šä¹‰ä¸€èˆ¬åœ¨paramï¼Œvarä¸­ï¼‰
 extern operatorNode *tempoperatornode;
-GLOBAL Bool DimFlag = FALSE; //cwb ±êÊ¶param±äÁ¿ÊÇ·ñÊÇÊı×é¿Õ¼äÎ¬¶È
-GLOBAL List *gfrtaCallList = NULL;//ÓÃÓÚfrtaµ÷ÓÃ
+GLOBAL Bool DimFlag = FALSE; //cwb æ ‡è¯†paramå˜é‡æ˜¯å¦æ˜¯æ•°ç»„ç©ºé—´ç»´åº¦
+GLOBAL List *gfrtaCallList = NULL;//ç”¨äºfrtaè°ƒç”¨
 
 GLOBAL  Node *GetValue(Node *node)
 {  
@@ -74,21 +74,21 @@ GLOBAL void PrintConstFlowValue(FlowValue v)
 }
 
 GLOBAL int CheckAdcl(Node *node)
-{  //¼ì²é¸÷Î¬µÄ³¤¶È
+{  //æ£€æŸ¥å„ç»´çš„é•¿åº¦
 	int len = 0;
 	constIdNode *idNode = NULL;
 	Node *value = NULL;
 
 	assert(node && node->typ == Adcl);
-	if(node->u.adcl.dim->typ == Const) // Î¬ÊıÊÇ³£Á¿
+	if(node->u.adcl.dim->typ == Const) // ç»´æ•°æ˜¯å¸¸é‡
 		len = NodeConstantIntegralValue(node->u.adcl.dim);
-	else  // Î¬ÊıÊÇ±äÁ¿
+	else  // ç»´æ•°æ˜¯å˜é‡
 	{
-		//assert(node->u.adcl.dim->typ == Id); // Ä¿Ç°Ö»¿¼ÂÇÊı×éÎ¬ÊıÊÇÒ»¸öidµÄÇé¿ö
+		//assert(node->u.adcl.dim->typ == Id); // ç›®å‰åªè€ƒè™‘æ•°ç»„ç»´æ•°æ˜¯ä¸€ä¸ªidçš„æƒ…å†µ
 		//idNode = FindIdNode(node->u.adcl.dim->u.id.decl, v);
 		//assert(idNode);
-		//value = idNode->n->u.id.value;//È¡½áµãµÄÖµ
-		value = GetValue(node->u.adcl.dim);//zww:12.2.17ĞŞ¸Ä
+		//value = idNode->n->u.id.value;//å–ç»“ç‚¹çš„å€¼
+		value = GetValue(node->u.adcl.dim);//zww:12.2.17ä¿®æ”¹
 		assert(value->typ == Const );
 #if 0
 		if (value == NULL)
@@ -122,21 +122,21 @@ GLOBAL constIdNode *MakeConstIdNode(Node *node)
 	itemId->n->u.id.decl = node;
 	itemId->nac = FALSE;
 
-	if(node->u.decl.init!= NULL && node->u.decl.init->typ == Const) //ÖµÊÇ¶¨µÄ
+	if(node->u.decl.init!= NULL && node->u.decl.init->typ == Const) //å€¼æ˜¯å®šçš„
 		itemId->undefine = FALSE;
-	else//Öµ²»¶¨£¬¼´ËüµÄÖµ¿ÉÄÜÊÇÒ»¸ö±í´ïÊ½»òÎª¿Õ
+	else//å€¼ä¸å®šï¼Œå³å®ƒçš„å€¼å¯èƒ½æ˜¯ä¸€ä¸ªè¡¨è¾¾å¼æˆ–ä¸ºç©º
 		itemId->undefine = TRUE;
 
 	return itemId;
 }
 
-//×î¶àÖ§³Ö2Î¬Êı×é
+//æœ€å¤šæ”¯æŒ2ç»´æ•°ç»„
 GLOBAL constArrayNode *MakeConstArrayNode(int dim, int *lenPerDim, Node *node)
 {
 	constArrayNode *itemArray = HeapNew(constArrayNode);
 	int i = 0, num = 1;
 
-	assert(lenPerDim && node && node->typ == Decl );//zww Ö§³Ö¶àÎ¬ <---(lenPerDim && node && node->typ == Decl && dim <= 2) 12.2.10
+	assert(lenPerDim && node && node->typ == Decl );//zww æ”¯æŒå¤šç»´ <---(lenPerDim && node && node->typ == Decl && dim <= 2) 12.2.10
 	for(; i< dim; ++i)
 		num *= lenPerDim[i];
 
@@ -168,7 +168,7 @@ GLOBAL void InitConstArrayNode(int dim, int *lenPerDim, int num, constArrayNode 
 	}
 
 	i = 0;
-	//´¦ÀíÊı×éµÄ³õÊ¼»¯
+	//å¤„ç†æ•°ç»„çš„åˆå§‹åŒ–
 	if(dim == 2 && init != NULL)
 	{
 		IterateList(&pm, init->u.initializer.exprs);
@@ -221,7 +221,7 @@ GLOBAL void InitConstArrayNode(int dim, int *lenPerDim, int num, constArrayNode 
 	}
 }
 
-PRIVATE void InitConstMultArrayNode(int dim, int *lenPerDim, int num, constArrayNode *itemArray, Node *init)  //zww£º ´¦Àí¶àÎ¬Êı×é	 12.2.10
+PRIVATE void InitConstMultArrayNode(int dim, int *lenPerDim, int num, constArrayNode *itemArray, Node *init)  //zwwï¼š å¤„ç†å¤šç»´æ•°ç»„	 12.2.10
 {
 	ListMarker marker, pm;
 	Node *cn = NULL, *pn = NULL;
@@ -260,7 +260,7 @@ PRIVATE void InitConstMultArrayNode(int dim, int *lenPerDim, int num, constArray
 
 }
 
-//½«±äÁ¿µÄÉùÃ÷×ª»¯³ÉconstIdNodeÀàĞÍ,²¢²åÈëµ½Êı¾İÁ÷ÖĞ£¬Ö÷ÒªÔÚdecl½áµãµÄ´«µİº¯ÊıÖĞÓÃµ½
+//å°†å˜é‡çš„å£°æ˜è½¬åŒ–æˆconstIdNodeç±»å‹,å¹¶æ’å…¥åˆ°æ•°æ®æµä¸­ï¼Œä¸»è¦åœ¨declç»“ç‚¹çš„ä¼ é€’å‡½æ•°ä¸­ç”¨åˆ°
 PRIVATE inline FlowValue InitDeclNode(Node *node, FlowValue v)
 {
 	constIdNode *tmp = FindIdNode(node, v);
@@ -270,10 +270,10 @@ PRIVATE inline FlowValue InitDeclNode(Node *node, FlowValue v)
 	if (tmp == NULL)
 	{
 		constIdNode *itemId = MakeConstIdNode(node);
-		//½«ĞÂ½¨µÄ itemId Ìí¼Óµ½Êı¾İÁ÷ÖĞ
+		//å°†æ–°å»ºçš„ itemId æ·»åŠ åˆ°æ•°æ®æµä¸­
 		((propagatorNode*)(v.u.ptr))->idFlowList = AppendItem(((propagatorNode*)(v.u.ptr))->idFlowList, itemId);
 	}
-	else//¸Ã±äÁ¿ÊÇÔÚÑ­»·ÄÚ²¿¶¨ÒåµÄ
+	else//è¯¥å˜é‡æ˜¯åœ¨å¾ªç¯å†…éƒ¨å®šä¹‰çš„
 	{
 		tmp->n->u.id.value = node->u.decl.init;
 		if(node->u.decl.init != NULL && node->u.decl.init->typ == Const) 
@@ -295,7 +295,7 @@ PRIVATE FlowValue InitAdclNode(Node *node, FlowValue v)
 {
 	constArrayNode *itemArray = NULL, *tmpNode = NULL;
 	Node *tmp = NULL, *init = NULL;
-	Node *elementtype = NULL;//¼ÇÂ¼Êı×é¸÷¸öÔªËØµÄÀàĞÍ
+	Node *elementtype = NULL;//è®°å½•æ•°ç»„å„ä¸ªå…ƒç´ çš„ç±»å‹
 	propagatorNode *tmp2 = (propagatorNode *)(v.u.ptr);
 	List *list = tmp2->arrayFlowList;
 	List *tmpList = list;
@@ -305,7 +305,7 @@ PRIVATE FlowValue InitAdclNode(Node *node, FlowValue v)
 	assert(tmp && tmp->typ == Adcl);
 	init = node->u.decl.init;
 
-	//zww:12.03.02,³£Á¿´«²¥¶ÔÓÚ×Ö·ûÊı×éµÄ³õÊ¼»¯ÎÊÌâÔİ²»´¦Àí£¬¼´ÀàËÆÓÚchar s[10]="abcdefghi"   ;
+	//zww:12.03.02,å¸¸é‡ä¼ æ’­å¯¹äºå­—ç¬¦æ•°ç»„çš„åˆå§‹åŒ–é—®é¢˜æš‚ä¸å¤„ç†ï¼Œå³ç±»ä¼¼äºchar s[10]="abcdefghi"   ;
 	elementtype = node->u.decl.type;
 	while (elementtype->typ==Adcl)
 	{
@@ -318,7 +318,7 @@ PRIVATE FlowValue InitAdclNode(Node *node, FlowValue v)
 	while (list) 
 	{
 		tmpNode = (constArrayNode*)(FirstItem(list));
-		if(node->u.decl.name == tmpNode->name && node->u.decl.type == tmpNode->decl) // node->u.decl.name == tmpanode->name Õâ¾ä»°±ØĞëÒª
+		if(node->u.decl.name == tmpNode->name && node->u.decl.type == tmpNode->decl) // node->u.decl.name == tmpanode->name è¿™å¥è¯å¿…é¡»è¦
 			break;
 		else 
 			tmpNode = NULL;
@@ -328,23 +328,23 @@ PRIVATE FlowValue InitAdclNode(Node *node, FlowValue v)
 	if(tmpNode == NULL)
 	{
 		int dim = 0, num = 1, i = 0;
-		int *lenPerDim = NULL;//zww ĞŞ¸ÄÖ§³Ö¸ßÎ¬ 12.2.13
+		int *lenPerDim = NULL;//zww ä¿®æ”¹æ”¯æŒé«˜ç»´ 12.2.13
 		while(tmp->typ == Adcl)
 		{
 			++dim;
 			tmp = tmp->u.adcl.type;
 		}
-		lenPerDim = (int *)malloc(sizeof(int)*dim);//zww ĞŞ¸ÄÖ§³Ö¸ßÎ¬ 12.2.13
+		lenPerDim = (int *)malloc(sizeof(int)*dim);//zww ä¿®æ”¹æ”¯æŒé«˜ç»´ 12.2.13
 		tmp = node->u.decl.type;
 		i=0;
-		while(tmp->typ == Adcl)	//zww ĞŞ¸ÄÖ§³Ö¸ßÎ¬ 12.2.13
+		while(tmp->typ == Adcl)	//zww ä¿®æ”¹æ”¯æŒé«˜ç»´ 12.2.13
 		{
 			lenPerDim[i++] = CheckAdcl(tmp);
 			tmp = tmp->u.adcl.type;
 		}
 		itemArray = MakeConstArrayNode(dim, lenPerDim, node);
 		num = itemArray->num;
-		if(dim<=2)InitConstArrayNode(dim, lenPerDim, num, itemArray, init);	//zww £ºÌí¼Ó´¦Àí¶àÎ¬ 12.2.10
+		if(dim<=2)InitConstArrayNode(dim, lenPerDim, num, itemArray, init);	//zww ï¼šæ·»åŠ å¤„ç†å¤šç»´ 12.2.10
 		else
 		{
 			assert(dim>2);
@@ -374,7 +374,7 @@ PRIVATE FlowValue AlterFlow(Node *node, Node *value, FlowValue v)
 	constArrayNode *itemArray = NULL;
 	ListMarker marker;
 	Node *n = NULL;
-	int *pos = NULL, tmp = 0, i = 0, j = 0, place = 0;//placeÖ¸µÄ¾ÍÊÇÔªËØÔÚÒ»Î»ÖĞµÄÎ»ÖÃ
+	int *pos = NULL, tmp = 0, i = 0, j = 0, place = 0;//placeæŒ‡çš„å°±æ˜¯å…ƒç´ åœ¨ä¸€ä½ä¸­çš„ä½ç½®
 
 	
 	//assert(node->typ == Id || node->typ == Array);
@@ -383,7 +383,7 @@ PRIVATE FlowValue AlterFlow(Node *node, Node *value, FlowValue v)
 	{
 		assert(value && value->typ == Const);
 		itemId = FindIdNode(node->u.id.decl, v);
-		if(itemId == NULL) return v;//zww-20120314 Èç¹û±äÁ¿²»ÔÚÊı¾İÁ÷ÖĞÕâÖ±½Ó·µ»Ø£¨stateÖĞµÄ±äÁ¿ÊÇ²»ÔÚÊı¾İÁ÷ÖĞµÄ£©
+		if(itemId == NULL) return v;//zww-20120314 å¦‚æœå˜é‡ä¸åœ¨æ•°æ®æµä¸­è¿™ç›´æ¥è¿”å›ï¼ˆstateä¸­çš„å˜é‡æ˜¯ä¸åœ¨æ•°æ®æµä¸­çš„ï¼‰
 		assert(itemId);
 		node->u.id.value = value;
 		itemId->n->u.id.value = value;
@@ -393,10 +393,10 @@ PRIVATE FlowValue AlterFlow(Node *node, Node *value, FlowValue v)
 	else if(node->typ == Array)
 	{
 		assert(value && value->typ == Const);
-		itemArray = FindArrayNode(node,v);//ÏÂÃæ¶ÔÊı×éÔªËØ¶¨Î»
-		if(itemArray == NULL) return v;//zww-20120314 Èç¹û±äÁ¿²»ÔÚÊı¾İÁ÷ÖĞÕâÖ±½Ó·µ»Ø£¨stateÖĞµÄ±äÁ¿ÊÇ²»ÔÚÊı¾İÁ÷ÖĞµÄ£©
+		itemArray = FindArrayNode(node,v);//ä¸‹é¢å¯¹æ•°ç»„å…ƒç´ å®šä½
+		if(itemArray == NULL) return v;//zww-20120314 å¦‚æœå˜é‡ä¸åœ¨æ•°æ®æµä¸­è¿™ç›´æ¥è¿”å›ï¼ˆstateä¸­çš„å˜é‡æ˜¯ä¸åœ¨æ•°æ®æµä¸­çš„ï¼‰
 		assert(itemArray);
-		assert(node->u.array.name->typ==Id);//×èÖ¹Ïñsa.a[i]ÕâÑùµÄ½Úµã
+		assert(node->u.array.name->typ==Id);//é˜»æ­¢åƒsa.a[i]è¿™æ ·çš„èŠ‚ç‚¹
 		pos = (int *)malloc(sizeof(int)*(itemArray->dim));
 		IterateList(&marker, node->u.array.dims);
 		while (NextOnList(&marker, (GenericREF) &n))
@@ -417,7 +417,7 @@ PRIVATE FlowValue AlterFlow(Node *node, Node *value, FlowValue v)
 			place = place + pos[i] * tmp;
 		}
 
-		node->u.array.value = value;  //ĞŞ¸Ä¹ı12.2.10
+		node->u.array.value = value;  //ä¿®æ”¹è¿‡12.2.10
 		//ConstFoldCast(node->u.id.value);
 		itemArray->element[place] = value;
 		itemArray->undefine[place] = FALSE;
@@ -433,41 +433,41 @@ PRIVATE FlowValue AlterFlow(Node *node, Node *value, FlowValue v)
 	
 }
 
-//±È½ÏÁ½¸öÊı¾İÁ÷ÊÇ·ñÏàµÈ
+//æ¯”è¾ƒä¸¤ä¸ªæ•°æ®æµæ˜¯å¦ç›¸ç­‰
 PRIVATE inline Bool EqualConstFlow(FlowValue dest, FlowValue src)
 {
-	//Ò»°ãÀ´Ëµ£¬dest.undefined == TRUE, src.undefined == FALSE£¬ÒòÎª¶ÔÓÚ³£Á¿´«²¥À´Ëµ£¬src±ØĞëÈ·¶¨£¬¶ødestÒ»°ã²»È·¶¨£¬Òª²»¾ÍÃ»±ØÒªÁ÷½øÈ¥ÁË¡£
+	//ä¸€èˆ¬æ¥è¯´ï¼Œdest.undefined == TRUE, src.undefined == FALSEï¼Œå› ä¸ºå¯¹äºå¸¸é‡ä¼ æ’­æ¥è¯´ï¼Œsrcå¿…é¡»ç¡®å®šï¼Œè€Œdestä¸€èˆ¬ä¸ç¡®å®šï¼Œè¦ä¸å°±æ²¡å¿…è¦æµè¿›å»äº†ã€‚
 	if (dest.undefined)
 		return src.undefined;
-	else //2013 4-16 YQJ Ôö¼Óelse½á¹¹ ÓÃÓÚ && ÔËËã
+	else //2013 4-16 YQJ å¢åŠ elseç»“æ„ ç”¨äº && è¿ç®—
 		return dest.undefined;
 
 	PrintConstFlowValue(dest);
 	UNREACHABLE;
 }
 
-//Êı¾İÁ÷½øĞĞmeet²Ù×÷
+//æ•°æ®æµè¿›è¡Œmeetæ“ä½œ
 PRIVATE inline FlowValue MeetConstFlow(FlowValue dest, FlowValue src)
 {
-	//Í¬EqualConstFlow²Ù×÷
+	//åŒEqualConstFlowæ“ä½œ
 	if (dest.undefined == TRUE)
 		return src;
-	else //2013 4-16 YQJ Ôö¼Óelse½á¹¹ ÓÃÓÚ && ÔËËã
+	else //2013 4-16 YQJ å¢åŠ elseç»“æ„ ç”¨äº && è¿ç®—
 		return dest;
 	
 	PrintConstFlowValue(dest);
 	UNREACHABLE;
 }
 
-//²éÕÒÊı¾İÁ÷id½Úµã
+//æŸ¥æ‰¾æ•°æ®æµidèŠ‚ç‚¹
 PRIVATE inline constIdNode *FindIdNode(Node *node, FlowValue v)
 {
 	ListMarker marker;
 	constIdNode *item = NULL;
-	//È¡³öidÊı¾İÁ÷
+	//å–å‡ºidæ•°æ®æµ
 	List *list = ((propagatorNode*)(v.u.ptr))->idFlowList;
 	
-	//assert(node && node->typ == Decl); // 12.13 Êı¾İÁ÷½øwork
+	//assert(node && node->typ == Decl); // 12.13 æ•°æ®æµè¿›work
 	IterateList(&marker, list);
 	while (NextOnList(&marker, (GenericREF) &item)) 
 	{
@@ -478,24 +478,24 @@ PRIVATE inline constIdNode *FindIdNode(Node *node, FlowValue v)
 	return NULL;
 }
 
-//²éÕÒÊı¾İÁ÷array½Úµã
+//æŸ¥æ‰¾æ•°æ®æµarrayèŠ‚ç‚¹
 PRIVATE inline constArrayNode *FindArrayNode(Node *node ,FlowValue v)
 {
 	assert(node && node->typ == Array);
-	if(node->u.array.name->typ == Id){ // ÆÕÍ¨Êı×é ĞÎÈçarr[1]
+	if(node->u.array.name->typ == Id){ // æ™®é€šæ•°ç»„ å½¢å¦‚arr[1]
 		ListMarker marker;
 		constArrayNode *item = NULL;
 		Node *type = NULL;
-		List *list = ((propagatorNode*)(v.u.ptr))->arrayFlowList;//È¡³ö array Êı¾İÁ÷
+		List *list = ((propagatorNode*)(v.u.ptr))->arrayFlowList;//å–å‡º array æ•°æ®æµ
 		type = node->u.array.name->u.id.decl->u.decl.type;
 		IterateList(&marker, list);
 		while (NextOnList(&marker, (GenericREF) &item)) 
-			if(node->u.array.name->u.id.text == item->name && type == item->decl) return item; // node->u.array.name->u.id.text == item->name ²»ÄÜÉ¾³ı 
+			if(node->u.array.name->u.id.text == item->name && type == item->decl) return item; // node->u.array.name->u.id.text == item->name ä¸èƒ½åˆ é™¤ 
 	}
 	return NULL;
 }
 
-//´¦Àí¿âº¯Êıµ÷ÓÃ, ÆäËû¿âº¯ÊıÔİÎ´´¦Àí
+//å¤„ç†åº“å‡½æ•°è°ƒç”¨, å…¶ä»–åº“å‡½æ•°æš‚æœªå¤„ç†
 PRIVATE inline Node *CallLibFunc(Node *node)
 {   
 	callNode call = node->u.call;
@@ -508,7 +508,7 @@ PRIVATE inline Node *CallLibFunc(Node *node)
 	for (i = 0; i < num; ++i)
 		if(strcmp(fooName[i],call.name->u.id.text) == 0) break;
 
-	//±ØĞë´æÔÚ£¬·ñÔòÎŞ·¨½øĞĞ³£Á¿´«²¥
+	//å¿…é¡»å­˜åœ¨ï¼Œå¦åˆ™æ— æ³•è¿›è¡Œå¸¸é‡ä¼ æ’­
 	assert(i != num);
 	constNode = GetValue(((Node*)FirstItem(call.args)));
 	NodeSetDoubleValue(node->u.call.name, foo[i](constNode->u.Const.value.d));
@@ -538,7 +538,7 @@ GLOBAL Node *ModifyCompositeParam(Node *node, comCallNode *u, FlowValue v)
 		assert(toNode && toNode->typ == Decl);
 		if(IsArithmeticType(NodeDataType(toNode)))
 			toNode->u.decl.init = GetValue(fromNode);
-		else // ÊÇÒ»¸öÖ¸ÏòÊı×éµÄÖ¸Õë, if(IsPointerType(NodeDataType(toNode)) && fromNode->typ == ImplicitCast && fromNode->u.implicitcast.expr->typ == Id)
+		else // æ˜¯ä¸€ä¸ªæŒ‡å‘æ•°ç»„çš„æŒ‡é’ˆ, if(IsPointerType(NodeDataType(toNode)) && fromNode->typ == ImplicitCast && fromNode->u.implicitcast.expr->typ == Id)
 		{
 			constArrayNode *tmpNode = NULL;
 			char *name = NULL;
@@ -565,18 +565,18 @@ GLOBAL Node *ModifyCompositeParam(Node *node, comCallNode *u, FlowValue v)
 				else tmpNode = NULL;
 				list = Rest(list);
 			}
-			//assert(tmpNode && tmpNode->dim <= 2); // Ò»¶¨ÒªÕÒµ½£¬Òª²»È»¾Í³ö´íÁË
+			//assert(tmpNode && tmpNode->dim <= 2); // ä¸€å®šè¦æ‰¾åˆ°ï¼Œè¦ä¸ç„¶å°±å‡ºé”™äº†
 			assert(tmpNode);
 			toNode->u.decl.type = tmpNode->decl;
 
-			if(tmpNode->dim == 1) // Ò»Î¬
+			if(tmpNode->dim == 1) // ä¸€ç»´
 			{
 				Node *init = NewNode(Initializer);
 				for(i = 0;i<tmpNode->num;i++)
 					init->u.initializer.exprs = AppendItem(init->u.initializer.exprs, tmpNode->element[i]);
 				toNode->u.decl.init = init;
 			}
-			else if(tmpNode->dim == 2)// ¶şÎ¬  zww: 12.2.10
+			else if(tmpNode->dim == 2)// äºŒç»´  zww: 12.2.10
 			{
 				Node *initsNode = NewNode(Initializer);
 				for(i = 0;i<tmpNode->dimLen[0];i++)
@@ -588,7 +588,7 @@ GLOBAL Node *ModifyCompositeParam(Node *node, comCallNode *u, FlowValue v)
 				}
 				toNode->u.decl.init = initsNode;
 			}
-			else//¸ßÎ¬£¨´óÓÚ2£©	  //zww£º´¦Àí¸ßÎ¬Êı×éµÄ²ÎÊı´«µİ£¨¿ÉÄÜÓĞÎÊÌâ£©12.2.10
+			else//é«˜ç»´ï¼ˆå¤§äº2ï¼‰	  //zwwï¼šå¤„ç†é«˜ç»´æ•°ç»„çš„å‚æ•°ä¼ é€’ï¼ˆå¯èƒ½æœ‰é—®é¢˜ï¼‰12.2.10
 			{
 				Node *init = NewNode(Initializer);
 				Node *dtype = NodeDataType(toNode->u.decl.type);
@@ -662,23 +662,23 @@ PRIVATE inline FlowValue TransformArray(Node *node,FlowValue v)
 	ListMarker m;
 	Node *n, *value;
 	unsigned long *pos, tmp, i = 0, j;
-	unsigned long place=0;//placeÖ¸µÄ¾ÍÊÇÔªËØÔÚÒ»Î»ÖĞµÄÎ»ÖÃ
+	unsigned long place=0;//placeæŒ‡çš„å°±æ˜¯å…ƒç´ åœ¨ä¸€ä½ä¸­çš„ä½ç½®
 	constArrayNode *cn=NULL;
 
-	if(node->u.array.name->typ == Binop){ //ĞÎÈç s.x[3] »ò s[1].x[1] µÈ½á¹¹ÌåÖĞº¬ÓĞÊı×é³ÉÔ±µÄ
+	if(node->u.array.name->typ == Binop){ //å½¢å¦‚ s.x[3] æˆ– s[1].x[1] ç­‰ç»“æ„ä½“ä¸­å«æœ‰æ•°ç»„æˆå‘˜çš„
  		List *SUEflowlist = ((propagatorNode*)(v.u.ptr))->SUEFlowList;
 		List *tmpsuelist=NULL;
 		ListMarker m;
 		Node *left,*right,*n,*value=NULL;
-		Node *sueNode[10]; //¶¨ÒåÖ¸ÕëÊı×é ĞÎÈç s.a.b.c ... ½á¹¹Ìå×î¶àÇ¶Ì×10²ã
-		int key[10];    //Éæ¼°µ½µÄ½á¹¹ÌåÊı×éµÄË÷ÒıÖµ
+		Node *sueNode[10]; //å®šä¹‰æŒ‡é’ˆæ•°ç»„ å½¢å¦‚ s.a.b.c ... ç»“æ„ä½“æœ€å¤šåµŒå¥—10å±‚
+		int key[10];    //æ¶‰åŠåˆ°çš„ç»“æ„ä½“æ•°ç»„çš„ç´¢å¼•å€¼
 		Node *leftiddecl,*tmp=NULL;
 		SUEtype *leftsuetype;
 		constSUE* leftsuetypeNode;
 		constSUEid *sueidNode = NULL;
 		constSUEarray *suearrayNode = NULL;
 		constSUEFieldNode *rightField_arr = NULL;
-		int i=0,j=0,num;  //iÎªsueNodeÊı×éµÄÏÂ±ê jÎªkeyÊı×éµÄÏÂ±ê
+		int i=0,j=0,num;  //iä¸ºsueNodeæ•°ç»„çš„ä¸‹æ ‡ jä¸ºkeyæ•°ç»„çš„ä¸‹æ ‡
 
 		IterateList(&m, node->u.array.dims);
 		NextOnList(&m, (GenericREF) &n);
@@ -687,18 +687,18 @@ PRIVATE inline FlowValue TransformArray(Node *node,FlowValue v)
 
 		left = node->u.array.name->u.binop.left;
 		right = node->u.array.name->u.binop.right;
-		assert(right->typ == Id);  //ÓÒ±ß¶¼Ó¦¸ÃÊÇidÀàĞÍµÄ
+		assert(right->typ == Id);  //å³è¾¹éƒ½åº”è¯¥æ˜¯idç±»å‹çš„
 		sueNode[i++] = right;
 
-		while(left->typ != Id ){  //ĞÎÈç s.a[1].b.c.d.e[2]  ÒÀ´Î½«e£¬d,c,b£¬a ¼ÓÈëÈİÆ÷rightNode
-			if(left->typ == Binop) //ÀàËÆs.x.x[1] »òs[1].x.x[1]
+		while(left->typ != Id ){  //å½¢å¦‚ s.a[1].b.c.d.e[2]  ä¾æ¬¡å°†eï¼Œd,c,bï¼Œa åŠ å…¥å®¹å™¨rightNode
+			if(left->typ == Binop) //ç±»ä¼¼s.x.x[1] æˆ–s[1].x.x[1]
 			{
-				right = left->u.binop.right;  //rightÒ»¶¨ÎªidÀàĞÍ
+				right = left->u.binop.right;  //rightä¸€å®šä¸ºidç±»å‹
 				assert(right->typ == Id);
 				left = left->u.binop.left;
 				//if(i==0 || sueNode[i-1]->typ != Array)
 					sueNode[i++] = right;
-			}else if(left->typ == Array) //ÀàËÆs[1].x[2] »ñÈ¡sµÄÏÂ±ê ´æÈëkeyÊı×é
+			}else if(left->typ == Array) //ç±»ä¼¼s[1].x[2] è·å–sçš„ä¸‹æ ‡ å­˜å…¥keyæ•°ç»„
 			{
 				IterateList(&m, left->u.array.dims);
 				NextOnList(&m, (GenericREF) &n);
@@ -708,13 +708,13 @@ PRIVATE inline FlowValue TransformArray(Node *node,FlowValue v)
 				left = left->u.array.name;
 			}
 			else
-				assert(1==0);  //·ñÔò±¨´í
+				assert(1==0);  //å¦åˆ™æŠ¥é”™
 		}
 
 		leftiddecl = left->u.id.decl;
 		tmp = leftiddecl->u.decl.type;
 		assert(tmp);
-		while(tmp->typ != Sdcl){ // ÕÒµ½ÆäsdclÀàĞÍ
+		while(tmp->typ != Sdcl){ // æ‰¾åˆ°å…¶sdclç±»å‹
 			if(tmp->typ == Tdef)
 				tmp = tmp->u.tdef.type;
 			else if(tmp->typ == Adcl)
@@ -766,7 +766,7 @@ PRIVATE inline FlowValue TransformArray(Node *node,FlowValue v)
 		if(node->u.array.name->typ == Binop && tmpsuelist!=NULL)
 			node->u.array.name->u.binop.valueList = tmpsuelist;
 	}else{
-		cn=FindArrayNode(node,v);//ÏÂÃæ¶ÔÊı×éÔªËØ¶¨Î»
+		cn=FindArrayNode(node,v);//ä¸‹é¢å¯¹æ•°ç»„å…ƒç´ å®šä½
 	}
 	if(cn==NULL) return v;
 	pos=(unsigned long *)malloc(sizeof(unsigned long)*cn->dim);
@@ -774,7 +774,7 @@ PRIVATE inline FlowValue TransformArray(Node *node,FlowValue v)
 	while (NextOnList(&m, (GenericREF) &n))
 	{
 		value=GetValue(n);
-		// assert(value); // 12.13 Êı¾İÁ÷½øwork
+		// assert(value); // 12.13 æ•°æ®æµè¿›work
 		if(value!=NULL) pos[i++]=NodeConstantIntegralValue(value);
 		else return v;
 	}
@@ -794,12 +794,12 @@ PRIVATE inline FlowValue TransformArray(Node *node,FlowValue v)
 	return v;
 }
 
-//´«µİDecl½áµã,¾ÍÊÇÏòvÖĞÌí¼ÓĞÂ½Úµã,¶ÔÓÚÈ«¾Ö±äÁ¿Ö»ÄÜ¶Á²»ÄÜĞ´
+//ä¼ é€’Declç»“ç‚¹,å°±æ˜¯å‘vä¸­æ·»åŠ æ–°èŠ‚ç‚¹,å¯¹äºå…¨å±€å˜é‡åªèƒ½è¯»ä¸èƒ½å†™
 PRIVATE inline FlowValue TransformDecl(Node *node, FlowValue v)
 {
 	
 	TypeQual dl = NodeDeclLocation(node);
-	TypeQual sc = NodeStorageClass(node);//ÒªÊÕ¼¯Íâ²¿µÄ¾²Ì¬µÄµÈËùÓĞµÄ±äÁ¿ÉùÃ÷
+	TypeQual sc = NodeStorageClass(node);//è¦æ”¶é›†å¤–éƒ¨çš„é™æ€çš„ç­‰æ‰€æœ‰çš„å˜é‡å£°æ˜
 	constIdNode *inode = NULL;
 	constArrayNode *anode = NULL;
 	assert(node->typ==Decl);
@@ -832,7 +832,7 @@ PRIVATE inline FlowValue TransformDecl(Node *node, FlowValue v)
 	return v;
 }
 
-//´¦Àí¸³Öµ²Ù×÷ºÍ¸´ºÏ¸³Öµ²Ù×÷
+//å¤„ç†èµ‹å€¼æ“ä½œå’Œå¤åˆèµ‹å€¼æ“ä½œ
 PRIVATE inline FlowValue TransformAssignment(Node *node,FlowValue v)
 {
 	Node   *left, *right, *ltype, *rtype, *leftvalue=NULL, *rightvalue=NULL;
@@ -871,7 +871,7 @@ PRIVATE inline FlowValue TransformAssignment(Node *node,FlowValue v)
 	switch(opcode){
 		 case '=':
 			 //printf("%s=%d\n",node->u.binop.left->u.id.text,rightvalue->u.Const.value.i);
-			 {//Ìí¼Ó¶Ô½á¹¹ÌåÖ±½Ó¸³ÖµµÄ´¦Àí
+			 {//æ·»åŠ å¯¹ç»“æ„ä½“ç›´æ¥èµ‹å€¼çš„å¤„ç†
 				 return AlterFlow(node->u.binop.left,rightvalue,v);
 			 }			 
 		 case MULTassign://*=
@@ -1218,7 +1218,7 @@ PRIVATE inline FlowValue TransformAssignment(Node *node,FlowValue v)
 	}
 }
 
-//´¦ÀíËãÊıÔËËã
+//å¤„ç†ç®—æ•°è¿ç®—
 PRIVATE inline FlowValue TransformArithmetic(Node *node,FlowValue v)
 {
 	Node   *left, *right, *ltype, *rtype,*leftvalue=NULL,*rightvalue=NULL;
@@ -1713,7 +1713,7 @@ PRIVATE inline FlowValue TransformArithmetic(Node *node,FlowValue v)
 	return v;
 }
 
-//´¦Àí±È½ÏÔËËã
+//å¤„ç†æ¯”è¾ƒè¿ç®—
 PRIVATE inline FlowValue TransformComparison(Node *node, FlowValue v)
 {
 
@@ -1765,8 +1765,8 @@ PRIVATE inline FlowValue TransformComparison(Node *node, FlowValue v)
 			}
 		}
 	}
-	else/* if (IsPointerType(ltype) && IsPointerType(rtype))*///SPL²»Ö§³ÖÖ¸Õë£¬Ö¸ÕëÀàĞÍ²»¿ÉÄÜµ½ÕâÀïÀ´
-		UNREACHABLE;// ×¢Òâ£ºº¯Êıµ÷ÓÃÔÚ´Ë½ø²»À´
+	else/* if (IsPointerType(ltype) && IsPointerType(rtype))*///SPLä¸æ”¯æŒæŒ‡é’ˆï¼ŒæŒ‡é’ˆç±»å‹ä¸å¯èƒ½åˆ°è¿™é‡Œæ¥
+		UNREACHABLE;// æ³¨æ„ï¼šå‡½æ•°è°ƒç”¨åœ¨æ­¤è¿›ä¸æ¥
 
 	switch(opcode)
 	{
@@ -1800,14 +1800,14 @@ PRIVATE inline FlowValue TransformComparison(Node *node, FlowValue v)
 	return v;
 }
 
-//´¦ÀíÒ»ÔªÔËËã£¬ÔÚÕâÀïÒªremove any decls referenced by &£¨È¡µØÖ··û£©
+//å¤„ç†ä¸€å…ƒè¿ç®—ï¼Œåœ¨è¿™é‡Œè¦remove any decls referenced by &ï¼ˆå–åœ°å€ç¬¦ï¼‰
 PRIVATE inline FlowValue TransformUnary(Node *node, unaryNode *u, FlowValue v)
 {
 	Node *value = GetValue(u->expr);
 
 	switch (u->op) {
 		/* Must be arithmetic.  Apply usual conversions */
-	case UMINUS: //È¡¸º²Ù×÷
+	case UMINUS: //å–è´Ÿæ“ä½œ
 		if (NodeIsConstant(value))
 		{
 			if (NodeTypeIsSint(value))
@@ -2076,7 +2076,7 @@ PRIVATE inline FlowValue TransformUnary(Node *node, unaryNode *u, FlowValue v)
 	return v;
 }
 
-//´¦Àí¶şÔªÔËËã
+//å¤„ç†äºŒå…ƒè¿ç®—
 PRIVATE inline FlowValue TransformBinop(Node *node, FlowValue v)
 {
 	OpType op = node->u.binop.op;
@@ -2094,13 +2094,13 @@ PRIVATE inline FlowValue TransformBinop(Node *node, FlowValue v)
 		}
 		else return TransfromDot(node , v);
 	}
-	else if ( op == ARROW) // Ôİ²»¿¼ÂÇ
+	else if ( op == ARROW) // æš‚ä¸è€ƒè™‘
 		return v;
 	else 
 		return v; 
 }
 
-//ÔİÊ±Ö»´¦Àí¿âº¯Êıµ÷ÓÃ£¬¿ÉÒÔ½«call½áµãÌæ»»Îª³£Á¿Node£¨ÓÅ»¯ÊÖ¶ÎÖ®Ò»£©£¬´Ë´¦»¹Ã»ÓĞ×ö
+//æš‚æ—¶åªå¤„ç†åº“å‡½æ•°è°ƒç”¨ï¼Œå¯ä»¥å°†callç»“ç‚¹æ›¿æ¢ä¸ºå¸¸é‡Nodeï¼ˆä¼˜åŒ–æ‰‹æ®µä¹‹ä¸€ï¼‰ï¼Œæ­¤å¤„è¿˜æ²¡æœ‰åš
 PRIVATE inline FlowValue TransformCall(Node *node, FlowValue v)
 {
 	CallLibFunc(node);
@@ -2140,7 +2140,7 @@ PRIVATE FlowValue TransformConstFlow(Node *node, FlowValue v, Point p, Bool fina
 				return TransformCall(node,v);
 		case Decl:
 			return TransformDecl(node,v);
-		case Goto: //³ÌĞòÖĞÔİÊ±²»¿¼ÂÇgotoÓï¾ä
+		case Goto: //ç¨‹åºä¸­æš‚æ—¶ä¸è€ƒè™‘gotoè¯­å¥
 			return v;
 		default:
 			return v;
@@ -2150,7 +2150,7 @@ PRIVATE FlowValue TransformConstFlow(Node *node, FlowValue v, Point p, Bool fina
 	}
 }
 
-//³£Á¿´«²¥;
+//å¸¸é‡ä¼ æ’­;
 GLOBAL List *PropagateProgram(List *program)
 {
 	ListMarker marker;
@@ -2161,7 +2161,7 @@ GLOBAL List *PropagateProgram(List *program)
 	printf("\n-----------------------------DataFlow Module-----------------------------\n");
 #endif
 
-	//¼ÇÂ¼Õû¸öast£¬·½±ãºóÃæ¶ÔastµÄ²éÕÒ
+	//è®°å½•æ•´ä¸ªastï¼Œæ–¹ä¾¿åé¢å¯¹astçš„æŸ¥æ‰¾
 	gProgram = program; 
 	pNode->idFlowList = NULL;
 	pNode->arrayFlowList = NULL;
@@ -2169,13 +2169,13 @@ GLOBAL List *PropagateProgram(List *program)
 	initflow.u.ptr = pNode;
 
 	IterateList(&marker, program);
-	//½«È«¾Ö±äÁ¿¼ÓÈëÊı¾İÁ÷²¢¼ÓÈëµ½gDeclListÖĞ£¬½«È«¾Öº¯Êı¶¨Òå¼ÓÈëµ½gProcListÖĞ
+	//å°†å…¨å±€å˜é‡åŠ å…¥æ•°æ®æµå¹¶åŠ å…¥åˆ°gDeclListä¸­ï¼Œå°†å…¨å±€å‡½æ•°å®šä¹‰åŠ å…¥åˆ°gProcListä¸­
 	while (NextOnList(&marker, (GenericREF) &item))
 	{
 		if (item->typ == Decl && (IsScalarType(NodeDataType(item)) || item->u.decl.type->typ == Adcl || item->u.decl.type->typ == Sdcl || item->u.decl.type->typ == Tdef
 			))
 		{ 
-			//±äÁ¿ÊÇÈ«¾ÖµÄÔò½«Æä¼ÓÈëµ½Êı¾İÁ÷ÖĞ
+			//å˜é‡æ˜¯å…¨å±€çš„åˆ™å°†å…¶åŠ å…¥åˆ°æ•°æ®æµä¸­
 			initflow.u.ptr = (TransformDecl(item, initflow)).u.ptr;
 			gDeclList = JoinLists(gDeclList, MakeNewList(item));
 		}
@@ -2189,7 +2189,7 @@ GLOBAL List *PropagateProgram(List *program)
 	//PrintConstFlowValue(initflow);
 #endif
 
-	//¼ÙÈç²»´æÔÚ³ÌĞòÈë¿Ú£¬Ôò±¨´í
+	//å‡å¦‚ä¸å­˜åœ¨ç¨‹åºå…¥å£ï¼Œåˆ™æŠ¥é”™
 	if(gMainComposite == NULL)
 	{
 		SyntaxError("Syntax error: There is no Main composite in the program!");
@@ -2220,7 +2220,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 						paramList *temp = NULL,*p = NULL,*temp2 = NULL;
 						Node *id_value = NULL;
 						if (cn==NULL) break;
-						//cwb ½«param³£Á¿Óëoperator°ó¶¨£¬µ«ÔÚ´úÂëÉú³ÉÊ±²»½øĞĞ´«²¥
+						//cwb å°†paramå¸¸é‡ä¸operatorç»‘å®šï¼Œä½†åœ¨ä»£ç ç”Ÿæˆæ—¶ä¸è¿›è¡Œä¼ æ’­
 						id_value = GetValue(cn->n->u.id.value);
 						n->u.id.value = id_value;
 						if (!DimFlag)
@@ -2289,7 +2289,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 								}
 							}
 							if(id_value!=NULL&&id_value->typ == Const)
-							{//Ö±½Ó½«ÓÃidµÄvalueÌæ»»Ô­À´µÄid½Úµã zww-20120314
+							{//ç›´æ¥å°†ç”¨idçš„valueæ›¿æ¢åŸæ¥çš„idèŠ‚ç‚¹ zww-20120314
 								n->typ = Const;
 								n->u.Const.type=id_value->u.Const.type;
 								n->u.Const.text=NULL;
@@ -2311,7 +2311,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 			OpType op = n->u.binop.op;			
 			Node *l=NULL,*r=NULL;
 			if(IsAssignmentOp(op))
-			{//ÒªÌí¼Ó¶Ô×ó±ßµÄ´¦Àí
+			{//è¦æ·»åŠ å¯¹å·¦è¾¹çš„å¤„ç†
 				if ((n)->u.binop.left) {RWV_astwalk((n)->u.binop.left,v);}
 				if ((n)->u.binop.right) {RWV_astwalk((n)->u.binop.right,v);}
 			}
@@ -2345,7 +2345,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 	case Comma:         if ((n)->u.comma.exprs) {RWV_listwalk((n)->u.comma.exprs,v);} break; 
 	case Array:         
 		{
-			Node *tmpCGNode=NULL; // 13-5-20 YQJ ½á¹¹ÌåµÄ³ÉÔ±ÖĞº¬ÓĞÊı×éÊ±×÷ÎªÁÙÊ±½áµã
+			Node *tmpCGNode=NULL; // 13-5-20 YQJ ç»“æ„ä½“çš„æˆå‘˜ä¸­å«æœ‰æ•°ç»„æ—¶ä½œä¸ºä¸´æ—¶ç»“ç‚¹
 			if(n->u.array.name->typ == Binop)
 			{
 				tmpCGNode = n->u.array.name;
@@ -2357,7 +2357,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 				if (FindItem(DeclArrayListInWork,n->u.array.name->u.id.decl) == NULL && NodeDeclLocation(n->u.array.name->u.id.decl)!=T_TOP_DECL)
 				{
 					Node *arrayDecl = NULL;
-					Node *init = NewNode(Initializer);//¶¨ÒåÒ»¸öÊı×é³õÊ¼»¯µÄ½Úµã£»
+					Node *init = NewNode(Initializer);//å®šä¹‰ä¸€ä¸ªæ•°ç»„åˆå§‹åŒ–çš„èŠ‚ç‚¹ï¼›
 					constArrayList *p = NULL,*temp = NULL;
 					constArrayNode *tmpNode = NULL;
 					List *list = ((propagatorNode*)(v.u.ptr))->arrayFlowList;
@@ -2365,7 +2365,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 					Node *decl = NULL;
 					int i;
 					Node *dtype = NULL;
-					tmpNode=FindArrayNode(n,v);//ÔÚÊı¾İÁ÷ÖĞ²éÕÒ
+					tmpNode=FindArrayNode(n,v);//åœ¨æ•°æ®æµä¸­æŸ¥æ‰¾
 					if(tmpNode!=NULL) 
 					{
 						arrayDecl = NodeCopy(n->u.array.name->u.id.decl,Subtree);
@@ -2380,7 +2380,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 						assert(init);
 						assert(init->typ == Initializer);
 						assert(ListLength(init->u.initializer.exprs)==tmpNode->num);
-						//cwb ³õÊ¼»¯Êı×é³Éoperator°ó¶¨
+						//cwb åˆå§‹åŒ–æ•°ç»„æˆoperatorç»‘å®š
 						temp = (constArrayList *)malloc(sizeof(constArrayList));
 						temp->arraynode = init;
 						temp->next = NULL;
@@ -2448,7 +2448,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 	case Goto:          break; 
 	case Continue:      break; 
 	case Break:         break; 
-	case Return:        if ((n)->u.Return.expr) {RWV_astwalk((n)->u.Return.expr,v);} break; //splÉÙÓĞ
+	case Return:        if ((n)->u.Return.expr) {RWV_astwalk((n)->u.Return.expr,v);} break; //splå°‘æœ‰
 	case Block:         if ((n)->u.Block.decl) {RWV_listwalk((n)->u.Block.decl,v);} if ((n)->u.Block.stmts) {RWV_listwalk((n)->u.Block.stmts,v);} break; 
 	case Prim:          break; 
 	case Adcl:          if((n)->u.adcl.type){RWV_astwalk((n)->u.adcl.type,v);}if((n)->u.adcl.dim){if((n)->u.adcl.dim->typ != Const && ((n)->u.adcl.dim->typ == Id || (n)->u.adcl.dim->u.binop.right->typ == Id || (n)->u.adcl.dim->u.binop.left->typ == Id))DimFlag = TRUE;RWV_astwalk((n)->u.adcl.dim,v);}break; 
@@ -2458,7 +2458,7 @@ void RWV_astwalk(Node *n,FlowValue v)
 	}
 }
 GLOBAL void ReplaceWorkVar(Node *node,FlowValue v)
-{//½«workÖĞÓÃµ½µÄ±äÁ¿ÖµÈ«²¿È¡³ö²¢½øĞĞÌæ»»(Î´Ìæ»»)
+{//å°†workä¸­ç”¨åˆ°çš„å˜é‡å€¼å…¨éƒ¨å–å‡ºå¹¶è¿›è¡Œæ›¿æ¢(æœªæ›¿æ¢)
 	assert(node);
 	//	PrintConstFlowValue(v);
 	DeclArrayListInWork = NULL;

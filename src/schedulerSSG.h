@@ -9,16 +9,16 @@ class SchedulerSSG : public StaticStreamGraph
 {
 
 public:
-	std::map<FlatNode *,int> mapInitCount2FlatNode; // SDFÍ¼ËùÓĞ½Úµã³õÊ¼»¯µ÷¶ÈĞòÁĞ
-	std::map<FlatNode *,int> mapSteadyCount2FlatNode; // SDFÍ¼ËùÓĞ½ÚµãÎÈ¶¨×´Ì¬µ÷¶ÈĞòÁĞ<½Úµã£¬Ö´ĞĞ´ÎÊı>
-	double total_work;//SDF×ÜµÄ¹¤×÷Á¿
+	std::map<FlatNode *,int> mapInitCount2FlatNode; // SDFå›¾æ‰€æœ‰èŠ‚ç‚¹åˆå§‹åŒ–è°ƒåº¦åºåˆ—
+	std::map<FlatNode *,int> mapSteadyCount2FlatNode; // SDFå›¾æ‰€æœ‰èŠ‚ç‚¹ç¨³å®šçŠ¶æ€è°ƒåº¦åºåˆ—<èŠ‚ç‚¹ï¼Œæ‰§è¡Œæ¬¡æ•°>
+	double total_work;//SDFæ€»çš„å·¥ä½œé‡
 public:
 	SchedulerSSG(StaticStreamGraph *ssg);
-	int lcm(int a, int b); // Çóa,bµÄ×îĞ¡¹«±¶Êı
-	int gcd(int a, int b); // Çóa,bµÄ×î´ó¹«Ô¼Êı
+	int lcm(int a, int b); // æ±‚a,bçš„æœ€å°å…¬å€æ•°
+	int gcd(int a, int b); // æ±‚a,bçš„æœ€å¤§å…¬çº¦æ•°
 	bool InitScheduling();
 	bool SteadyScheduling();
-	std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *> );//¶ÔvectorÖĞµÄµã¼¯½øĞĞ¾Ö²¿ÎÈÌ¬µ÷¶È
+	std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *> );//å¯¹vectorä¸­çš„ç‚¹é›†è¿›è¡Œå±€éƒ¨ç¨³æ€è°ƒåº¦
 	int GetInitCount(FlatNode *node);
 	int GetSteadyCount(FlatNode *node);
 

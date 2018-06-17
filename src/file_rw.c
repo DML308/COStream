@@ -3,7 +3,7 @@
 
 #include "ast.h"
 #include "file_rw.h"
-GLOBAL Bool gIsFileOperator = FALSE; // ´¦ÓÚ×é½¨file½Úµã×´Ì¬
+GLOBAL Bool gIsFileOperator = FALSE; // å¤„äºç»„å»ºfileèŠ‚ç‚¹çŠ¶æ€
 
 PRIVATE Node *MakeModeDecl(int init)
 {
@@ -30,7 +30,7 @@ GLOBAL Node *MakeFileReaderOperator(Node *output, List *args, Coord coord)
 	int len1 = 0, len2 = 0, oldLevel = Level;
 	char m_text[2][10] = {"\"bin\"", "\"txt\""};
 
-	assert(len == 1 || len == 2); // ÎÄ¼şÃûºÍ´ò¿ª·½Ê½£¬È±Ê¡ÎªÎÄ±¾·½Ê½
+	assert(len == 1 || len == 2); // æ–‡ä»¶åå’Œæ‰“å¼€æ–¹å¼ï¼Œç¼ºçœä¸ºæ–‡æœ¬æ–¹å¼
 	//assert(output && (output->typ == Id || output->typ == Decl));
 	gIsFileOperator = TRUE;
 	Level = 2;
@@ -49,14 +49,14 @@ GLOBAL Node *MakeFileReaderOperator(Node *output, List *args, Coord coord)
 	SetDeclType(path, MakePrimCoord(EMPTY_TQ, Char, item->coord), Redecl);
 	SetDeclInit(path, item);
 
-	if (len == 1) // Ä¬ÈÏÎÄ±¾·½Ê½¶ÁÈ¡ÎÄ¼ş
+	if (len == 1) // é»˜è®¤æ–‡æœ¬æ–¹å¼è¯»å–æ–‡ä»¶
 	{
 		mode = MakeModeDecl(1);
 	}
 	else
 	{
 		item = (Node *)LastItem(args);
-		if (strcmp(item->u.Const.text, m_text[0]) == 0) // Î»·½Ê½¶ÁÈ¡ÎÄ¼ş
+		if (strcmp(item->u.Const.text, m_text[0]) == 0) // ä½æ–¹å¼è¯»å–æ–‡ä»¶
 			mode = MakeModeDecl(0);
 		else if (strcmp(item->u.Const.text, m_text[1] == 0))
 			mode = MakeModeDecl(1);
@@ -65,8 +65,8 @@ GLOBAL Node *MakeFileReaderOperator(Node *output, List *args, Coord coord)
 	}
 	state = AppendItem(state, path);
 	state = AppendItem(state, mode);
-//	logic = MakeLogicCoord(state, NULL, MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord), UnknownCoord); // workÄÚÈİÁô¿Õ£¬Áôµ½´úÂëÉú³Éºó¶ËĞÎ³É
-	operBody = MakeOperBodyCoord(PrimVoid, state, NULL,MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord),NULL, UnknownCoord, UnknownCoord); // windowÎª¿Õ±íÊ¾È¡Ä¬ÈÏÖµ
+//	logic = MakeLogicCoord(state, NULL, MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord), UnknownCoord); // workå†…å®¹ç•™ç©ºï¼Œç•™åˆ°ä»£ç ç”Ÿæˆåç«¯å½¢æˆ
+	operBody = MakeOperBodyCoord(PrimVoid, state, NULL,MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord),NULL, UnknownCoord, UnknownCoord); // windowä¸ºç©ºè¡¨ç¤ºå–é»˜è®¤å€¼
 
 	Level = oldLevel;
 	fileReaderOperator = DefineOperator(operHead);
@@ -87,12 +87,12 @@ GLOBAL Node *MakeFileWriterOperator(Node *input, List *args, Coord coord)
 	int len1 = 0, len2 = 0, oldLevel = Level;
 	char m_text[2][10] = {"\"bin\"", "\"txt\""};
 
-	assert(len == 1 || len == 2); // ÎÄ¼şÃûºÍ´ò¿ª·½Ê½£¬È±Ê¡ÎªÎÄ±¾·½Ê½
+	assert(len == 1 || len == 2); // æ–‡ä»¶åå’Œæ‰“å¼€æ–¹å¼ï¼Œç¼ºçœä¸ºæ–‡æœ¬æ–¹å¼
 	assert(input && input->typ == Id);
 	gIsFileOperator = TRUE;
 	Level = 2;
 
-	LookupStreamIdsNode(input);//¸øid½Úµã²¹È«ĞÅÏ¢
+	LookupStreamIdsNode(input);//ç»™idèŠ‚ç‚¹è¡¥å…¨ä¿¡æ¯
 	writer = MakeIdCoord("FileWriter", coord);
 	operHead = ModifyDeclType(ConvertIdToDecl(writer, EMPTY_TQ, NULL, NULL, NULL), MakeOperdclCoord(EMPTY_TQ, NULL, MakeNewList(input), NULL, writer->coord));
 
@@ -107,14 +107,14 @@ GLOBAL Node *MakeFileWriterOperator(Node *input, List *args, Coord coord)
 	SetDeclType(path, MakePrimCoord(EMPTY_TQ, Char, item->coord), Redecl);
 	SetDeclInit(path, item);
 
-	if (len == 1) // Ä¬ÈÏÎÄ±¾·½Ê½¶ÁÈ¡ÎÄ¼ş
+	if (len == 1) // é»˜è®¤æ–‡æœ¬æ–¹å¼è¯»å–æ–‡ä»¶
 	{
 		mode = MakeModeDecl(1);
 	}
 	else
 	{
 		item = (Node *)LastItem(args);
-		if (strcmp(item->u.Const.text, m_text[0]) == 0) // Î»·½Ê½¶ÁÈ¡ÎÄ¼ş
+		if (strcmp(item->u.Const.text, m_text[0]) == 0) // ä½æ–¹å¼è¯»å–æ–‡ä»¶
 			mode = MakeModeDecl(0);
 		else if (strcmp(item->u.Const.text, m_text[1] == 0))
 			mode = MakeModeDecl(1);
@@ -123,8 +123,8 @@ GLOBAL Node *MakeFileWriterOperator(Node *input, List *args, Coord coord)
 	}
 	state = AppendItem(state, path);
 	state = AppendItem(state, mode);
-//	logic = MakeLogicCoord(state, NULL, MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord), UnknownCoord); // workÄÚÈİÁô¿Õ£¬Áôµ½´úÂëÉú³Éºó¶ËĞÎ³É
-//	operBody = MakeOperBodyCoord(PrimVoid, logic, NULL, UnknownCoord, UnknownCoord); // windowÎª¿Õ±íÊ¾È¡Ä¬ÈÏÖµ
+//	logic = MakeLogicCoord(state, NULL, MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord), UnknownCoord); // workå†…å®¹ç•™ç©ºï¼Œç•™åˆ°ä»£ç ç”Ÿæˆåç«¯å½¢æˆ
+//	operBody = MakeOperBodyCoord(PrimVoid, logic, NULL, UnknownCoord, UnknownCoord); // windowä¸ºç©ºè¡¨ç¤ºå–é»˜è®¤å€¼
 	operBody = MakeOperBodyCoord(PrimVoid, state, NULL,MakeBlockCoord(PrimVoid, NULL, NULL, UnknownCoord, UnknownCoord), NULL,UnknownCoord, UnknownCoord);
 	Level = oldLevel;
 	fileWriterOperator = DefineOperator(operHead);

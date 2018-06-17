@@ -84,7 +84,7 @@ typedef struct tablestruct SymbolTable;
 typedef int OpType;
 typedef struct paramstruct paramList;
 typedef struct constArrayStruct constArrayList;
-//cwb£º½«compositeÖĞparam´æ·ÅÓÚ¸÷operatorÖĞ
+//cwbï¼šå°†compositeä¸­paramå­˜æ”¾äºå„operatorä¸­
 struct paramstruct
 {
 	Node *paramnode;
@@ -96,11 +96,11 @@ struct constArrayStruct
 	struct constArrayStruct *next;
 };
 
-//zww:±íÊ¾opµÄÀàĞÍ
+//zww:è¡¨ç¤ºopçš„ç±»å‹
 typedef enum {
-	op_int = 1,/*ÕûĞÍ*/
-	op_float,/*¸¡µãĞÍ*/
-	op_unkonwn/*Î´Öª*/
+	op_int = 1,/*æ•´å‹*/
+	op_float,/*æµ®ç‚¹å‹*/
+	op_unkonwn/*æœªçŸ¥*/
 }opDataType;
 
 /***********************--------------Define For SPL----------****************************/
@@ -235,7 +235,7 @@ GLOBAL Node *CreateCompositeInMultiSP(Node *node);//MultiSP
 GLOBAL Node *TransformOperator(Node *node);//zww
 GLOBAL Node *GetValue(Node *node); /* propagator.c */
 
-/*zww: transform phase -- transforms.c define for spl È«¾Ö±êÖ¾ */
+/*zww: transform phase -- transforms.c define for spl å…¨å±€æ ‡å¿— */
 GLOBAL extern Bool gIsTransform;		/* transform.c */
 GLOBAL extern Bool gIsTypelist;			/* transform.c */
 GLOBAL extern Bool gIsInSymbolTable;	/* transform.c */
@@ -262,7 +262,7 @@ GLOBAL extern Bool gIsFileOperator;				/* file_rw.c */
 GLOBAL extern List *gfrtaCallList;  /* unfold.c */
 /***********************--------------Define For SPL----------****************************/
 
-/*¹¹ÔìĞÂµÄsplitjoin½á¹¹*/
+/*æ„é€ æ–°çš„splitjoinç»“æ„*/
 GLOBAL Node *MakeSplitOperator(Node *input, List *arguments, int style); /* unfold.c */
 GLOBAL Node *MakeJoinOperator(Node *output, List *inputs, List *arguments)	; /* unfold.c */
 GLOBAL Node *MakeNewStreamId(const char *name, Node *decl);

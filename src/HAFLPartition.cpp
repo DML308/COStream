@@ -10,11 +10,11 @@ void HAFLPartition::SssgPartition(SchedulerSSG *sssg,int level)
 		flatNodes_.push_back(sssg->GetFlatNodes()[i]);
 	}
 	vector<FlatNode *>::iterator iter_1;
-	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓĞ½áµã
+	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		if (!DetectiveActorState(*iter_1) && (UporDownStatelessNode((*iter_1)) != 3))
 		{
-			FlatNode2PartitionNum.insert(make_pair((*iter_1),0));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä,»®·Öµ½CPU¶Ë
+			FlatNode2PartitionNum.insert(make_pair((*iter_1),0));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„,åˆ’åˆ†åˆ°CPUç«¯
 			PartitonNum2FlatNode.insert(make_pair(0,(*iter_1)));
 			(*iter_1)->GPUPart = 0;
 			GPUNodes.push_back((*iter_1));
@@ -22,7 +22,7 @@ void HAFLPartition::SssgPartition(SchedulerSSG *sssg,int level)
 		}
 		else
 		{
-			FlatNode2PartitionNum.insert(make_pair((*iter_1),GpuNum));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä£¬»®·Öµ½GPU¶Ë
+			FlatNode2PartitionNum.insert(make_pair((*iter_1),GpuNum));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„ï¼Œåˆ’åˆ†åˆ°GPUç«¯
 			PartitonNum2FlatNode.insert(make_pair(GpuNum,(*iter_1)));
 			(*iter_1)->GPUPart = GpuNum;
 			CPUNodes.push_back((*iter_1));
@@ -33,7 +33,7 @@ void HAFLPartition::SssgPartition(SchedulerSSG *sssg,int level)
 void HAFLPartition::SetMultiNum2FlatNode()
 {
 	vector<FlatNode *>::iterator iter_1;
-	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓĞ½áµã
+	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		if((*iter_1)->GPUPart >= GpuNum)
 			MultiNum2FlatNode.insert(make_pair((*iter_1),MultiNum));
@@ -122,6 +122,6 @@ void HAFLPartition::SetGpuNum(SchedulerSSG *sssg)
 	{
 		vector<FlatNode *> tmp = sssg->GetFlatNodes();
 		if(GpuNum > tmp.size())
-			GpuNum = tmp.size();//Èç¹ûÍ¼ÖĞ½áµãÊıÉÙÓÚplaceÊıÄ¿£¬ÔòÈ¡½áµãÊıÄ¿¼´¿É
+			GpuNum = tmp.size();//å¦‚æœå›¾ä¸­ç»“ç‚¹æ•°å°‘äºplaceæ•°ç›®ï¼Œåˆ™å–ç»“ç‚¹æ•°ç›®å³å¯
 	}
 }

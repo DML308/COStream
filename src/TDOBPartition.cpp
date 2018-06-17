@@ -20,7 +20,7 @@ bool TDOBPartition::Select(const FlatNode *src, const double current_work, const
 		if (x[i] > 1) 
 			x[i] = 1/x[i];
 	}
-	if (x[0] > x[1])//Ñ¡Ôñ¸Ã½Úµãµ¼ÖÂ¸ºÔØÆ½ºâ²î¾àÔö´ó
+	if (x[0] > x[1])//é€‰æ‹©è¯¥èŠ‚ç‚¹å¯¼è‡´è´Ÿè½½å¹³è¡¡å·®è·å¢å¤§
 	{
 		select_state = 1;
 		return false;
@@ -36,7 +36,7 @@ bool TDOBPartition::Select(const FlatNode *src, const double current_work, const
 		}
 	}
 
-	if (count == src->inFlatNodes.size())//¸Ã½ÚµãµÄÃ¿¸öÊäÈë½Úµã¶¼ÒÑ±»´¦ÀíÁË
+	if (count == src->inFlatNodes.size())//è¯¥èŠ‚ç‚¹çš„æ¯ä¸ªè¾“å…¥èŠ‚ç‚¹éƒ½å·²è¢«å¤„ç†äº†
 	{
 		select_state = 1;
 		return true;
@@ -61,11 +61,11 @@ bool TDOBPartition::FirstPhasePartition(SchedulerSSG *sssg)
 		std::vector<FlatNode *> groups;
 		for (int ki = 0; ki < tmpFlatNodes.size(); ++ki)
 		{
-			if (processed_flatnode[ki] == 0)//Î´´¦Àí
+			if (processed_flatnode[ki] == 0)//æœªå¤„ç†
 				groups.push_back(tmpFlatNodes[ki]);
 		}
 
-		if (place == (CpuCoreNum-1)) // ×îºóÒ»¸öplace
+		if (place == (CpuCoreNum-1)) // æœ€åä¸€ä¸ªplace
 		{
 			for (int ki = 0; ki < groups.size(); ++ki)
 			{
@@ -76,12 +76,12 @@ bool TDOBPartition::FirstPhasePartition(SchedulerSSG *sssg)
 			continue;
 		}
 
-		//ÕÒµ½ÍØÆËÅÅĞòµÄ¶¥¶Ë½Úµã
+		//æ‰¾åˆ°æ‹“æ‰‘æ’åºçš„é¡¶ç«¯èŠ‚ç‚¹
 		FlatNode *top = FindTopFlatnode(groups);
 
 		if (top != NULL)
 		{
-			double current_work = 0;//½Úµã¼¯ºÏµÄµ±Ç°¹¤×÷Á¿
+			double current_work = 0;//èŠ‚ç‚¹é›†åˆçš„å½“å‰å·¥ä½œé‡
 			std::list<FlatNode *> tmp_list;
 			tmp_list.push_back(top);
 			current_work += top->work_estimate;
@@ -108,7 +108,7 @@ bool TDOBPartition::FirstPhasePartition(SchedulerSSG *sssg)
 						groups.clear();
 						for (int ki = 0; ki < tmpFlatNodes.size(); ++ki)
 						{
-							if (processed_flatnode[ki] == 0)//Î´´¦Àí
+							if (processed_flatnode[ki] == 0)//æœªå¤„ç†
 								groups.push_back(tmpFlatNodes[ki]);
 						}
 						top = FindTopFlatnode(groups);
@@ -138,11 +138,11 @@ bool TDOBPartition::SecondPhasePartiton(SchedulerSSG *sssg, const std::vector<Fl
 		std::vector<FlatNode *> groups;
 		for (int ki = 0; ki < src.size(); ++ki)
 		{
-			if (processed_flatnode[src[ki]->num] == 0)//Î´´¦Àí
+			if (processed_flatnode[src[ki]->num] == 0)//æœªå¤„ç†
 				groups.push_back(src[ki]);
 		}
 
-		if (thread == (NThreads-1)) // ×îºóÒ»¸öplace
+		if (thread == (NThreads-1)) // æœ€åä¸€ä¸ªplace
 		{
 			for (int ki = 0; ki < groups.size(); ++ki)
 			{
@@ -152,12 +152,12 @@ bool TDOBPartition::SecondPhasePartiton(SchedulerSSG *sssg, const std::vector<Fl
 			continue;
 		}
 
-		//ÕÒµ½ÍØÆËÅÅĞòµÄ¶¥¶Ë½Úµã
+		//æ‰¾åˆ°æ‹“æ‰‘æ’åºçš„é¡¶ç«¯èŠ‚ç‚¹
 		FlatNode *top = FindTopFlatnode(groups);
 
 		if (top != NULL)
 		{
-			double current_work = 0;//½Úµã¼¯ºÏµÄµ±Ç°¹¤×÷Á¿
+			double current_work = 0;//èŠ‚ç‚¹é›†åˆçš„å½“å‰å·¥ä½œé‡
 			std::list<FlatNode *> tmp_list;
 			tmp_list.push_back(top);
  			processed_flatnode[top->num] = 1;
@@ -182,7 +182,7 @@ bool TDOBPartition::SecondPhasePartiton(SchedulerSSG *sssg, const std::vector<Fl
 						groups.clear();
 						for (int ki = 0; ki < src.size(); ++ki)
 						{
-							if (processed_flatnode[src[ki]->num] == 0)//Î´´¦Àí
+							if (processed_flatnode[src[ki]->num] == 0)//æœªå¤„ç†
 								groups.push_back(src[ki]);
 						}
 						top = FindTopFlatnode(groups);
@@ -215,7 +215,7 @@ void TDOBPartition::SssgPartition(SchedulerSSG *sssg, int level)
 		total_work = sssg->total_work;
 		FirstPhasePartition(sssg);
 
-#if 1 //´òÓ¡Í¼
+#if 1 //æ‰“å°å›¾
 		//DumpStreamGraph(sssg,this,"TDOBPartitionGraph-1.dot", NULL);
 #endif
 		
@@ -231,7 +231,7 @@ void TDOBPartition::SssgPartition(SchedulerSSG *sssg, int level)
 			SecondPhasePartiton(sssg, src);
 		}
 
-#if 1 //´òÓ¡Í¼
+#if 1 //æ‰“å°å›¾
 		//DumpStreamGraph(sssg,this,"TDOBPartitionGraph-2.dot", NULL);
 #endif
 	}

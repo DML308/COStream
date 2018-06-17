@@ -13,8 +13,8 @@ public:
 	bool FirstPhasePartition(SchedulerSSG *sssg);
 	bool SecondPhasePartiton(SchedulerSSG *sssg, const std::vector<FlatNode *> &);
 private:
-	//×Ô¶¥ÏòÏÂ¸ºÔØ¾ùºâ»®·ÖËã·¨(TDOB£©ÓÃµ½µÄ³ÉÔ±±äÁ¿
-	double total_work;//×ÜµÄ¹¤×÷Á¿
+	//è‡ªé¡¶å‘ä¸‹è´Ÿè½½å‡è¡¡åˆ’åˆ†ç®—æ³•(TDOBï¼‰ç”¨åˆ°çš„æˆå‘˜å˜é‡
+	double total_work;//æ€»çš„å·¥ä½œé‡
 	int total_node;
 };
 

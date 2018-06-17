@@ -11,35 +11,35 @@ using namespace std;
 class HorizontalFusionSSG
 {
 public:
-	HorizontalFusionSSG(SchedulerSSG *sssg,int clusterNum);//¹¹Ôìº¯Êı
-	void selectFusingSSG();//¶ÔÕû¸össg×öÈÚºÏ
-	~HorizontalFusionSSG();//Îö¹¹º¯Êı
+	HorizontalFusionSSG(SchedulerSSG *sssg,int clusterNum);//æ„é€ å‡½æ•°
+	void selectFusingSSG();//å¯¹æ•´ä¸ªssgåšèåˆ
+	~HorizontalFusionSSG();//ææ„å‡½æ•°
 	SchedulerSSG *hfsssg;
 private:
 
-	vector<FlatNode *> TopoSortFilter();//+¶ÔSDFÍ¼ÖĞµÄËùÓĞ½Úµã×öÒ»¸öÍØÆËÅÅĞò
+	vector<FlatNode *> TopoSortFilter();//+å¯¹SDFå›¾ä¸­çš„æ‰€æœ‰èŠ‚ç‚¹åšä¸€ä¸ªæ‹“æ‰‘æ’åº
 	void collectFusionFlatNodesInfo(vector<FlatNode *>);
-	void addCandidateFusionFlatNodes(vector<vector<FlatNode *> >flatNodes);//´ÓsssgÍ¼ÖĞÕÒÄÜ¹»±»ÈÚºÏµÄ½Úµã£¬×îÖÕ½á¹û·ÅÔÚprority2candidateFlatNodesÖĞ
+	void addCandidateFusionFlatNodes(vector<vector<FlatNode *> >flatNodes);//ä»sssgå›¾ä¸­æ‰¾èƒ½å¤Ÿè¢«èåˆçš„èŠ‚ç‚¹ï¼Œæœ€ç»ˆç»“æœæ”¾åœ¨prority2candidateFlatNodesä¸­
 
 
-	Bool detectHorizontalFusionEligible(FlatNode *flatNode);//¼ì²âÒ»¸öflatNode½ÚµãÄÜ·ñ±»ÈÚºÏ
+	Bool detectHorizontalFusionEligible(FlatNode *flatNode);//æ£€æµ‹ä¸€ä¸ªflatNodeèŠ‚ç‚¹èƒ½å¦è¢«èåˆ
 
-	void initMetisPartitionParamiter(vector<FlatNode *>);//¸ù¾İÈÚºÏµÄ½á¹ûÉè¶¨metis»®·ÖËùĞèµÄ²ÎÊı
-	void updateMetisPartitionParamiter();//¸ù¾İÈÚºÏµÄ½á¹û¸üĞÂmetis»®·ÖµÄ²ÎÊı
-	void backupPartitionInfo();//ÔÚ¸üĞÂÓĞ¹Ø²ÎÊıµÄĞÅÏ¢Ç°ÏÈ×ö±¸·İ
+	void initMetisPartitionParamiter(vector<FlatNode *>);//æ ¹æ®èåˆçš„ç»“æœè®¾å®šmetisåˆ’åˆ†æ‰€éœ€çš„å‚æ•°
+	void updateMetisPartitionParamiter();//æ ¹æ®èåˆçš„ç»“æœæ›´æ–°metisåˆ’åˆ†çš„å‚æ•°
+	void backupPartitionInfo();//åœ¨æ›´æ–°æœ‰å…³å‚æ•°çš„ä¿¡æ¯å‰å…ˆåšå¤‡ä»½
 
-	void partitionSSG();//ÎªÁËÈ·¶¨ÈÚºÏµÄ¶È¶ÔSSG×ö»®·Ö£¨±¾³ÌĞò²ÉÓÃmetis»®·Ö£©
+	void partitionSSG();//ä¸ºäº†ç¡®å®šèåˆçš„åº¦å¯¹SSGåšåˆ’åˆ†ï¼ˆæœ¬ç¨‹åºé‡‡ç”¨metisåˆ’åˆ†ï¼‰
 
-	int findMaxPartitionWeight();//ÕÒ»®·Ö½á¹ûÖĞÈ¨Öµ£¨¹¤×÷Á¿£©×î´óµÄ»®·ÖµÄ¹¤×÷Á¿
+	int findMaxPartitionWeight();//æ‰¾åˆ’åˆ†ç»“æœä¸­æƒå€¼ï¼ˆå·¥ä½œé‡ï¼‰æœ€å¤§çš„åˆ’åˆ†çš„å·¥ä½œé‡
 
 
 
-	void selectFusionFlatNodes(int num);//Ñ¡Ôñ½«Òª±»ÈÚºÏµÄ½Úµã
-	//void updateCandidateFusionFlatNodes();//¸üĞÂºòÑ¡¼¯
-	void fusingFlatNodes(vector<FlatNode *> flatNodes);//½«flatNotesÖĞµÄ½Úµã×öË®Æ½ÈÚºÏ
-	void undoSelectFusionFlatNode();//³·ÏúÈÚºÏ²Ù×÷
+	void selectFusionFlatNodes(int num);//é€‰æ‹©å°†è¦è¢«èåˆçš„èŠ‚ç‚¹
+	//void updateCandidateFusionFlatNodes();//æ›´æ–°å€™é€‰é›†
+	void fusingFlatNodes(vector<FlatNode *> flatNodes);//å°†flatNotesä¸­çš„èŠ‚ç‚¹åšæ°´å¹³èåˆ
+	void undoSelectFusionFlatNode();//æ’¤é”€èåˆæ“ä½œ
 
-	//Õë¶Ô´ı½ÚµãµÄ²»Í¬£¬×ö²»Í¬µÄÈÚºÏ²Ù×÷
+	//é’ˆå¯¹å¾…èŠ‚ç‚¹çš„ä¸åŒï¼Œåšä¸åŒçš„èåˆæ“ä½œ
 	void fusingFlatNodesCommon(vector<FlatNode *> flatNodes);
 	void fusingFlatNodesJoin(FlatNode *joinflatNode,vector<FlatNode *> flatNodes);
 	void fusingFlatNodesSplit(FlatNode *splitflatNode,vector<FlatNode *> flatNodes);
@@ -49,55 +49,55 @@ private:
 	vector<operatorNode *> fusionFlatNodesSplitJoin_FSMJ(FlatNode *splitflatNode,FlatNode *joinflatNode,vector<FlatNode *> flatNodes);//_ Fuse Split Modify Join
 	vector<operatorNode *> fusionFlatNodesSplitJoin_MSMJ(FlatNode *splitflatNode,FlatNode *joinflatNode,vector<FlatNode *> flatNodes);//_ Modify Split Modify Join
 
-	Node *makeHFusionJoin(List *joinInputList, List *joinPopArg, Node *joinOutputNode, Node *joinPushArg);//¹¹Ôìjoin operator
-	Node *makeHFusionSplit(Node *splitInputNode,Node *splitPopArg,List *splitOutputList, List *splitPushArg, SplitStyle style);//¹¹Ôìsplit operator
+	Node *makeHFusionJoin(List *joinInputList, List *joinPopArg, Node *joinOutputNode, Node *joinPushArg);//æ„é€ join operator
+	Node *makeHFusionSplit(Node *splitInputNode,Node *splitPopArg,List *splitOutputList, List *splitPushArg, SplitStyle style);//æ„é€ split operator
 
-	//×¢£º×öwindowµÄº¯Êı¿ÉÒÔÍ³Ò»³ÉÒ»¸öº¯Êı
+	//æ³¨ï¼šåšwindowçš„å‡½æ•°å¯ä»¥ç»Ÿä¸€æˆä¸€ä¸ªå‡½æ•°
 	Node *MakeWindowNode(Node *id,Node *decl, Node *count, int style);
-	List *makeHFusionJoinWindow(List *inputList,List *outputList,List *pop_arg, Node *pushArg);//¹¹ÔìjoinµÄwindow
+	List *makeHFusionJoinWindow(List *inputList,List *outputList,List *pop_arg, Node *pushArg);//æ„é€ joinçš„window
 	List *makeHFusionRoundRobinWindow(List *inputList,List *outputList,List *push_arg, Node *popArg);
 	List *makeHFusionDuplicateWindow(List *inputList,List *outputList,Node *pop_value);
 	List *makeHFusionSInSOutWindow(Node *inputNode,Node *outputNode,int popValue,int peekValue,int pushValue);
 
-	//×ö½Úµã¼äµÄÈÚºÏ
+	//åšèŠ‚ç‚¹é—´çš„èåˆ
 	Node *fusingNodes(vector<FlatNode *>flatNodes,Node *inputNode,Node *outputNode);
-	Node *fusingOperators(vector<operatorNode *>operNodes, int popvalue,int pushvalue);//½«×ª»»ºóµÄoperator½ÚµãÈÚºÏµ½Ò»Æğ
-	void commonOperatorTransform(operatorNode *operNode,int popvalue, int pushvalue,Node *inputStream,Node *output,int popOffset,int pushOffset,int steadyCount,int index);//ĞŞ¸ÄÆÕÍ¨µÄoperatorµÄÄÚÈİ£¨ÊäÈëÊä³ö±ß£¬ÒÔ¼°¹¹Ôì×îĞ¡ÎÈ¶¨µÄµü´úÑ­»·£¬ĞŞ¸ÄÊı¾İ·ÃÎÊµÄÆ«ÒÆÖµ£©
+	Node *fusingOperators(vector<operatorNode *>operNodes, int popvalue,int pushvalue);//å°†è½¬æ¢åçš„operatorèŠ‚ç‚¹èåˆåˆ°ä¸€èµ·
+	void commonOperatorTransform(operatorNode *operNode,int popvalue, int pushvalue,Node *inputStream,Node *output,int popOffset,int pushOffset,int steadyCount,int index);//ä¿®æ”¹æ™®é€šçš„operatorçš„å†…å®¹ï¼ˆè¾“å…¥è¾“å‡ºè¾¹ï¼Œä»¥åŠæ„é€ æœ€å°ç¨³å®šçš„è¿­ä»£å¾ªç¯ï¼Œä¿®æ”¹æ•°æ®è®¿é—®çš„åç§»å€¼ï¼‰
 	void MWIOS_astwalk(Node *n,Node *oldInputDecl,Node *oldOutputDecl,Node *newInputDecl,Node *newOutputDecl,Node *iterNode,int pushvalue,int popvalue,int pushOffset,int popOffset);
 	void MWIOS_List(List *l,Node *oldInputDecl,Node *oldOutputDecl,Node *newInputDecl,Node *newOutputDecl,Node *iterNode,int pushvalue,int popvalue,int pushOffset,int popOffset);
 	vector<FlatNode *> replaceHfusionFlatNodes(vector<FlatNode *>oldFlatNodes,vector<operatorNode *>newNodes);
 	void InsertExternalOutputStreamToSSG(FlatNode *flatNode);
 
-	Node *reorderFusionJoinNode(Node *operNode,FlatNode *joinFlatNode,vector<FlatNode *> flatNodes);//¸ù¾İflatNodesÓëjoinµÄ¹ØÏµ£¬½«¸ù¾İflatNodesÈÚºÏµÃµ½µÄoperNodeµÄÊä³ö±ßµÄÊı¾İ½øĞĞÖØÅÅĞò
-	Node *reorderFusionSplitNode(Node *operNode,FlatNode *splitFlatNode,vector<FlatNode *> flatNodes);//¸ù¾İflatNodesÓësplitµÄ¹ØÏµ£¬½«¸ù¾İflatNodesÈÚºÏµÃµ½µÄoperNodeµÄÊä³ö±ßµÄÊı¾İ½øĞĞÖØÅÅĞò
+	Node *reorderFusionJoinNode(Node *operNode,FlatNode *joinFlatNode,vector<FlatNode *> flatNodes);//æ ¹æ®flatNodesä¸joinçš„å…³ç³»ï¼Œå°†æ ¹æ®flatNodesèåˆå¾—åˆ°çš„operNodeçš„è¾“å‡ºè¾¹çš„æ•°æ®è¿›è¡Œé‡æ’åº
+	Node *reorderFusionSplitNode(Node *operNode,FlatNode *splitFlatNode,vector<FlatNode *> flatNodes);//æ ¹æ®flatNodesä¸splitçš„å…³ç³»ï¼Œå°†æ ¹æ®flatNodesèåˆå¾—åˆ°çš„operNodeçš„è¾“å‡ºè¾¹çš„æ•°æ®è¿›è¡Œé‡æ’åº
 
 private:
-	int partitionNum;//×îÖÕSDFÍ¼Òª±»»®·ÖµÄ·İÊı
-	map<FlatNode *,int> _sjflatNode2smallSteadyCount;//¼ÇÂ¼½ÚµãµÄ×îĞ¡ÎÈ¶¨×´Ì¬´ÎÊı
-	multimap<int ,vector<FlatNode *> > priority2candidateFlatNodes;//ÓÅÏÈ¼¶ÓëºòÑ¡½Úµã¼¯µÄmap£¨ÓÅÏÈ¼¶¿¼ÂÇµÄÒòËØÖ÷ÒªÊÇsplitjoinµÄÇ¶Ì×¹ØÏµ£¬ÒÔ¼°½ÚµãµÄ¹¤×÷Á¿£©
-	map<FlatNode *, int >FlatNode2No;//flatNodeÓë½Úµã±àºÅÖ®¼äµÄmap
-	vector<vector<FlatNode *> > fusingNo2FlatNodes;//½ÚµãÈÚºÏµÄ´ÎĞòÓë¸Ã±àºÅÏÂĞèÒª±»ÈÚºÏ½ÚµãµÄ±àºÅ
-	map<int, vector<FlatNode *> > curFusingNo2FlatNodes;//ÓÃÓÚÁÙÊ±´æ´¢µÄĞÂµÄÈÚºÏ½ÚµãÒÔ¼°±àºÅ£¬ÔÚ³·ÏúÈÚºÏÊÇĞèÒªÓÃµ½
-	map<int,int>flatNodeOldNo2NewNo;//£¨ÎªÁË·½±ã¸üĞÂÈÚºÏ½Úµã£©flatNode½ÚµãµÄ¾É±àºÅÓëĞÂ±àºÅÖ®¼äµÄmap
-	multimap<int,int>flatNodeNewNo2OldNo;//£¨ÎªÁË·½±ã³·ÏúÈÚºÏ²Ù×÷£©flatNode½ÚµãµÄĞÂ±àºÅÓë¾É±àºÅÖ®¼äµÄmap
-	//++++++++++++++++++++++metis ÒÔ¼°³·ÏúÈÚºÏÓÃµ½µÄÒ»Ğ©ĞÅÏ¢++++++++++++
-	//Ê¹ÓÃmetisÒªÓÃµ½µÄÒ»Ğ©²ÎÊı
-	int edgenum;//Í¼ÖĞ±ßµÄÊıÄ¿
-	int nvtxs;//Í¼µÄµ±Ç°½ÚµãµÄÊıÄ¿
+	int partitionNum;//æœ€ç»ˆSDFå›¾è¦è¢«åˆ’åˆ†çš„ä»½æ•°
+	map<FlatNode *,int> _sjflatNode2smallSteadyCount;//è®°å½•èŠ‚ç‚¹çš„æœ€å°ç¨³å®šçŠ¶æ€æ¬¡æ•°
+	multimap<int ,vector<FlatNode *> > priority2candidateFlatNodes;//ä¼˜å…ˆçº§ä¸å€™é€‰èŠ‚ç‚¹é›†çš„mapï¼ˆä¼˜å…ˆçº§è€ƒè™‘çš„å› ç´ ä¸»è¦æ˜¯splitjoinçš„åµŒå¥—å…³ç³»ï¼Œä»¥åŠèŠ‚ç‚¹çš„å·¥ä½œé‡ï¼‰
+	map<FlatNode *, int >FlatNode2No;//flatNodeä¸èŠ‚ç‚¹ç¼–å·ä¹‹é—´çš„map
+	vector<vector<FlatNode *> > fusingNo2FlatNodes;//èŠ‚ç‚¹èåˆçš„æ¬¡åºä¸è¯¥ç¼–å·ä¸‹éœ€è¦è¢«èåˆèŠ‚ç‚¹çš„ç¼–å·
+	map<int, vector<FlatNode *> > curFusingNo2FlatNodes;//ç”¨äºä¸´æ—¶å­˜å‚¨çš„æ–°çš„èåˆèŠ‚ç‚¹ä»¥åŠç¼–å·ï¼Œåœ¨æ’¤é”€èåˆæ˜¯éœ€è¦ç”¨åˆ°
+	map<int,int>flatNodeOldNo2NewNo;//ï¼ˆä¸ºäº†æ–¹ä¾¿æ›´æ–°èåˆèŠ‚ç‚¹ï¼‰flatNodeèŠ‚ç‚¹çš„æ—§ç¼–å·ä¸æ–°ç¼–å·ä¹‹é—´çš„map
+	multimap<int,int>flatNodeNewNo2OldNo;//ï¼ˆä¸ºäº†æ–¹ä¾¿æ’¤é”€èåˆæ“ä½œï¼‰flatNodeèŠ‚ç‚¹çš„æ–°ç¼–å·ä¸æ—§ç¼–å·ä¹‹é—´çš„map
+	//++++++++++++++++++++++metis ä»¥åŠæ’¤é”€èåˆç”¨åˆ°çš„ä¸€äº›ä¿¡æ¯++++++++++++
+	//ä½¿ç”¨metisè¦ç”¨åˆ°çš„ä¸€äº›å‚æ•°
+	int edgenum;//å›¾ä¸­è¾¹çš„æ•°ç›®
+	int nvtxs;//å›¾çš„å½“å‰èŠ‚ç‚¹çš„æ•°ç›®
 	int *xadj;
-	int *adjncy;//xadj,adjncy´æ·Å½ÚµãµÄÒÀÀµ¹ØÏµ
-	int *vwgt;//½ÚµãµÄ¹¤×÷Á¿(ÎÈÌ¬´ÎÊı*workº¯ÊıµÄ¹¤×÷Á¿)
-	int *vsize;//½ÚµãµÄÍ¨ĞÅÊı¾İÁ¿
-	int *mpart;//»®·ÖµÄ½á¹û·ÅÔÚmpartÖĞ
+	int *adjncy;//xadj,adjncyå­˜æ”¾èŠ‚ç‚¹çš„ä¾èµ–å…³ç³»
+	int *vwgt;//èŠ‚ç‚¹çš„å·¥ä½œé‡(ç¨³æ€æ¬¡æ•°*workå‡½æ•°çš„å·¥ä½œé‡)
+	int *vsize;//èŠ‚ç‚¹çš„é€šä¿¡æ•°æ®é‡
+	int *mpart;//åˆ’åˆ†çš„ç»“æœæ”¾åœ¨mpartä¸­
 
-	//±¸·İmetisÓÃµ½µÄÒ»Ğ©²ÎÊı
-	int bak_nvtxs;//Í¼µÄ¶¥µãÊıÄ¿
-	int bak_edgenum;//Í¼ÖĞ±ßµÄÊıÄ¿
+	//å¤‡ä»½metisç”¨åˆ°çš„ä¸€äº›å‚æ•°
+	int bak_nvtxs;//å›¾çš„é¡¶ç‚¹æ•°ç›®
+	int bak_edgenum;//å›¾ä¸­è¾¹çš„æ•°ç›®
 	int *bak_xadj;
-	int *bak_adjncy;//xadj,adjncy´æ·Å½ÚµãµÄÒÀÀµ¹ØÏµ
-	int *bak_vwgt;//½ÚµãµÄ¹¤×÷Á¿(ÎÈÌ¬´ÎÊı*workº¯ÊıµÄ¹¤×÷Á¿)
-	int *bak_vsize;//½ÚµãµÄÍ¨ĞÅÊı¾İÁ¿
-	map<int,int>bak_flatNodeOldNo2NewNo;//±¸·İ½ÚµãµÄ±àºÅ
+	int *bak_adjncy;//xadj,adjncyå­˜æ”¾èŠ‚ç‚¹çš„ä¾èµ–å…³ç³»
+	int *bak_vwgt;//èŠ‚ç‚¹çš„å·¥ä½œé‡(ç¨³æ€æ¬¡æ•°*workå‡½æ•°çš„å·¥ä½œé‡)
+	int *bak_vsize;//èŠ‚ç‚¹çš„é€šä¿¡æ•°æ®é‡
+	map<int,int>bak_flatNodeOldNo2NewNo;//å¤‡ä»½èŠ‚ç‚¹çš„ç¼–å·
 	map<FlatNode *, int >bak_FlatNode2No;
 };
 

@@ -12,25 +12,25 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 		{
 			if (!DetectiveActorState(sssg->GetFlatNodes()[i])&& (UporDownStatelessNode(sssg->GetFlatNodes()[i]) != 3))
 			{
-				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 				PartitonNum2FlatNode.insert(make_pair(0,sssg->GetFlatNodes()[i]));
 				sssg->GetFlatNodes()[i]->GPUPart = 0;
 			}
 			else
 			{
-				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],1));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],1));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 				PartitonNum2FlatNode.insert(make_pair(1,sssg->GetFlatNodes()[i]));
 				sssg->GetFlatNodes()[i]->GPUPart = 1;
 			}
 		}
 
-#if 1 //´òÓ¡Í¼
+#if 1 //æ‰“å°å›¾
         //DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);
 #endif
 	}
 	else
 	{
-		//±éÀúÕÒ³öËùÓĞGPU½Úµã
+		//éå†æ‰¾å‡ºæ‰€æœ‰GPUèŠ‚ç‚¹
 		for (int i = 0; i < nvtxs; i++)
 		{
 			if (!DetectiveActorState(sssg->GetFlatNodes()[i]) && (UporDownStatelessNode(sssg->GetFlatNodes()[i]) != 3))
@@ -46,16 +46,16 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			}
 		}
 
-		//³õÊ¼»¯
-		vector<int>EachPartComputing(this->mnparts,0);//¶¯Ì¬¶¨ÒåÊı×é,»®·Öµ½Ã¿¸öGPUÉÏµÄËùÓĞ½ÚµãµÄ×Ü¼ÆËãÁ¿
-		vector<int>NodeComputingValue(GPUNodes.size(),0); //Ã¿¸ö½ÚµãÔÚGPUÏÂµÄ¼ÆËãÁ¿
-		vector<int>EachPartComm(this->mnparts,0); //Ã¿¸öGPUµÄÍ¨ĞÅÁ¿
+		//åˆå§‹åŒ–
+		vector<int>EachPartComputing(this->mnparts,0);//åŠ¨æ€å®šä¹‰æ•°ç»„,åˆ’åˆ†åˆ°æ¯ä¸ªGPUä¸Šçš„æ‰€æœ‰èŠ‚ç‚¹çš„æ€»è®¡ç®—é‡
+		vector<int>NodeComputingValue(GPUNodes.size(),0); //æ¯ä¸ªèŠ‚ç‚¹åœ¨GPUä¸‹çš„è®¡ç®—é‡
+		vector<int>EachPartComm(this->mnparts,0); //æ¯ä¸ªGPUçš„é€šä¿¡é‡
 		TotalComputing = 0;
 		PartEdgeValue = 0;
 		map<FlatNode *, int>::iterator iter2;
 		map<FlatNode *, int> tmp = sssg->GetSteadyWorkMap();
 
-		//¼ÆËãGPU×ÜµÄ¼ÆËãÁ¿
+		//è®¡ç®—GPUæ€»çš„è®¡ç®—é‡
 		int i = 0;
 		vector<FlatNode*>::iterator iter, iter1;
 		for (iter = GPUNodes.begin(); iter != GPUNodes.end(); ++iter)
@@ -77,8 +77,8 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 		}
 		AvgComputing = TotalComputing / this->mnparts;
 
-		//½«GPU½Úµã»®·Ö³ÉNplaces·İ
-		int parts = 0; //±ê×¢»®·Ö
+		//å°†GPUèŠ‚ç‚¹åˆ’åˆ†æˆNplacesä»½
+		int parts = 0; //æ ‡æ³¨åˆ’åˆ†
 		for (int i = 0; i < GPUNodes.size(); i++)
 		{
 			if (parts == (this->mnparts - 1))
@@ -102,17 +102,17 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			
 		}
 
-		//¶Ô³õÊ¼»®·Ö×öÏ¸Î¢µ÷Õû£¬È»ºóÔÙ½øÒ»²½×ö±ß½çµãµÄµ÷Õû
+		//å¯¹åˆå§‹åˆ’åˆ†åšç»†å¾®è°ƒæ•´ï¼Œç„¶åå†è¿›ä¸€æ­¥åšè¾¹ç•Œç‚¹çš„è°ƒæ•´
 		for (iter1 = GPUNodes.begin(); iter1 != GPUNodes.end(); ++iter1)
 		{
-			if (UporDownStatelessNode(*iter1) == 1) //¸¸½ÚµãÈ«Îªstateful½Úµã£¬½«Æä×÷Îª±ß½çµã£¬»®·Öµ½ÆäËûGPU
+			if (UporDownStatelessNode(*iter1) == 1) //çˆ¶èŠ‚ç‚¹å…¨ä¸ºstatefulèŠ‚ç‚¹ï¼Œå°†å…¶ä½œä¸ºè¾¹ç•Œç‚¹ï¼Œåˆ’åˆ†åˆ°å…¶ä»–GPU
 			{
 				if ((*iter1)->GPUPart != (*iter1)->outFlatNodes[0]->GPUPart)
 				{
 					(*iter1)->GPUPart = (*iter1)->outFlatNodes[0]->GPUPart;
 				}
 			}
-			else if (UporDownStatelessNode(*iter1) == 2)//×Ó½ÚµãÈ«Îªstateful½Úµã
+			else if (UporDownStatelessNode(*iter1) == 2)//å­èŠ‚ç‚¹å…¨ä¸ºstatefulèŠ‚ç‚¹
 			{
 				if ((*iter1)->GPUPart !=(*iter1)->inFlatNodes[(*iter1)->nIn - 1]->GPUPart)
 				{
@@ -121,7 +121,7 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			}
 		}
 
-		//±ê×¢±ß½ç½Úµã
+		//æ ‡æ³¨è¾¹ç•ŒèŠ‚ç‚¹
 		for(iter = sssg->flatNodes.begin(); iter != sssg->flatNodes.end(); ++iter)
 		{
 			if ((*iter)->nOut != 0)
@@ -137,7 +137,7 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			}
 		}	
 		
-		//¼ÆËã±ßÖµ
+		//è®¡ç®—è¾¹å€¼
 		for (iter = sssg->flatNodes.begin(); iter != sssg->flatNodes.end(); ++iter)
 		{
 			if ((*iter)->nOut != 0 && (*iter)->BorderFlag == true)
@@ -161,8 +161,8 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			}
 		}
 		
-		//µ÷Õû±ß½ç½Úµã£¬Ê¹Í¨ĞÅÁ¿×îÉÙ
-		int TempEdgeValue;  //Ôİ´æ±ßÖµ
+		//è°ƒæ•´è¾¹ç•ŒèŠ‚ç‚¹ï¼Œä½¿é€šä¿¡é‡æœ€å°‘
+		int TempEdgeValue;  //æš‚å­˜è¾¹å€¼
 		for (int i = 0; i <= this->mnparts; i++)
 		{
 			if(i == this->mnparts)
@@ -180,10 +180,10 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			}	
 		}
 
-		//µÃµ½×îÖÕ»®·Ö½á¹û
+		//å¾—åˆ°æœ€ç»ˆåˆ’åˆ†ç»“æœ
 		for (int i=0;i<nvtxs;i++)
 		{
-			FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],sssg->GetFlatNodes()[i]->GPUPart));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+			FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],sssg->GetFlatNodes()[i]->GPUPart));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 			PartitonNum2FlatNode.insert(make_pair(sssg->GetFlatNodes()[i]->GPUPart,sssg->GetFlatNodes()[i]));
 		}
 		for (int i=0;i<nvtxs;i++)
@@ -191,7 +191,7 @@ void GPUClusterPartition::SssgPartition(SchedulerSSG *sssg,int level)
 			cout<<sssg->GetFlatNodes()[i]->name<<" "<<FlatNode2PartitionNum[sssg->GetFlatNodes()[i]]<<endl;
 		}
 
-#if 1 //´òÓ¡Í¼
+#if 1 //æ‰“å°å›¾
         //DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);
 #endif
 	}

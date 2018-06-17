@@ -11,10 +11,10 @@ GLOBAL List *MakeFieldList(List *fieldsList)
 		Node *field_type;
 		TypeQual field_sc ;
 		assert(field->typ == Decl);
-		field_decl = &(field->u.decl); //È¡³ö½á¹¹ÌåÖĞµÄÃ¿¸ö³ÉÔ±µÄ¶¨Òå
+		field_decl = &(field->u.decl); //å–å‡ºç»“æ„ä½“ä¸­çš„æ¯ä¸ªæˆå‘˜çš„å®šä¹‰
 		field_type = NodeDataType(field_decl->type);
 		if(field_decl->type->typ == Tdef)
-		{  //½á¹¹Ìå³ÉÔ±ÖĞÓĞtdef¶¨ÒåµÄÀàĞÍ
+		{  //ç»“æ„ä½“æˆå‘˜ä¸­æœ‰tdefå®šä¹‰çš„ç±»å‹
 			constSUEFieldNode *sueFieldNode = HeapNew(constSUEFieldNode);
 			constSUEid* field_Sid = MakeTdefNode(field);
 			sueFieldNode->sutyp = SUE_Id;
@@ -57,7 +57,7 @@ GLOBAL List *MakeFieldList(List *fieldsList)
 
 		}
 		else if(field_decl->type->typ == Adcl)
-		{//½á¹¹ÌåµÄ³ÉÔ±²»ÔÊĞíÊÇÊı×é £¬¸Ã·ÖÖ§²»Ö´ĞĞ
+		{//ç»“æ„ä½“çš„æˆå‘˜ä¸å…è®¸æ˜¯æ•°ç»„ ï¼Œè¯¥åˆ†æ”¯ä¸æ‰§è¡Œ
 			Node *tmptype= field_decl->type;
 			int dim=0;
 			int i=0;
@@ -72,11 +72,11 @@ GLOBAL List *MakeFieldList(List *fieldsList)
 			i=0;
 			while(tmptype->typ == Adcl)	
 			{
-				lenPerDim[i++] = CheckAdcl(tmptype);//¼ì²é¸÷Î¬µÄ³¤¶È£¬·µ»Ø¸÷Î¬³¤¶ÈµÄÖµ
+				lenPerDim[i++] = CheckAdcl(tmptype);//æ£€æŸ¥å„ç»´çš„é•¿åº¦ï¼Œè¿”å›å„ç»´é•¿åº¦çš„å€¼
 				tmptype = tmptype->u.adcl.type;
 			}
 			if(tmptype->typ==Tdef)
-			{  ; //ÔİÎ´´¦Àí
+			{  ; //æš‚æœªå¤„ç†
 
 			}
 			else if(tmptype->typ == Prim)
@@ -104,7 +104,7 @@ GLOBAL List *MakeFieldList(List *fieldsList)
 				newfield = AppendItem(newfield , sueFieldNode);
 			}
 			else if(tmptype->typ == Edcl)
-			{  ;//Ò»°ã²»»á³öÏÖ ,Ôİ²»´¦Àí
+			{  ;//ä¸€èˆ¬ä¸ä¼šå‡ºç° ,æš‚ä¸å¤„ç†
 			}			
 		} 		
 	}
@@ -113,9 +113,9 @@ GLOBAL List *MakeFieldList(List *fieldsList)
 }
 
 GLOBAL constSUEid* MakeStructNode(Node *node)
-{  //´¦Àí½á¹¹Ìå
+{  //å¤„ç†ç»“æ„ä½“
 	constSUEid *SUEidnode = HeapNew(constSUEid);
-	Node *type = node->u.decl.type;	 //½á¹¹ÌåµÄÀàĞÍ
+	Node *type = node->u.decl.type;	 //ç»“æ„ä½“çš„ç±»å‹
 	assert(node && type->typ==Sdcl);
 	SUEidnode->decl = node;
 	SUEidnode->SUEfields = MakeFieldList(type->u.sdcl.type->fields);
@@ -123,8 +123,8 @@ GLOBAL constSUEid* MakeStructNode(Node *node)
 }
 
 GLOBAL constSUEid *MakeTdefNode(Node *node)
-{//tdefºóµÄÀàĞÍÔİÊ±Ö»¿¼ÂÇSdcl  ,ÆäËûÔİ²»´¦Àí
-	Node *decl = NULL;   //¼ÇÂ¼tdefËùÖ¸µÄ½á¹¹ËûµÄsdcl
+{//tdefåçš„ç±»å‹æš‚æ—¶åªè€ƒè™‘Sdcl  ,å…¶ä»–æš‚ä¸å¤„ç†
+	Node *decl = NULL;   //è®°å½•tdefæ‰€æŒ‡çš„ç»“æ„ä»–çš„sdcl
 	Node *tdeftype = NULL;
 	constSUEid *SUEidnode = HeapNew(constSUEid);
 	assert(node->u.decl.type->typ== Tdef);
@@ -141,7 +141,7 @@ GLOBAL constSUEid *MakeTdefNode(Node *node)
 }
 
 GLOBAL constSUEid* MakeUnionNode(Node *node)
-{  //´¦Àí¹²ÓÃÌå
+{  //å¤„ç†å…±ç”¨ä½“
 	constSUEid *SUEidnode = HeapNew(constSUEid);
 	Node *type = node->u.decl.type;
 	assert(node && type->typ==Udcl);
@@ -152,7 +152,7 @@ GLOBAL constSUEid* MakeUnionNode(Node *node)
 }
 
 GLOBAL constSUEarray* MakeStructArrayNode(Node *node)
-{  //´¦Àí½á¹¹ÌåÊı×é
+{  //å¤„ç†ç»“æ„ä½“æ•°ç»„
 	constSUEarray *SUEarray = HeapNew(constSUEarray);
 	int dim = 0,i = 0,num=1;
 	Node *tmp_type = node->u.decl.type;	
@@ -160,7 +160,7 @@ GLOBAL constSUEarray* MakeStructArrayNode(Node *node)
 	SUEarray->SUEname = node->u.decl.name;
 	SUEarray->SUEdecl = node;
 	while(tmp_type->typ == Adcl)
-	{//Ñ­»·½áÊøÊÇtmp_typeÖ¸ÏòSdcl
+	{//å¾ªç¯ç»“æŸæ˜¯tmp_typeæŒ‡å‘Sdcl
 		++dim;
 		tmp_type = tmp_type->u.adcl.type;
 	}
@@ -170,7 +170,7 @@ GLOBAL constSUEarray* MakeStructArrayNode(Node *node)
 	i=0;
 	while(tmp_type->typ == Adcl)	
 	{
-		lenPerDim[i++] = CheckAdcl(tmp_type);//¼ì²é¸÷Î¬µÄ³¤¶È£¬·µ»Ø¸÷Î¬³¤¶ÈµÄÖµ
+		lenPerDim[i++] = CheckAdcl(tmp_type);//æ£€æŸ¥å„ç»´çš„é•¿åº¦ï¼Œè¿”å›å„ç»´é•¿åº¦çš„å€¼
 		tmp_type = tmp_type->u.adcl.type;
 	}
 	SUEarray->SUEdimLen = lenPerDim;
@@ -188,7 +188,7 @@ GLOBAL constSUEarray* MakeStructArrayNode(Node *node)
 }
 
 GLOBAL constSUEarray* MakeTdefArrayNode(Node *node)
-{  //´¦Àí½á¹¹ÌåÊı×é
+{  //å¤„ç†ç»“æ„ä½“æ•°ç»„
 	constSUEarray *SUEarray = HeapNew(constSUEarray);
 	int dim = 0,i = 0,num=1;
 	Node *tdeftype=NULL;
@@ -197,7 +197,7 @@ GLOBAL constSUEarray* MakeTdefArrayNode(Node *node)
 	SUEarray->SUEname = node->u.decl.name;
 	SUEarray->SUEdecl = node;
 	while(tmp_type->typ == Adcl)
-	{//Ñ­»·½áÊøÊÇtmp_typeÖ¸ÏòSdcl
+	{//å¾ªç¯ç»“æŸæ˜¯tmp_typeæŒ‡å‘Sdcl
 		++dim;
 		tmp_type = tmp_type->u.adcl.type;
 	}
@@ -207,7 +207,7 @@ GLOBAL constSUEarray* MakeTdefArrayNode(Node *node)
 	i=0;
 	while(tmp_type->typ == Adcl)	
 	{
-		lenPerDim[i++] = CheckAdcl(tmp_type);//¼ì²é¸÷Î¬µÄ³¤¶È£¬·µ»Ø¸÷Î¬³¤¶ÈµÄÖµ
+		lenPerDim[i++] = CheckAdcl(tmp_type);//æ£€æŸ¥å„ç»´çš„é•¿åº¦ï¼Œè¿”å›å„ç»´é•¿åº¦çš„å€¼
 		tmp_type = tmp_type->u.adcl.type;
 	}
 	SUEarray->SUEdimLen = lenPerDim;
@@ -227,7 +227,7 @@ GLOBAL constSUEarray* MakeTdefArrayNode(Node *node)
 }
 
 GLOBAL constSUEarray* MakeUnionArrayNode(Node *node)
-{//´¦Àí¹²ÓÃÌåÊı×é
+{//å¤„ç†å…±ç”¨ä½“æ•°ç»„
 	constSUEarray *SUEarray = HeapNew(constSUEarray);
 	int dim = 0,i = 0,num=1;
 	Node *tmp_type = node->u.decl.type;	
@@ -235,7 +235,7 @@ GLOBAL constSUEarray* MakeUnionArrayNode(Node *node)
 	SUEarray->SUEname = node->u.decl.name;
 	SUEarray->SUEdecl = node;
 	while(tmp_type->typ == Adcl)
-	{//Ñ­»·½áÊøÊÇtmp_typeÖ¸ÏòUdcl
+	{//å¾ªç¯ç»“æŸæ˜¯tmp_typeæŒ‡å‘Udcl
 		++dim;
 		tmp_type = tmp_type->u.adcl.type;
 	}
@@ -244,7 +244,7 @@ GLOBAL constSUEarray* MakeUnionArrayNode(Node *node)
 	i=0;
 	while(tmp_type->typ == Adcl)	
 	{
-		lenPerDim[i++] = CheckAdcl(tmp_type);//¼ì²é¸÷Î¬µÄ³¤¶È£¬·µ»Ø¸÷Î¬³¤¶ÈµÄÖµ
+		lenPerDim[i++] = CheckAdcl(tmp_type);//æ£€æŸ¥å„ç»´çš„é•¿åº¦ï¼Œè¿”å›å„ç»´é•¿åº¦çš„å€¼
 		tmp_type = tmp_type->u.adcl.type;
 	}
 	SUEarray->SUEdimLen = lenPerDim;
@@ -261,17 +261,17 @@ GLOBAL constSUEarray* MakeUnionArrayNode(Node *node)
 }
 
 GLOBAL constSUEid* MakeEnumNode(Node *node)
-{//ÔİÊ±²»´¦Àí
+{//æš‚æ—¶ä¸å¤„ç†
 	return NULL;
 }
 
 GLOBAL constSUEarray* MakeEnumArrayNode(Node *node)
-{//ÔİÊ±²»´¦Àí
+{//æš‚æ—¶ä¸å¤„ç†
 	return NULL;
 }
 
 GLOBAL constSUE* FindSUEtype(SUEtype *suetype,List *SUEflowlist)
-{//´ÓÊı¾İÁ÷ÖĞ²éÕÒtypeÀàĞÍµÄ½Úµã(typeÊÇÒ»ÖÖÀàĞÍµÄ¶¨Òå½Úµã)
+{//ä»æ•°æ®æµä¸­æŸ¥æ‰¾typeç±»å‹çš„èŠ‚ç‚¹(typeæ˜¯ä¸€ç§ç±»å‹çš„å®šä¹‰èŠ‚ç‚¹)
 	constSUE *ptrSUE=NULL;
 	ListMarker marker;
 	//Node *SUtype = NULL;
@@ -290,7 +290,7 @@ GLOBAL	constIdNode *FindSUEid(Node *Decl ,List *sueidList)
 	constSUEid *tmpsueid = NULL;
 	assert(sueidList);
 	IterateList(&marker, sueidList);
-	while (NextOnList(&marker, (GenericREF) &tmpsueid)) {   //ÕÒ½á¹¹±äÁ¿
+	while (NextOnList(&marker, (GenericREF) &tmpsueid)) {   //æ‰¾ç»“æ„å˜é‡
 		if(tmpsueid->decl == Decl) sueidNode = tmpsueid;
 	}
 	assert(sueidNode);
@@ -304,7 +304,7 @@ GLOBAL	constSUEarray *FindSUEarray(Node *node ,List *suearrayList)
 	constSUEarray *tmpsuearray = NULL;
 	assert(suearrayList);
 	IterateList(&marker, suearrayList);
-	while (NextOnList(&marker, (GenericREF) &tmpsuearray)) {   //ÕÒ½á¹¹±äÁ¿
+	while (NextOnList(&marker, (GenericREF) &tmpsuearray)) {   //æ‰¾ç»“æ„å˜é‡
 		if(node->u.array.name->u.id.text == tmpsuearray->SUEname && node->u.array.name->u.id.decl == tmpsuearray->SUEdecl ) 
 			suearrayNode = tmpsuearray;
 	}
@@ -313,7 +313,7 @@ GLOBAL	constSUEarray *FindSUEarray(Node *node ,List *suearrayList)
 }
 
 GLOBAL constSUEFieldNode *FindFieldSUEnode(List *fieldsList, Node *field_id)
-{ //²éÕÒ½á¹¹Ìå³ÉÔ±
+{ //æŸ¥æ‰¾ç»“æ„ä½“æˆå‘˜
 	ListMarker marker;
 	constSUEFieldNode *field;
 	const char *name;
@@ -344,7 +344,7 @@ GLOBAL constSUEFieldNode *FindFieldSUEnode(List *fieldsList, Node *field_id)
 }
 
 GLOBAL constSUEid *InitStructid(constSUEid *SUEid ,Node *decl)
-{//½á¹¹Ìå±äÁ¿³õÊ¼»¯
+{//ç»“æ„ä½“å˜é‡åˆå§‹åŒ–
 	ListMarker marker;
 	ListMarker markerSidField;
 	ListMarker makerinit;
@@ -353,10 +353,10 @@ GLOBAL constSUEid *InitStructid(constSUEid *SUEid ,Node *decl)
 	Node *idinit = NULL;
 	//	List *fieldsList = decl->u.decl.type->u.sdcl.type->fields;
 	//IterateList(&marker, fieldsList);
-	//while (NextOnList(&marker, (GenericREF) &field)) {   //³ÉÔ±ÖĞÓĞÊı×é£¬½á¹¹Ìå£¬¹²ÓÃÌåµÈ²»ÄÜ½øĞĞÖ±½Ó³õÊ¼»¯
+	//while (NextOnList(&marker, (GenericREF) &field)) {   //æˆå‘˜ä¸­æœ‰æ•°ç»„ï¼Œç»“æ„ä½“ï¼Œå…±ç”¨ä½“ç­‰ä¸èƒ½è¿›è¡Œç›´æ¥åˆå§‹åŒ–
 	//declNode *field_decl;
 	//assert(field->typ == Decl);
-	//field_decl = &(field->u.decl); //È¡³ö½á¹¹ÌåÖĞµÄÃ¿¸ö³ÉÔ±µÄ¶¨Òå
+	//field_decl = &(field->u.decl); //å–å‡ºç»“æ„ä½“ä¸­çš„æ¯ä¸ªæˆå‘˜çš„å®šä¹‰
 	//if(field_decl->type->typ == Sdcl||field_decl->type->typ == Udcl||field_decl->type->typ == Adcl)
 	//return SUEid; 
 	//}
@@ -395,8 +395,8 @@ GLOBAL constSUEarray *InitTdefarray(constSUEarray *SUEarray ,Node *decl){
 	Node *tmpnode,*arrayinit = NULL;
 	int i,dim,num; 
 	dim = SUEarray->SUEdim;
-	assert(dim == 1); // ÔİÖ»Ö§³ÖÒ»Î¬½á¹¹ÌåÊı×é
-	num = SUEarray->SUEnum; //Ã¿Î¬ÖĞµÄÊı×éÔªËØ¸öÊı
+	assert(dim == 1); // æš‚åªæ”¯æŒä¸€ç»´ç»“æ„ä½“æ•°ç»„
+	num = SUEarray->SUEnum; //æ¯ç»´ä¸­çš„æ•°ç»„å…ƒç´ ä¸ªæ•°
 	IterateList(&makerinittmp, decl->u.decl.init->u.initializer.exprs);
 	for(i=0;i<num;i++){
 		IterateList(&maketmpfield, SUEarray->SUEelement[i]);
@@ -431,10 +431,10 @@ GLOBAL constSUEarray *InitTdefarray(constSUEarray *SUEarray ,Node *decl){
 
 }
 GLOBAL FlowValue InitSUENode(Node *node)
-{//£¨ÔİÊ±Î´ÓÃ£¬ËüµÄ¹¦ÄÜÔÚInsertSUEtoFlowÖĞ´úÌæÁË£©³õÊ¼»¯½á¹¹Ìå
-	//²»Ö§³Ö¹²ÓÃÌåÒÔ¼°½á¹¹ÌåÊı×é£¬ÒÔ¼°½á¹¹ÌåÖĞº¬ÓĞÊı×é³ÉÔ±µÄ³õÊ¼»¯	
-	Node *dtype = node->u.decl.type;//nodeµÄÀàĞÍ
-	constSUE *itemtype = NULL;//¼ÇÂ¼dtypeÊÇ·ñÒÑÔÚÊı¾İÁ÷ÖĞµÄÎ»ÖÃ
+{//ï¼ˆæš‚æ—¶æœªç”¨ï¼Œå®ƒçš„åŠŸèƒ½åœ¨InsertSUEtoFlowä¸­ä»£æ›¿äº†ï¼‰åˆå§‹åŒ–ç»“æ„ä½“
+	//ä¸æ”¯æŒå…±ç”¨ä½“ä»¥åŠç»“æ„ä½“æ•°ç»„ï¼Œä»¥åŠç»“æ„ä½“ä¸­å«æœ‰æ•°ç»„æˆå‘˜çš„åˆå§‹åŒ–	
+	Node *dtype = node->u.decl.type;//nodeçš„ç±»å‹
+	constSUE *itemtype = NULL;//è®°å½•dtypeæ˜¯å¦å·²åœ¨æ•°æ®æµä¸­çš„ä½ç½®
 	constSUEid *SUEid = NULL;
 	constSUEarray *SUEarray = NULL;
 	assert(node && node->typ==Decl);
@@ -444,7 +444,7 @@ GLOBAL FlowValue InitSUENode(Node *node)
 		if(node->u.decl.init!=NULL)SUEid = InitStructid(SUEid,node);	
 	}
 	else if(dtype->typ == Udcl)
-	{ //²»Ö§³Ö³õÊ¼»¯ 
+	{ //ä¸æ”¯æŒåˆå§‹åŒ– 
 		SUEid = MakeUnionNode(node);
 	}
 	else if(dtype->typ == Edcl) 
@@ -479,7 +479,7 @@ GLOBAL List *InsertSUEidtoFlow(Node *node,List *SUElist)
 		{
 			constSUENode *SUENode = HeapNew(constSUENode);
 			ptrSUE = HeapNew(constSUE);
-			SUENode->SUEid = AppendItem(SUENode->SUEid,MakeStructNode(node));   //Õâ¸ö¿ÉÄÜĞèÒª¸Ä³ÉÄÜ³õÊ¼»¯µÄº¯Êı  £¬ÏÂÃæÀàËÆ
+			SUENode->SUEid = AppendItem(SUENode->SUEid,MakeStructNode(node));   //è¿™ä¸ªå¯èƒ½éœ€è¦æ”¹æˆèƒ½åˆå§‹åŒ–çš„å‡½æ•°  ï¼Œä¸‹é¢ç±»ä¼¼
 			ptrSUE->type = node->u.sdcl.type;
 			ptrSUE->SUEnode = SUENode;
 		}
@@ -513,7 +513,7 @@ GLOBAL List *InsertSUEidtoFlow(Node *node,List *SUElist)
 		{
 			constSUENode *SUENode = HeapNew(constSUENode);
 			ptrSUE = HeapNew(constSUE);
-			SUENode->SUEid = AppendItem(SUENode->SUEid,MakeStructNode(node));   //Õâ¸ö¿ÉÄÜĞèÒª¸Ä³ÉÄÜ³õÊ¼»¯µÄº¯Êı  £¬ÏÂÃæÀàËÆ
+			SUENode->SUEid = AppendItem(SUENode->SUEid,MakeStructNode(node));   //è¿™ä¸ªå¯èƒ½éœ€è¦æ”¹æˆèƒ½åˆå§‹åŒ–çš„å‡½æ•°  ï¼Œä¸‹é¢ç±»ä¼¼
 			ptrSUE->type = node->u.tdef.type->u.sdcl.type;
 			ptrSUE->SUEnode = SUENode;
 		}
@@ -523,7 +523,7 @@ GLOBAL List *InsertSUEidtoFlow(Node *node,List *SUElist)
 			ptrSUE->SUEnode->SUEid = AppendItem(ptrSUE->SUEnode->SUEid,MakeTdefNode(node));
 		}
 	}
-	else if(node->u.decl.type->typ == Edcl);//Ôİ²»´¦Àí
+	else if(node->u.decl.type->typ == Edcl);//æš‚ä¸å¤„ç†
 
 	return SUElist;
 
@@ -545,7 +545,7 @@ GLOBAL List *InsertSUEarraytoFlow(Node *node,List *SUElist)
 		{
 			constSUENode *SUENode = HeapNew(constSUENode);
 			ptrSUE = HeapNew(constSUE);
-			SUENode->SUEarray = AppendItem(SUENode->SUEarray,MakeStructArrayNode(node));   //Õâ¸ö¿ÉÄÜĞèÒª¸Ä³ÉÄÜ³õÊ¼»¯µÄº¯Êı  £¬ÏÂÃæÀàËÆ
+			SUENode->SUEarray = AppendItem(SUENode->SUEarray,MakeStructArrayNode(node));   //è¿™ä¸ªå¯èƒ½éœ€è¦æ”¹æˆèƒ½åˆå§‹åŒ–çš„å‡½æ•°  ï¼Œä¸‹é¢ç±»ä¼¼
 			ptrSUE->type = node->u.sdcl.type;
 			ptrSUE->SUEnode = SUENode;
 		}
@@ -579,7 +579,7 @@ GLOBAL List *InsertSUEarraytoFlow(Node *node,List *SUElist)
 		{
 			constSUENode *SUENode = HeapNew(constSUENode);
 			ptrSUE = HeapNew(constSUE);
-			SUENode->SUEarray = AppendItem(SUENode->SUEarray,MakeTdefArrayNode(node));   //Õâ¸ö¿ÉÄÜĞèÒª¸Ä³ÉÄÜ³õÊ¼»¯µÄº¯Êı  £¬ÏÂÃæÀàËÆ
+			SUENode->SUEarray = AppendItem(SUENode->SUEarray,MakeTdefArrayNode(node));   //è¿™ä¸ªå¯èƒ½éœ€è¦æ”¹æˆèƒ½åˆå§‹åŒ–çš„å‡½æ•°  ï¼Œä¸‹é¢ç±»ä¼¼
 			ptrSUE->type = node->u.tdef.type->u.sdcl.type;
 			ptrSUE->SUEnode = SUENode;
 		}
@@ -589,7 +589,7 @@ GLOBAL List *InsertSUEarraytoFlow(Node *node,List *SUElist)
 			ptrSUE->SUEnode->SUEarray = AppendItem(ptrSUE->SUEnode->SUEarray,MakeStructNode(node));
 		}
 	}
-	else if(tmptype->typ == Edcl);//Ôİ²»´¦Àí
+	else if(tmptype->typ == Edcl);//æš‚ä¸å¤„ç†
 
 	return SUElist;
 
@@ -611,7 +611,7 @@ GLOBAL FlowValue InsertSUEdecltoFlow(Node *decl,FlowValue v)
 		if(decl->u.decl.init!=NULL)sueid = InitStructid(sueid,decl);
 	}
 	else if(dtype->typ == Tdef)
-	{	//Ôİ²»´¦Àí
+	{	//æš‚ä¸å¤„ç†
 		suetype = dtype->u.tdef.type->u.sdcl.type;
 		sueid = MakeTdefNode(decl);
 		if(decl->u.decl.init !=NULL) sueid = InitStructid(sueid,decl);
@@ -680,12 +680,12 @@ GLOBAL FlowValue InsertSUEdecltoFlow(Node *decl,FlowValue v)
 }
 
 GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
-{  //¾­¹ıÕâ¸öº¯Êı¾ÍÊÇÒª°ÑÖµ·ÅÔÚ'.'µÄvalueÖĞ.dotµÄÓÒÖµÒªÃ´ÊÇid£¬ÒªÃ´ÊÇÊı×é£¬¶ø×óÖµÒªÃ´ÊÇid£¬ÒªÃ´ÊÇÊı×é£¬ÒªÃ´ÊÇdot
+{  //ç»è¿‡è¿™ä¸ªå‡½æ•°å°±æ˜¯è¦æŠŠå€¼æ”¾åœ¨'.'çš„valueä¸­.dotçš„å³å€¼è¦ä¹ˆæ˜¯idï¼Œè¦ä¹ˆæ˜¯æ•°ç»„ï¼Œè€Œå·¦å€¼è¦ä¹ˆæ˜¯idï¼Œè¦ä¹ˆæ˜¯æ•°ç»„ï¼Œè¦ä¹ˆæ˜¯dot
 	Node *tmpnode = NULL;
 	Node *field = NULL,
 		*left, *right, *ltype, *rtype, *type;
 	binopNode *u;
-	Node *dottype;//dotµÄÀàĞÍ¾ÍÊÇËüÓÒÖµµÄÀàĞÍ
+	Node *dottype;//dotçš„ç±»å‹å°±æ˜¯å®ƒå³å€¼çš„ç±»å‹
 	constSUE *ptrSUE=NULL;
 	List *SUEflowlist = ((propagatorNode*)(v.u.ptr))->SUEFlowList;
 	assert(node);
@@ -720,11 +720,11 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 
 
 		assert(leftsuetypeNode);
-		sueidNode = FindSUEid(leftiddecl,leftsuetypeNode->SUEnode->SUEid);//ÕÒµ½½á¹¹Ìå£¬¼´dotµÄ×óÖµ
+		sueidNode = FindSUEid(leftiddecl,leftsuetypeNode->SUEnode->SUEid);//æ‰¾åˆ°ç»“æ„ä½“ï¼Œå³dotçš„å·¦å€¼
 		assert(sueidNode);
 
 		if (dottype->typ == Prim)
-		{//ĞÎÈçs.x
+		{//å½¢å¦‚s.x
 			constSUEFieldNode *rightField_id = NULL;	
 			rightField_id = FindFieldSUEnode(sueidNode->SUEfields, right);
 			assert(rightField_id);
@@ -735,12 +735,12 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			}
 		}
 		else if (dottype->typ == Adcl)
-		{//YQJ ĞÂÔö¶ÔÊı×éµÄÖ§³Ö  ĞÎÈçs.x[2]£¬
-			// ÓÉÓÚ²»ÄÜ»ñµÃÊı×éµÄË÷ÒıÖµ ¹Ê¸ÄÔÚTransformArray ÖĞ´¦Àí
+		{//YQJ æ–°å¢å¯¹æ•°ç»„çš„æ”¯æŒ  å½¢å¦‚s.x[2]ï¼Œ
+			// ç”±äºä¸èƒ½è·å¾—æ•°ç»„çš„ç´¢å¼•å€¼ æ•…æ”¹åœ¨TransformArray ä¸­å¤„ç†
 
 		}
 		else if(dottype->typ == Sdcl)
-		{//ĞÎÈçsa.sb.x£¬ÖĞµÄµÚÒ»¸ödot
+		{//å½¢å¦‚sa.sb.xï¼Œä¸­çš„ç¬¬ä¸€ä¸ªdot
 			constSUEFieldNode *rightField_Struct = NULL;
 			SUEtype* temsuetype = NULL;
 			rightField_Struct = FindFieldSUEnode(sueidNode->SUEfields, right);
@@ -751,13 +751,13 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			temsuetype->fields = rightField_Struct->u.sueidNode->SUEfields;
 			temsuetype->typ = Sdcl;
 			node->u.binop.valueList = temsuetype->fields;
-			//node->u.binop.value->u.sdcl.type->fields = temsuetype->fields;//°Ñ²éÕÒ³öÀ´µÄÄÚ²¿½á¹¹ÌåµÄ¸÷³ÉÔ±ÖµdotµÄvalueÖĞ£¨½«value¸ÄÔì³Ésdcl½Úµã£©
+			//node->u.binop.value->u.sdcl.type->fields = temsuetype->fields;//æŠŠæŸ¥æ‰¾å‡ºæ¥çš„å†…éƒ¨ç»“æ„ä½“çš„å„æˆå‘˜å€¼dotçš„valueä¸­ï¼ˆå°†valueæ”¹é€ æˆsdclèŠ‚ç‚¹ï¼‰
 		}
 		else if (dottype->typ == Udcl)
-		{  ;//Ôİ²»´¦Àí
+		{  ;//æš‚ä¸å¤„ç†
 		}
 		else if (dottype->typ == Edcl)
-		{ ; //Ôİ²»´¦Àí
+		{ ; //æš‚ä¸å¤„ç†
 		}
 		else UNREACHABLE;
 
@@ -781,7 +781,7 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			return v;
 		assert(leftsuetypeNode);
 		if(leftsuetypeNode->SUEnode->SUEarray != NULL){
-			suearrayNode = FindSUEarray(left,leftsuetypeNode->SUEnode->SUEarray);//ÕÒµ½½á¹¹Ìå£¬¼´dotµÄ×óÖµ
+			suearrayNode = FindSUEarray(left,leftsuetypeNode->SUEnode->SUEarray);//æ‰¾åˆ°ç»“æ„ä½“ï¼Œå³dotçš„å·¦å€¼
 			assert(suearrayNode);
 			pos=(unsigned long *)malloc(sizeof(unsigned long)*suearrayNode->SUEdim);
 			IterateList(&m, left->u.array.dims);
@@ -810,7 +810,7 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 
 
 		if (dottype->typ == Prim)
-		{//ĞÎÈçs[2].x
+		{//å½¢å¦‚s[2].x
 			constSUEFieldNode *rightField_id = NULL;	
 			rightField_id = FindFieldSUEnode(sueArrayElement, right);
 			assert(rightField_id);
@@ -821,11 +821,11 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			}
 		}
 		else if (dottype->typ == Adcl)
-		{//ĞÎÈçs[3].x[2]   ÔİÊ±²»Ö§³Ö£¬Î´´¦Àí
+		{//å½¢å¦‚s[3].x[2]   æš‚æ—¶ä¸æ”¯æŒï¼Œæœªå¤„ç†
 			;
 		}
 		else if(dottype->typ == Sdcl)
-		{//ĞÎÈçsa[3].sb.x£¬ÖĞµÄµÚÒ»¸ödot
+		{//å½¢å¦‚sa[3].sb.xï¼Œä¸­çš„ç¬¬ä¸€ä¸ªdot
 			constSUEFieldNode *rightField_Struct = NULL;
 			SUEtype* temsuetype = NULL;
 			rightField_Struct = FindFieldSUEnode(sueArrayElement, right);
@@ -833,28 +833,28 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			//node->u.binop.value = NewNode(Sdcl);
 			//node->u.binop.value->u.sdcl.type = node->u.binop.type;
 			temsuetype = HeapNew(SUEtype);
-			temsuetype->fields = rightField_Struct->u.sueidNode->SUEfields;  //¿ÉÄÜÒªÉî¿½±´£¬ÖØĞ´Ò»¸ölistcopyº¯Êı
+			temsuetype->fields = rightField_Struct->u.sueidNode->SUEfields;  //å¯èƒ½è¦æ·±æ‹·è´ï¼Œé‡å†™ä¸€ä¸ªlistcopyå‡½æ•°
 			node->u.binop.valueList = temsuetype->fields;
 			//node->u.binop.value->u.sdcl.type->fields = temsuetype->fields;
 
 		}
 		else if (dottype->typ == Udcl)
-		{ ; //Ôİ²»´¦Àí
+		{ ; //æš‚ä¸å¤„ç†
 		}
 		else if (dottype->typ == Edcl)
-		{  ;//Ôİ²»´¦Àí
+		{  ;//æš‚ä¸å¤„ç†
 		}
 		else UNREACHABLE;
 	}
 	else if (left->typ==Binop&&left->u.binop.op =='.' && right->typ == Id )
-	{//´Ó×óÖµµÄdotµÄvalueÖĞÕÒÓÒÖµµÄId
+	{//ä»å·¦å€¼çš„dotçš„valueä¸­æ‰¾å³å€¼çš„Id
 		List *leftstructfields;
 		assert(left->u.binop.valueList);
 		//leftstructfields = left->u.binop.value->u.sdcl.type->fields;
 		leftstructfields = left->u.binop.valueList;
 
 		if (dottype->typ == Prim)
-		{  //sa.sb.x  ¶ÔµÚ¶ş¸ödotµÄ´¦Àí
+		{  //sa.sb.x  å¯¹ç¬¬äºŒä¸ªdotçš„å¤„ç†
 			constSUEFieldNode *rightField_id = NULL;	
 			rightField_id = FindFieldSUEnode(leftstructfields, right);
 			assert(rightField_id);
@@ -865,11 +865,11 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			}
 		}
 		else if (dottype->typ == Adcl)
-		{;//Ôİ²»Ö§³Ö£¬Ôİ²»´¦Àí
+		{;//æš‚ä¸æ”¯æŒï¼Œæš‚ä¸å¤„ç†
 
 		}
 		else if(dottype->typ == Sdcl)
-		{//sa.sa.sc.x ¶ÔµÚ¶ş¸ödotµÄ´¦Àí
+		{//sa.sa.sc.x å¯¹ç¬¬äºŒä¸ªdotçš„å¤„ç†
 			constSUEFieldNode *rightField_Struct = NULL;
 			SUEtype* temsuetype = NULL;
 			rightField_Struct = FindFieldSUEnode(leftstructfields, right);
@@ -877,15 +877,15 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 			//node->u.binop.value = NewNode(Sdcl);
 			//node->u.binop.value->u.sdcl.type = node->u.binop.type;
 			temsuetype = HeapNew(SUEtype);
-			temsuetype->fields = rightField_Struct->u.sueidNode->SUEfields;  //¿ÉÄÜÒªÉî¿½±´£¬ÖØĞ´Ò»¸ölistcopyº¯Êı
+			temsuetype->fields = rightField_Struct->u.sueidNode->SUEfields;  //å¯èƒ½è¦æ·±æ‹·è´ï¼Œé‡å†™ä¸€ä¸ªlistcopyå‡½æ•°
 			node->u.binop.valueList = temsuetype->fields;
 			//node->u.binop.value->u.sdcl.type = temsuetype;
 		}
 		else if (dottype->typ == Udcl)
-		{  ; //Ôİ²»´¦Àí
+		{  ; //æš‚ä¸å¤„ç†
 		}
 		else if (dottype->typ == Edcl)
-		{  ; //Ôİ²»´¦Àí
+		{  ; //æš‚ä¸å¤„ç†
 		}
 		else UNREACHABLE;
 	}
@@ -893,9 +893,9 @@ GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v)
 }
 
 GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
-{//nodeÊÇdot½áµã£¬valueÊÇ¸üĞÂºóµÄÖµ
+{//nodeæ˜¯dotç»“ç‚¹ï¼Œvalueæ˜¯æ›´æ–°åçš„å€¼
 	Node *right=NULL ,*left=NULL;
-	Node *dottype = node->u.binop.type;//dotµÄÀàĞÍ¾ÍÊÇËüÓÒÖµµÄÀàĞÍ
+	Node *dottype = node->u.binop.type;//dotçš„ç±»å‹å°±æ˜¯å®ƒå³å€¼çš„ç±»å‹
 	constSUE *ptrSUE=NULL;
 	List *SUEflowlist = ((propagatorNode*)(v.u.ptr))->SUEFlowList;
 	assert(value);
@@ -913,11 +913,11 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 		constSUEid *sueidNode = NULL;
 		constSUEFieldNode *rightField_id = NULL;
 		assert(leftsuetypeNode);
-		sueidNode = FindSUEid(leftiddecl,leftsuetypeNode->SUEnode->SUEid);//ÕÒµ½½á¹¹Ìå£¬¼´dotµÄ×óÖµ
+		sueidNode = FindSUEid(leftiddecl,leftsuetypeNode->SUEnode->SUEid);//æ‰¾åˆ°ç»“æ„ä½“ï¼Œå³dotçš„å·¦å€¼
 		assert(sueidNode);
 
 		if (dottype->typ == Prim)
-		{//ĞÎÈçs.x
+		{//å½¢å¦‚s.x
 			constSUEFieldNode *rightField_id = NULL;	
 			rightField_id = FindFieldSUEnode(sueidNode->SUEfields, right);
 			assert(rightField_id);
@@ -926,18 +926,18 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 			node->u.binop.value = right->u.id.value;
 		}
 		else if (dottype->typ == Adcl)
-		{//ĞÎÈçs.x[2]£¬ÓÒÖµ¿ÉÄÜÊÇÒ»°ãÊı×é£¬½á¹¹ÌåÊı×éµÈ,ÔİÊ±²»Ö§³Ö£¬Î´´¦Àí
+		{//å½¢å¦‚s.x[2]ï¼Œå³å€¼å¯èƒ½æ˜¯ä¸€èˆ¬æ•°ç»„ï¼Œç»“æ„ä½“æ•°ç»„ç­‰,æš‚æ—¶ä¸æ”¯æŒï¼Œæœªå¤„ç†
 			;
 		}
 		else if(dottype->typ == Sdcl)
-		{//ĞÎÈçsa.sb.x£¬ÖĞµÄµÚÒ»¸ödot, Ê²Ã´¶¼²»ÓÃ×ö
+		{//å½¢å¦‚sa.sb.xï¼Œä¸­çš„ç¬¬ä¸€ä¸ªdot, ä»€ä¹ˆéƒ½ä¸ç”¨åš
 			return v;
 		}
 		else if (dottype->typ == Udcl)
-		{ ; //Ôİ²»´¦Àí
+		{ ; //æš‚ä¸å¤„ç†
 		}
 		else if (dottype->typ == Edcl)
-		{ ; //Ôİ²»´¦Àí
+		{ ; //æš‚ä¸å¤„ç†
 		}
 		else UNREACHABLE; 
 	}	
@@ -956,7 +956,7 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 		constSUEFieldNode *rightField_id = NULL;
 
 		assert(leftsuetypeNode);
-		suearrayNode = FindSUEarray(left,leftsuetypeNode->SUEnode->SUEarray);//ÕÒµ½½á¹¹Ìå£¬¼´dotµÄ×óÖµ
+		suearrayNode = FindSUEarray(left,leftsuetypeNode->SUEnode->SUEarray);//æ‰¾åˆ°ç»“æ„ä½“ï¼Œå³dotçš„å·¦å€¼
 		assert(suearrayNode);
 
 		pos=(unsigned long *)malloc(sizeof(unsigned long)*suearrayNode->SUEdim);
@@ -964,7 +964,7 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 		while (NextOnList(&m, (GenericREF) &n))
 		{
 			dimvalue=GetValue(n);
-			// assert(value); // 12.13 Êı¾İÁ÷½øwork
+			// assert(value); // 12.13 æ•°æ®æµè¿›work
 			if(value!=NULL) pos[i++]=NodeConstantIntegralValue(dimvalue);
 			else return v;
 		}
@@ -978,7 +978,7 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 		sueArrayElement = suearrayNode->SUEelement[place];
 
 		if (dottype->typ == Prim)
-		{//ĞÎÈçs[2].x
+		{//å½¢å¦‚s[2].x
 			constSUEFieldNode *rightField_id = NULL;	
 			rightField_id = FindFieldSUEnode(sueArrayElement, right);
 			assert(rightField_id);
@@ -988,18 +988,18 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 			node->u.binop.value = GetValue(value);
 		}
 		else if (dottype->typ == Adcl)
-		{//ĞÎÈçs[3].x[2]   ÔİÊ±²»Ö§³Ö£¬Î´´¦Àí
+		{//å½¢å¦‚s[3].x[2]   æš‚æ—¶ä¸æ”¯æŒï¼Œæœªå¤„ç†
 			;
 		}
 		else if(dottype->typ == Sdcl)
-		{//ĞÎÈçsa[3].sb.x£¬ÖĞµÄµÚÒ»¸ödot ,Ê²Ã´Ò²²»×ö
+		{//å½¢å¦‚sa[3].sb.xï¼Œä¸­çš„ç¬¬ä¸€ä¸ªdot ,ä»€ä¹ˆä¹Ÿä¸åš
 			return v;
 		}
 		else if (dottype->typ == Udcl)
-		{ ; //Ôİ²»´¦Àí
+		{ ; //æš‚ä¸å¤„ç†
 		}
 		else if (dottype->typ == Edcl)
-		{  ;//Ôİ²»´¦Àí
+		{  ;//æš‚ä¸å¤„ç†
 		}
 		else UNREACHABLE;
 
@@ -1012,7 +1012,7 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 		leftstructfields = left->u.binop.valueList;
 
 		if (dottype->typ == Prim)
-		{  //sa.sb.x  ¶ÔµÚ¶ş¸ödotµÄ´¦Àí
+		{  //sa.sb.x  å¯¹ç¬¬äºŒä¸ªdotçš„å¤„ç†
 			constSUEFieldNode *rightField_id = NULL;	
 			rightField_id = FindFieldSUEnode(leftstructfields, right);
 			assert(rightField_id);
@@ -1021,18 +1021,18 @@ GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v)
 			node->u.binop.value = right->u.id.value;
 		}
 		else if (dottype->typ == Adcl)
-		{;//Ôİ²»Ö§³Ö£¬Ôİ²»´¦Àí
+		{;//æš‚ä¸æ”¯æŒï¼Œæš‚ä¸å¤„ç†
 
 		}
 		else if(dottype->typ == Sdcl)
-		{//sa.sa.sc.x ¶ÔµÚ¶ş¸ödotµÄ´¦Àí£¬Ê²Ã´Ò²²»×ö
+		{//sa.sa.sc.x å¯¹ç¬¬äºŒä¸ªdotçš„å¤„ç†ï¼Œä»€ä¹ˆä¹Ÿä¸åš
 			return v;
 		}
 		else if (dottype->typ == Udcl)
-		{  ; //Ôİ²»´¦Àí
+		{  ; //æš‚ä¸å¤„ç†
 		}
 		else if (dottype->typ == Edcl)
-		{  ; //Ôİ²»´¦Àí
+		{  ; //æš‚ä¸å¤„ç†
 		}
 		else UNREACHABLE;
 	}

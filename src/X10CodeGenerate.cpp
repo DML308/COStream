@@ -8,7 +8,7 @@
 using namespace std;
 
 #define  Default_Repeat_Count 10
-static bool isInComma = false;//±íÊ¾µ±Ç°´¦ÓÚ¶ººÅ±í´ïÊ½ÖĞ
+static bool isInComma = false;//è¡¨ç¤ºå½“å‰å¤„äºé€—å·è¡¨è¾¾å¼ä¸­
 
 X10CodeGenerate::X10CodeGenerate(SchedulerSSG *Sssg, int nCpucore, int buffer_size, const char *currentDir)
 {
@@ -18,17 +18,17 @@ X10CodeGenerate::X10CodeGenerate(SchedulerSSG *Sssg, int nCpucore, int buffer_si
 	nCpucore_ = nCpucore;
 	nRepeatCount_ = Default_Repeat_Count;
 	nActors_ = flatNodes_.size();
-	// È¡ÉÏÏŞÔò¿ÉÄÜ³öÏÖ¿ÕÏĞµÄplace
+	// å–ä¸Šé™åˆ™å¯èƒ½å‡ºç°ç©ºé—²çš„place
 	nPerThreads_ = (int)ceil((float)nActors_ / nCpucore_);
 	dir_ = currentDir;
 	buffer_size_ = buffer_size;
 	currentNum_ = 0;
 
 
-	strScheduler <<"\t\tfor(var i : Int = 0; i < initCount; ++i) // initSchedule\n";//³õÌ¬µ÷¶È
+	strScheduler <<"\t\tfor(var i : Int = 0; i < initCount; ++i) // initSchedule\n";//åˆæ€è°ƒåº¦
 	strScheduler <<"\t\t\twork();\n";
 
-	strScheduler <<"\t\tfor(var i : Int = 0; i < RepeatCount; ++i)\n";//ÎÈÌ¬µ÷¶È
+	strScheduler <<"\t\tfor(var i : Int = 0; i < RepeatCount; ++i)\n";//ç¨³æ€è°ƒåº¦
 	strScheduler <<"\t\t\tfor(var j : Int = 0; j < steadyCount; ++j) // steadySchedule\n";
 	strScheduler <<"\t\t\t\twork();\n";
 	
@@ -67,7 +67,7 @@ X10CodeGenerate::X10CodeGenerate(SchedulerSSG *Sssg, int nCpucore, int buffer_si
 	isInParam = false;
 }
 
-// Êä³öµ½ÎÄ¼ş
+// è¾“å‡ºåˆ°æ–‡ä»¶
 void X10CodeGenerate::OutputToFile(string fileName, string contents)
 {
 	ofstream fw;
@@ -80,7 +80,7 @@ void X10CodeGenerate::OutputToFile(string fileName, string contents)
 	}
 }
 
-// ¶Ô¸÷½Úµã½øĞĞ¼òµ¥µÄµ÷¶È
+// å¯¹å„èŠ‚ç‚¹è¿›è¡Œç®€å•çš„è°ƒåº¦
 void X10CodeGenerate::SimpleScheduler()
 {
 	for (int i = 0; i < nActors_; ++i) 
@@ -95,26 +95,26 @@ void X10CodeGenerate::CGmain()
 {
 	stringstream buf;
 
-	buf <<"import lib.*;\n"; // Ïà¹Ø¿âÎÄ¼ş
-	buf <<"public class "<<comName_<<" implements Interface "<<"{\n"; // Àà¿é¿ªÊ¼
-	buf <<"\tstatic val DefaultRC:Int = "<<nRepeatCount_<<";// DefaultRepeatCount\n";//Ä¬ÈÏÑ­»·Ö´ĞĞ´ÎÊı
+	buf <<"import lib.*;\n"; // ç›¸å…³åº“æ–‡ä»¶
+	buf <<"public class "<<comName_<<" implements Interface "<<"{\n"; // ç±»å—å¼€å§‹
+	buf <<"\tstatic val DefaultRC:Int = "<<nRepeatCount_<<";// DefaultRepeatCount\n";//é»˜è®¤å¾ªç¯æ‰§è¡Œæ¬¡æ•°
 	buf <<"\tvar rc:Int;\n";
 
-	// Ğ´Èëµ÷¶ÈÊı¾İĞÅÏ¢
+	// å†™å…¥è°ƒåº¦æ•°æ®ä¿¡æ¯
 	CGmainScheduleData(buf);
 	
-	// ¶Ô½Úµã½øĞĞµ÷¶È
+	// å¯¹èŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 	CGmainRun();
 	buf << edgeBuf.str();
 
 	buf <<"\t//methods\n";
-	// Ğ´Èë¹¹Ôìº¯Êı
+	// å†™å…¥æ„é€ å‡½æ•°
 	buf <<"\tpublic def this(i:Int) {\n\t\trc=i;\n\t}\n";
-	// Ğ´Èërunº¯Êı
+	// å†™å…¥runå‡½æ•°
 	buf << runBuf.str();
 
 	
-	//main·½·¨
+	//mainæ–¹æ³•
 	buf <<"\t// static main method\n";
 	buf <<"\tpublic static def main(args: Array[String]) {\n";
 	buf <<"\t\tif(Place.MAX_PLACES<"<<nCpucore_<<") Console.OUT.println(\"warning:at least need "<<nCpucore_<<" places!\");\n";
@@ -125,9 +125,9 @@ void X10CodeGenerate::CGmain()
 	buf <<"\t\t\tstream.run();\n";
 	buf <<"\t\t}\n";
 	buf <<"\t}\n";
-	buf <<"}\n";//Àà¿é½áÊø
+	buf <<"}\n";//ç±»å—ç»“æŸ
 
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream fileName;
 	fileName<<dir_<<comName_<<".x10";
 	OutputToFile(fileName.str(), buf.str());
@@ -138,7 +138,7 @@ void X10CodeGenerate::CGmainScheduleData(stringstream &buf)
 	map<FlatNode *,int>::iterator pos;
 	buf <<"\n\t// ScheduleData\n";
 	buf <<"\tstatic val ";
-	for (int i=0;i<nActors_;i++) // ³õÌ¬µ÷¶È´ÎÊı
+	for (int i=0;i<nActors_;i++) // åˆæ€è°ƒåº¦æ¬¡æ•°
 	{
 		pos = sssg_->mapInitCount2FlatNode.find(flatNodes_[i]);
 		if(i == nActors_-1) {
@@ -149,7 +149,7 @@ void X10CodeGenerate::CGmainScheduleData(stringstream &buf)
 	}
 
 	buf <<"\tstatic val ";
-	for (int i=0;i<nActors_;i++) // ÎÈÌ¬µ÷¶È´ÎÊı
+	for (int i=0;i<nActors_;i++) // ç¨³æ€è°ƒåº¦æ¬¡æ•°
 	{
 		pos = sssg_->mapSteadyCount2FlatNode.find(flatNodes_[i]);
 		if(i == nActors_-1) {
@@ -164,14 +164,14 @@ void X10CodeGenerate::CGmainScheduleData(stringstream &buf)
 void X10CodeGenerate::CGmainRun()
 {
 	runBuf <<"\t// run\n";
-	runBuf << "\tpublic def run() {\n"; //run·½·¨,ÀàÖĞ×îÖ÷ÒªµÄ·½·¨
+	runBuf << "\tpublic def run() {\n"; //runæ–¹æ³•,ç±»ä¸­æœ€ä¸»è¦çš„æ–¹æ³•
 	runBuf << "\t\tfinish for (p in Place.places()) async at (p) {\n";
 	runBuf << "\t\t\tswitch(p.id){\n";
 
 
 	std::map<operatorNode *, string>::iterator pos;
 
-	for (int i = 0; i < nActors_; ++i) //Éú³É ¸÷¸ö ÀàÊµÀı
+	for (int i = 0; i < nActors_; ++i) //ç”Ÿæˆ å„ä¸ª ç±»å®ä¾‹
 	{
 		List *inputs = flatNodes_[i]->oldContents->decl->u.decl.type->u.operdcl.inputs;
 		List *outputs =	flatNodes_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs;
@@ -195,7 +195,7 @@ void X10CodeGenerate::CGmainRun()
 				runBuf << MakeTabs(4) << "break;\n";
 			}
 		}
-		else // Ò»Ìõ±ß±»¶à¸öactor¹²ÓÃ, Ôİ²»´¦Àí
+		else // ä¸€æ¡è¾¹è¢«å¤šä¸ªactorå…±ç”¨, æš‚ä¸å¤„ç†
 		{
 			cout << "test" << endl;
 			UNREACHABLE;
@@ -205,7 +205,7 @@ void X10CodeGenerate::CGmainRun()
 	runBuf << "\t\t\tdefault: break;\n";
 	runBuf << "\t\t\t}\n";
 	runBuf << "\t\t}\n";
-	runBuf << "\t}\n"; // run·½·¨½áÊø
+	runBuf << "\t}\n"; // runæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGmainActor(FlatNode *actor, OperatorType ot, int palce)
@@ -228,7 +228,7 @@ void X10CodeGenerate::CGmainActor(FlatNode *actor, OperatorType ot, int palce)
 	{
 		stringstream recvEdgeName;
 		int num = 0;
-		recv << "1, "; // ÔİÊ±´¦ÀíÃ¿Ìõ±ß²»¹²ÏíµÄÇéĞÎ
+		recv << "1, "; // æš‚æ—¶å¤„ç†æ¯æ¡è¾¹ä¸å…±äº«çš„æƒ…å½¢
 		recv << actor->inPeekWeights[i] << ", " << actor->inPopWeights[i] << ", ";
 
 		FlatNode *up = actor->inFlatNodes[i];
@@ -260,7 +260,7 @@ void X10CodeGenerate::CGmainActor(FlatNode *actor, OperatorType ot, int palce)
 
 	std::map<operatorNode *, string>::iterator pos;
 	pos = mapOperator2ClassName.find(actor->oldContents);
-	stringstream tmpNew, tmpRun, compositeArg, compositeParam; // compositeArg´¢´æÖµ
+	stringstream tmpNew, tmpRun, compositeArg, compositeParam; // compositeArgå‚¨å­˜å€¼
 	
 	declInitList.str("");
 	Node *arg = actor->composite->body->u.comBody.param;
@@ -295,7 +295,7 @@ string X10CodeGenerate::MakeTabs(int tabs)
 }
 
 // ---------------------------------------------------------------------------
-// Éú³É stream µÄÊı¾İ³ÉÔ±
+// ç”Ÿæˆ stream çš„æ•°æ®æˆå‘˜
 void X10CodeGenerate::CGclassMembers(Node *strdcl, stringstream &buf)
 {
 	List *classMembers = NULL;
@@ -307,14 +307,14 @@ void X10CodeGenerate::CGclassMembers(Node *strdcl, stringstream &buf)
 	if (strdcl->typ == Id)
 		strdcl = strdcl->u.id.decl;
 	
-	classMembers = strdcl->u.decl.type->u.strdcl.type->fields;//È¡³östreamÄÚµÄ³ÉÔ±£¬ÉèÖÃÎªclassµÄ³ÉÔ±
+	classMembers = strdcl->u.decl.type->u.strdcl.type->fields;//å–å‡ºstreamå†…çš„æˆå‘˜ï¼Œè®¾ç½®ä¸ºclassçš„æˆå‘˜
 	IterateList(&marker, classMembers );
 
 	while ( NextOnList(&marker, (GenericREF) &classMember) )
 	{
 		string type, initValue;
 
-		//Èç¹ûstreamÄÚµÄ³ÉÔ±È«ÊÇprimÀàĞÍÔò°´ÈçÏÂ´¦Àí£¬Èç¹ûÊÇ¸´ºÏÀàĞÍ´ı´¦Àí
+		//å¦‚æœstreamå†…çš„æˆå‘˜å…¨æ˜¯primç±»å‹åˆ™æŒ‰å¦‚ä¸‹å¤„ç†ï¼Œå¦‚æœæ˜¯å¤åˆç±»å‹å¾…å¤„ç†
 		if(classMember->u.decl.type->typ == Prim)
 		{
 			type = GetPrimDataType(classMember->u.decl.type);
@@ -330,7 +330,7 @@ void X10CodeGenerate::CGclassMembers(Node *strdcl, stringstream &buf)
 }
 
 
-// Éú³É½Ó¿Ú£ºinterface.x10
+// ç”Ÿæˆæ¥å£ï¼šinterface.x10
 void X10CodeGenerate::CGinterface()
 {
 	stringstream buf;
@@ -341,7 +341,7 @@ void X10CodeGenerate::CGinterface()
 	// BUFFER_SIZE
 	buf << "\tstatic val BUFFER_SIZE:Int = " << buffer_size_ << ";\n";
 
-	// ¶ÔÈ«¾Ö±äÁ¿½øĞĞ´úÂëÉú³É
+	// å¯¹å…¨å±€å˜é‡è¿›è¡Œä»£ç ç”Ÿæˆ
 	SPL2X10_List(gDeclList, 1);
 	buf << declInitList.str() << "\n\n";
 	declInitList.str("");
@@ -358,7 +358,7 @@ void X10CodeGenerate::CGinterface()
 
 #if 0
 	std::map<operatorNode *, compositeNode *>::iterator pos;
-	// ¿¼ÂÇµ½streamµÄĞ´·¨µÃÖØĞÂÉè¼Æ£¬¾ö¶¨ÔİÊ±¹Ø±Õ£¬12.26
+	// è€ƒè™‘åˆ°streamçš„å†™æ³•å¾—é‡æ–°è®¾è®¡ï¼Œå†³å®šæš‚æ—¶å…³é—­ï¼Œ12.26
 	for (int i = 0; i < nActors_; ++i)
 	{
 		List *outputs = flatNodes_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs;
@@ -369,7 +369,7 @@ void X10CodeGenerate::CGinterface()
 		OperatorType ot = flatNodes_[i]->oldContents->ot;
 
 		pos = mapOperator2ClassName.find(flatNodes_[i]->oldContents);
-		if (pos == mapOperator2ClassName.end()) // ĞÂµÄÀàÄ£°å½øÈëÁË
+		if (pos == mapOperator2ClassName.end()) // æ–°çš„ç±»æ¨¡æ¿è¿›å…¥äº†
 		{
 			mapOperator2ClassName.insert(make_pair(flatNodes_[i]->oldContents, flatNodes_[i]->composite));
 
@@ -399,7 +399,7 @@ void X10CodeGenerate::CGinterface()
 				}
 
 			}
-			else // Ò»Ìõ±ß±»¶à¸öactor¹²ÓÃ, Ôİ²»´¦Àí
+			else // ä¸€æ¡è¾¹è¢«å¤šä¸ªactorå…±ç”¨, æš‚ä¸å¤„ç†
 			{
 				cout << "test" << endl;
 			}
@@ -409,7 +409,7 @@ void X10CodeGenerate::CGinterface()
 
 	buf << "}\n ";
 
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	ss<<dir_<<"Interface.x10";
 	OutputToFile(ss.str(),  buf.str());
@@ -419,14 +419,14 @@ void X10CodeGenerate::CGactors()
 {
 	std::map<operatorNode *, string>::iterator pos;
 	
-	for (int i = 0; i < nActors_; ++i)//Éú³É ¸÷¸ö ÀàÄ£°å
+	for (int i = 0; i < nActors_; ++i)//ç”Ÿæˆ å„ä¸ª ç±»æ¨¡æ¿
 	{
 		int len = ListLength(flatNodes_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs);
 		int nOut = flatNodes_[i]->nOut;
 		OperatorType ot = flatNodes_[i]->oldContents->ot;
 
 		pos = mapOperator2ClassName.find(flatNodes_[i]->oldContents);
-		if (pos == mapOperator2ClassName.end()) // ĞÂµÄÀàÄ£°å½øÈëÁË
+		if (pos == mapOperator2ClassName.end()) // æ–°çš„ç±»æ¨¡æ¿è¿›å…¥äº†
 		{
 			mapOperator2ClassName.insert(make_pair(flatNodes_[i]->oldContents, flatNodes_[i]->name));
 
@@ -434,7 +434,7 @@ void X10CodeGenerate::CGactors()
 			{
 				CGactor(flatNodes_[i], ot);
 			}
-			else // Ò»Ìõ±ß±»¶à¸öactor¹²ÓÃ, Ôİ²»´¦Àí
+			else // ä¸€æ¡è¾¹è¢«å¤šä¸ªactorå…±ç”¨, æš‚ä¸å¤„ç†
 			{
 				cout << "test" << endl;
 				UNREACHABLE;
@@ -444,7 +444,7 @@ void X10CodeGenerate::CGactors()
 	
 }
 
-//Éú³Éactor´úÂë
+//ç”Ÿæˆactorä»£ç 
 void X10CodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 {
 	stringstream buf, SRbuf, pFlush, pushingBuf, popingBuf;
@@ -455,48 +455,48 @@ void X10CodeGenerate::CGactor(FlatNode *actor, OperatorType ot)
 	assert(actor);
 	actor->SetIOStreams();	
 	buf <<"/**\n * Class "<<classNmae<<"\n */\n";
-	buf <<"import lib.*;\n"; // Ïà¹Ø¿âÎÄ¼ş
-	buf <<"public class "<<classNmae<<" implements Interface "<<"{\n"; // Àà¿é¿ªÊ¼
-	// Ğ´Èë·¢ËÍ¡¢½ÓÊÕĞÅÏ¢
-	parameterBuf.str(""); // Çå¿ÕparameterBufÄÚÈİ
-	thisBuf.str(""); // Çå¿ÕthisBufÄÚÈİ
-	// ½ÓÊÕ±ßÏà¹Ø
+	buf <<"import lib.*;\n"; // ç›¸å…³åº“æ–‡ä»¶
+	buf <<"public class "<<classNmae<<" implements Interface "<<"{\n"; // ç±»å—å¼€å§‹
+	// å†™å…¥å‘é€ã€æ¥æ”¶ä¿¡æ¯
+	parameterBuf.str(""); // æ¸…ç©ºparameterBufå†…å®¹
+	thisBuf.str(""); // æ¸…ç©ºthisBufå†…å®¹
+	// æ¥æ”¶è¾¹ç›¸å…³
 	CGrecv(actor, ot, streamName, SRbuf, initPeekBuf, popingBuf, initWorkBuf);
-	// ·¢ËÍ±ßÏà¹Ø
+	// å‘é€è¾¹ç›¸å…³
 	CGsend(actor, ot, streamName, SRbuf, initPushBuf, pushingBuf, pFlush, initWorkBuf);
 	buf << SRbuf.str();
-	// Ğ´ÈëÑ­»·´ÎÊıĞÅÏ¢
+	// å†™å…¥å¾ªç¯æ¬¡æ•°ä¿¡æ¯
 	buf << "\tval RepeatCount:Int;\n";
-	// Ğ´ÈëÓï·¨Ê÷³ÉÔ±±äÁ¿ĞÅÏ¢£¨param, var, state£©
+	// å†™å…¥è¯­æ³•æ ‘æˆå‘˜å˜é‡ä¿¡æ¯ï¼ˆparam, var, stateï¼‰
 	CGdeclList(actor, ot, buf);
-	// Ğ´Èë var, state µÄ³õÊ¼»¯ĞÅÏ¢
+	// å†™å…¥ var, state çš„åˆå§‹åŒ–ä¿¡æ¯
 	CGinitVarAndState(actor, ot, buf);
-	// Ğ´Èë init µÄ³õÊ¼»¯ĞÅÏ¢(¿¼ÂÇµ½init¿ÉÒÔ¶¨Òå¾Ö²¿±äÁ¿£¬ËùÒÔ²»ÓëÉÏ²¿·ÖºÏ²¢)
+	// å†™å…¥ init çš„åˆå§‹åŒ–ä¿¡æ¯(è€ƒè™‘åˆ°initå¯ä»¥å®šä¹‰å±€éƒ¨å˜é‡ï¼Œæ‰€ä»¥ä¸ä¸ä¸Šéƒ¨åˆ†åˆå¹¶)
 	CGlogicInit(actor, ot, buf, logicInitBuf);
-	// Ğ´Èë¹¹Ôìº¯ÊıĞÅÏ¢
+	// å†™å…¥æ„é€ å‡½æ•°ä¿¡æ¯
 	CGthis(actor, ot, buf);
-	// Ğ´Èë³ÉÔ±º¯ÊıĞÅÏ¢
+	// å†™å…¥æˆå‘˜å‡½æ•°ä¿¡æ¯
 	buf <<"\t// ------------Member Mehods------------\n";
-	// Ğ´Èëflushº¯Êı
+	// å†™å…¥flushå‡½æ•°
 	CGflush(buf, pFlush.str());
-	// Ğ´ÈëinitWorkº¯Êı
+	// å†™å…¥initWorkå‡½æ•°
 	CGinitWork(buf, initWorkBuf.str());
-	// Ğ´ÈëinitPeekº¯Êı
+	// å†™å…¥initPeekå‡½æ•°
 	CGinitPeek(buf, initPeekBuf.str());
-	// Ğ´ÈëpopTokenº¯Êı
+	// å†™å…¥popTokenå‡½æ•°
 	CGpopToken(buf, popingBuf.str());
-	// Ğ´ÈëinitPushº¯Êı
+	// å†™å…¥initPushå‡½æ•°
 	CGinitPush(buf, initPushBuf.str());
-	// Ğ´ÈëpushTokenº¯Êı
+	// å†™å…¥pushTokenå‡½æ•°
 	CGpushToken(buf, pushingBuf.str());
-	// Ğ´Èëworkº¯Êı
+	// å†™å…¥workå‡½æ•°
 	CGwork(actor, ot, buf);
-	// Ğ´Èërunº¯Êı
+	// å†™å…¥runå‡½æ•°
 	CGrun(buf, "initWork(nOut)");
 
 
-	buf <<"}";//Àà¿é½áÊø
-	//Êä³öµ½ÎÄ¼ş
+	buf <<"}";//ç±»å—ç»“æŸ
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream fileName;
 	fileName<<dir_<<classNmae<<".x10";
 	OutputToFile(fileName.str(),buf.str());
@@ -517,7 +517,7 @@ void X10CodeGenerate::CGrecv(FlatNode *actor, OperatorType ot, string streamName
 		consumer0 <<"consumer_"<<i;
 		peek0 << actor->peekString[i];
 
-		// ½ÓÊÕ±ß
+		// æ¥æ”¶è¾¹
 		parameterBuf << "number_" << i << " :Int, " << peekNumber << " :Int, " << popNumber << " :Int, " << "edge_recv_" << i << " :Edge[" << streamName << "], "; 
 		thisBuf << "\t\tthis." << peekNumber << " = " << peekNumber <<";\n";
 		thisBuf << "\t\tthis." << popNumber << " = " << popNumber <<";\n";
@@ -529,7 +529,7 @@ void X10CodeGenerate::CGrecv(FlatNode *actor, OperatorType ot, string streamName
 		SRbuf <<"\tval "<<popNumber<<" :Int;\n";
 		SRbuf <<"\tval "<<peek0.str()<<" :Array["<<streamName<<"];\n\n";
 		
-		// ÔÚ¹¹Ôìº¯ÊıÀï¶Ô½ÓÊÕ±ß½øĞĞ³õÊ¼»¯£¨ÉêÇë¿Õ¼äµÈ£©
+		// åœ¨æ„é€ å‡½æ•°é‡Œå¯¹æ¥æ”¶è¾¹è¿›è¡Œåˆå§‹åŒ–ï¼ˆç”³è¯·ç©ºé—´ç­‰ï¼‰
 		thisBuf<<"\t\t"<<consumer0.str()<<" = new Consumer["<<streamName<<"] ("<<"BUFFER_SIZE, "<<"number_"<<i<<", "<<recv0.str()<<", "<<recv1.str()<<", edge_recv_"<<i<<");\n";
 		thisBuf<<"\t\t"<<peek0.str()<<" = new Array["<<streamName<<"](0..("<<peekNumber<<"-1),([i]:Point(1)) => null);\n\n";
 	
@@ -545,7 +545,7 @@ void X10CodeGenerate::CGsend(FlatNode *actor, OperatorType ot, string streamName
 	SRbuf <<"\t// sendBuffer\n";
 	for (int i = 0; i < actor->nOut; ++i)
 	{
-		//if (actor->outPushWeights[i] == 0) continue; // ¶Ô push(0) ²Ù×÷²»·ÖÅä sendBuffer
+		//if (actor->outPushWeights[i] == 0) continue; // å¯¹ push(0) æ“ä½œä¸åˆ†é… sendBuffer
 		
 		string pushNumber = actor->outPushString[i];
 
@@ -553,14 +553,14 @@ void X10CodeGenerate::CGsend(FlatNode *actor, OperatorType ot, string streamName
 		producer0 <<"producer_"<<i;
 		push0 << actor->pushString[i];
 
-		// ·¢ËÍ±ß
+		// å‘é€è¾¹
 		parameterBuf << pushNumber << " :Int, " << "edge_send_" << i << " :Edge[" << streamName << "], "; 
 		thisBuf << "\t\tthis." << pushNumber << " = " << pushNumber <<";\n";
 
 		SRbuf <<"\tval "<<producer0.str()<<" :Producer["<<streamName<<"];\n";
 		SRbuf <<"\tval "<<pushNumber<<" :Int;\n";
 		SRbuf <<"\tval "<<push0.str()<<" :Array["<<streamName<<"];\n\n";
-		// ÔÚ¹¹Ôìº¯ÊıÀï¶Ô·¢ËÍ±ß½øĞĞ³õÊ¼»¯£¨ÉêÇë¿Õ¼äµÈ£©
+		// åœ¨æ„é€ å‡½æ•°é‡Œå¯¹å‘é€è¾¹è¿›è¡Œåˆå§‹åŒ–ï¼ˆç”³è¯·ç©ºé—´ç­‰ï¼‰
 		thisBuf<<"\t\t"<<producer0.str()<<" = new Producer["<<streamName<<"]("<<"BUFFER_SIZE, "<<"edge_send_"<<i<<");\n";
 		thisBuf <<"\t\t"<<push0.str()<<" = new Array["<<streamName<<"](0..("<<pushNumber<<"-1),([i]:Point(1)) => null);\n\n";
 
@@ -578,7 +578,7 @@ void X10CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 	
 	buf << thisBuf.str();
 	buf << "\t\tRepeatCount = rc;\n ";
-	buf << "\t}\n"; // init·½·¨½áÊø
+	buf << "\t}\n"; // initæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGflush(stringstream &buf, string pFlush)
@@ -588,7 +588,7 @@ void X10CodeGenerate::CGflush(stringstream &buf, string pFlush)
 
 	buf << pFlush;
 
-	buf << "\t}\n"; // flush·½·¨½áÊø
+	buf << "\t}\n"; // flushæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGinitWork(stringstream &buf, string initWorkBuf)
@@ -600,7 +600,7 @@ void X10CodeGenerate::CGinitWork(stringstream &buf, string initWorkBuf)
 
 	buf << initWorkBuf;
 
-	buf << "\t}\n"; // initWork·½·¨½áÊø
+	buf << "\t}\n"; // initWorkæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGinitPeek(stringstream &buf, string initPeekBuf)
@@ -610,7 +610,7 @@ void X10CodeGenerate::CGinitPeek(stringstream &buf, string initPeekBuf)
 
 	buf << initPeekBuf;
 
-	buf << "\t}\n"; // initPeek·½·¨½áÊø
+	buf << "\t}\n"; // initPeekæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGinitPush(stringstream &buf, string initPushBuf)
@@ -620,7 +620,7 @@ void X10CodeGenerate::CGinitPush(stringstream &buf, string initPushBuf)
 
 	buf << initPushBuf;
 
-	buf << "\t}\n"; // initPush·½·¨½áÊø
+	buf << "\t}\n"; // initPushæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGpopToken(stringstream &buf, string popingBuf)
@@ -630,7 +630,7 @@ void X10CodeGenerate::CGpopToken(stringstream &buf, string popingBuf)
 
 	buf << popingBuf;
 
-	buf << "\t}\n"; // popToken·½·¨½áÊø
+	buf << "\t}\n"; // popTokenæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGpushToken(stringstream &buf, string pushingBuf)
@@ -640,7 +640,7 @@ void X10CodeGenerate::CGpushToken(stringstream &buf, string pushingBuf)
 
 	buf << pushingBuf;
 
-	buf << "\t}\n"; // pushToken·½·¨½áÊø
+	buf << "\t}\n"; // pushTokenæ–¹æ³•ç»“æŸ
 }
 
 void X10CodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf)
@@ -655,24 +655,24 @@ void X10CodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 	buf << declInitList.str();
 	buf << "\n\t\tpushToken();\n";
 	buf << "\t\tpopToken();\n";
-	buf << "\t}\n"; // work·½·¨½áÊø
+	buf << "\t}\n"; // workæ–¹æ³•ç»“æŸ
 
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 }
 
 void X10CodeGenerate::CGrun(stringstream &buf, string initFun)
 {
 	buf <<"\t// run\n";
-	buf << "\tpublic def run(initCount : Int, steadyCount : Int, nOut : Int) {\n";//run·½·¨,ÀàÖĞ×îÖ÷ÒªµÄ·½·¨
+	buf << "\tpublic def run(initCount : Int, steadyCount : Int, nOut : Int) {\n";//runæ–¹æ³•,ç±»ä¸­æœ€ä¸»è¦çš„æ–¹æ³•
 
-	buf << "\t\t" << initFun << ";\n"; // µ÷ÓÃinit·½·¨
+	buf << "\t\t" << initFun << ";\n"; // è°ƒç”¨initæ–¹æ³•
 
 	buf << strScheduler.str();
 
-	buf << "\t}\n"; // run·½·¨½áÊø
+	buf << "\t}\n"; // runæ–¹æ³•ç»“æŸ
 }
 
-// Ğ´ÈëÓï·¨Ê÷³ÉÔ±±äÁ¿ĞÅÏ¢£¨param, var, state£©
+// å†™å…¥è¯­æ³•æ ‘æˆå‘˜å˜é‡ä¿¡æ¯ï¼ˆparam, var, stateï¼‰
 void X10CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream &buf)
 {
 	List *state = NULL;
@@ -684,7 +684,7 @@ void X10CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	param = actor->oldComposite->body->u.comBody.param;
 
 	extractDecl = true;
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
 	if(param)
 	{
 		isInParam = true;
@@ -693,20 +693,20 @@ void X10CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	}
 	buf << "\t/* *****composite param***** */\n" << declList.str();
 
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
 	
 	buf << "\t/* *****composite var***** */\n" << declList.str();
 
 	stringstream tmp;
 	tmp << declInitList.str();
-	declInitList.str(""); // Çå¿ÕdeclInitListÄÚÈİ
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
+	declInitList.str(""); // æ¸…ç©ºdeclInitListå†…å®¹
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
 	SPL2X10_List(state, 0);
 	buf << "\t/* *****logic state***** */\n" << declList.str();
 	extractDecl = false;
 	
 	stateInit << declInitList.str();
-	declInitList.str(""); // Çå¿ÕdeclInitListÄÚÈİ
+	declInitList.str(""); // æ¸…ç©ºdeclInitListå†…å®¹
 	declInitList << tmp.str();
 }
 
@@ -720,15 +720,15 @@ void X10CodeGenerate::CGinitVarAndState(FlatNode *actor, OperatorType ot, string
 	buf << declInitList.str();
 	buf << "\n\t\t/**** State Init ****/\n";
 	buf << stateInit.str();
-	buf << "\n\t}\n"; // initVarAndState·½·¨½áÊø
+	buf << "\n\t}\n"; // initVarAndStateæ–¹æ³•ç»“æŸ
 
-	declInitList.str(""); // Çå¿Õ
-	stateInit.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
+	stateInit.str(""); // æ¸…ç©º
 }
 
 void X10CodeGenerate::CGlogicInit(FlatNode *actor, OperatorType ot, stringstream &buf, stringstream &logicInit)
 {
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 	buf << "\t// init\n";
 	buf << "\tdef init()";
 	Node *init = actor->oldContents->body->u.operBody.init;
@@ -736,32 +736,32 @@ void X10CodeGenerate::CGlogicInit(FlatNode *actor, OperatorType ot, stringstream
 	if (init)
 	{
 		SPL2X10_Node(init, 2);
-		buf << declInitList.str(); // init½á¹¹±ØĞë´ø"{}"
+		buf << declInitList.str(); // initç»“æ„å¿…é¡»å¸¦"{}"
 	}
 	else
 	{
 		buf << " {\n";
-		buf << "\t}\n"; // '}'¶ÀÕ¼Ò»ĞĞ
+		buf << "\t}\n"; // '}'ç‹¬å ä¸€è¡Œ
 	}
 	
 
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 }
 
 // -----------------------------------------------------------------------
 // -----------------------------------------------------------------------
-//ÌáÈ¡Àà³ÉÔ±±äÁ¿ĞÅÏ¢
+//æå–ç±»æˆå‘˜å˜é‡ä¿¡æ¯
 void X10CodeGenerate::ExtractDeclVariables(Node *from)
 {
-	if (from->u.decl.type->typ == Prim) // »ù±¾ÀàĞÍ
+	if (from->u.decl.type->typ == Prim) // åŸºæœ¬ç±»å‹
 	{
 		Node *typeNode = from->u.decl.type;
 		Node *initNode = from->u.decl.init;
 		string type = GetPrimDataType(typeNode);
 		string name = from->u.decl.name;
-		declList << "\tvar "<< name << " :"<<type<<";\n"; // ½¨Á¢±äÁ¿ÉùÃ÷
+		declList << "\tvar "<< name << " :"<<type<<";\n"; // å»ºç«‹å˜é‡å£°æ˜
 
-		if (initNode) // ´æÔÚ³õÊ¼»¯Ôò½øĞĞ³õÊ¼»¯
+		if (initNode) // å­˜åœ¨åˆå§‹åŒ–åˆ™è¿›è¡Œåˆå§‹åŒ–
 		{
 			declInitList << "\t\t"<<name<<" = ";
 			SPL2X10_Node(initNode, 0);
@@ -774,7 +774,7 @@ void X10CodeGenerate::ExtractDeclVariables(Node *from)
 			thisBuf << "\t\tthis." << name << " = " << name <<";\n";
 		}
 	}
-	else if (from->u.decl.type->typ == Adcl) // Êı×é, ×î¶à´¦Àí¶şÎ¬Êı×é, ¸ßÎ¬´ıÀ©Õ¹
+	else if (from->u.decl.type->typ == Adcl) // æ•°ç»„, æœ€å¤šå¤„ç†äºŒç»´æ•°ç»„, é«˜ç»´å¾…æ‰©å±•
 	{
 		Node *arrayNode = from->u.decl.type;
 		Node *tmpNode = from->u.decl.type;
@@ -784,17 +784,17 @@ void X10CodeGenerate::ExtractDeclVariables(Node *from)
 		string dim = GetArrayDim(tmpNode->u.adcl.dim);
 		declList << "\tvar "<< name << " :Array[" << arrayType << "](1);\n";
 
-		if (initNode == NULL) //Èç¹ûÃ»ÓĞ³õÊ¼»¯£¬Ôò°´Êı×éÀàĞÍ½øĞĞ³õÊ¼»¯
+		if (initNode == NULL) //å¦‚æœæ²¡æœ‰åˆå§‹åŒ–ï¼Œåˆ™æŒ‰æ•°ç»„ç±»å‹è¿›è¡Œåˆå§‹åŒ–
 		{
 			declInitList << "\t\t"<<name<<" = new Array["<<arrayType<<"](0..("<<dim<<"-1), ";
-			GetArrayDataInitVal(tmpNode, declInitList); //Êı×é³õÊ¼»¯
-			declInitList << ");\n";//Ò»¸öÊı×éÉùÃ÷¼Ó³õÊ¼»¯
+			GetArrayDataInitVal(tmpNode, declInitList); //æ•°ç»„åˆå§‹åŒ–
+			declInitList << ");\n";//ä¸€ä¸ªæ•°ç»„å£°æ˜åŠ åˆå§‹åŒ–
 		}
-		else//Èç¹û´æÔÚ³õÊ¼»¯Ôò³õÊ¼»¯ÎªÖ¸¶¨Öµ
+		else//å¦‚æœå­˜åœ¨åˆå§‹åŒ–åˆ™åˆå§‹åŒ–ä¸ºæŒ‡å®šå€¼
 		{
 			List *tmp = initNode->u.initializer.exprs;
 			int n = ListLength(tmp);
-			if(n == 1) // Èç¹û³õÊ¼»¯¸öÊı1¸öµ¥Ò»ÖµÊ±£¬Ôò½«Êı×éËùÓĞ³ÉÔ±³õÊ¼»¯Îª¸ÃÖµ
+			if(n == 1) // å¦‚æœåˆå§‹åŒ–ä¸ªæ•°1ä¸ªå•ä¸€å€¼æ—¶ï¼Œåˆ™å°†æ•°ç»„æ‰€æœ‰æˆå‘˜åˆå§‹åŒ–ä¸ºè¯¥å€¼
 			{
 				Node *item = (Node *)FirstItem(tmp);
 				if(item->typ == Const)
@@ -804,7 +804,7 @@ void X10CodeGenerate::ExtractDeclVariables(Node *from)
 					declInitList <<name<<" :Array["<<arrayType<<"](1) = new Array["<<arrayType<<"](0..("<<dim<<"-1), "<<ss.str()<<");\n";
 				}
 			}
-			else //³õÊ¼µÄ¸öÊıºÍÊı×éÎ¬ÊıÒ»ÖÂ£¬Ôò¿ÉÒÔ²ÉÈ¡ÕâÑùµÄ¸³ÖµĞÎÊ½£ºval pp:Array[Int](1) = [1,2,3,4,5];
+			else //åˆå§‹çš„ä¸ªæ•°å’Œæ•°ç»„ç»´æ•°ä¸€è‡´ï¼Œåˆ™å¯ä»¥é‡‡å–è¿™æ ·çš„èµ‹å€¼å½¢å¼ï¼šval pp:Array[Int](1) = [1,2,3,4,5];
 			{	
 				declInitList<<"\t\t"<<name<<" = ";
 				RecursiveAdclInit(tmp);
@@ -819,7 +819,7 @@ void X10CodeGenerate::ExtractDeclVariables(Node *from)
 			thisBuf << "\t\tthis." << name << " = " << name <<";\n";
 		}
 	}
-	else if (from->u.decl.type->typ == Ptr) // Ö¸Õë£¬Ö»ÄÜ³öÏÖÔÚparamÖĞ
+	else if (from->u.decl.type->typ == Ptr) // æŒ‡é’ˆï¼Œåªèƒ½å‡ºç°åœ¨paramä¸­
 	{
 		assert(isInParam);
 		Node *arrayNode = from->u.decl.type;
@@ -836,7 +836,7 @@ void X10CodeGenerate::ExtractDeclVariables(Node *from)
 		UNREACHABLE;
 }
 
-//È¡µÃ²Ù×÷ÀàĞÍ
+//å–å¾—æ“ä½œç±»å‹
 string X10CodeGenerate::GetOpType(OpType op)
 {
 	switch(op)
@@ -888,7 +888,7 @@ string X10CodeGenerate::GetOpType(OpType op)
 	}
 }
 
-//È¡»ù±¾Êı¾İ³ÉÔ±µÄÀàĞÍ
+//å–åŸºæœ¬æ•°æ®æˆå‘˜çš„ç±»å‹
 string X10CodeGenerate::GetPrimDataType(Node *from)
 {
 	string type;
@@ -945,74 +945,74 @@ string X10CodeGenerate::GetPrimDataType(Node *from)
 	return type;
 }
 
-//È¡Êı×é³ÉÔ±µÄÀàĞÍ
+//å–æ•°ç»„æˆå‘˜çš„ç±»å‹
 string X10CodeGenerate::GetArrayDataType(Node *node)
 {
 	string type;
-	if (node->typ == Prim) //»ù±¾ÀàĞÍ
+	if (node->typ == Prim) //åŸºæœ¬ç±»å‹
 	{
 		type = GetPrimDataType(node);
 	}
-	else if (node->typ == Adcl) // Ò²ÊÇ¸öÊı×éÔòµİ¹é²éÕÒÀàĞÍ
+	else if (node->typ == Adcl) // ä¹Ÿæ˜¯ä¸ªæ•°ç»„åˆ™é€’å½’æŸ¥æ‰¾ç±»å‹
 	{
 		stringstream ss;
 		ss<<"Array["<<GetArrayDataType(node->u.adcl.type)<<"]";
 		type = ss.str();
 	}
-	else // Èç¹ûÊı×éµÄ³ÉÔ±ÊÇ¸´ÔÓÀàĞÍ£¬ÔòÓĞ´ıÀ©Õ¹
+	else // å¦‚æœæ•°ç»„çš„æˆå‘˜æ˜¯å¤æ‚ç±»å‹ï¼Œåˆ™æœ‰å¾…æ‰©å±•
 	{
 		Warning(1,"this arrayDataType can not be handle!");
-		type = "Any";// ÔİÊ±·µ»ØÒ»ÖÖÍ¨ÓÃÀàĞÍ
+		type = "Any";// æš‚æ—¶è¿”å›ä¸€ç§é€šç”¨ç±»å‹
 		UNREACHABLE;
 	}
 	return type;
 }
 
-//È¡Ö¸ÕëÖ¸ÏòµÄÀàĞÍ
+//å–æŒ‡é’ˆæŒ‡å‘çš„ç±»å‹
 string X10CodeGenerate::GetPtrDataType(Node *node)
 {
 	string type;
-	if (node->typ == Prim) //»ù±¾ÀàĞÍ
+	if (node->typ == Prim) //åŸºæœ¬ç±»å‹
 	{
 		type = GetPrimDataType(node);
 	}
-	else if (node->typ == Adcl) // Ò²ÊÇ¸öÖ¸ÕëÔòµİ¹é²éÕÒÀàĞÍ
+	else if (node->typ == Adcl) // ä¹Ÿæ˜¯ä¸ªæŒ‡é’ˆåˆ™é€’å½’æŸ¥æ‰¾ç±»å‹
 	{
 		stringstream ss;
 		ss<<"Array["<<GetPtrDataType(node->u.adcl.type)<<"]";
 		type = ss.str();
 	}
-	else // Èç¹ûÊı×éµÄ³ÉÔ±ÊÇ¸´ÔÓÀàĞÍ£¬ÔòÓĞ´ıÀ©Õ¹
+	else // å¦‚æœæ•°ç»„çš„æˆå‘˜æ˜¯å¤æ‚ç±»å‹ï¼Œåˆ™æœ‰å¾…æ‰©å±•
 	{
 		Warning(1,"this ptrDataType can not be handle!");
-		type = "Any";// ÔİÊ±·µ»ØÒ»ÖÖÍ¨ÓÃÀàĞÍ
+		type = "Any";// æš‚æ—¶è¿”å›ä¸€ç§é€šç”¨ç±»å‹
 		UNREACHABLE;
 	}
 	return type;
 }
 
-//È¡Êı×é³ÉÔ±µÄ³õÊ¼Öµ
+//å–æ•°ç»„æˆå‘˜çš„åˆå§‹å€¼
 void X10CodeGenerate::GetArrayDataInitVal(Node *node, stringstream &strInit)
 {
 	assert(node->typ == Adcl);
-	if (node->u.adcl.type->typ == Adcl) //Èç¹ûÊı×éµÄ³ÉÔ±ÈÔÈ»ÊÇÒ»¸öÊı×éµÄ»°Ôòµİ¹é
+	if (node->u.adcl.type->typ == Adcl) //å¦‚æœæ•°ç»„çš„æˆå‘˜ä»ç„¶æ˜¯ä¸€ä¸ªæ•°ç»„çš„è¯åˆ™é€’å½’
 	{
-		node = node->u.adcl.type; // È¡³ö³ÉÔ±Êı×é
+		node = node->u.adcl.type; // å–å‡ºæˆå‘˜æ•°ç»„
 		string arrayType = GetArrayDataType(node->u.adcl.type);
 		string dim = GetArrayDim(node->u.adcl.dim);
 		strInit <<"([i]:Point(1)) => new Array["<<arrayType<<"](0..("<<dim<<"-1),";
 		GetArrayDataInitVal(node,strInit);
 		strInit<<")";
 	} 
-	else if(node->u.adcl.type->typ == Prim) // Êı×é³ÉÔ±ÊÇ»ù±¾ÀàĞÍ
+	else if(node->u.adcl.type->typ == Prim) // æ•°ç»„æˆå‘˜æ˜¯åŸºæœ¬ç±»å‹
 	{
 		strInit << GetDataInitVal(GetArrayDataType(node->u.adcl.type));
 	}
-	else  // Ôİ²»´¦ÀíÆäËû¸´ºÏÀàĞÍ
+	else  // æš‚ä¸å¤„ç†å…¶ä»–å¤åˆç±»å‹
 		UNREACHABLE;
 }
 
-//È¡Êı¾İ³ÉÔ±µÄ³õÊ¼Öµ
+//å–æ•°æ®æˆå‘˜çš„åˆå§‹å€¼
 string X10CodeGenerate::GetDataInitVal(string type)
 {
 	string s ;
@@ -1045,23 +1045,23 @@ string X10CodeGenerate::GetDataInitVal(string type)
 	else if (type == "Any")
 	{
 		s = "null";
-	}else//Èç¹ûÊı×é³ÉÔ±·Ç»ù±¾ÀàĞÍÔò³õÊ¼»¯Îªnull£¬×÷ÎªÒ»¸öÎ´ÖªÀàµÄ³õÖµ£¬ÀıÈç£ºÊı×é³ÉÔ±Ò²ÊÇ¸öÊı×é
+	}else//å¦‚æœæ•°ç»„æˆå‘˜éåŸºæœ¬ç±»å‹åˆ™åˆå§‹åŒ–ä¸ºnullï¼Œä½œä¸ºä¸€ä¸ªæœªçŸ¥ç±»çš„åˆå€¼ï¼Œä¾‹å¦‚ï¼šæ•°ç»„æˆå‘˜ä¹Ÿæ˜¯ä¸ªæ•°ç»„
 		s = "null";
 	return s;
 }
 
-//È¡Êı×éµÄÎ¬Êı
+//å–æ•°ç»„çš„ç»´æ•°
 string X10CodeGenerate::GetArrayDim(Node *from)
 {
 	string dim;
 	//PrintNode(stdout, from, 0);
-	if (from->typ == Const)//Èç¹ûÎ¬Êı½ÚµãÀàĞÍÎª³£Á¿£¬ÀıÈça[10]
+	if (from->typ == Const)//å¦‚æœç»´æ•°èŠ‚ç‚¹ç±»å‹ä¸ºå¸¸é‡ï¼Œä¾‹å¦‚a[10]
 	{
 		if(from->u.Const.text)dim = from->u.Const.text;
 		else 
 		{
 			char *tmpdim = (char *)malloc(20);
-			sprintf(tmpdim,"%d",from->u.Const.value.l);//20120322 zwwÌí¼Ó
+			sprintf(tmpdim,"%d",from->u.Const.value.l);//20120322 zwwæ·»åŠ 
 			dim = tmpdim;
 		}
 
@@ -1072,7 +1072,7 @@ string X10CodeGenerate::GetArrayDim(Node *from)
 	}
 	else if(from->typ == Binop)
 	{
-		string tmp = declInitList.str(); // ±£´æ
+		string tmp = declInitList.str(); // ä¿å­˜
 		stringstream tmp2;
 
 		declInitList.str("");
@@ -1080,7 +1080,7 @@ string X10CodeGenerate::GetArrayDim(Node *from)
 		tmp2 << "(" << declInitList.str() << ")";
 		dim = tmp2.str();
 		declInitList.str("");
-		declInitList << tmp; // »Ö¸´ 
+		declInitList << tmp; // æ¢å¤ 
 	}
 	else
 		UNREACHABLE;
@@ -1088,10 +1088,10 @@ string X10CodeGenerate::GetArrayDim(Node *from)
 	return dim;
 }
 
-//Êı×é³õÊ¼»¯¹ı³Ì£¨µİ¹é£©
+//æ•°ç»„åˆå§‹åŒ–è¿‡ç¨‹ï¼ˆé€’å½’ï¼‰
 void X10CodeGenerate::RecursiveAdclInit(List *init)
 {
-	//¶àÎ¬Êı×éÔòinitÊÇÒ»¸ö¶àÎ¬µÄÁ´±í
+	//å¤šç»´æ•°ç»„åˆ™initæ˜¯ä¸€ä¸ªå¤šç»´çš„é“¾è¡¨
 	ListMarker marker;
 	Node *item;
 	int i=1;
@@ -1106,13 +1106,13 @@ void X10CodeGenerate::RecursiveAdclInit(List *init)
 			declInitList<<GetOpType(item->u.unary.op);
 			SPL2X10_Node(item->u.unary.expr,0);
 		}
-		else if(item->typ == Const) // Èç¹ûÊı×é³ÉÔ±ÊÇ»ù±¾ÀàĞÍ
+		else if(item->typ == Const) // å¦‚æœæ•°ç»„æˆå‘˜æ˜¯åŸºæœ¬ç±»å‹
 		{
 			if(i!=1) declInitList<<", ";
 			SPL2X10_Node(item,0);
-			//if(i == 1) declInitList<<" as "<<ArrayDT;//Îªx10-2.2×÷³öµÄµ÷Õû
+			//if(i == 1) declInitList<<" as "<<ArrayDT;//ä¸ºx10-2.2ä½œå‡ºçš„è°ƒæ•´
 		}
-		else if (item->typ == Initializer)//Èç¹ûÊı×é³ÉÔ±ÊÇÒ»¸öÊı×éÔòµİ¹é
+		else if (item->typ == Initializer)//å¦‚æœæ•°ç»„æˆå‘˜æ˜¯ä¸€ä¸ªæ•°ç»„åˆ™é€’å½’
 		{
 			RecursiveAdclInit(item->u.initializer.exprs);
 			if(i != len)
@@ -1121,7 +1121,7 @@ void X10CodeGenerate::RecursiveAdclInit(List *init)
 				OutputCRSpaceAndTabs(4);
 			}
 		}
-		else if (item->typ == ImplicitCast)//»ù±¾ÀàĞÍµÄÒşÊ½×ª»»
+		else if (item->typ == ImplicitCast)//åŸºæœ¬ç±»å‹çš„éšå¼è½¬æ¢
 		{
 			if(i!=1) declInitList<<", ";
 			SPL2X10_Node(item->u.implicitcast.value,0);
@@ -1131,7 +1131,7 @@ void X10CodeGenerate::RecursiveAdclInit(List *init)
 	declInitList<<"]";
 }
 
-//Êı×é³õÊ¼»¯¹ı³Ì
+//æ•°ç»„åˆå§‹åŒ–è¿‡ç¨‹
 void X10CodeGenerate::AdclInit(Node *from, int offset)
 {
 	Node *arrayNode = from->u.decl.type;
@@ -1142,17 +1142,17 @@ void X10CodeGenerate::AdclInit(Node *from, int offset)
 	string dim = GetArrayDim(tmpNode->u.adcl.dim);
 	declList << "\tvar "<< name << " :Array[" << arrayType << "](1);\n";
 
-	if (initNode == NULL) //Èç¹ûÃ»ÓĞ³õÊ¼»¯£¬Ôò°´Êı×éÀàĞÍ½øĞĞ³õÊ¼»¯
+	if (initNode == NULL) //å¦‚æœæ²¡æœ‰åˆå§‹åŒ–ï¼Œåˆ™æŒ‰æ•°ç»„ç±»å‹è¿›è¡Œåˆå§‹åŒ–
 	{
 		declInitList << "\t"<<" = new Array["<<arrayType<<"](0..("<<dim<<"-1), ";
-		GetArrayDataInitVal(tmpNode, declInitList); //Êı×é³õÊ¼»¯
-		declInitList << ")";//Ò»¸öÊı×éÉùÃ÷¼Ó³õÊ¼»¯
+		GetArrayDataInitVal(tmpNode, declInitList); //æ•°ç»„åˆå§‹åŒ–
+		declInitList << ")";//ä¸€ä¸ªæ•°ç»„å£°æ˜åŠ åˆå§‹åŒ–
 	}
-	else//Èç¹û´æÔÚ³õÊ¼»¯Ôò³õÊ¼»¯ÎªÖ¸¶¨Öµ
+	else//å¦‚æœå­˜åœ¨åˆå§‹åŒ–åˆ™åˆå§‹åŒ–ä¸ºæŒ‡å®šå€¼
 	{
 		List *tmp = initNode->u.initializer.exprs;
 		int n = ListLength(tmp);
-		if(n == 1) // Èç¹û³õÊ¼»¯¸öÊı1¸öµ¥Ò»ÖµÊ±£¬Ôò½«Êı×éËùÓĞ³ÉÔ±³õÊ¼»¯Îª¸ÃÖµ
+		if(n == 1) // å¦‚æœåˆå§‹åŒ–ä¸ªæ•°1ä¸ªå•ä¸€å€¼æ—¶ï¼Œåˆ™å°†æ•°ç»„æ‰€æœ‰æˆå‘˜åˆå§‹åŒ–ä¸ºè¯¥å€¼
 		{
 			Node *item = (Node *)FirstItem(tmp);
 			if(item->typ == Const)
@@ -1162,7 +1162,7 @@ void X10CodeGenerate::AdclInit(Node *from, int offset)
 				declInitList <<name<<" :Array["<<arrayType<<"](1) = new Array["<<arrayType<<"](0..("<<dim<<"-1), "<<ss.str()<<");\n";
 			}
 		}
-		else //³õÊ¼µÄ¸öÊıºÍÊı×éÎ¬ÊıÒ»ÖÂ£¬Ôò¿ÉÒÔ²ÉÈ¡ÕâÑùµÄ¸³ÖµĞÎÊ½£ºval pp:Array[Int](1) = [1,2,3,4,5];
+		else //åˆå§‹çš„ä¸ªæ•°å’Œæ•°ç»„ç»´æ•°ä¸€è‡´ï¼Œåˆ™å¯ä»¥é‡‡å–è¿™æ ·çš„èµ‹å€¼å½¢å¼ï¼šval pp:Array[Int](1) = [1,2,3,4,5];
 		{	
 			declInitList<<"\t"<<" = ";
 			RecursiveAdclInit(tmp);
@@ -1178,9 +1178,9 @@ void X10CodeGenerate::OutputConstant(Node *c, Bool with_name)
 {
 	int len = 0;
 	const char *tmpString = c->u.Const.text;
-	//if (tmpString[0]=='0' && tmpString[1]=='x')//Èç¹ûÊÇ0x±íÊ¾Ê®Áù½øÖÆ
+	//if (tmpString[0]=='0' && tmpString[1]=='x')//å¦‚æœæ˜¯0xè¡¨ç¤ºåå…­è¿›åˆ¶
 	//{
-	//	declInitList<< c->u.Const.text; // Èç¹ûÊÇ0x±íÊ¾Ê®Áù½øÖÆÔòÒÔ0x±íÊ¾
+	//	declInitList<< c->u.Const.text; // å¦‚æœæ˜¯0xè¡¨ç¤ºåå…­è¿›åˆ¶åˆ™ä»¥0xè¡¨ç¤º
 	//	return;
 	//}
 
@@ -1225,7 +1225,7 @@ void X10CodeGenerate::OutputConstant(Node *c, Bool with_name)
 		break;
 	case Ptr:
 		UNREACHABLE;
-		// declInitList<< c->u.Const.value.u;//splÃ»Ö¸Õë£¬¿ÉÒÔºöÂÔ
+		// declInitList<< c->u.Const.value.u;//splæ²¡æŒ‡é’ˆï¼Œå¯ä»¥å¿½ç•¥
 		break;
 		/* Used for strings */
 	case Adcl:
@@ -1316,7 +1316,7 @@ void X10CodeGenerate::CharToText(char *str, unsigned char val){
 	}
 }
 
-//±éÀúº¯Êıµ÷ÓÃÖĞµÄ²ÎÊıÏî
+//éå†å‡½æ•°è°ƒç”¨ä¸­çš„å‚æ•°é¡¹
 void X10CodeGenerate::OutputArgList(List *list, int offset)
 { 
 	ListMarker marker;
@@ -1338,13 +1338,13 @@ void X10CodeGenerate::SPL2X10_Node(Node *node, int offset)
 {
 	if (node == NULL) return;
 
-	if(node->parenthesized == TRUE) declInitList << "("; //¼ÓÀ¨ºÅ±£Ö¤Âß¼­ĞÔ
+	if(node->parenthesized == TRUE) declInitList << "("; //åŠ æ‹¬å·ä¿è¯é€»è¾‘æ€§
 
 #define CODE(name, node, union) SPL2X10_##name(node, union, offset)
 	ASTSWITCH(node, CODE)
 #undef CODE
 
-	if(node->parenthesized == TRUE) declInitList << ")"; //¼ÓÀ¨ºÅ±£Ö¤Âß¼­ĞÔ
+	if(node->parenthesized == TRUE) declInitList << ")"; //åŠ æ‹¬å·ä¿è¯é€»è¾‘æ€§
 }
 
 void X10CodeGenerate::OutputStmt(Node *node, int offset)
@@ -1498,7 +1498,7 @@ void X10CodeGenerate::SPL2X10_Cast(Node *node, castNode *u, int offset)
 
 void X10CodeGenerate::SPL2X10_Comma(Node *node, commaNode *u, int offset)
 {
-	isInComma = true;//Õı´¦ÓÚ¶ººÅ±í´ïÊ½ÖĞ
+	isInComma = true;//æ­£å¤„äºé€—å·è¡¨è¾¾å¼ä¸­
 	SPL2X10_List(u->exprs,offset);
 	isInComma = false;
 }
@@ -1516,7 +1516,7 @@ void X10CodeGenerate::SPL2X10_Array(Node *node, arrayNode *u, int offset)
 {
 	SPL2X10_Node(u->name,offset);
 	List *tmp = u->dims;
-	while(tmp != NULL)//¿ÉÄÜÊÇ¶àÎ¬Êı×é£¬ĞèÒª±éÀúdimÕâ¸ölist
+	while(tmp != NULL)//å¯èƒ½æ˜¯å¤šç»´æ•°ç»„ï¼Œéœ€è¦éå†dimè¿™ä¸ªlist
 	{
 		declInitList<<"(";
 		Node *item = (Node *)FirstItem(tmp);
@@ -1572,7 +1572,7 @@ void X10CodeGenerate::SPL2X10_Call(Node *node, callNode *u, int offset)
 			;
 		}
 		declInitList<<"(";
-		OutputArgList(u->args,offset);//²ÎÊı
+		OutputArgList(u->args,offset);//å‚æ•°
 		declInitList<<")";
 	}
 }
@@ -1619,12 +1619,12 @@ void X10CodeGenerate::SPL2X10_If(Node *node, IfNode *u, int offset)
 	declInitList<<"if (";
 	SPL2X10_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block) // Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block) // å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X10_Node(u->stmt,offset+1);
-	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -1633,21 +1633,21 @@ void X10CodeGenerate::SPL2X10_IfElse(Node *node, IfElseNode *u, int offset)
 	declInitList<<"if (";
 	SPL2X10_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->true_->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->true_->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X10_Node(u->true_,offset);
-	if(u->true_->typ == Binop || u->true_->typ == Unary || u->true_->typ == Ternary || u->true_->typ == Call || u->true_->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->true_->typ == Binop || u->true_->typ == Unary || u->true_->typ == Ternary || u->true_->typ == Call || u->true_->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 	OutputCRSpaceAndTabs(offset);
 	declInitList<<"else ";
-	if (u->false_->typ != Block && u->false_->typ != IfElse)//Èç¹ûÊÇ·Çblock½áµã»òÕßifelse½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->false_->typ != Block && u->false_->typ != IfElse)//å¦‚æœæ˜¯éblockç»“ç‚¹æˆ–è€…ifelseç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X10_Node(u->false_,offset);
-	if(u->false_->typ == Binop || u->false_->typ == Unary || u->false_->typ == Ternary || u->false_->typ == Call || u->false_->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->false_->typ == Binop || u->false_->typ == Unary || u->false_->typ == Ternary || u->false_->typ == Call || u->false_->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -1656,12 +1656,12 @@ void X10CodeGenerate::SPL2X10_While(Node *node, WhileNode *u, int offset)
 	declInitList<<"while (";
 	SPL2X10_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X10_Node(u->stmt,offset);
-	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -1683,7 +1683,7 @@ void X10CodeGenerate::SPL2X10_For(Node *node, ForNode *u, int offset)
 	declInitList<<";";
 	SPL2X10_Node(u->next,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		declInitList<<"\n";
 	}
@@ -1714,11 +1714,11 @@ void X10CodeGenerate::SPL2X10_Block(Node *node, BlockNode *u, int offset)
 	//OutputCRSpaceAndTabs(offset + 1);
 	SPL2X10_List(u->decl,  offset);
 
-	declInitList<<"\n"; // ÁíÆğÒ»ĞĞ
+	declInitList<<"\n"; // å¦èµ·ä¸€è¡Œ
 	OutputStmtList(u->stmts, offset);
 
 	OutputCRSpaceAndTabs(offset);
-	declInitList<<"}\n"; // '}'¶ÀÕ¼Ò»ĞĞ
+	declInitList<<"}\n"; // '}'ç‹¬å ä¸€è¡Œ
 }
 
 void X10CodeGenerate::SPL2X10_Prim(Node *node, primNode *u, int offset)
@@ -1737,9 +1737,9 @@ void X10CodeGenerate::SPL2X10_Ptr(Node *node, ptrNode *u, int offset)
 void X10CodeGenerate::SPL2X10_Adcl(Node *node, adclNode *u, int offset)
 {
 #if 0
-	/*X10-2.2ºó¶àÎ¬µÄÊı×éĞèÒªÈ¥µô¾ßÌåÀàĞÍ¡£ÀıÈç
+	/*X10-2.2åå¤šç»´çš„æ•°ç»„éœ€è¦å»æ‰å…·ä½“ç±»å‹ã€‚ä¾‹å¦‚
 		 val kkey=[[14,4,13,1],[2,5,67,80]];
-		 ÈÃx10±àÒëÆ÷×Ô¼ºÅĞ¶ÏÀàĞÍ¡£
+		 è®©x10ç¼–è¯‘å™¨è‡ªå·±åˆ¤æ–­ç±»å‹ã€‚
 	*/
 	if((node->u.adcl.type)->typ != Adcl){ 
 		string arrayType = getArrayDataType(node->u.adcl.type);
@@ -1747,7 +1747,7 @@ void X10CodeGenerate::SPL2X10_Adcl(Node *node, adclNode *u, int offset)
 	}
 #endif
 
-#if 1 //X10-2.1Êı×é´¦Àí·½Ê½
+#if 1 //X10-2.1æ•°ç»„å¤„ç†æ–¹å¼
 	string arrayType = GetArrayDataType(node->u.adcl.type);
 	declInitList<<"Array["<<arrayType<<"](1)";
 #endif
@@ -1781,7 +1781,7 @@ void X10CodeGenerate::SPL2X10_Decl(Node *node, declNode *u, int offset)
 	{
 		OutputCRSpaceAndTabs(offset);
 		//declInitList << "\n";
-		if(u->type->typ == Adcl && ((u->type)->u.adcl.type)->typ== Adcl)//¶şÎ¬Êı×é
+		if(u->type->typ == Adcl && ((u->type)->u.adcl.type)->typ== Adcl)//äºŒç»´æ•°ç»„
 			declInitList <<"var "<<node->u.decl.name<<" :";
 		else
 			declInitList <<"var "<<node->u.decl.name<<" :";
@@ -1796,7 +1796,7 @@ void X10CodeGenerate::SPL2X10_Decl(Node *node, declNode *u, int offset)
 	{
 		if (node->u.decl.init) 
 		{
-			if (u->type->typ == Prim && u->type->u.prim.basic == Char)//Èç¹ûÊÇ¸ö×Ö·ûÉùÃ÷
+			if (u->type->typ == Prim && u->type->u.prim.basic == Char)//å¦‚æœæ˜¯ä¸ªå­—ç¬¦å£°æ˜
 			{
 				declInitList<<" = "<<u->init->u.implicitcast.expr->u.Const.text;
 			}

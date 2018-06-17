@@ -363,7 +363,7 @@ PRIVATE inline void VerifyFdcl(Node *node, fdclNode *u, Context c)
 PRIVATE inline void VerifySdcl(Node *node, sdclNode *u, Context c)
 {
 
-// #ifdef SPL_GRAMMAR   //zww£º×¢ÊÍ£¬Ôö¼Ó¶Ô½á¹¹ÌåµÄÖ§³Ö
+// #ifdef SPL_GRAMMAR   //zwwï¼šæ³¨é‡Šï¼Œå¢åŠ å¯¹ç»“æ„ä½“çš„æ”¯æŒ
 // 	SyntaxErrorCoord(node->coord, "Fatal error: SPL does not support Struct type currently!\n");
 // 	system("pause"); 
 // 	exit(1);
@@ -486,7 +486,7 @@ PRIVATE inline void VerifyComdcl(Node *node, comDeclNode *u, Context c)
 {
 	assert(u->tq == EMPTY_TQ || u->tq == T_INLINE);
 	
-	if(u->inout) VerifyNode(u->inout, Other);//¼Óif(u->inout)ÊÇÎªÁË¶Ôcomposite Main()µÄÖ§³Ö£¡
+	if(u->inout) VerifyNode(u->inout, Other);//åŠ if(u->inout)æ˜¯ä¸ºäº†å¯¹composite Main()çš„æ”¯æŒï¼
 	
 }
 
@@ -729,7 +729,7 @@ PRIVATE void VerifyScAndDq(TypeQual tq)
 
 PRIVATE void VerifyType(Node *type)
 {
-  assert(type);//µ±program½¨Á¢ºó£¬Ò»¸öÕı³£µÄDECL½ÚµãµÄtype±Ø²»Îª¿Õ£¡
+  assert(type);//å½“programå»ºç«‹åï¼Œä¸€ä¸ªæ­£å¸¸çš„DECLèŠ‚ç‚¹çš„typeå¿…ä¸ä¸ºç©ºï¼
   assert(IsType(type));
   VerifyNode(type, Other);
 }
@@ -808,7 +808,7 @@ PRIVATE void VerifyStmtList(List *list)
 
 }
 
-/**********1*****ĞÂÎÄ·¨*******************/
+/**********1*****æ–°æ–‡æ³•*******************/
 PRIVATE inline void VerifyAdd(Node *node, addNode *u, Context c)
 {
 	assert(u->content);

@@ -12,7 +12,7 @@ public:
 	void GetCpuAndGpuNeededBuffer(SchedulerSSG *sssg,HAFLPartition * haflp);
 	void SetMultiNum(SchedulerSSG *sssg,HAFLPartition * maflp);
 
-	ActorEdgeInfo* pEdgeInfo;//存放各个边的类型信息
+	ActorEdgeInfo* pEdgeInfo;//瀛樻斁鍚勪釜杈圭殑绫诲瀷淇℃伅
 	StageAssignment *pSa;
 	
 private:
@@ -21,7 +21,7 @@ private:
 	double CpuNeededBuffer;
 	double GpuNeededBuffer;
 	double MinMultiNum;
-	int nvtxs;    //定义顶点个数
+	int nvtxs;    //瀹氫箟椤剁偣涓暟
 	std::vector<FlatNode *> flatNodes_;
 //public:
 //	std::map<FlatNode *, int> MultiNum2FlatNode;

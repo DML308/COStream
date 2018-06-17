@@ -11,34 +11,34 @@
 GLOBAL extern SchedulerSSG *SSSG;
 
 class ClusterGroupGraph
-{//¸ÃÄÚµÄÄ¿µÄ¾ÍÊÇ½«Í¼»®·Ö³ÉK·İ£¨Ö´ĞĞÀàËÆÓÚ¶à²ãKÂ·»®·Ö£©
+{//è¯¥å†…çš„ç›®çš„å°±æ˜¯å°†å›¾åˆ’åˆ†æˆKä»½ï¼ˆæ‰§è¡Œç±»ä¼¼äºå¤šå±‚Kè·¯åˆ’åˆ†ï¼‰
 private:
-	std::map<ClusterGroup *,float>clusterGroup2Radio;//¼ÇÂ¼µ±Ç°ËùÓĞµÄgroupÒÔ¼°Í¨µÄ¼ÆËãÍ¨ĞÅ±È
-	std::multimap<ClusterGroup*, ClusterGroup*> groupSrc2SnkChannel;//group¼äµÄ±ß(Ã¿Ò»¶Ôclustergroup Ö»»á³öÏÖÒ»´Î)
-	std::map<FlatNode *,ClusterGroup *>flatNode2ClusterGroup;//flatNodeÓëgroup¼äµÄÓ³Éä(Ö»¼ÇÂ¼×î¸ßÒ»²ãgroupµÄÓ³Éä¹ØÏµ)
-	std::vector<ClusterGroup *>clusterGroupVec;//¼ÇÂ¼³õÊ¼»¯·ÖºóËùÓĞµÄgroup(°´×égroupµÄÏÈºóË³Ğò´æ·Å)
-	int mngroups;//groupµÄÊıÄ¿
-	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > coarseGroupSort;//¼ÇÂ¼ÔÚ´Ö»¯ÊÇgroupµÄÈÚºÏË³Ğò
-	std::vector<ClusterGroup*> coarseGroupResult;//¼ÇÂ¼Ã¿Ò»¶ÔgroupºÏ²¢ºóĞÎ³ÉµÄĞÂµÄgroup½Úµã£¬Óë coarseGroupSort¶ÔÓ¦
+	std::map<ClusterGroup *,float>clusterGroup2Radio;//è®°å½•å½“å‰æ‰€æœ‰çš„groupä»¥åŠé€šçš„è®¡ç®—é€šä¿¡æ¯”
+	std::multimap<ClusterGroup*, ClusterGroup*> groupSrc2SnkChannel;//groupé—´çš„è¾¹(æ¯ä¸€å¯¹clustergroup åªä¼šå‡ºç°ä¸€æ¬¡)
+	std::map<FlatNode *,ClusterGroup *>flatNode2ClusterGroup;//flatNodeä¸groupé—´çš„æ˜ å°„(åªè®°å½•æœ€é«˜ä¸€å±‚groupçš„æ˜ å°„å…³ç³»)
+	std::vector<ClusterGroup *>clusterGroupVec;//è®°å½•åˆå§‹åŒ–åˆ†åæ‰€æœ‰çš„group(æŒ‰ç»„groupçš„å…ˆåé¡ºåºå­˜æ”¾)
+	int mngroups;//groupçš„æ•°ç›®
+	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > coarseGroupSort;//è®°å½•åœ¨ç²—åŒ–æ˜¯groupçš„èåˆé¡ºåº
+	std::vector<ClusterGroup*> coarseGroupResult;//è®°å½•æ¯ä¸€å¯¹groupåˆå¹¶åå½¢æˆçš„æ–°çš„groupèŠ‚ç‚¹ï¼Œä¸ coarseGroupSortå¯¹åº”
 
 public:
-	ClusterGroupGraph(SchedulerSSG *SSSG);//¸ù¾İSSG¹¹Ôì×î³õµÄgroupÍ¼
-	void CreateCoarseGraph(int k);//´Ö»¯£¨ÏàÁÚµÄgroupÖ®¼äÁ½Á½¾ÛºÏ£¬×îºó¾ÛºÏ³ÉK·İ¡ª¡ªÒª±£Ö¤»®·ÖµÄÁ¬Í¨ĞÔ£©
-	void CreateCoarseGraph();//´Ö»¯(¸ù¾İÊµ¼ÊµÄÇé¿ö£¬×îÖÕ¾ÛºÏµÃµ½KµÄÊıÄ¿²¢²»È·¶¨)
-	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > GetCoarseGroupSort();//È¡ÈÚºÏµÄË³Ğò
+	ClusterGroupGraph(SchedulerSSG *SSSG);//æ ¹æ®SSGæ„é€ æœ€åˆçš„groupå›¾
+	void CreateCoarseGraph(int k);//ç²—åŒ–ï¼ˆç›¸é‚»çš„groupä¹‹é—´ä¸¤ä¸¤èšåˆï¼Œæœ€åèšåˆæˆKä»½â€”â€”è¦ä¿è¯åˆ’åˆ†çš„è¿é€šæ€§ï¼‰
+	void CreateCoarseGraph();//ç²—åŒ–(æ ¹æ®å®é™…çš„æƒ…å†µï¼Œæœ€ç»ˆèšåˆå¾—åˆ°Kçš„æ•°ç›®å¹¶ä¸ç¡®å®š)
+	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > GetCoarseGroupSort();//å–èåˆçš„é¡ºåº
 	std::vector<ClusterGroup *> GetCoarseGroupResult();
-	//ÎªÁËÍê³É´Ö»¯Òª×öµÄÊÂÇé
-	ClusterGroup* FussGroup(ClusterGroup *,ClusterGroup *);//ºÏ²¢Ò»¶ÔÏàÁÚµÄgroup,ĞÎ³ÉĞÂµÄgroup£¨¼ÆËãÍ¨ĞÅ±ÈÌá¸ß×î´óµÄÒ»¸ö£©
-	float CompToCommRadio(ClusterGroup *);//¼ÆËãÒ»groupµÄ¼ÆËãÍ¨ĞÅ±È
-	Bool HasGroupTopologicalSort(std::vector<ClusterGroup *>original);//group¼äµÄÍØÆËÅÅĞò,ÓĞÔò·µ»Øture£¬(Ö÷ÒªÓÃÓÚ¼ì²â»·Â·µÄ)
-	//È¡ÏàÓ¦µÄÊı¾İ³ÉÔ±µÄĞÅÏ¢
-	ClusterGroup *GetClusterGroup(FlatNode *);//È¡Ò»¸öflatNodeËùÔÚµÄgroup
-	std::vector<ClusterGroup *> GetClusterGroupSet(); //È¡ËùÓĞµÄgroup
-	std::multimap<ClusterGroup*, ClusterGroup*> GetGroupSrc2SnkChannel();//È¡groupËùÓĞµÄ±ß
-	int GetGroupNum();//È¡»®·ÖÊıÄ¿
-	void SetGroupNum(int );//ÉèÖÃ»®·ÖÊıÄ¿
-	void ModifyConnectionOfGroup(ClusterGroup *group1,ClusterGroup *group2,ClusterGroup *group);//ĞŞ¸ÄgroupÍ¼ÖĞµÄÁ¬½Ó¹ØÏµ
-	std::map<FlatNode *,ClusterGroup *> GetFlatNode2ClusterGroup();//·µ»ØflatNodeÓëgroupÖ®¼äµÄmap
+	//ä¸ºäº†å®Œæˆç²—åŒ–è¦åšçš„äº‹æƒ…
+	ClusterGroup* FussGroup(ClusterGroup *,ClusterGroup *);//åˆå¹¶ä¸€å¯¹ç›¸é‚»çš„group,å½¢æˆæ–°çš„groupï¼ˆè®¡ç®—é€šä¿¡æ¯”æé«˜æœ€å¤§çš„ä¸€ä¸ªï¼‰
+	float CompToCommRadio(ClusterGroup *);//è®¡ç®—ä¸€groupçš„è®¡ç®—é€šä¿¡æ¯”
+	Bool HasGroupTopologicalSort(std::vector<ClusterGroup *>original);//groupé—´çš„æ‹“æ‰‘æ’åº,æœ‰åˆ™è¿”å›tureï¼Œ(ä¸»è¦ç”¨äºæ£€æµ‹ç¯è·¯çš„)
+	//å–ç›¸åº”çš„æ•°æ®æˆå‘˜çš„ä¿¡æ¯
+	ClusterGroup *GetClusterGroup(FlatNode *);//å–ä¸€ä¸ªflatNodeæ‰€åœ¨çš„group
+	std::vector<ClusterGroup *> GetClusterGroupSet(); //å–æ‰€æœ‰çš„group
+	std::multimap<ClusterGroup*, ClusterGroup*> GetGroupSrc2SnkChannel();//å–groupæ‰€æœ‰çš„è¾¹
+	int GetGroupNum();//å–åˆ’åˆ†æ•°ç›®
+	void SetGroupNum(int );//è®¾ç½®åˆ’åˆ†æ•°ç›®
+	void ModifyConnectionOfGroup(ClusterGroup *group1,ClusterGroup *group2,ClusterGroup *group);//ä¿®æ”¹groupå›¾ä¸­çš„è¿æ¥å…³ç³»
+	std::map<FlatNode *,ClusterGroup *> GetFlatNode2ClusterGroup();//è¿”å›flatNodeä¸groupä¹‹é—´çš„map
 };
 
 #endif

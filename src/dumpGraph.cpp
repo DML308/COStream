@@ -6,9 +6,9 @@ static Partition *mpp;
 
 static stringstream vertexBuf;
 static stringstream edgeBuf;
-static stringstream  *vertexBufInPlace = NULL;//ÓÃÓÚ¼ÇÂ¼¸÷place¶ÔÓ¦µÄbuf
+static stringstream  *vertexBufInPlace = NULL;//ç”¨äºŽè®°å½•å„placeå¯¹åº”çš„buf
 
-//146ÖÖÑÕÉ«£¬»®·Ö²¿·Ö´óÓÚ¸ø¶¨ÑÕÉ«ÖÖÀàÔòÎÞ·¨±íÊ¾
+//146ç§é¢œè‰²ï¼Œåˆ’åˆ†éƒ¨åˆ†å¤§äºŽç»™å®šé¢œè‰²ç§ç±»åˆ™æ— æ³•è¡¨ç¤º
 static string color[]={"aliceblue", "antiquewhite", "yellowgreen", "aquamarine", "azure",
 	"magenta", "maroon", "mediumaquamarine", "mediumblue", "mediumorchid",
 	"mediumpurple", "mediumseagreen", "mediumslateblue", "mediumspringgreen", "mediumturquoise",
@@ -39,7 +39,7 @@ static string color[]={"aliceblue", "antiquewhite", "yellowgreen", "aquamarine",
 	"darkslateblue", "darkslategray", "darkslategrey", "darkturquoise", "darkviolet",
 	"turquoise", "violet", "wheat", "white", "whitesmoke"};
 
-void MyVisitNode(FlatNode *node)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ïà¹ØµÄÐÅÏ¢*/
+void MyVisitNode(FlatNode *node)/*è®¿é—®è¯¥ç»“ç‚¹å¹¶æ‰“å°ç›¸å…³çš„ä¿¡æ¯*/
 {
 	node->VisitNode();
 
@@ -63,14 +63,14 @@ void MyVisitNode(FlatNode *node)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ïà¹ØµÄÐÅÏ¢*/
 			buf<<" push: " << node->outPushWeights[k];
 		if(node->nOut!=0)buf<<"\\n";
 		buf<<"\"";
-		if(mpp != NULL)//PartitionºóÔò¶Ô½Úµã×ÅÉ«
+		if(mpp != NULL)//PartitionåŽåˆ™å¯¹èŠ‚ç‚¹ç€è‰²
 		{		
 			buf<<" color=\""<<color[mpp->findPartitionNumForFlatNode(node)]<<"\""; 
 			buf<<" style=\"filled\" "; 	
 		}
 		buf<<"]";
 	}
-	//¼ÙÈçµ±Ç°Óöµ½µÄnodeÊÇÒ»¸ö¶àÊäÈëµÄ½áµã£¬¸Ã½áµãµÄÁ´½Ó±ßÈçÏÂ´¦Àí
+	//å‡å¦‚å½“å‰é‡åˆ°çš„nodeæ˜¯ä¸€ä¸ªå¤šè¾“å…¥çš„ç»“ç‚¹ï¼Œè¯¥ç»“ç‚¹çš„é“¾æŽ¥è¾¹å¦‚ä¸‹å¤„ç†
 	if (node->nIn > 1)
 	{
 		for (int i = 0; i < node->nIn; i++) {
@@ -78,7 +78,7 @@ void MyVisitNode(FlatNode *node)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ïà¹ØµÄÐÅÏ¢*/
 			if (node->inFlatNodes[i] == NULL)
 				continue;
 			buf<< node->inFlatNodes[i]->name << " -> " << node->name;
-			buf<< "[label=\"1\"];\n";//Êä³öÈ¨ÖØ¹Ì¶¨Îª1
+			buf<< "[label=\"1\"];\n";//è¾“å‡ºæƒé‡å›ºå®šä¸º1
 		}
 	}
 
@@ -95,8 +95,8 @@ void MyVisitNode(FlatNode *node)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ïà¹ØµÄÐÅÏ¢*/
 }
 
 
-void MyClusterVisitNode(FlatNode *node, ClusterPartition *cp)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ïà¹ØµÄÐÅÏ¢*/
-{//¶þ¼¶»®·ÖµÄ½á¹û
+void MyClusterVisitNode(FlatNode *node, ClusterPartition *cp)/*è®¿é—®è¯¥ç»“ç‚¹å¹¶æ‰“å°ç›¸å…³çš„ä¿¡æ¯*/
+{//äºŒçº§åˆ’åˆ†çš„ç»“æžœ
 	node->VisitNode();
 	stringstream tmp;
 	assert(cp);
@@ -133,7 +133,7 @@ void MyClusterVisitNode(FlatNode *node, ClusterPartition *cp)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ï
 		vertexBuf << tmp.str();
 		vertexBufInPlace[cluster2Core.first] << tmp.str();
 	}
-	//¼ÙÈçµ±Ç°Óöµ½µÄnodeÊÇÒ»¸ö¶àÊäÈëµÄ½áµã£¬¸Ã½áµãµÄÁ´½Ó±ßÈçÏÂ´¦Àí
+	//å‡å¦‚å½“å‰é‡åˆ°çš„nodeæ˜¯ä¸€ä¸ªå¤šè¾“å…¥çš„ç»“ç‚¹ï¼Œè¯¥ç»“ç‚¹çš„é“¾æŽ¥è¾¹å¦‚ä¸‹å¤„ç†
 	if (node->nIn > 1)
 	{
 		for (int i = 0; i < node->nIn; i++) {
@@ -141,7 +141,7 @@ void MyClusterVisitNode(FlatNode *node, ClusterPartition *cp)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ï
 			if (node->inFlatNodes[i] == NULL)
 				continue;
 			edgeBuf<< node->inFlatNodes[i]->name << " -> " << node->name;
-			edgeBuf<< "[label=\"1\"];\n";//Êä³öÈ¨ÖØ¹Ì¶¨Îª1
+			edgeBuf<< "[label=\"1\"];\n";//è¾“å‡ºæƒé‡å›ºå®šä¸º1
 		}
 	}
 
@@ -160,8 +160,8 @@ void MyClusterVisitNode(FlatNode *node, ClusterPartition *cp)/*·ÃÎÊ¸Ã½áµã²¢´òÓ¡Ï
 void toBuildOutPutString(FlatNode *node)
 {
 	MyVisitNode(node);
-	for (int i = 0; i < node->nOut; i++) {/*Éî¶ÈÓÅÏÈ±éÀú*/
-		if (node->outFlatNodes[i] == NULL || node->outFlatNodes[i]->GetVisitTimes() != 0)//¸Ã½áµãµÄºóÐø½áµã»¹Î´±»·ÃÎÊ¹ý
+	for (int i = 0; i < node->nOut; i++) {/*æ·±åº¦ä¼˜å…ˆéåŽ†*/
+		if (node->outFlatNodes[i] == NULL || node->outFlatNodes[i]->GetVisitTimes() != 0)//è¯¥ç»“ç‚¹çš„åŽç»­ç»“ç‚¹è¿˜æœªè¢«è®¿é—®è¿‡
 			continue;
 		toBuildOutPutString(node->outFlatNodes[i]);
 	}
@@ -171,8 +171,8 @@ void toBuildOutPutString(FlatNode *node)
 void toBuildClusterOutPutString(FlatNode *node, ClusterPartition *cp)
 {
 	MyClusterVisitNode(node, cp);
-	for (int i = 0; i < node->nOut; i++) {/*Éî¶ÈÓÅÏÈ±éÀú*/
-		if (node->outFlatNodes[i] == NULL || node->outFlatNodes[i]->GetVisitTimes() != 0)//¸Ã½áµãµÄºóÐø½áµã»¹Î´±»·ÃÎÊ¹ý
+	for (int i = 0; i < node->nOut; i++) {/*æ·±åº¦ä¼˜å…ˆéåŽ†*/
+		if (node->outFlatNodes[i] == NULL || node->outFlatNodes[i]->GetVisitTimes() != 0)//è¯¥ç»“ç‚¹çš„åŽç»­ç»“ç‚¹è¿˜æœªè¢«è®¿é—®è¿‡
 			continue;
 		toBuildClusterOutPutString(node->outFlatNodes[i],cp);
 	}
@@ -202,7 +202,7 @@ GLOBAL void DumpStreamGraph(SchedulerSSG *sssg,Partition *mp,const char *fileNam
 		buf<<"\n\n";  
 		buf<<edgeBuf.str();
 		buf<<"}\n";  
-		Ssg->ResetFlatNodeVisitTimes();//½«flatnodeµÄvisttimesÖÃ0
+		Ssg->ResetFlatNodeVisitTimes();//å°†flatnodeçš„visttimesç½®0
 		ofstream fw;
 		fw.open(fileName);
 		fw<<buf.str();
@@ -216,7 +216,7 @@ GLOBAL void DumpStreamGraph(SchedulerSSG *sssg,Partition *mp,const char *fileNam
 		buf<<"digraph Flattend {\n";
 		toBuildOutPutString(Ssg->GetTopLevel());
 		buf<<"}\n";  
-		Ssg->ResetFlatNodeVisitTimes();//½«flatnodeµÄvisttimesÖÃ0
+		Ssg->ResetFlatNodeVisitTimes();//å°†flatnodeçš„visttimesç½®0
 		ofstream fw;
 		fw.open(fileName);
 		fw<<buf.str();

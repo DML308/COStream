@@ -18,7 +18,7 @@ X86LibCopy::X86LibCopy()
     lock_free_c_="lock_free_barrier.cpp";
     Math_name_="MathExtension.h";
     makefile_name_ = "Makefile";
-    time_file_name_ = "rdtsc.h";		//»ñÈ¡Ê±ÖÓÖÜÆÚº¯Êı
+    time_file_name_ = "rdtsc.h";		//è·å–æ—¶é’Ÿå‘¨æœŸå‡½æ•°
     setCpu_name_ = "setCpu.h";
     lsh_header_ = "p-stable_lsh.h";
     lsh_source_ = "p-stable_lsh.cpp";
@@ -40,7 +40,7 @@ void X86LibCopy::copyfile(const char *dir)
     string path = getenv("COSTREAM_LIB");
 
     printf("comLibPath = %s\n" , comLibPath.c_str());
-    if(NoCheckBuffer)	//ÎŞ±ß½ç¼ì²é
+    if(NoCheckBuffer)	//æ— è¾¹ç•Œæ£€æŸ¥
     {
         comLibPath = "noCheckBoundary/";
     }
@@ -145,7 +145,7 @@ void X86LibCopy::Run(const char *dir)
 {
     char *tmp = new char[1000];
     string comLibPath;
-    if(NoCheckBuffer)	//ÎŞ±ß½ç¼ì²é
+    if(NoCheckBuffer)	//æ— è¾¹ç•Œæ£€æŸ¥
     {
         comLibPath = "noCheckBoundary\\";
     }
@@ -204,7 +204,7 @@ void X86LibCopy::Run(const char *dir)
     sprintf(tmp,"%s%s",dir, setCpu_name_);
     TextFileWrite(tmp, content_);
 
-    //ÒÔÏÂÖ»ÎªÁÙÊ±Ö»ÓÃ£¬ÒÔºóĞè¸ÃÎªµ÷ÓÃCGMAKEFILE
+    //ä»¥ä¸‹åªä¸ºä¸´æ—¶åªç”¨ï¼Œä»¥åéœ€è¯¥ä¸ºè°ƒç”¨CGMAKEFILE
     string str8 = libDir_;
     str8 += makefile_name_;
     content_ = TextFileRead(str8.c_str());

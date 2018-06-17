@@ -43,7 +43,7 @@ GLOBAL Node *NodeGetConstantValue(Node *node)
     value = node->u.ternary.value;
     break;
   case Array:
-	  value = node->u.array.value;//zww:20120801 ÔÊĞíÈ¡Êı×éµÄÖµ
+	  value = node->u.array.value;//zww:20120801 å…è®¸å–æ•°ç»„çš„å€¼
 	  break;
   case Call:
     value = NULL;

@@ -7,19 +7,19 @@
 class GPUClusterPartition:public Partition
 {
 public:
-	int FindOutpushNum(FlatNode *node1,FlatNode *node2);  //µÃµ½node2ÊÇnode1µÄµÚ¼¸¸öÊä³ö½Úµã
-	int GetChangedValue(FlatNode *node,SchedulerSSG *sssg,int partvalue,int marks); //µ÷Õû±ß£¬µÃµ½µ÷ÕûºóµÄ±ßÍ¨ĞÅÁ¿
-	bool JudgeNextBorder(FlatNode *node,int marks); //µÃµ½ÊÇ·ñÏàÁÚmarksµÄ±ß½çµã
-	int UporDownStatelessNode(FlatNode *node);   //¸¸½Úµã£¬×Ó½ÚµãÊÇ·ñÈ«Îªstateful½Úµã
-	void AlterBorder(FlatNode *node,int marks);   //ĞŞÕı±ßÖµ
-	void SssgPartition(SchedulerSSG *sssg,int level);//¶ÔGPUÉÏµÄ½Úµã½øĞĞ»®·Ö
+	int FindOutpushNum(FlatNode *node1,FlatNode *node2);  //å¾—åˆ°node2æ˜¯node1çš„ç¬¬å‡ ä¸ªè¾“å‡ºèŠ‚ç‚¹
+	int GetChangedValue(FlatNode *node,SchedulerSSG *sssg,int partvalue,int marks); //è°ƒæ•´è¾¹ï¼Œå¾—åˆ°è°ƒæ•´åçš„è¾¹é€šä¿¡é‡
+	bool JudgeNextBorder(FlatNode *node,int marks); //å¾—åˆ°æ˜¯å¦ç›¸é‚»marksçš„è¾¹ç•Œç‚¹
+	int UporDownStatelessNode(FlatNode *node);   //çˆ¶èŠ‚ç‚¹ï¼Œå­èŠ‚ç‚¹æ˜¯å¦å…¨ä¸ºstatefulèŠ‚ç‚¹
+	void AlterBorder(FlatNode *node,int marks);   //ä¿®æ­£è¾¹å€¼
+	void SssgPartition(SchedulerSSG *sssg,int level);//å¯¹GPUä¸Šçš„èŠ‚ç‚¹è¿›è¡Œåˆ’åˆ†
 	inline std::vector<FlatNode *> GetGPUNodes(void)
 	{ return GPUNodes;}
 private:
 	std::vector<FlatNode *> GPUNodes;
-	int TotalComputing;    //ËùÓĞGPU½ÚµãµÄ¼ÆËãÁ¿
-	int PartEdgeValue;   //Í¨ĞÅÁ¿
-	int nvtxs;    //¶¨Òå¶¥µã¸öÊı
+	int TotalComputing;    //æ‰€æœ‰GPUèŠ‚ç‚¹çš„è®¡ç®—é‡
+	int PartEdgeValue;   //é€šä¿¡é‡
+	int nvtxs;    //å®šä¹‰é¡¶ç‚¹ä¸ªæ•°
 	int AvgComputing;
 };
 #endif

@@ -9,9 +9,9 @@ public:
 	RRSPartiton();
 	void SssgPartition(SchedulerSSG *sssg ,int level);
 private:
-	//循环分发调度（RRS）会需要用到的成员变量
-	int totalActors;//总actor数目
-	int perParts;//每个部分的actor数目
+	//寰幆鍒嗗彂璋冨害锛圧RS锛変細闇�瑕佺敤鍒扮殑鎴愬憳鍙橀噺
+	int totalActors;//鎬籥ctor鏁扮洰
+	int perParts;//姣忎釜閮ㄥ垎鐨刟ctor鏁扮洰
 };
 
 #endif 

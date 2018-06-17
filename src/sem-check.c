@@ -150,8 +150,8 @@ GLOBAL List *SemanticCheckProgram(List *program)
 
 		if (item->typ == Decl)
 		{
-			//SPLµÄÈ«¾Ö±äÁ¿¶¼ÊÇconstµÄ£¬ÕâÑùĞ´ÊÇÎªÁËºóÃæµÄ³£Á¿´«²¥ÄÜË³Àû½øĞĞ
-			if (item->u.decl.init == NULL && item->u.decl.type->typ!=Sdcl )	//zww£ºÌí¼Ó¶ÔSdclÌõ¼şµÄÅĞ¶Ï	12.2.13
+			//SPLçš„å…¨å±€å˜é‡éƒ½æ˜¯constçš„ï¼Œè¿™æ ·å†™æ˜¯ä¸ºäº†åé¢çš„å¸¸é‡ä¼ æ’­èƒ½é¡ºåˆ©è¿›è¡Œ
+			if (item->u.decl.init == NULL && item->u.decl.type->typ!=Sdcl )	//zwwï¼šæ·»åŠ å¯¹Sdclæ¡ä»¶çš„åˆ¤æ–­	12.2.13
 			{
 				/*
 				if(STORAGE_CLASS(item->u.decl.tq) != T_EXTERN){
@@ -160,11 +160,11 @@ GLOBAL List *SemanticCheckProgram(List *program)
 				} */
 				continue;
 			}
-			if (item->u.decl.type->typ!=Sdcl )AddDeclNodeConstTq(item);	//zww£ºÌí¼Ó¶ÔSdclÌõ¼şµÄÅĞ¶Ï   12.2.13
+			if (item->u.decl.type->typ!=Sdcl )AddDeclNodeConstTq(item);	//zwwï¼šæ·»åŠ å¯¹Sdclæ¡ä»¶çš„åˆ¤æ–­   12.2.13
 		}
 
 #if 0
-		//Ô­C2C´úÂë
+		//åŸC2Cä»£ç 
 		/*if (item->typ == Decl && item->u.decl.init == NULL) 
 		{ 
 			Node *type;
@@ -980,7 +980,7 @@ GLOBAL Node *AddDeclNodeConstTq(Node *node)
 	}
 
 	type = NodeDataTypeSuperior(node);
-	//Èç¹ûÎªÊı×é£¬ÔòÉîÈëµ½ËüµÄ×ÓÀàĞÍÀïÈ¥
+	//å¦‚æœä¸ºæ•°ç»„ï¼Œåˆ™æ·±å…¥åˆ°å®ƒçš„å­ç±»å‹é‡Œå»
 	while (type->typ == Adcl)
 	{
 		type = type->u.adcl.type;
@@ -1127,7 +1127,7 @@ PRIVATE inline Node *SemCheckComposite(Node *node, compositeNode *u)
 	Node *type = NULL;
 	Node *inout = NULL;
 
-	/* ³õÊ¼»¯ IsAfterStreamIf */
+	/* åˆå§‹åŒ– IsAfterStreamIf */
 	IsAddInSP = FALSE;
 
 	assert(u->decl->typ == Decl);
@@ -1203,7 +1203,7 @@ PRIVATE inline Node *SemCheckParam(Node *node, paramNode *u)
 			if (item->u.decl.init)	SyntaxErrorCoord(item->coord, "cannot initialize parameter %s",	item->u.decl.name);
 		}
 		else if (IsEllipsis(item))
-			SyntaxErrorCoord(item->coord, "SPL don't support ellipsis parameter ");//¾­²âÊÔ£¬ÎÄ·¨ÉÏÒÑ¾­²»Ö§³ÖÁË£¡
+			SyntaxErrorCoord(item->coord, "SPL don't support ellipsis parameter ");//ç»æµ‹è¯•ï¼Œæ–‡æ³•ä¸Šå·²ç»ä¸æ”¯æŒäº†ï¼
 		else
 		{
 			fprintf(stderr, "Unrecognized parameter\n");
@@ -1213,7 +1213,7 @@ PRIVATE inline Node *SemCheckParam(Node *node, paramNode *u)
 		}
 	}
 
-	/* param½á¹¹ÀïµÄ±äÁ¿Ö»ÔÊĞí½øĞĞ¶Á²Ù×÷ £¬ËùÒÔ£¬Ôö¼Óconst */
+	/* paramç»“æ„é‡Œçš„å˜é‡åªå…è®¸è¿›è¡Œè¯»æ“ä½œ ï¼Œæ‰€ä»¥ï¼Œå¢åŠ const */
 	IterateList(&marker, u->parameters);
 	while (NextOnList(&marker, (GenericREF) &item))
 	{
@@ -1230,7 +1230,7 @@ PRIVATE inline Node *SemCheckVar(Node *node, varNode *u)
 	
 	u->decls = SemCheckList(u->decls);
 	u->stmts = SemCheckList(u->stmts);
-	/ * var½á¹¹ÀïµÄ±äÁ¿Ö»ÔÊĞíÔÚËüµÄstmts´¦ĞŞ¸Ä£¬ÔÚ±ğ´¦²»ÔÊĞíĞŞ¸Ä £¬ËùÒÔ£¬Ôö¼Óconst * /
+	/ * varç»“æ„é‡Œçš„å˜é‡åªå…è®¸åœ¨å®ƒçš„stmtså¤„ä¿®æ”¹ï¼Œåœ¨åˆ«å¤„ä¸å…è®¸ä¿®æ”¹ ï¼Œæ‰€ä»¥ï¼Œå¢åŠ const * /
 	assert(u->decls != NULL);
 	IterateList(&marker, u->decls);
 	while (NextOnList(&marker, (GenericREF) &item))
@@ -1248,7 +1248,7 @@ PRIVATE inline Node *SemCheckOperator_(Node *node, operatorNode *u)
 	ListMarker marker;
 	Node *item = NULL;
  
-	/*//ÔÚbodyÖ®ºó¼ÓÉÏconst±êÖ¾
+	/*//åœ¨bodyä¹‹ååŠ ä¸Šconstæ ‡å¿—
 	IterateList(&marker, u->decl->u.decl.type->u.operdcl.outputs);
 	while (NextOnList(&marker, (GenericREF) &item))
 	{
@@ -1258,7 +1258,7 @@ PRIVATE inline Node *SemCheckOperator_(Node *node, operatorNode *u)
 	u->decl = SemCheckNode(u->decl);
 	u->body = SemCheckNode(u->body);
 
-	//ÔÚbodyÖ®ºó¼ÓÉÏconst±êÖ¾
+	//åœ¨bodyä¹‹ååŠ ä¸Šconstæ ‡å¿—
 	IterateList(&marker, u->decl->u.decl.type->u.operdcl.outputs);
 	while (NextOnList(&marker, (GenericREF) &item))
 	{
@@ -1395,7 +1395,7 @@ PRIVATE inline Node *SemCheckCompositeCall(Node *node, comCallNode *u)
 			SyntaxErrorCoord(node->coord, "argument mismatch: %d args passed, %d expected", len, 0);
 	}
 	
-	//ÔÚbodyÖ®ºó¼ÓÉÏconst±êÖ¾
+	//åœ¨bodyä¹‹ååŠ ä¸Šconstæ ‡å¿—
 	IterateList(&marker, u->operdcl->u.operdcl.outputs);
 	while (NextOnList(&marker, (GenericREF) &item))
 	{
@@ -1610,7 +1610,7 @@ GLOBAL List *SemCheckList(List *list)
 
 
 /*************************************************************************/
-/*                  Auxilliary (¸¨Öú) routines for SemCheck                     */
+/*                  Auxilliary (è¾…åŠ©) routines for SemCheck                     */
 /*************************************************************************/
 
 
@@ -2080,7 +2080,7 @@ PRIVATE Node *SemCheckDot(Node *node, binopNode *u)
 }
 
 
-PRIVATE Node *SemCheckArrow(Node *node, binopNode *u)//×¢Òâ£ºSPL²»ÔÊĞíÖ¸Õë´æÔÚ
+PRIVATE Node *SemCheckArrow(Node *node, binopNode *u)//æ³¨æ„ï¼šSPLä¸å…è®¸æŒ‡é’ˆå­˜åœ¨
 { ListMarker marker;
   Node *decl, *field = NULL, *right, *left, *ltype, *rtype, *type;
   

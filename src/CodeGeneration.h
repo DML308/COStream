@@ -11,10 +11,10 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 
 extern "C"
 {
-	extern Bool X10Backend;/*´úÂëÉú³ÉÑ¡Ôñx10µÄºó¶Ë*/
-	extern Bool X86Backend;/*´úÂëÉú³ÉÑ¡Ôñx86µÄºó¶Ë*/
-	extern Bool GPUBackend;/*´úÂëÉú³ÉÑ¡ÔñGPUµÄºó¶Ë*/
-	extern int CpuCoreNum;/*±íÊ¾Ñ¡ÔñµÄplaces¸öÊı*/
+	extern Bool X10Backend;/*ä»£ç ç”Ÿæˆé€‰æ‹©x10çš„åç«¯*/
+	extern Bool X86Backend;/*ä»£ç ç”Ÿæˆé€‰æ‹©x86çš„åç«¯*/
+	extern Bool GPUBackend;/*ä»£ç ç”Ÿæˆé€‰æ‹©GPUçš„åç«¯*/
+	extern int CpuCoreNum;/*è¡¨ç¤ºé€‰æ‹©çš„placesä¸ªæ•°*/
 	extern int GpuNum;
 	extern Bool Win;
 	extern Bool Linux;

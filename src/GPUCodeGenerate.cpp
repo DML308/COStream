@@ -7,15 +7,15 @@
 
 using namespace std;
 #define  Default_Repeat_Count 10
-static bool isInComma = false;//±íÊ¾µ±Ç°´¦ÓÚ¶ººÅ±í´ïÊ½ÖĞ
+static bool isInComma = false;//è¡¨ç¤ºå½“å‰å¤„äºé€—å·è¡¨è¾¾å¼ä¸­
 static int flag=0;
-static int flag_Global = 0;//±êÊ¶ÊÇ·ñÔÚÊä³öGlobalVarCppÎÄ¼ş£¬³õÊ¼»¯Îª0
-static bool structflag = false;//±íÊ¾ÊÇ·ñÔÚ´òÓ¡struct½á¹¹Ìå£¬ÓÃÓÚglobalheaderÖĞ
-static bool isInFileReader = false;//±íÊ¾µ±Ç°´¦ÓÚFileReaderÖĞ
-static bool isInFileWriter = false;//±íÊ¾µ±Ç°´¦ÓÚFileWriterÖĞ
-static bool existFileWriter = true;//ÓÃÓÚ±êÊ¶ÊÇ·ñ´æÔÚFileWriter£¬Ä¬ÈÏÎª´æÔÚ
-//static bool kernelmake = false;//ÓÃÓÚ±êÊ¶kernelÉú³ÉÊ±»¨À¨ºÅµÄ²úÉú
-map<string,string>mapStruct2Struct2OfGPU;//´æ·Åglobal.hÎÄ¼şÖĞ±ßµÄtypedefÓ³Éä¹ØÏµ
+static int flag_Global = 0;//æ ‡è¯†æ˜¯å¦åœ¨è¾“å‡ºGlobalVarCppæ–‡ä»¶ï¼Œåˆå§‹åŒ–ä¸º0
+static bool structflag = false;//è¡¨ç¤ºæ˜¯å¦åœ¨æ‰“å°structç»“æ„ä½“ï¼Œç”¨äºglobalheaderä¸­
+static bool isInFileReader = false;//è¡¨ç¤ºå½“å‰å¤„äºFileReaderä¸­
+static bool isInFileWriter = false;//è¡¨ç¤ºå½“å‰å¤„äºFileWriterä¸­
+static bool existFileWriter = true;//ç”¨äºæ ‡è¯†æ˜¯å¦å­˜åœ¨FileWriterï¼Œé»˜è®¤ä¸ºå­˜åœ¨
+//static bool kernelmake = false;//ç”¨äºæ ‡è¯†kernelç”Ÿæˆæ—¶èŠ±æ‹¬å·çš„äº§ç”Ÿ
+map<string,string>mapStruct2Struct2OfGPU;//å­˜æ”¾global.hæ–‡ä»¶ä¸­è¾¹çš„typedefæ˜ å°„å…³ç³»
 GPUCodeGenerate::GPUCodeGenerate(SchedulerSSG *Sssg, int ngpu, int buffer_size, const char *currentDir,StageAssignment *psa,HAFLPartition *haflptemp,TemplateClass *tc,string name,DNBPartition *dnbp)
 {
 	Dnbp = dnbp;
@@ -57,7 +57,7 @@ GPUCodeGenerate::GPUCodeGenerate(SchedulerSSG *Sssg, int ngpu, int buffer_size, 
 	{
 		for (iter2=(*iter1)->inFlatNodes.begin();iter2!=(*iter1)->inFlatNodes.end();++iter2)
 		{
-			string tempstring1=(*iter2)->name+"_"+(*iter1)->name;//µÃµ½ĞÎÈçA_BµÄ±ßÃû³Æ
+			string tempstring1=(*iter2)->name+"_"+(*iter1)->name;//å¾—åˆ°å½¢å¦‚A_Bçš„è¾¹åç§°
 			mapActor2InEdge.insert(make_pair((*iter1),tempstring1));
 		}
 		for (iter3=(*iter1)->outFlatNodes.begin();iter3!=(*iter1)->outFlatNodes.end();++iter3)
@@ -112,7 +112,7 @@ void GPUCodeGenerate::CGrecv(FlatNode *actor, OperatorType ot, string streamName
 		consumer0 <<"consumer_"<<i;
 		peek0 << actor->peekString[i];
 
-		// ½ÓÊÕ±ß
+		// æ¥æ”¶è¾¹
 		parameterBuf << "number_" << i << " :Int, " << peekNumber << " :Int, " << popNumber << " :Int, " << "edge_recv_" << i << " :Edge[" << streamName << "], "; 
 		thisBuf << "\t\tthis." << peekNumber << " = " << peekNumber <<";\n";
 		thisBuf << "\t\tthis." << popNumber << " = " << popNumber <<";\n";
@@ -124,7 +124,7 @@ void GPUCodeGenerate::CGrecv(FlatNode *actor, OperatorType ot, string streamName
 		SRbuf <<"\tval "<<popNumber<<" :Int;\n";
 		SRbuf <<"\tval "<<peek0.str()<<" :Array["<<streamName<<"];\n\n";
 
-		// ÔÚ¹¹Ôìº¯ÊıÀï¶Ô½ÓÊÕ±ß½øĞĞ³õÊ¼»¯£¨ÉêÇë¿Õ¼äµÈ£©
+		// åœ¨æ„é€ å‡½æ•°é‡Œå¯¹æ¥æ”¶è¾¹è¿›è¡Œåˆå§‹åŒ–ï¼ˆç”³è¯·ç©ºé—´ç­‰ï¼‰
 		thisBuf<<"\t\t"<<consumer0.str()<<" = new Consumer["<<streamName<<"] ("<<"BUFFER_SIZE, "<<"number_"<<i<<", "<<recv0.str()<<", "<<recv1.str()<<", edge_recv_"<<i<<");\n";
 		thisBuf<<"\t\t"<<peek0.str()<<" = new Array["<<streamName<<"](0..("<<peekNumber<<"-1),([i]:Point(1)) => null);\n\n";
 
@@ -142,21 +142,21 @@ void GPUCodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	state = actor->contents->body->u.operBody.state;
 
 	extractDecl = true;
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
 	buf << "\t/* *****composite param***** */\n";
-	buf<<"//³£Á¿´«²¥Ïû³ı\n";
+	buf<<"//å¸¸é‡ä¼ æ’­æ¶ˆé™¤\n";
 	//buf<<"\tint null_2\n";
 	buf<< declList.str();
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
 
 	stringstream tmp;
 	tmp << declInitList.str();
-	declInitList.str(""); // Çå¿ÕdeclInitListÄÚÈİ
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
+	declInitList.str(""); // æ¸…ç©ºdeclInitListå†…å®¹
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
 	kernelparam.clear();
 	kernelparamtype.clear();
-	//chenwenbin½«compositeÖĞparam¼ÓÈëÄ£°åÀàÖĞ
-	buf<<"\t//½«compositeÖĞparam¼ÓÈëÄ£°åÀàÖĞ"<<endl;
+	//chenwenbinå°†compositeä¸­paramåŠ å…¥æ¨¡æ¿ç±»ä¸­
+	buf<<"\t//å°†compositeä¸­paramåŠ å…¥æ¨¡æ¿ç±»ä¸­"<<endl;
 	paramList *plist = actor->contents->params;
 	for (int i = 0; i < actor->contents->paramSize; i++)
 	{
@@ -168,8 +168,8 @@ void GPUCodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	Actor2KernelPar.insert(make_pair(actor,kernelparam));
 	Actor2KernelParType.insert(make_pair(actor,kernelparamtype));
 	buf << "\t/* *****logic state***** */\n\t" << declList.str();
-	//chenwenbin Ôö¼Ópop,pushÊı¾İ±äÁ¿
-	buf<<"\t//Ôö¼Ópop,push±äÁ¿"<<endl;
+	//chenwenbin å¢åŠ pop,pushæ•°æ®å˜é‡
+	buf<<"\t//å¢åŠ pop,pushå˜é‡"<<endl;
 	int popSize = actor->inFlatNodes.size();
 	int pushSize = actor->outFlatNodes.size();
 	bool typeFlag = true;
@@ -211,7 +211,7 @@ void GPUCodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	}
 	else
 	{
-		//GPU¶ËÃ¿´ÎÖ´ĞĞworkÊ±¶ÁĞ´µÄÊı¾İ¸öÊı
+		//GPUç«¯æ¯æ¬¡æ‰§è¡Œworkæ—¶è¯»å†™çš„æ•°æ®ä¸ªæ•°
 		if (pushSize > 0)
 		{
 			buf<<"\tint ";
@@ -236,7 +236,7 @@ void GPUCodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 					buf<<",";
 			}
 		}
-		//cwb GPU¶Ë±ß½ç½ÚµãµÄpopÖµ,¼´Í¨ĞÅÊ±popTokenÖµ
+		//cwb GPUç«¯è¾¹ç•ŒèŠ‚ç‚¹çš„popå€¼,å³é€šä¿¡æ—¶popTokenå€¼
 		if (sssg_->IsUpBorder(actor))
 		{
 			for (int i = 0; i < popSize; i++)
@@ -279,7 +279,7 @@ void GPUCodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	}
 	extractDecl = false;
 	stateInit << declInitList.str();
-	declInitList.str(""); // Çå¿ÕdeclInitListÄÚÈİ
+	declInitList.str(""); // æ¸…ç©ºdeclInitListå†…å®¹
 	//declInitList << tmp.str();
 }
 void GPUCodeGenerate::CGinitVarAndState(FlatNode *actor, OperatorType ot, stringstream &buf)
@@ -291,14 +291,14 @@ void GPUCodeGenerate::CGinitVarAndState(FlatNode *actor, OperatorType ot, string
 	buf << declInitList.str();
 	buf << "\n\t\t/**** State Init ****/\n";
 	buf << stateInit.str();
-	buf << "\n\t}\n"; // initVarAndState·½·¨½áÊø
+	buf << "\n\t}\n"; // initVarAndStateæ–¹æ³•ç»“æŸ
 
-	declInitList.str(""); // Çå¿Õ
-	stateInit.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
+	stateInit.str(""); // æ¸…ç©º
 }
 void GPUCodeGenerate::CGlogicInit(FlatNode *actor, OperatorType ot, stringstream &buf, stringstream &logicInit)
 {
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 	buf << "\t// init\n";
 	buf << "\tvoid init()";
 	Node *init = actor->contents->body->u.operBody.init;
@@ -306,22 +306,22 @@ void GPUCodeGenerate::CGlogicInit(FlatNode *actor, OperatorType ot, stringstream
 	if (init)
 	{
 		SPL2GPU_Node(init, 2);
-		buf << declInitList.str(); // init½á¹¹±ØĞë´ø"{}"
+		buf << declInitList.str(); // initç»“æ„å¿…é¡»å¸¦"{}"
 	}
 	else
 	{
 		buf << " {\n";
-		buf << "\t}\n"; // '}'¶ÀÕ¼Ò»ĞĞ
+		buf << "\t}\n"; // '}'ç‹¬å ä¸€è¡Œ
 	}
 
 
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 }
 void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf,string templatename)
 {
 	buf <<"\t// Constructor\n";
 	buf << "\t"<<templatename<<"(" ;
-	//chenwenbin ¹¹Ôìparam±äÁ¿
+	//chenwenbin æ„é€ paramå˜é‡
 	paramList *plist = actor->contents->params;
 	for (int i = 0; i < actor->contents->paramSize; i++)
 	{
@@ -354,7 +354,7 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 				buf<<"int push"<<i<<",";
 		}
 	}
-	//chenwenbin ³õÌ¬ÎÈÌ¬Ö´ĞĞ´ÎÊı
+	//chenwenbin åˆæ€ç¨³æ€æ‰§è¡Œæ¬¡æ•°
 	buf<<"int steadyCount,int initCount,";
 	multimap<FlatNode*,string>::iterator iter1,iter2;
 	List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
@@ -393,7 +393,7 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		++iter2;
 		++index;
 	}
-	//¹¹ÔìGPU´æ´¢¿Õ¼ä
+	//æ„é€ GPUå­˜å‚¨ç©ºé—´
 	if(actor->GPUPart < nGpu_)
 	{
 		vector<FlatNode*>::iterator iter,iter_1;
@@ -534,7 +534,7 @@ void GPUCodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 	buf<< "\t\tsteadyScheduleCount = steadyCount;\n";
 	buf<< "\t\tinitScheduleCount = initCount;\n";
 	CGdatataginit(actor,buf);
-	buf << "\t}\n"; // init·½·¨½áÊø
+	buf << "\t}\n"; // initæ–¹æ³•ç»“æŸ
 }
 
 void GPUCodeGenerate::CGflush(stringstream &buf, string pFlush)
@@ -544,7 +544,7 @@ void GPUCodeGenerate::CGflush(stringstream &buf, string pFlush)
 
 	buf << pFlush;
 
-	buf << "\t}\n"; // flush·½·¨½áÊø
+	buf << "\t}\n"; // flushæ–¹æ³•ç»“æŸ
 }
 
 void GPUCodeGenerate::CGinitWork(stringstream &buf, string initWorkBuf)
@@ -556,7 +556,7 @@ void GPUCodeGenerate::CGinitWork(stringstream &buf, string initWorkBuf)
 
 	buf << initWorkBuf;
 
-	buf << "\t}\n"; // initWork·½·¨½áÊø
+	buf << "\t}\n"; // initWorkæ–¹æ³•ç»“æŸ
 }
 
 void GPUCodeGenerate::CGinitPeek(stringstream &buf, string initPeekBuf)
@@ -566,7 +566,7 @@ void GPUCodeGenerate::CGinitPeek(stringstream &buf, string initPeekBuf)
 
 	buf << initPeekBuf;
 
-	buf << "\t}\n"; // initPeek·½·¨½áÊø
+	buf << "\t}\n"; // initPeekæ–¹æ³•ç»“æŸ
 }
 
 void GPUCodeGenerate::CGinitPush(stringstream &buf, string initPushBuf)
@@ -576,7 +576,7 @@ void GPUCodeGenerate::CGinitPush(stringstream &buf, string initPushBuf)
 
 	buf << initPushBuf;
 
-	buf << "\t}\n"; // initPush·½·¨½áÊø
+	buf << "\t}\n"; // initPushæ–¹æ³•ç»“æŸ
 }
 
 void GPUCodeGenerate::CGpopToken(FlatNode *actor,stringstream &buf, string popingBuf)
@@ -615,7 +615,7 @@ void GPUCodeGenerate::CGpopToken(FlatNode *actor,stringstream &buf, string popin
 	if (ExistDependence(actor))
 	{
 		buf << popingBuf;
-		buf << "\t}\n"; // popToken·½·¨½áÊø
+		buf << "\t}\n"; // popTokenæ–¹æ³•ç»“æŸ
 	}
 }
 void GPUCodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf, string pushingBuf)
@@ -661,7 +661,7 @@ void GPUCodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf, string push
 	if (flag)
 	{
 		buf << pushingBuf;
-		buf << "\t}\n"; // pushToken·½·¨½áÊø
+		buf << "\t}\n"; // pushTokenæ–¹æ³•ç»“æŸ
 	}
 }
 void GPUCodeGenerate::CGpopTokenForGPU(FlatNode *actor,stringstream &buf, string popingBuf)
@@ -710,7 +710,7 @@ void GPUCodeGenerate::CGpopTokenForGPU(FlatNode *actor,stringstream &buf, string
 		/*buf<<"\n\telse\n\t{";
 		buf<<steadybuf.str();
 		buf<<"\n\t}\n";*/
-		buf << "\t}\n"; // popToken·½·¨½áÊø
+		buf << "\t}\n"; // popTokenæ–¹æ³•ç»“æŸ
 	}
 }
 void GPUCodeGenerate::CGpushTokenForGPU(FlatNode *actor,stringstream &buf, string pushingBuf)
@@ -761,7 +761,7 @@ void GPUCodeGenerate::CGpushTokenForGPU(FlatNode *actor,stringstream &buf, strin
 	if (sssg_->IsDownBorder(actor) && flag)
 	{
 		buf << pushingBuf;
-		buf << "\t}\n"; // pushToken·½·¨½áÊø
+		buf << "\t}\n"; // pushTokenæ–¹æ³•ç»“æŸ
 	}
 }
 void GPUCodeGenerate::CGpushToken(stringstream &buf, string pushingBuf)
@@ -771,18 +771,18 @@ void GPUCodeGenerate::CGpushToken(stringstream &buf, string pushingBuf)
 
 	buf << pushingBuf;
 
-	buf << "\t}\n"; // pushToken·½·¨½áÊø
+	buf << "\t}\n"; // pushTokenæ–¹æ³•ç»“æŸ
 }
 void GPUCodeGenerate::CGrun(stringstream &buf, string initFun)
 {
 	buf <<"\t// run\n";
-	buf << "\tpublic void run() {\n";//run·½·¨,ÀàÖĞ×îÖ÷ÒªµÄ·½·¨
+	buf << "\tpublic void run() {\n";//runæ–¹æ³•,ç±»ä¸­æœ€ä¸»è¦çš„æ–¹æ³•
 
-	buf << "\t\t" << initFun << ";\n"; // µ÷ÓÃinit·½·¨
+	buf << "\t\t" << initFun << ";\n"; // è°ƒç”¨initæ–¹æ³•
 
 	buf << strScheduler.str();
 
-	buf << "\t}\n"; // run·½·¨½áÊø
+	buf << "\t}\n"; // runæ–¹æ³•ç»“æŸ
 }
 void GPUCodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 {
@@ -822,7 +822,7 @@ void GPUCodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 		//++iter2;
 	}
 	buf<<"void * p = NULL){\n";
-	buf << "\t\tinitWork();\n"; // µ÷ÓÃinitwork·½·¨
+	buf << "\t\tinitWork();\n"; // è°ƒç”¨initworkæ–¹æ³•
 	buf<<"\t\tfor(int i=0;i<initScheduleCount;i++)\n\t\t\twork(";
 	//iter1=mapActor2InEdge.find(actor);
 	index = 0;
@@ -859,7 +859,7 @@ void GPUCodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 		++index;
 	}
 	buf<<"NULL);\n";
-	buf << "\t}\n"; // CGrunInitScheduleWork·½·¨½áÊø
+	buf << "\t}\n"; // CGrunInitScheduleWorkæ–¹æ³•ç»“æŸ
 }
 void GPUCodeGenerate::CGrunInitScheduleWorkforGPU(FlatNode *actor,stringstream &buf)
 {
@@ -867,10 +867,10 @@ void GPUCodeGenerate::CGrunInitScheduleWorkforGPU(FlatNode *actor,stringstream &
 	for (int i = 0; i < nGpu_; i++)
 	{
 		buf << "\tvoid runInitScheduleWork_"<<i<<"() {\n";
-		buf << "\t\tinitWork();\n"; // µ÷ÓÃinitwork·½·¨
+		buf << "\t\tinitWork();\n"; // è°ƒç”¨initworkæ–¹æ³•
 		buf<<"\t\tif(initScheduleCount)\n";
 		buf<<"\t\t\twork_"<<i<<"("<<sssg_->GetInitCount(actor)<<");\n";
-		buf << "\t}\n"; // CGrunInitScheduleWork·½·¨½áÊø
+		buf << "\t}\n"; // CGrunInitScheduleWorkæ–¹æ³•ç»“æŸ
 	}
 }
 void GPUCodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
@@ -947,7 +947,7 @@ void GPUCodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 		++index;
 	}
 	buf<<"NULL);\n";
-	buf << "\t}\n"; // CGrunSteadyScheduleWork·½·¨½áÊø
+	buf << "\t}\n"; // CGrunSteadyScheduleWorkæ–¹æ³•ç»“æŸ
 }
 void GPUCodeGenerate::CGrunSteadyScheduleWorkforGPU(FlatNode *actor,stringstream &buf)
 {
@@ -956,7 +956,7 @@ void GPUCodeGenerate::CGrunSteadyScheduleWorkforGPU(FlatNode *actor,stringstream
 	{
 		buf << "\tvoid runSteadyScheduleWork_"<<i<<"() {\n";
 		buf<<"\t\twork_"<<i<<"("<<sssg_->GetSteadyCount(actor)*Haflp->MultiNum2FlatNode[actor]<<");\n";
-		buf << "\t}\n"; // CGrunSteadyScheduleWork·½·¨½áÊø
+		buf << "\t}\n"; // CGrunSteadyScheduleWorkæ–¹æ³•ç»“æŸ
 	}
 }
 void GPUCodeGenerate::CGEdgeParam(FlatNode *actor,stringstream &buf)
@@ -1006,13 +1006,13 @@ void GPUCodeGenerate::CGEdgeParam(FlatNode *actor,stringstream &buf)
 void GPUCodeGenerate::CGGlobalvar()
 {
 	stringstream buf;
-	// ¶ÔÈ«¾Ö±äÁ¿½øĞĞ´úÂëÉú³É
+	// å¯¹å…¨å±€å˜é‡è¿›è¡Œä»£ç ç”Ÿæˆ
 	flag_Global=1;
 	SPL2GPU_List(gDeclList, 1);
 	buf << declInitList.str() << "\n\n";
 	declInitList.str("");
 	flag_Global=0;
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	ss<<dir_<<"GlobalVar.cpp";
 	OutputToFile(ss.str(),  buf.str());
@@ -1030,7 +1030,7 @@ void GPUCodeGenerate::CGGlobalvarextern()
 void GPUCodeGenerate::CGdatatag(FlatNode *actor,stringstream &buf)
 {
 	vector<FlatNode*>::iterator iter,iter_1;
-	buf<<"\t//¶ÁĞ´µÄ±êÖ¾Î»\n";
+	buf<<"\t//è¯»å†™çš„æ ‡å¿—ä½\n";
 	for (int i = 0; i < nGpu_; i++)
 	{
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
@@ -1066,7 +1066,7 @@ void GPUCodeGenerate::CGdatatag(FlatNode *actor,stringstream &buf)
 void GPUCodeGenerate::CGdatataginit(FlatNode *actor,stringstream &buf)
 {
 	vector<FlatNode*>::iterator iter,iter_1;
-	buf<<"\t//¶ÁĞ´±êÖ¾Î»µÄ³õÊ¼»¯\n";
+	buf<<"\t//è¯»å†™æ ‡å¿—ä½çš„åˆå§‹åŒ–\n";
 	for (int i = 0;i < nGpu_; i++)
 	{
 		for (iter=actor->inFlatNodes.begin();iter!=actor->inFlatNodes.end();iter++)
@@ -1212,7 +1212,7 @@ void GPUCodeGenerate::CGAllKernel()
 					buf<<"int writetag_"<<(*iter_1)->name<<"_"<<(*iter)->name<<", ";
 				}
 			}
-			//chenwenbin ½«param±äÁ¿¼ÓÈëµ½kernelº¯ÊıÖĞ
+			//chenwenbin å°†paramå˜é‡åŠ å…¥åˆ°kernelå‡½æ•°ä¸­
 			paramList *plist = (*iter_1)->contents->params;
 			for (int i = 0; i < (*iter_1)->contents->paramSize; i++)
 			{
@@ -1249,7 +1249,7 @@ void GPUCodeGenerate::CGAllKernel()
 			}
 			//cout<<kernelstring<<endl;
 			//////////////////////////////////////////////////////////////////////////
-			//È«¾Ö±äÁ¿ÒÔ¼°¾²Ì¬±äÁ¿²ÎÊı
+			//å…¨å±€å˜é‡ä»¥åŠé™æ€å˜é‡å‚æ•°
 			int num = allstaticvariable.size();
 			staticvariable.clear();
 			staticvariablefinal.clear();
@@ -1295,11 +1295,11 @@ void GPUCodeGenerate::CGAllKernel()
 				{
 					if (kernelstring.find(iter_staticvar->first) != -1)
 					{
-						if (array2Dname.count(iter_staticvar->first))//Èç¹û¸Ä±äÁ¿ÊÇ¶şÎ¬Êı×é£¬ÔòĞèÒª¶ÔÆä½øĞĞ¸ÄÔì£¬±ä³ÉÒ»Î¬Êı×é
+						if (array2Dname.count(iter_staticvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯äºŒç»´æ•°ç»„ï¼Œåˆ™éœ€è¦å¯¹å…¶è¿›è¡Œæ”¹é€ ï¼Œå˜æˆä¸€ç»´æ•°ç»„
 						{
 							buf<<"__global "<<*iter_typeofstatic<<" *"<<iter_staticvar->first<<", ";
 						}
-						else if (array1Dname.count(iter_staticvar->first))//Èç¹û¸Ä±äÁ¿ÊÇÒ»Î¬Êı×é£¬ÔòÖ±½Ó·â×°³Ébuffer
+						else if (array1Dname.count(iter_staticvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯ä¸€ç»´æ•°ç»„ï¼Œåˆ™ç›´æ¥å°è£…æˆbuffer
 						{
 							buf<<"__global "<<*iter_typeofstatic<<" *"<<iter_staticvar->first<<", ";
 						}
@@ -1321,11 +1321,11 @@ void GPUCodeGenerate::CGAllKernel()
 					{
 						if (!((((int)kernelstring[pos+(iter_globalvar->first).length()])>=65&&((int)kernelstring[pos+(iter_globalvar->first).length()])<=90)||(((int)kernelstring[pos+(iter_globalvar->first).length()])>=97&&((int)kernelstring[pos+(iter_globalvar->first).length()])<=122))&&!((((int)kernelstring[pos-1])>=65&&((int)kernelstring[pos-1])<=90)||(((int)kernelstring[pos-1])>=97&&((int)kernelstring[pos-1])<=122)))
 						{
-							if (array2Dname.count(iter_globalvar->first))//Èç¹û¸Ä±äÁ¿ÊÇ¶şÎ¬Êı×é£¬ÔòĞèÒª¶ÔÆä½øĞĞ¸ÄÔì£¬±ä³ÉÒ»Î¬Êı×é
+							if (array2Dname.count(iter_globalvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯äºŒç»´æ•°ç»„ï¼Œåˆ™éœ€è¦å¯¹å…¶è¿›è¡Œæ”¹é€ ï¼Œå˜æˆä¸€ç»´æ•°ç»„
 							{
 								buf<<"__global "<<*iter_typeofglobal<<" *"<<iter_globalvar->first<<", ";
 							}
-							else if (array1Dname.count(iter_globalvar->first))//Èç¹û¸Ä±äÁ¿ÊÇÒ»Î¬Êı×é£¬ÔòÖ±½Ó·â×°³Ébuffer
+							else if (array1Dname.count(iter_globalvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯ä¸€ç»´æ•°ç»„ï¼Œåˆ™ç›´æ¥å°è£…æˆbuffer
 							{
 								buf<<"__global "<<*iter_typeofglobal<<" *"<<iter_globalvar->first<<", ";
 							}
@@ -1348,8 +1348,8 @@ void GPUCodeGenerate::CGAllKernel()
 				buf<<"\tint id = get_global_id(0);\n";
 			}
 			//////////////////////////////////////////////////////////////////////////
-			//×Ö·û´®µÄ´¦Àí
-			vector<int>::iterator iter_pop,iter_push;//·Ö±ğÓÃÀ´µü´úactorµÄpopºÍpushÖµ
+			//å­—ç¬¦ä¸²çš„å¤„ç†
+			vector<int>::iterator iter_pop,iter_push;//åˆ†åˆ«ç”¨æ¥è¿­ä»£actorçš„popå’Œpushå€¼
 			iter_pop = (*iter_1)->inPopWeights.begin();
 			iter_push = (*iter_1)->outPushWeights.begin();
 			for (iter=(*iter_1)->inFlatNodes.begin();iter!=(*iter_1)->inFlatNodes.end();iter++)
@@ -1368,7 +1368,7 @@ void GPUCodeGenerate::CGAllKernel()
 					if (pos1 != 0 &&!(((kernelstring[pos1-1]>=65)&&(kernelstring[pos1-1]<=90))||((kernelstring[pos1-1]>=97)&&(kernelstring[pos1-1]<=122))))
 					{
 						string substring;
-						//´¦ÀíÀ¨ºÅÆ¥ÅäµÄÎÊÌâ
+						//å¤„ç†æ‹¬å·åŒ¹é…çš„é—®é¢˜
 						stack<string>stk;
 						pos2 = kernelstring.find("[",pos1);
 						stk.push("[");
@@ -1430,7 +1430,7 @@ void GPUCodeGenerate::CGAllKernel()
 						if (!(((kernelstring[pos1+iter_buffername->second.length()]>=65)&&(kernelstring[pos1+iter_buffername->second.length()]<=90))||((kernelstring[pos1+iter_buffername->second.length()]>=97)&&(kernelstring[pos1+iter_buffername->second.length()]<=122))))
 						{
 							string substring;
-							//´¦ÀíÀ¨ºÅÆ¥ÅäµÄÎÊÌâ
+							//å¤„ç†æ‹¬å·åŒ¹é…çš„é—®é¢˜
 							stack<string>stk;
 							pos2 = kernelstring.find("[",pos1);
 							stk.push("[");
@@ -1641,7 +1641,7 @@ void GPUCodeGenerate::CGAllKernel()
 				iter_push++;
 			}
 			//////////////////////////////////////////////////////////////////////////
-			//¶Ôkernelº¯ÊıÖĞµÄ¶şÎ¬È«¾Ö±äÁ¿ÒÔ¼°¶şÎ¬¾²Ì¬±äÁ¿½øĞĞÏÂ±êµÄĞŞ¸Ä£¬Ê¹Ö®±äÎªÒ»Î¬Êı×é
+			//å¯¹kernelå‡½æ•°ä¸­çš„äºŒç»´å…¨å±€å˜é‡ä»¥åŠäºŒç»´é™æ€å˜é‡è¿›è¡Œä¸‹æ ‡çš„ä¿®æ”¹ï¼Œä½¿ä¹‹å˜ä¸ºä¸€ç»´æ•°ç»„
 			set<string>::iterator iter_2Darray;
 			map<string,map<string,string> >::iterator iter_2Dimarray;
 			map<string,string>::iterator iter_submap;
@@ -1713,7 +1713,7 @@ void GPUCodeGenerate::CGAllKernel()
 			/*cout<<"---------------"<<endl;
 			cout<<kernelstring<<endl;*/
 			//////////////////////////////////////////////////////////////////////////
-			//¶ÔkernelÖĞµÄ¾Ö²¿¶şÎ¬Êı×éµÄ·ÃÎÊ½øĞĞĞŞ¸Ä
+			//å¯¹kernelä¸­çš„å±€éƒ¨äºŒç»´æ•°ç»„çš„è®¿é—®è¿›è¡Œä¿®æ”¹
 			pair<multimap<FlatNode *,map<string,map<string,string> > >::iterator,multimap<FlatNode *,map<string,map<string,string> > >::iterator>pos_local;
 			pos_local = alllocalvariable.equal_range(*iter_1);
 			map<string,map<string,string> > localsubmap;
@@ -1754,7 +1754,7 @@ void GPUCodeGenerate::CGAllKernel()
 			}
 			//////////////////////////////////////////////////////////////////////////
 			buf << kernelstring;
-			declInitList.str(""); // Çå¿Õ
+			declInitList.str(""); // æ¸…ç©º
 			buf<<"}\n";
 		}
 	}
@@ -1812,7 +1812,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 	//cout<<actor->name<<"       "<<endl;
 	actor->SetIOStreams();	
 	buf <<"/**\n * Class "<<classNmae<<"\n */\n";
-	//buf <<"import lib.*;\n"; // Ïà¹Ø¿âÎÄ¼ş
+	//buf <<"import lib.*;\n"; // ç›¸å…³åº“æ–‡ä»¶
 	buf<<"#include \"Buffer.h\"\n";
 	buf<<"#include \"Consumer.h\"\n";
 	buf<<"#include \"Producer.h\"\n";
@@ -1836,31 +1836,31 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 		buf<<"template<typename U>\n";
 	else if(actor->inFlatNodes.size() != 0 && actor->outFlatNodes.size() != 0)
 		buf<<"template<typename T,typename U>\n";
-	buf <<"class "<<classNmae<<"{\n"; // Àà¿é¿ªÊ¼
-	// Ğ´Èë·¢ËÍ¡¢½ÓÊÕĞÅÏ¢
-	parameterBuf.str(""); // Çå¿ÕparameterBufÄÚÈİ
-	thisBuf.str(""); // Çå¿ÕthisBufÄÚÈİ
-	// ½ÓÊÕ±ßÏà¹Ø
+	buf <<"class "<<classNmae<<"{\n"; // ç±»å—å¼€å§‹
+	// å†™å…¥å‘é€ã€æ¥æ”¶ä¿¡æ¯
+	parameterBuf.str(""); // æ¸…ç©ºparameterBufå†…å®¹
+	thisBuf.str(""); // æ¸…ç©ºthisBufå†…å®¹
+	// æ¥æ”¶è¾¹ç›¸å…³
 	//CGrecv(actor, ot, streamName, SRbuf, initPeekBuf, popingBuf, initWorkBuf);
-	// ·¢ËÍ±ßÏà¹Ø
+	// å‘é€è¾¹ç›¸å…³
 	//CGsend(actor, ot, streamName, SRbuf, initPushBuf, pushingBuf, pFlush, initWorkBuf);
 	buf << SRbuf.str();
-	// Ğ´ÈëÑ­»·´ÎÊıĞÅÏ¢
+	// å†™å…¥å¾ªç¯æ¬¡æ•°ä¿¡æ¯
 	//buf << "\tint RepeatCount;\n";
 	buf<<"private:\n";
-	//cwb Ä£°åÖĞGPU´æ´¢¿Õ¼ä
+	//cwb æ¨¡æ¿ä¸­GPUå­˜å‚¨ç©ºé—´
 	CGCreateBuffer(actor,buf);
-	//Ğ´Èë¶ÁĞ´±êÖ¾Î»
+	//å†™å…¥è¯»å†™æ ‡å¿—ä½
 	CGdatatag(actor,buf);
-	//Ğ´Èë±ßµÄË½ÓĞ±äÁ¿
+	//å†™å…¥è¾¹çš„ç§æœ‰å˜é‡
 	CGEdgeParam(actor,buf);
-	// Ğ´ÈëÓï·¨Ê÷³ÉÔ±±äÁ¿ĞÅÏ¢£¨param, var, state£©
+	// å†™å…¥è¯­æ³•æ ‘æˆå‘˜å˜é‡ä¿¡æ¯ï¼ˆparam, var, stateï¼‰
 	CGdeclList(actor, ot, buf);
-	// Ğ´Èë var, state µÄ³õÊ¼»¯ĞÅÏ¢
+	// å†™å…¥ var, state çš„åˆå§‹åŒ–ä¿¡æ¯
 	CGinitVarAndState(actor, ot, buf);
-	// Ğ´Èë init µÄ³õÊ¼»¯ĞÅÏ¢(¿¼ÂÇµ½init¿ÉÒÔ¶¨Òå¾Ö²¿±äÁ¿£¬ËùÒÔ²»ÓëÉÏ²¿·ÖºÏ²¢)
+	// å†™å…¥ init çš„åˆå§‹åŒ–ä¿¡æ¯(è€ƒè™‘åˆ°initå¯ä»¥å®šä¹‰å±€éƒ¨å˜é‡ï¼Œæ‰€ä»¥ä¸ä¸ä¸Šéƒ¨åˆ†åˆå¹¶)
 	CGlogicInit(actor, ot, buf, logicInitBuf);
-	// Ğ´ÈëpopTokenº¯Êı
+	// å†™å…¥popTokenå‡½æ•°
 	//if (DetectiveFilterState(actor)||(Maflp->UporDownStatelessNode(actor)==3)) //cwb
 	if(actor->GPUPart >= nGpu_)
 	{
@@ -1873,25 +1873,25 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 		CGpushTokenForGPU(actor,buf,popingBuf.str());
 	}
 	buf<<"public:\n\t";
-	// Ğ´Èë¹¹Ôìº¯ÊıĞÅÏ¢
-	buf<<"\tint steadyScheduleCount;\t//ÎÈÌ¬Ê±Ò»´Îµü´úµÄÖ´ĞĞ´ÎÊı\n";
+	// å†™å…¥æ„é€ å‡½æ•°ä¿¡æ¯
+	buf<<"\tint steadyScheduleCount;\t//ç¨³æ€æ—¶ä¸€æ¬¡è¿­ä»£çš„æ‰§è¡Œæ¬¡æ•°\n";
 	buf<<"\tint initScheduleCount;\n";
 	CGthis(actor, ot, buf,classNmae);
-	// Ğ´Èë³ÉÔ±º¯ÊıĞÅÏ¢
+	// å†™å…¥æˆå‘˜å‡½æ•°ä¿¡æ¯
 	buf <<"\t// ------------Member Mehods------------\n";
-	// Ğ´Èëflushº¯Êı
+	// å†™å…¥flushå‡½æ•°
 	//CGflush(buf, pFlush.str());
-	// Ğ´ÈëinitWorkº¯Êı
+	// å†™å…¥initWorkå‡½æ•°
 	CGinitWork(buf, initWorkBuf.str());
-	// Ğ´ÈëinitPeekº¯Êı
+	// å†™å…¥initPeekå‡½æ•°
 	//CGinitPeek(buf, initPeekBuf.str());
-	// Ğ´ÈëinitPushº¯Êı
+	// å†™å…¥initPushå‡½æ•°
 	//CGinitPush(buf, initPushBuf.str());
-	// Ğ´ÈëpushTokenº¯Êı
+	// å†™å…¥pushTokenå‡½æ•°
 	//CGpushToken(buf, pushingBuf.str());
-	// Ğ´Èëworkº¯Êı
+	// å†™å…¥workå‡½æ•°
 	CGwork(actor, ot, buf);
-	//Îª·ÖÅäÔÚGPUÉÏµÄactorĞ´ÈëÊı¾İ´«Êäº¯Êı(ÊäÈëµ½GPU»º³åÇøÖĞ)
+	//ä¸ºåˆ†é…åœ¨GPUä¸Šçš„actorå†™å…¥æ•°æ®ä¼ è¾“å‡½æ•°(è¾“å…¥åˆ°GPUç¼“å†²åŒºä¸­)
 	//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3))//cwb
 	if(actor->GPUPart < nGpu_)
 	{
@@ -1910,7 +1910,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 			CGdataGetforGPU(actor,buf);
 		}
 	}
-	//Îª·ÖÅäÔÚGPUÉÏµÄactorĞ´ÈëÊı¾İ´«Êäº¯Êı(Êä³öµ½CPU»º³åÇøÖĞ)
+	//ä¸ºåˆ†é…åœ¨GPUä¸Šçš„actorå†™å…¥æ•°æ®ä¼ è¾“å‡½æ•°(è¾“å‡ºåˆ°CPUç¼“å†²åŒºä¸­)
 	//if (!DetectiveFilterState(actor)&&(Maflp->UporDownStatelessNode(actor)!=3))//cwb
 	if(actor->GPUPart < nGpu_)
 	{
@@ -1929,7 +1929,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 			CGdataSendforGPU(actor,buf);
 		}
 	}
-	//´òÓ¡Êä³ö½á¹ûcwb
+	//æ‰“å°è¾“å‡ºç»“æœcwb
 
 	if (actor->outFlatNodes.size() ==0 && PrintFlag && actor->GPUPart < nGpu_)
 	{
@@ -1946,10 +1946,10 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 			buf<<"\t\tdelete [] Outst;\n\t}\n";
 		}
 	}
-	// Ğ´Èërunº¯Êı
+	// å†™å…¥runå‡½æ•°
 	//CGrun(buf, "initWork()");
-	//Ğ´ÈërunInitScheduleWorkº¯Êı
-	//Ğ´ÈërunSteadyScheduleWorkº¯Êı
+	//å†™å…¥runInitScheduleWorkå‡½æ•°
+	//å†™å…¥runSteadyScheduleWorkå‡½æ•°
 	//if (DetectiveFilterState(actor)||(Maflp->UporDownStatelessNode(actor)==3))
 	if(actor->GPUPart >= nGpu_)
 	{
@@ -1961,7 +1961,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 		CGrunInitScheduleWorkforGPU(actor,buf);
 		CGrunSteadyScheduleWorkforGPU(actor,buf);
 	}
-	buf <<"};";//Àà¿é½áÊø
+	buf <<"};";//ç±»å—ç»“æŸ
 	buf1.str("");
 	buf2.str("");
 	buf2<<"#include \""<<actor->name<<".h\"\n";
@@ -1969,7 +1969,7 @@ void GPUCodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 	{
 		buf1<<(*iter);
 	}
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream fileName;
 	fileName<<dir_<<classNmae<<".h";
 	//fileName1<<dir_<<classNmae<<".cpp";
@@ -2057,7 +2057,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 		if(flag)
 			buf<<"\tpushToken();\n";
 		buf<<"\t}\n";
-		declInitList.str(""); // Çå¿Õ
+		declInitList.str(""); // æ¸…ç©º
 	}
 	else
 	{
@@ -2070,7 +2070,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			string num;
 			int pos = actor->name.find('_');
 			num = actor->name.substr(pos+1);
-			int argnum = 0;//kernelº¯ÊıµÄ²ÎÊı¸öÊı
+			int argnum = 0;//kernelå‡½æ•°çš„å‚æ•°ä¸ªæ•°
 			buf<<"\t\tcl::Kernel kernel(program,\"kernel"<<mapFlatnode2Template_[actor]<<"\");\n";
 			vector<FlatNode*>::iterator iter,iter_1;
 			map<FlatNode*,vector<string> >::iterator iterofOut,iterofIn;
@@ -2108,7 +2108,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 				}
 				OutbufferOfActor.insert(make_pair(actor,tempstring));
 			}
-			//chenwenbin ½«param±äÁ¿´«¸økernelº¯Êı
+			//chenwenbin å°†paramå˜é‡ä¼ ç»™kernelå‡½æ•°
 			paramList *pList = actor->contents->params;
 			for (int i = 0; i < actor->contents->paramSize; i++)
 			{
@@ -2122,7 +2122,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			paramofactor = iter_param->second;
 			vector<string>::iterator iter_prname;
 			//////////////////////////////////////////////////////////////////////////
-			//´Ë´¦ĞèÒª½«Êı×é·â×°³ÉÎªÄÚ´æ¶ÔÏó
+			//æ­¤å¤„éœ€è¦å°†æ•°ç»„å°è£…æˆä¸ºå†…å­˜å¯¹è±¡
 			for (iter_paofac = paramofactor.begin();iter_paofac != paramofactor.end();iter_paofac++)
 			{
 				buf<<"\t\tkernel.setArg("<<argnum++<<","<<(*iter_paofac)<<");\n";
@@ -2139,7 +2139,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 				else
 				{
 					//////////////////////////////////////////////////////////////////////////
-					//Èç¹ûÊÇ¶şÎ¬Êı×éÔòĞèÒª×ª»¯ÎªÒ»Î¬Êı×é
+					//å¦‚æœæ˜¯äºŒç»´æ•°ç»„åˆ™éœ€è¦è½¬åŒ–ä¸ºä¸€ç»´æ•°ç»„
 					buf<<"\t\t"<<(*iter_ptrtype)<<" "<<(*iter_prname)<<"_new["<<(iter_ptrdim->first)<<"*"<<(iter_ptrdim->second)<<"];\n";
 					buf<<"\t\tfor(int i = 0;i < "<<iter_ptrdim->first<<";i++)\n";
 					buf<<"\t\t{\n";
@@ -2184,7 +2184,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 			string workstring = declInitList.str();
 			//cout<<declInitList.str()<<endl;
 			//////////////////////////////////////////////////////////////////////////
-			//ĞèÒªÔÚwork²¿·ÖÑ°ÕÒÏà¹ØµÄÈ«¾ÖÒÔ¼°¾²Ì¬±äÁ¿
+			//éœ€è¦åœ¨workéƒ¨åˆ†å¯»æ‰¾ç›¸å…³çš„å…¨å±€ä»¥åŠé™æ€å˜é‡
 			map<string,map<string,string> >::iterator iter_staticvar;
 			map<string,string>::iterator iter_submapofstatic;
 			vector<string>::iterator iter_typeofstatic = staticvartypefinal.begin();
@@ -2198,7 +2198,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 				{
 					if (workstring.find(iter_staticvar->first) != -1)
 					{
-						if (array2Dname.count(iter_staticvar->first))//Èç¹û¸Ä±äÁ¿ÊÇ¶şÎ¬Êı×é£¬ÔòĞèÒª¶ÔÆä½øĞĞ¸ÄÔì£¬±ä³ÉÒ»Î¬Êı×é
+						if (array2Dname.count(iter_staticvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯äºŒç»´æ•°ç»„ï¼Œåˆ™éœ€è¦å¯¹å…¶è¿›è¡Œæ”¹é€ ï¼Œå˜æˆä¸€ç»´æ•°ç»„
 						{
 							iter_submapofstatic = iter_staticvar->second.begin();
 							stringstream numss1,numss2;
@@ -2214,11 +2214,11 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 							buf<<"\t\t\t}\n";
 							buf<<"\t\t}\n";
 							//////////////////////////////////////////////////////////////////////////
-							//½«ĞÂÉú³ÉµÄÒ»Î¬Êı×é·â×°³Ébuffer¶ÔÏó
+							//å°†æ–°ç”Ÿæˆçš„ä¸€ç»´æ•°ç»„å°è£…æˆbufferå¯¹è±¡
 							buf<<"\t\tcl::Buffer "<<iter_staticvar->first<<"_buffer(context,CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,"<<(num1*num2)<<"*sizeof("<<(*iter_typeofstatic)<<"),"<<(iter_staticvar->first)<<"_new,NULL);\n";
 							buf<<"\t\tkernel.setArg("<<argnum++<<","<<iter_staticvar->first<<"_buffer);\n";
 						}
-						else if (array1Dname.count(iter_staticvar->first))//Èç¹û¸Ä±äÁ¿ÊÇÒ»Î¬Êı×é£¬ÔòÖ±½Ó·â×°³Ébuffer
+						else if (array1Dname.count(iter_staticvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯ä¸€ç»´æ•°ç»„ï¼Œåˆ™ç›´æ¥å°è£…æˆbuffer
 						{
 							iter_submapofstatic = iter_staticvar->second.begin();
 							stringstream numss1;
@@ -2246,7 +2246,7 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 					{
 						if (!((((int)workstring[pos+(iter_globalvar->first).length()])>=65&&((int)workstring[pos+(iter_globalvar->first).length()])<=90)||(((int)workstring[pos+(iter_globalvar->first).length()])>=97&&((int)workstring[pos+(iter_globalvar->first).length()])<=122))&&!((((int)workstring[pos-1])>=65&&((int)workstring[pos-1])<=90)||(((int)workstring[pos-1])>=97&&((int)workstring[pos-1])<=122)))
 						{
-							if (array2Dname.count(iter_globalvar->first))//Èç¹û¸Ä±äÁ¿ÊÇ¶şÎ¬Êı×é£¬ÔòĞèÒª¶ÔÆä½øĞĞ¸ÄÔì£¬±ä³ÉÒ»Î¬Êı×é
+							if (array2Dname.count(iter_globalvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯äºŒç»´æ•°ç»„ï¼Œåˆ™éœ€è¦å¯¹å…¶è¿›è¡Œæ”¹é€ ï¼Œå˜æˆä¸€ç»´æ•°ç»„
 							{
 								iter_submapofglobal = iter_globalvar->second.begin();
 								stringstream numss1,numss2;
@@ -2262,11 +2262,11 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 								buf<<"\t\t\t}\n";
 								buf<<"\t\t}\n";
 								//////////////////////////////////////////////////////////////////////////
-								//½«ĞÂÉú³ÉµÄÒ»Î¬Êı×é·â×°³Ébuffer¶ÔÏó
+								//å°†æ–°ç”Ÿæˆçš„ä¸€ç»´æ•°ç»„å°è£…æˆbufferå¯¹è±¡
 								buf<<"\t\tcl::Buffer "<<iter_globalvar->first<<"_buffer(context,CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,"<<(num1*num2)<<"*sizeof("<<(*iter_typeofglobal)<<"),"<<(iter_globalvar->first)<<"_new,NULL);\n";
 								buf<<"\t\tkernel.setArg("<<argnum++<<","<<iter_globalvar->first<<"_buffer);\n";
 							}
-							else if (array1Dname.count(iter_globalvar->first))//Èç¹û¸Ä±äÁ¿ÊÇÒ»Î¬Êı×é£¬ÔòÖ±½Ó·â×°³Ébuffer
+							else if (array1Dname.count(iter_globalvar->first))//å¦‚æœæ”¹å˜é‡æ˜¯ä¸€ç»´æ•°ç»„ï¼Œåˆ™ç›´æ¥å°è£…æˆbuffer
 							{
 								iter_submapofglobal = iter_globalvar->second.begin();
 								stringstream numss1;
@@ -2319,8 +2319,8 @@ void GPUCodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 				buf<<"\t\twritetag_"<<actor->name<<"_"<<(*iter_1)->name<<"_"<<i<<" += count/com_num*pushValue"<<index<<";\n";
 				index++;
 			}
-			buf << "\t}\n"; // work·½·¨½áÊø
-			declInitList.str(""); // Çå¿Õ
+			buf << "\t}\n"; // workæ–¹æ³•ç»“æŸ
+			declInitList.str(""); // æ¸…ç©º
 		}
 	}
 }
@@ -2355,7 +2355,7 @@ int GPUCodeGenerate::ReturnPeekWeight(FlatNode *actorA,FlatNode *actorB)
 	}
 }
 
-string GPUCodeGenerate::ReturnNameOfTheEdge(string searchstring)//´Ë´¦µÄ²ÎÊıĞÎÈçA->name_B->name
+string GPUCodeGenerate::ReturnNameOfTheEdge(string searchstring)//æ­¤å¤„çš„å‚æ•°å½¢å¦‚A->name_B->name
 {
 	map<string,string>::iterator iter = edge2name.find(searchstring);
 	return iter->second;
@@ -2587,21 +2587,21 @@ void GPUCodeGenerate::CGactors()
 	stringstream ss,buf;
 	std::map<operatorNode *, string>::iterator pos;
 
-	for (int i = 0; i < nTemplateNode_; ++i)//Éú³É ¸÷¸ö ÀàÄ£°å
+	for (int i = 0; i < nTemplateNode_; ++i)//ç”Ÿæˆ å„ä¸ª ç±»æ¨¡æ¿
 	{
 		int len = ListLength(vTemplateNode_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs);
 		int nOut = vTemplateNode_[i]->nOut;
 		OperatorType ot = vTemplateNode_[i]->oldContents->ot;
 
 		pos = mapOperator2ClassName.find(vTemplateNode_[i]->oldContents);
-		//if (pos == mapOperator2ClassName.end()) // ĞÂµÄÀàÄ£°å½øÈëÁË
+		//if (pos == mapOperator2ClassName.end()) // æ–°çš„ç±»æ¨¡æ¿è¿›å…¥äº†
 		{
 			string name = vTemplateNode_[i]->name;
 			int index = name.find_first_of('_');
 			string tmp = name.substr(0, index);
 			mapOperator2ClassName.insert(make_pair(vTemplateNode_[i]->oldContents, vTemplateNode_[i]->name));
 
-			if (len == nOut)			//nOutÎªÃ¿¸öoperatorµÄÊä³ö±ß¸öÊı
+			if (len == nOut)			//nOutä¸ºæ¯ä¸ªoperatorçš„è¾“å‡ºè¾¹ä¸ªæ•°
 			{
 				buf<<"#include \""<<vTemplateName_[i]<<".h\"\n";
 				if (strcmp(tmp.c_str(), "FileReader") == 0)
@@ -2612,7 +2612,7 @@ void GPUCodeGenerate::CGactors()
 
 				isInFileReader = isInFileWriter = false;
 			}
-			else // Ò»Ìõ±ß±»¶à¸öactor¹²ÓÃ, Ôİ²»´¦Àí
+			else // ä¸€æ¡è¾¹è¢«å¤šä¸ªactorå…±ç”¨, æš‚ä¸å¤„ç†
 			{
 				cout << "test" << endl;
 				UNREACHABLE;
@@ -2695,8 +2695,8 @@ void GPUCodeGenerate::CGglobalHeader()
 	vector<FlatNode *>::iterator iter_1,iter_2;
 	buf<<"#ifndef _GLOBAL_H\n";
 	buf<<"#define _GLOBAL_H\n";
-	buf<<"/*È«¾Ö±äÁ¿£¬ÓÃÓÚ´æ´¢±ßµÄĞÅÏ¢*/\n";
-	buf<<"/*±ßµÄÃüÃû¹æÔò£ºA_B,ÆäÖĞA->B*/\n\n";
+	buf<<"/*å…¨å±€å˜é‡ï¼Œç”¨äºå­˜å‚¨è¾¹çš„ä¿¡æ¯*/\n";
+	buf<<"/*è¾¹çš„å‘½åè§„åˆ™ï¼šA_B,å…¶ä¸­A->B*/\n\n";
 	buf<<"#include \"Buffer.h\"\n";
 	buf<<"#include \"CL/cl.hpp\"\n";
 	if (FileRW)
@@ -2719,9 +2719,9 @@ void GPUCodeGenerate::CGglobalHeader()
 	vector<bool>::iterator iedgeIndex= vecEdgeDefine.begin();
 	map<string,string>::iterator iterName;
 	map<string,string> tmpVec;
-	int stageminus; //stageminus±íÊ¾Á½¸öactorËù·ÖÅäµÄ½×¶Î²î
+	int stageminus; //stageminusè¡¨ç¤ºä¸¤ä¸ªactoræ‰€åˆ†é…çš„é˜¶æ®µå·®
 	bool printStruct = false;
-	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓĞ½áµã
+	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		int flag = 0;
 		int outflatnodeindex = 0;
@@ -2898,7 +2898,7 @@ void GPUCodeGenerate::CGglobalHeader()
 			}
 		}
 		//string tests = iterxy2->first;
-		if (iterxy1==iterxy3)//BenchmarkÖĞÖ»ÓĞFileReader
+		if (iterxy1==iterxy3)//Benchmarkä¸­åªæœ‰FileReader
 		{
 			existFileWriter = false;
 			buf<<"istream& operator>>(stringstream& is, "<<iterxy2->first<<"_str &object);\n";
@@ -2929,7 +2929,7 @@ void GPUCodeGenerate::CGglobalHeader()
 	pos.first++;
 	}*/
 	buf<<"#endif\n";
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	ss<<dir_<<"global.h";
 	mapOperator2EdgeName.clear();
@@ -2951,14 +2951,14 @@ void GPUCodeGenerate::CGglobalCpp()
 {
 	stringstream buf;
 	string edgename;
-	int size;//»º³åÇøµÄ´óĞ¡
+	int size;//ç¼“å†²åŒºçš„å¤§å°
 	vector<FlatNode *>::iterator iter_1,iter_2;
 	vector<int>::iterator iter;
-	int stageminus; //stageminus±íÊ¾Á½¸öactorËù·ÖÅäµÄ½×¶Î²î
-	buf<<"/*cppÎÄ¼ş,È«¾Ö±äÁ¿£¬ÓÃÓÚ´æ´¢±ßµÄĞÅÏ¢*/\n";
+	int stageminus; //stageminusè¡¨ç¤ºä¸¤ä¸ªactoræ‰€åˆ†é…çš„é˜¶æ®µå·®
+	buf<<"/*cppæ–‡ä»¶,å…¨å±€å˜é‡ï¼Œç”¨äºå­˜å‚¨è¾¹çš„ä¿¡æ¯*/\n";
 	buf<<"#include \"Buffer.h\"\n";
 	buf<<"#include \"global.h\"\n";
-	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓĞ½áµã
+	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		iter=(*iter_1)->outPushWeights.begin();
 		for (iter_2=(*iter_1)->outFlatNodes.begin();iter_2!=(*iter_1)->outFlatNodes.end();iter_2++)
@@ -3014,7 +3014,7 @@ void GPUCodeGenerate::CGglobalCpp()
 				Wtag++;
 			}
 		}
-		if (iterxy1==iterxy3)//BenchmarkÖĞÃ»ÓĞFileWriter£¬Ö»ÓĞFileReader
+		if (iterxy1==iterxy3)//Benchmarkä¸­æ²¡æœ‰FileWriterï¼Œåªæœ‰FileReader
 		{
 			pos_reader = mapedge2xy2.equal_range(iterxy2->first);
 			buf<<"istream& operator>>(stringstream& is, "<<iterxy2->first<<"_str &object)\n{\n\t";
@@ -3027,12 +3027,12 @@ void GPUCodeGenerate::CGglobalCpp()
 			}
 			buf<<")\n\t\treturn is;\n";
 			buf<<"\telse\n\t{\n";
-			buf<<"\t\tcout<<\"Ô­Ê¼Êı¾İ²»¹»£¡\"<<endl;\n";
+			buf<<"\t\tcout<<\"åŸå§‹æ•°æ®ä¸å¤Ÿï¼\"<<endl;\n";
 			buf<<"\t\tsystem(\"pause\");\n\t";
 			buf<<"}\n";
 			buf<<"}\n";
 		}
-		else//BenchmarkÖĞÍ¬Ê±´æÔÚFileReaderºÍFileWriter
+		else//Benchmarkä¸­åŒæ—¶å­˜åœ¨FileReaderå’ŒFileWriter
 		{
 			if ((iterxy1->first).find("FileW",0)!=-1)
 			{
@@ -3061,7 +3061,7 @@ void GPUCodeGenerate::CGglobalCpp()
 				}
 				buf<<")\n\t\treturn is;\n";
 				buf<<"\telse\n\t{\n";
-				buf<<"\t\tcout<<\"Ô­Ê¼Êı¾İ²»¹»£¡\"<<endl;\n";
+				buf<<"\t\tcout<<\"åŸå§‹æ•°æ®ä¸å¤Ÿï¼\"<<endl;\n";
 				buf<<"\t\tsystem(\"pause\");\n\t";
 				buf<<"}\n";
 				buf<<"}\n";
@@ -3091,7 +3091,7 @@ void GPUCodeGenerate::CGglobalCpp()
 				}
 				buf<<")\n\t\treturn is;\n";
 				buf<<"\telse\n\t{\n";
-				buf<<"\t\tcout<<\"Ô­Ê¼Êı¾İ²»¹»£¡\"<<endl;\n";
+				buf<<"\t\tcout<<\"åŸå§‹æ•°æ®ä¸å¤Ÿï¼\"<<endl;\n";
 				buf<<"\t\tsystem(\"pause\");\n\t";
 				buf<<"}\n";
 				buf<<"}\n";
@@ -3115,7 +3115,7 @@ void GPUCodeGenerate::CGglobalCpp()
 		buf<<"ifile.close();\n";
 		buf<<"}";
 	}
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	ss<<dir_<<"global.cpp";
 	OutputToFile(ss.str(),  buf.str());
@@ -3151,12 +3151,12 @@ void GPUCodeGenerate::CGThreads()
 	string threadname;
 	stringstream buf;
 	char a[10];  
-	string numname;//´æ´¢thread½áÎ²Êı×Ö×ª»¯Îª×Ö·û´®
+	string numname;//å­˜å‚¨threadç»“å°¾æ•°å­—è½¬åŒ–ä¸ºå­—ç¬¦ä¸²
 	if (Haflp->CPUNodes.size() > 0)
 	{
 		for (int i=0;i<nGpu_*2+NCpuThreads;i++)
 		{
-			buf<<"/*¸ÃÎÄ¼ş¶¨Òå¸÷threadµÄÈë¿Úº¯Êı£¬ÔÚº¯ÊıÄÚ²¿Íê³ÉÈí¼şÁ÷Ë®µü´ú*/\n";
+			buf<<"/*è¯¥æ–‡ä»¶å®šä¹‰å„threadçš„å…¥å£å‡½æ•°ï¼Œåœ¨å‡½æ•°å†…éƒ¨å®Œæˆè½¯ä»¶æµæ°´è¿­ä»£*/\n";
 			stringstream ss;
 			//itoa(i, a, 10);  
 			sprintf(a, "%d", i);
@@ -3173,7 +3173,7 @@ void GPUCodeGenerate::CGThreads()
 	{
 		for (int i=0;i<nGpu_;i++)
 		{
-			buf<<"/*¸ÃÎÄ¼ş¶¨Òå¸÷threadµÄÈë¿Úº¯Êı£¬ÔÚº¯ÊıÄÚ²¿Íê³ÉÈí¼şÁ÷Ë®µü´ú*/\n";
+			buf<<"/*è¯¥æ–‡ä»¶å®šä¹‰å„threadçš„å…¥å£å‡½æ•°ï¼Œåœ¨å‡½æ•°å†…éƒ¨å®Œæˆè½¯ä»¶æµæ°´è¿­ä»£*/\n";
 			stringstream ss;
 			//itoa(i, a, 10);  
 			sprintf(a, "%d", i);
@@ -3204,8 +3204,8 @@ void GPUCodeGenerate::CGThreads()
 	buf<<"#include \"Producer.h\"\n";
 	buf<<"#include \"Consumer.h\"\n";
 	buf<<"#include \"global.h\"\n";
-	buf<<"#include \"barrier_sync.h\"\t//°üº¬barrierº¯Êı\n";
-	buf<<"#include \"AllActorHeader.h\"\t//°üº¬ËùÓĞactorµÄÍ·ÎÄ¼ş\n";
+	buf<<"#include \"barrier_sync.h\"\t//åŒ…å«barrierå‡½æ•°\n";
+	buf<<"#include \"AllActorHeader.h\"\t//åŒ…å«æ‰€æœ‰actorçš„å¤´æ–‡ä»¶\n";
 	buf<<"#include \"rdtsc.h\"\n";
 	if(CHECKEACHACTORTIME)
 	{	
@@ -3322,7 +3322,7 @@ void GPUCodeGenerate::CGThreads()
 	{
 		buf<<"void thread_"<<numname<<"_fun()\n{\n";
 	}
-	if(CHECKEACHACTORTIME)						//Êä³öÃ¿¸öactorÔÚÃ¿¸östageÉÏµÄsteadyworkÊ±¼ä
+	if(CHECKEACHACTORTIME)						//è¾“å‡ºæ¯ä¸ªactoråœ¨æ¯ä¸ªstageä¸Šçš„steadyworkæ—¶é—´
 	{
 		buf<<"\tofstream txtfw;\n\tstringstream ss;\n";
 	}
@@ -3357,10 +3357,10 @@ void GPUCodeGenerate::CGThreads()
 	if(!CHECKBARRIERTIME){
 
 
-		for (int i=totalstagenum-1;i>=0;i--)	//µü´ústage
+		for (int i=totalstagenum-1;i>=0;i--)	//è¿­ä»£stage
 		{
 			set<int>::iterator stageiter = ptempstagenum->find(i);
-			if(stageiter!=enditer){					//¸ÃstageÔÚ¸ÃthreadÉÏ
+			if(stageiter!=enditer){					//è¯¥stageåœ¨è¯¥threadä¸Š
 				vector<FlatNode*> flatVec = pSa->FindActor(i);
 				vector<FlatNode*>::iterator iter1;
 				if (flatVec.size())
@@ -3553,11 +3553,11 @@ void GPUCodeGenerate::CGThreads()
 			buf<<"\t\tRDTSC(c1);\n";
 			buf<<"\t\tss<<\"thread "<<index<<"\\t\"<<c1.int64<<endl;\n";
 		}
-		for (int i=totalstagenum-1;i>=0;i--)	//µü´ústage
+		for (int i=totalstagenum-1;i>=0;i--)	//è¿­ä»£stage
 		{			
 
 			set<int>::iterator stageiter = ptempstagenum->find(i);
-			if(stageiter!=enditer){					//¸ÃstageÔÚ¸ÃthreadÉÏ
+			if(stageiter!=enditer){					//è¯¥stageåœ¨è¯¥threadä¸Š
 				vector<FlatNode*> flatVec = pSa->FindActor(i);
 				vector<FlatNode*>::iterator iter1;
 				if (flatVec.size())
@@ -3793,7 +3793,7 @@ void GPUCodeGenerate::CGAllActorHeader()
 {
 	vector<FlatNode*>::iterator iter;
 	stringstream buf,ss;
-	buf<<"/*°üº¬ËùÓĞactorµÄÍ·ÎÄ¼ş£¬Ö÷ÒªÊÇÎªÁË·½±ãÖ÷ÎÄ¼ş°üº¬*/\n\n";
+	buf<<"/*åŒ…å«æ‰€æœ‰actorçš„å¤´æ–‡ä»¶ï¼Œä¸»è¦æ˜¯ä¸ºäº†æ–¹ä¾¿ä¸»æ–‡ä»¶åŒ…å«*/\n\n";
 	for (iter=flatNodes_.begin();iter!=flatNodes_.end();++iter)
 	{	
 		buf<<"#include \""<<(*iter)->name<<".h\"\n";	
@@ -3864,7 +3864,7 @@ void GPUCodeGenerate::CGMain()
 {
 	stringstream buf,ss;
 	char a[10];
-	buf<<"///µ±Ç°µÄÀ©´óÒò×ÓÊÇ"<<MultiNum<<"\n";
+	buf<<"///å½“å‰çš„æ‰©å¤§å› å­æ˜¯"<<MultiNum<<"\n";
 	buf<<"#include \"iostream\"\n";
 	buf<<"#include \"stdlib.h\"\n";
 	buf<<"#include <fstream>\n";
@@ -3885,8 +3885,8 @@ void GPUCodeGenerate::CGMain()
 		buf<<"#include <fstream>\n";
 	}	
 	buf<<"#include \"global.h\"\n";
-	buf<<"#include \"barrier_sync.h\"\t//°üº¬barrierº¯Êı\n";
-	buf<<"#include \"AllActorHeader.h\"\t//°üº¬ËùÓĞactorµÄÍ·ÎÄ¼ş\n";
+	buf<<"#include \"barrier_sync.h\"\t//åŒ…å«barrierå‡½æ•°\n";
+	buf<<"#include \"AllActorHeader.h\"\t//åŒ…å«æ‰€æœ‰actorçš„å¤´æ–‡ä»¶\n";
 	buf<<"using namespace std;\n";//home/chenwenbin/Desktop/GPU201310/FFT5/barrier_sync.cpp
 	buf<<"int com_num = "<<Comm_num<<";\n"; //cwb
 	if (Linux)
@@ -3895,13 +3895,13 @@ void GPUCodeGenerate::CGMain()
 			buf<<"int ThreadNum="<<2*nGpu_+NCpuThreads<<";\n";
 		else
 			buf<<"int ThreadNum="<<nGpu_<<";\n";
-		buf<<"int MAX_ITER=1;//Ä¬ÈÏµÄÖ´ĞĞ´ÎÊıÊÇ1\n";
+		buf<<"int MAX_ITER=1;//é»˜è®¤çš„æ‰§è¡Œæ¬¡æ•°æ˜¯1\n";
 	}
 	if(Win)
 	{
 		buf<<"///int MAX_ITER;\n";
 	}
-	if (PrintTime)  //cwb Í³¼ÆÊ±¼ä
+	if (PrintTime)  //cwb ç»Ÿè®¡æ—¶é—´
 	{
 		buf<<"double cpu0_compute = 0;\n";
 		if(NCpuThreads > 1)
@@ -3916,7 +3916,7 @@ void GPUCodeGenerate::CGMain()
 		}
 	}
 	/************************************************************************/
-	/*                     OpenCL»·¾³³õÊ¼»¯´úÂë                             */
+	/*                     OpenCLç¯å¢ƒåˆå§‹åŒ–ä»£ç                              */
 	/************************************************************************/
 	buf<<"vector<cl::CommandQueue>allqueue;\n";
 	buf<<"vector<cl::Platform>platforms;\n";
@@ -3984,7 +3984,7 @@ void GPUCodeGenerate::CGMain()
 	}
 	for (iter1=flatNodes_.begin();iter1!=flatNodes_.end();++iter1)
 	{
-		//cwb È·¶¨actorfissionµÄ¸öÊı
+		//cwb ç¡®å®šactorfissionçš„ä¸ªæ•°
 		int actorFissionNum = 1;
 		typedef multimap<FlatNode*,pair<int,int> >::iterator fission_iter;
 		pair<fission_iter,fission_iter> pos;
@@ -4004,7 +4004,7 @@ void GPUCodeGenerate::CGMain()
 		}
 		for (int index = 0; index < actorFissionNum; index++)
 		{
-			//chenwenbin¸÷actorÊµÀı»¯
+			//chenwenbinå„actorå®ä¾‹åŒ–
 			buf<<mapFlatnode2Template_[*iter1]<<"<";
 			if((*iter1)->inFlatNodes.size() == 0 && (*iter1)->outFlatNodes.size() != 0)
 				buf<<pEdgeInfo->getEdgeInfo(*iter1,(*iter1)->outFlatNodes[0]).typeName;
@@ -4014,11 +4014,11 @@ void GPUCodeGenerate::CGMain()
 				buf<<pEdgeInfo->getEdgeInfo(*iter1,(*iter1)->outFlatNodes[0]).typeName<<","<<pEdgeInfo->getEdgeInfo((*iter1)->inFlatNodes[0],*iter1).typeName;
 			if (actorFissionNum > 1)
 			{
-				buf<<"> "<<(*iter1)->name<<"_"<<index<<"_obj(";//¶¨Òåactor¶ÔÏó£¬actor->name_obj,µ÷ÓÃ¹¹Ôìº¯Êı£¬²ÎÊıÎªÊäÈëÊä³ö±ßµÄÈ«¾Ö±äÁ¿
+				buf<<"> "<<(*iter1)->name<<"_"<<index<<"_obj(";//å®šä¹‰actorå¯¹è±¡ï¼Œactor->name_obj,è°ƒç”¨æ„é€ å‡½æ•°ï¼Œå‚æ•°ä¸ºè¾“å…¥è¾“å‡ºè¾¹çš„å…¨å±€å˜é‡
 			}
 			else
-				buf<<"> "<<(*iter1)->name<<"_obj(";//¶¨Òåactor¶ÔÏó£¬actor->name_obj,µ÷ÓÃ¹¹Ôìº¯Êı£¬²ÎÊıÎªÊäÈëÊä³ö±ßµÄÈ«¾Ö±äÁ¿
-			//chenwenbin ½«¸÷actor¶ÔÓ¦µÄparam×÷Îª²ÎÊı´«Èë¹¹Ôìº¯Êı
+				buf<<"> "<<(*iter1)->name<<"_obj(";//å®šä¹‰actorå¯¹è±¡ï¼Œactor->name_obj,è°ƒç”¨æ„é€ å‡½æ•°ï¼Œå‚æ•°ä¸ºè¾“å…¥è¾“å‡ºè¾¹çš„å…¨å±€å˜é‡
+			//chenwenbin å°†å„actorå¯¹åº”çš„paramä½œä¸ºå‚æ•°ä¼ å…¥æ„é€ å‡½æ•°
 			paramList *pList = (*iter1)->contents->params;
 			for (int i = 0; i < (*iter1)->contents->paramSize; i++)
 			{
@@ -4035,7 +4035,7 @@ void GPUCodeGenerate::CGMain()
 				}
 				pList = pList->next;
 			}
-			//cwb ½«actorÃ¿´ÎµÄ¶ÁĞ´Êı¾İ¸öÊı´«Èë¹¹Ôìº¯Êı
+			//cwb å°†actoræ¯æ¬¡çš„è¯»å†™æ•°æ®ä¸ªæ•°ä¼ å…¥æ„é€ å‡½æ•°
 			if ((*iter1)->GPUPart < nGpu_)
 			{
 				for (int i = 0; i < (*iter1)->inPopWeights.size(); i++)
@@ -4060,7 +4060,7 @@ void GPUCodeGenerate::CGMain()
 						buf<<(*iter1)->outPushWeights[i]<<",";
 				}
 			}
-			//chenwenbin ³õÌ¬ÎÈÌ¬Ö´ĞĞ´ÎÊı¹¹Ôì
+			//chenwenbin åˆæ€ç¨³æ€æ‰§è¡Œæ¬¡æ•°æ„é€ 
 			if (DNBPFlag && actorFissionNum > 1)
 			{
 				buf<<pos.first->second.second<<","<<sssg_->GetInitCount(*iter1)<<",";
@@ -4279,7 +4279,7 @@ void GPUCodeGenerate::CGMain()
 			buf<<"\tstring txtDataFileName = \"traceDat.txt\";\n\tstringstream txtDataContent;\n";
 			buf<<"\tdouble perThreadTotalTime["<<nGpu_<<"]={0},perThreadCalucatorTime["<<nGpu_<<"]={0};\n";
 			buf<<"\tfor(int threadindex=0;threadindex<"<<nGpu_<<";threadindex++)\n\t{\n";
-			buf<<"\t\ttxtDataContent<<\"Ïß³Ì\"<<threadindex<<\"µÄÖ´ĞĞÊ±¼äÈçÏÂ:\"<<endl;\n";
+			buf<<"\t\ttxtDataContent<<\"çº¿ç¨‹\"<<threadindex<<\"çš„æ‰§è¡Œæ—¶é—´å¦‚ä¸‹:\"<<endl;\n";
 			buf<<"\t\ttxtDataContent<<\"initworkstage:\"<<endl;\n";
 			buf<<"\t\tfor(int stageindex=0;stageindex<"<<pSa->MaxStageNum()<<";stageindex++)\n\t\t{\n";
 			buf<<"\t\t\ttxtDataContent<<stageindex<<\":\t\"<<deltatimes[stageindex][threadindex][0]<<\"\t\"<<deltatimes[stageindex][threadindex][1]<<endl;\n\n";
@@ -4290,10 +4290,10 @@ void GPUCodeGenerate::CGMain()
 			buf<<"\t\t\ttxtDataContent<<stageindex<<\":\t\"<<deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][0]<<\"\t\"<<deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][1]<<endl;\n";
 			buf<<"\t\t\tperThreadCalucatorTime[threadindex] += deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][0];\n";
 			buf<<"\t\t\tperThreadTotalTime[threadindex] += (deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][0]+deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][1]);\n\t\t}\n\t}\n";
-			buf<<"\ttxtDataContent<<\"Ã¿¸öÏß³ÌËùÓÃµÄ×ÜÊ±¼äÎª£º\"<<endl;\n";
+			buf<<"\ttxtDataContent<<\"æ¯ä¸ªçº¿ç¨‹æ‰€ç”¨çš„æ€»æ—¶é—´ä¸ºï¼š\"<<endl;\n";
 			buf<<"\tfor(int threadindex=0;threadindex<"<<nGpu_<<";threadindex++)\n";
 			buf<<"\t\ttxtDataContent<<perThreadTotalTime[threadindex]<<endl;\n";
-			buf<<"\ttxtDataContent<<\"Ã¿¸öÏß³Ì×ÜµÄ¼ÆËãÊ±¼äÎª£º\"<<endl;\n";
+			buf<<"\ttxtDataContent<<\"æ¯ä¸ªçº¿ç¨‹æ€»çš„è®¡ç®—æ—¶é—´ä¸ºï¼š\"<<endl;\n";
 			buf<<"\tfor(int threadindex=0;threadindex<"<<nGpu_<<";threadindex++)\n";
 			buf<<"\t\ttxtDataContent<<perThreadCalucatorTime[threadindex]<<endl;\n";
 			buf<<"\tofstream txtfw;\n\ttry\n\t{\n\t\ttxtfw.open(txtDataFileName.c_str());\n\t\ttxtfw<<txtDataContent.str();\n\t\ttxtfw.close();\n\t}\n\tcatch(...)\n\t{\n\t\tcout<<\"error:output to file\"<<endl;\n\t}\n";
@@ -4376,7 +4376,7 @@ int GPUCodeGenerate::OutputChar(char val)
 	case '\"': declInitList<<"\\\"";break;
 	case '\'': declInitList<<"\\\'";break;
 	default:
-		if (isprint(val)) //ÅĞ¶ÏvalÊÇ·ñÎª¿É´òÓ¡×Ö·û
+		if (isprint(val)) //åˆ¤æ–­valæ˜¯å¦ä¸ºå¯æ‰“å°å­—ç¬¦
 		{
 			declInitList<<(val);
 		} else 
@@ -4509,10 +4509,10 @@ void GPUCodeGenerate::OutputStmtList(List *list, int offset)
 		OutputStmt(item, offset);
 	}
 }
-//¶àÎ¬Êı×é³õÊ¼»¯¹ı³Ì£¨µİ¹é£©
+//å¤šç»´æ•°ç»„åˆå§‹åŒ–è¿‡ç¨‹ï¼ˆé€’å½’ï¼‰
 void GPUCodeGenerate::RecursiveAdclInit(List *init)
 {
-	//¶àÎ¬Êı×éÔòinitÊÇÒ»¸ö¶àÎ¬µÄÁ´±í
+	//å¤šç»´æ•°ç»„åˆ™initæ˜¯ä¸€ä¸ªå¤šç»´çš„é“¾è¡¨
 	ListMarker marker;
 	Node *item;
 	int i=1;
@@ -4527,13 +4527,13 @@ void GPUCodeGenerate::RecursiveAdclInit(List *init)
 			declInitList<<GetOpType(item->u.unary.op);
 			SPL2GPU_Node(item->u.unary.expr,0);
 		}
-		else if(item->typ == Const) // Èç¹ûÊı×é³ÉÔ±ÊÇ»ù±¾ÀàĞÍ
+		else if(item->typ == Const) // å¦‚æœæ•°ç»„æˆå‘˜æ˜¯åŸºæœ¬ç±»å‹
 		{
 			if(i!=1) declInitList<<",";
 			SPL2GPU_Node(item,0);
-			//if(i == 1) declInitList<<" as "<<ArrayDT;//ÎªGPU-2.2×÷³öµÄµ÷Õû
+			//if(i == 1) declInitList<<" as "<<ArrayDT;//ä¸ºGPU-2.2ä½œå‡ºçš„è°ƒæ•´
 		}
-		else if (item->typ == Initializer)//Èç¹ûÊı×é³ÉÔ±ÊÇÒ»¸öÊı×éÔòµİ¹é
+		else if (item->typ == Initializer)//å¦‚æœæ•°ç»„æˆå‘˜æ˜¯ä¸€ä¸ªæ•°ç»„åˆ™é€’å½’
 		{
 			RecursiveAdclInit(item->u.initializer.exprs);
 			if(i != len)
@@ -4542,7 +4542,7 @@ void GPUCodeGenerate::RecursiveAdclInit(List *init)
 				OutputCRSpaceAndTabs(4);
 			}
 		}
-		else if (item->typ == ImplicitCast)//»ù±¾ÀàĞÍµÄÒşÊ½×ª»»
+		else if (item->typ == ImplicitCast)//åŸºæœ¬ç±»å‹çš„éšå¼è½¬æ¢
 		{
 			if(i!=1) declInitList<<",";
 			SPL2GPU_Node(item->u.implicitcast.value,0);
@@ -4555,7 +4555,7 @@ void GPUCodeGenerate::CGTestFile()
 {
 	stringstream buf;
 	stringstream fileName;
-	buf<<"/*²âÊÔ´úÂë£¬ÎŞÊµ¼Êº¬Òå*/\n\n";
+	buf<<"/*æµ‹è¯•ä»£ç ï¼Œæ— å®é™…å«ä¹‰*/\n\n";
 	fileName<<dir_<<"test.txt";
 	OutputToFile(fileName.str(),buf.str());
 }
@@ -4569,23 +4569,23 @@ void GPUCodeGenerate::AdclInit(Node *from, int offset)
 	string dim = GetArrayDim(tmpNode->u.adcl.dim);
 	//declList << "\tvar "<< name << " :Array[" << arrayType << "](1);\n";
 	//declList<<arrayType<<" "<<name<<"[];\n";
-	if (initNode == NULL) //Èç¹ûÃ»ÓĞ³õÊ¼»¯£¬Ôò°´Êı×éÀàĞÍ½øĞĞ³õÊ¼»¯
+	if (initNode == NULL) //å¦‚æœæ²¡æœ‰åˆå§‹åŒ–ï¼Œåˆ™æŒ‰æ•°ç»„ç±»å‹è¿›è¡Œåˆå§‹åŒ–
 	{
 		//declInitList << "\t\t"<<name<<" = new Array["<<arrayType<<"](0..("<<dim<<"-1), ";
 		declList<<arrayType<<"*"<<name<<";\n";
 		//declInitList<<"\t\t"<<name<<"=new "<<arrayType<<"["<<dim<<"];\n";
 		declInitList<<declInitList_temp.str()<<"={0};\n";
 		declInitList_temp.str("");
-		//GetArrayDataInitVal(tmpNode, declInitList); //Êı×é³õÊ¼»¯
-		//declInitList << ");\n";//Ò»¸öÊı×éÉùÃ÷¼Ó³õÊ¼»¯
+		//GetArrayDataInitVal(tmpNode, declInitList); //æ•°ç»„åˆå§‹åŒ–
+		//declInitList << ");\n";//ä¸€ä¸ªæ•°ç»„å£°æ˜åŠ åˆå§‹åŒ–
 	}
-	else//Èç¹û´æÔÚ³õÊ¼»¯Ôò³õÊ¼»¯ÎªÖ¸¶¨Öµ
+	else//å¦‚æœå­˜åœ¨åˆå§‹åŒ–åˆ™åˆå§‹åŒ–ä¸ºæŒ‡å®šå€¼
 	{
 		declInitList<<declInitList_temp.str();
 		declInitList_temp.str("");
 		if(from->u.decl.type->typ == Adcl && ((from->u.decl.type)->u.adcl.type)->typ== Adcl)
 		{
-			//declList<<arrayType<<" "<<name<<"["<< <<"]"		//GPU-2.2¶àÎ¬Êı×éÉùÃ÷µÄ¸Ä¶¯
+			//declList<<arrayType<<" "<<name<<"["<< <<"]"		//GPU-2.2å¤šç»´æ•°ç»„å£°æ˜çš„æ”¹åŠ¨
 			string dim1= GetArrayDim(from->u.decl.type->u.adcl.type->u.adcl.dim);
 			declList<<arrayType<<" "<<name<<"["<<dim<<"]["<<dim1<<"];\n";
 		}   
@@ -4596,7 +4596,7 @@ void GPUCodeGenerate::AdclInit(Node *from, int offset)
 		}
 		List *tmp = initNode->u.initializer.exprs;
 		int n = ListLength(tmp);
-		if(n == 1) // Èç¹û³õÊ¼»¯¸öÊı1¸öµ¥Ò»ÖµÊ±£¬Ôò½«Êı×éËùÓĞ³ÉÔ±³õÊ¼»¯Îª¸ÃÖµ
+		if(n == 1) // å¦‚æœåˆå§‹åŒ–ä¸ªæ•°1ä¸ªå•ä¸€å€¼æ—¶ï¼Œåˆ™å°†æ•°ç»„æ‰€æœ‰æˆå‘˜åˆå§‹åŒ–ä¸ºè¯¥å€¼
 		{
 			Node *item = (Node *)FirstItem(tmp);
 			if(item->typ == Const)
@@ -4607,7 +4607,7 @@ void GPUCodeGenerate::AdclInit(Node *from, int offset)
 				declInitList<<arrayType<<" *"<<name<<";\n";
 			}
 		}
-		else //³õÊ¼µÄ¸öÊıºÍÊı×éÎ¬ÊıÒ»ÖÂ£¬Ôò¿ÉÒÔ²ÉÈ¡ÕâÑùµÄ¸³ÖµĞÎÊ½£ºval pp:Array[Int](1) = [1,2,3,4,5];
+		else //åˆå§‹çš„ä¸ªæ•°å’Œæ•°ç»„ç»´æ•°ä¸€è‡´ï¼Œåˆ™å¯ä»¥é‡‡å–è¿™æ ·çš„èµ‹å€¼å½¢å¼ï¼šval pp:Array[Int](1) = [1,2,3,4,5];
 		{	
 			declInitList<<" = ";
 			RecursiveAdclInit(tmp);
@@ -4620,9 +4620,9 @@ void GPUCodeGenerate::OutputConstant(Node *c, Bool with_name)
 {
 	int len = 0;
 	const char *tmpString = c->u.Const.text;
-	//if (tmpString[0]=='0' && tmpString[1]=='x')//Èç¹ûÊÇ0x±íÊ¾Ê®Áù½øÖÆ
+	//if (tmpString[0]=='0' && tmpString[1]=='x')//å¦‚æœæ˜¯0xè¡¨ç¤ºåå…­è¿›åˆ¶
 	//{
-	//	declInitList<< c->u.Const.text; // Èç¹ûÊÇ0x±íÊ¾Ê®Áù½øÖÆÔòÒÔ0x±íÊ¾
+	//	declInitList<< c->u.Const.text; // å¦‚æœæ˜¯0xè¡¨ç¤ºåå…­è¿›åˆ¶åˆ™ä»¥0xè¡¨ç¤º
 	//	return;
 	//}
 
@@ -4669,7 +4669,7 @@ void GPUCodeGenerate::OutputConstant(Node *c, Bool with_name)
 		break;
 	case Ptr:
 		UNREACHABLE;
-		// declInitList<< c->u.Const.value.u;//splÃ»Ö¸Õë£¬¿ÉÒÔºöÂÔ
+		// declInitList<< c->u.Const.value.u;//splæ²¡æŒ‡é’ˆï¼Œå¯ä»¥å¿½ç•¥
 		break;
 		/* Used for strings */
 	case Adcl:
@@ -4685,13 +4685,13 @@ void GPUCodeGenerate::SPL2GPU_Node(Node *node, int offset)
 {
 	if (node == NULL) return;
 
-	if(node->parenthesized == TRUE) declInitList << "("; //¼ÓÀ¨ºÅ±£Ö¤Âß¼­ĞÔ
+	if(node->parenthesized == TRUE) declInitList << "("; //åŠ æ‹¬å·ä¿è¯é€»è¾‘æ€§
 
 #define CODE(name, node, union) SPL2GPU_##name(node, union, offset)
 	ASTSWITCH(node, CODE)
 #undef CODE
 
-		if(node->parenthesized == TRUE) declInitList << ")"; //¼ÓÀ¨ºÅ±£Ö¤Âß¼­ĞÔ
+		if(node->parenthesized == TRUE) declInitList << ")"; //åŠ æ‹¬å·ä¿è¯é€»è¾‘æ€§
 }
 
 void GPUCodeGenerate::SPL2GPU_List(List *list, int offset)
@@ -4795,7 +4795,7 @@ void GPUCodeGenerate::SPL2GPU_Unary(Node *node, unaryNode *u, int offset)
 	if(node->u.unary.op == POSTINC || node->u.unary.op == POSTDEC)
 		declInitList << GetOpType(node->u.binop.op);
 }
-string GPUCodeGenerate::GetPrimDataType(Node *from)//ÀàĞÍ¶¨Òå
+string GPUCodeGenerate::GetPrimDataType(Node *from)//ç±»å‹å®šä¹‰
 {
 	string type;
 
@@ -4850,28 +4850,28 @@ string GPUCodeGenerate::GetPrimDataType(Node *from)//ÀàĞÍ¶¨Òå
 	type = "Any";*/
 	return type;
 }
-//È¡Êı×é³ÉÔ±µÄ³õÊ¼Öµ
+//å–æ•°ç»„æˆå‘˜çš„åˆå§‹å€¼
 void GPUCodeGenerate::GetArrayDataInitVal(Node *node, stringstream &strInit)
 {
 	assert(node->typ == Adcl);
-	if (node->u.adcl.type->typ == Adcl) //Èç¹ûÊı×éµÄ³ÉÔ±ÈÔÈ»ÊÇÒ»¸öÊı×éµÄ»°Ôòµİ¹é
+	if (node->u.adcl.type->typ == Adcl) //å¦‚æœæ•°ç»„çš„æˆå‘˜ä»ç„¶æ˜¯ä¸€ä¸ªæ•°ç»„çš„è¯åˆ™é€’å½’
 	{
-		node = node->u.adcl.type; // È¡³ö³ÉÔ±Êı×é
+		node = node->u.adcl.type; // å–å‡ºæˆå‘˜æ•°ç»„
 		string arrayType = GetArrayDataType(node->u.adcl.type);
 		string dim = GetArrayDim(node->u.adcl.dim);
 		strInit <<"([i]:Point(1)) => new Array["<<arrayType<<"](0..("<<dim<<"-1),";
 		GetArrayDataInitVal(node,strInit);
 		strInit<<")";
 	} 
-	else if(node->u.adcl.type->typ == Prim) // Êı×é³ÉÔ±ÊÇ»ù±¾ÀàĞÍ
+	else if(node->u.adcl.type->typ == Prim) // æ•°ç»„æˆå‘˜æ˜¯åŸºæœ¬ç±»å‹
 	{
 		strInit << GetDataInitVal(GetArrayDataType(node->u.adcl.type));
 	}
-	else  // Ôİ²»´¦ÀíÆäËû¸´ºÏÀàĞÍ
+	else  // æš‚ä¸å¤„ç†å…¶ä»–å¤åˆç±»å‹
 		UNREACHABLE;
 }
 
-//È¡Êı¾İ³ÉÔ±µÄ³õÊ¼Öµ
+//å–æ•°æ®æˆå‘˜çš„åˆå§‹å€¼
 string GPUCodeGenerate::GetDataInitVal(string type)
 {
 	string s ;
@@ -4904,21 +4904,21 @@ string GPUCodeGenerate::GetDataInitVal(string type)
 	else if (type == "Any")
 	{
 		s = "null";
-	}else//Èç¹ûÊı×é³ÉÔ±·Ç»ù±¾ÀàĞÍÔò³õÊ¼»¯Îªnull£¬×÷ÎªÒ»¸öÎ´ÖªÀàµÄ³õÖµ£¬ÀıÈç£ºÊı×é³ÉÔ±Ò²ÊÇ¸öÊı×é
+	}else//å¦‚æœæ•°ç»„æˆå‘˜éåŸºæœ¬ç±»å‹åˆ™åˆå§‹åŒ–ä¸ºnullï¼Œä½œä¸ºä¸€ä¸ªæœªçŸ¥ç±»çš„åˆå€¼ï¼Œä¾‹å¦‚ï¼šæ•°ç»„æˆå‘˜ä¹Ÿæ˜¯ä¸ªæ•°ç»„
 		s = "null";
 	return s;
 }
-//È¡Êı×éµÄÎ¬Êı
+//å–æ•°ç»„çš„ç»´æ•°
 string GPUCodeGenerate::GetArrayDim(Node *from)
 {
 	string dim;
-	if (from->typ == Const)//Èç¹ûÎ¬Êı½ÚµãÀàĞÍÎª³£Á¿£¬ÀıÈça[10]
+	if (from->typ == Const)//å¦‚æœç»´æ•°èŠ‚ç‚¹ç±»å‹ä¸ºå¸¸é‡ï¼Œä¾‹å¦‚a[10]
 	{
 		if(from->u.Const.text)dim = from->u.Const.text;
 		else 
 		{
 			char *tmpdim = (char *)malloc(20);
-			sprintf(tmpdim,"%d",from->u.Const.value.l);//20120322 zwwÌí¼Ó
+			sprintf(tmpdim,"%d",from->u.Const.value.l);//20120322 zwwæ·»åŠ 
 			dim = tmpdim;
 		}
 	}
@@ -4928,7 +4928,7 @@ string GPUCodeGenerate::GetArrayDim(Node *from)
 	}
 	else if(from->typ == Binop)
 	{
-		string tmp = declInitList.str(); // ±£´æ
+		string tmp = declInitList.str(); // ä¿å­˜
 		stringstream tmp2;
 
 		declInitList.str("");
@@ -4936,7 +4936,7 @@ string GPUCodeGenerate::GetArrayDim(Node *from)
 		tmp2 << "(" << declInitList.str() << ")";
 		dim = tmp2.str();
 		declInitList.str("");
-		declInitList << tmp; // »Ö¸´ 
+		declInitList << tmp; // æ¢å¤ 
 	}
 	else
 		UNREACHABLE;
@@ -4947,21 +4947,21 @@ string GPUCodeGenerate::GetArrayDim(Node *from)
 string GPUCodeGenerate::GetArrayDataType(Node *node)
 {
 	string type;
-	if (node->typ == Prim) //»ù±¾ÀàĞÍ
+	if (node->typ == Prim) //åŸºæœ¬ç±»å‹
 	{
 		type = GetPrimDataType(node);
 	}
-	else if (node->typ == Adcl) // Ò²ÊÇ¸öÊı×éÔòµİ¹é²éÕÒÀàĞÍ
+	else if (node->typ == Adcl) // ä¹Ÿæ˜¯ä¸ªæ•°ç»„åˆ™é€’å½’æŸ¥æ‰¾ç±»å‹
 	{
 		stringstream ss;
 		//ss<<"Array["<<GetArrayDataType(node->u.adcl.type)<<"]";
 		ss<<GetArrayDataType(node->u.adcl.type);
 		type = ss.str();
 	}
-	else // Èç¹ûÊı×éµÄ³ÉÔ±ÊÇ¸´ÔÓÀàĞÍ£¬ÔòÓĞ´ıÀ©Õ¹
+	else // å¦‚æœæ•°ç»„çš„æˆå‘˜æ˜¯å¤æ‚ç±»å‹ï¼Œåˆ™æœ‰å¾…æ‰©å±•
 	{
 		Warning(1,"this arrayDataType can not be handle!");
-		type = "Any";// ÔİÊ±·µ»ØÒ»ÖÖÍ¨ÓÃÀàĞÍ
+		type = "Any";// æš‚æ—¶è¿”å›ä¸€ç§é€šç”¨ç±»å‹
 		UNREACHABLE;
 	}
 	return type;
@@ -4969,15 +4969,15 @@ string GPUCodeGenerate::GetArrayDataType(Node *node)
 void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 {
 	stringstream tempdeclList,tempdeclInitList;
-	if (from->u.decl.type->typ == Prim) // »ù±¾ÀàĞÍ
+	if (from->u.decl.type->typ == Prim) // åŸºæœ¬ç±»å‹
 	{
 		Node *typeNode = from->u.decl.type;
 		Node *initNode = from->u.decl.init;
 		string type = GetPrimDataType(typeNode);
 		string name = from->u.decl.name;
 		char tempvalude[20];
-		//	declList << "\tvar "<< name << " :"<<type<<";\n"; // ½¨Á¢±äÁ¿ÉùÃ÷
-		if (flag)//±íÃ÷´ËÊ±ÕıÔÚÊä³öparam²ÎÊı
+		//	declList << "\tvar "<< name << " :"<<type<<";\n"; // å»ºç«‹å˜é‡å£°æ˜
+		if (flag)//è¡¨æ˜æ­¤æ—¶æ­£åœ¨è¾“å‡ºparamå‚æ•°
 		{
 			//sprintf(tempvalude,"%g",initNode->u.Const.value);
 			declList<<"\t"<<type<<" "<<name<<";\n";
@@ -5000,7 +5000,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 			kernelparamtype.push_back(type);
 			kernelparam.push_back(name);
 		}	
-		if (initNode) // ´æÔÚ³õÊ¼»¯Ôò½øĞĞ³õÊ¼»¯
+		if (initNode) // å­˜åœ¨åˆå§‹åŒ–åˆ™è¿›è¡Œåˆå§‹åŒ–
 		{
 			declInitList << "\t\t"<<name<<" = ";
 			SPL2GPU_Node(initNode, 0);
@@ -5009,12 +5009,12 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 
 		if (isInParam)
 		{
-			//parameterBuf << name << " :"<<type<<", ";//Éú³Éthis¹¹Ôìº¯Êı²ÎÊı
+			//parameterBuf << name << " :"<<type<<", ";//ç”Ÿæˆthisæ„é€ å‡½æ•°å‚æ•°
 			parameterBuf<<type<<" "<<name<<", ";
 			thisBuf << "\t\tthis." << name << " = " << name <<";\n";
 		}
 	}
-	else if (from->u.decl.type->typ == Adcl) // Êı×é, ×î¶à´¦Àí¶şÎ¬Êı×é, ¸ßÎ¬´ıÀ©Õ¹
+	else if (from->u.decl.type->typ == Adcl) // æ•°ç»„, æœ€å¤šå¤„ç†äºŒç»´æ•°ç»„, é«˜ç»´å¾…æ‰©å±•
 	{
 		Node *arrayNode = from->u.decl.type;
 		Node *tmpNode = from->u.decl.type;
@@ -5025,7 +5025,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 		string dim1;
 		bool isInString = false;
 
-		if (strcmp(arrayType.c_str(), "char") == 0) // ¶Ô×Ö·û´®Êı×é×÷´¦Àí£¬ 2012.03.07
+		if (strcmp(arrayType.c_str(), "char") == 0) // å¯¹å­—ç¬¦ä¸²æ•°ç»„ä½œå¤„ç†ï¼Œ 2012.03.07
 		{
 			char *tmp = new char[20];
 			sprintf(tmp, "%d", from->u.decl.type->u.adcl.size);
@@ -5056,7 +5056,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 		{
 			OutputPath = from->u.decl.init->u.Const.text;
 		}
-		if (initNode == NULL) //Èç¹ûÃ»ÓĞ³õÊ¼»¯£¬Ôò°´Êı×éÀàĞÍ½øĞĞ³õÊ¼»¯
+		if (initNode == NULL) //å¦‚æœæ²¡æœ‰åˆå§‹åŒ–ï¼Œåˆ™æŒ‰æ•°ç»„ç±»å‹è¿›è¡Œåˆå§‹åŒ–
 		{
 			map<string,string>submap1;
 			map<string,map<string,string> >submap2;
@@ -5086,7 +5086,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 				alllocalvariable.insert(make_pair(curactor,submap2));
 			}
 		}
-		else//Èç¹û´æÔÚ³õÊ¼»¯Ôò³õÊ¼»¯ÎªÖ¸¶¨Öµ
+		else//å¦‚æœå­˜åœ¨åˆå§‹åŒ–åˆ™åˆå§‹åŒ–ä¸ºæŒ‡å®šå€¼
 		{
 			if (1)
 			{
@@ -5123,7 +5123,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 					map<string,map<string,string> >submapofstatic;
 					if(from->u.decl.type->typ == Adcl && ((from->u.decl.type)->u.adcl.type)->typ== Adcl)
 					{
-						//declList<<arrayType<<" "<<name<<"["<< <<"]"		//GPU-2.2¶àÎ¬Êı×éÉùÃ÷µÄ¸Ä¶¯
+						//declList<<arrayType<<" "<<name<<"["<< <<"]"		//GPU-2.2å¤šç»´æ•°ç»„å£°æ˜çš„æ”¹åŠ¨
 						dim1= GetArrayDim(from->u.decl.type->u.adcl.type->u.adcl.dim);
 						declList<<"static "<<arrayType<<" "<<name<<"["<<dim<<"]["<<dim1<<"];\n";
 						submapofstaticvar.clear();
@@ -5163,7 +5163,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 			{
 				List *tmp = initNode->u.initializer.exprs;
 				int n = ListLength(tmp);
-				if(n == 1) // Èç¹û³õÊ¼»¯¸öÊı1¸öµ¥Ò»ÖµÊ±£¬Ôò½«Êı×éËùÓĞ³ÉÔ±³õÊ¼»¯Îª¸ÃÖµ
+				if(n == 1) // å¦‚æœåˆå§‹åŒ–ä¸ªæ•°1ä¸ªå•ä¸€å€¼æ—¶ï¼Œåˆ™å°†æ•°ç»„æ‰€æœ‰æˆå‘˜åˆå§‹åŒ–ä¸ºè¯¥å€¼
 				{
 					Node *item = (Node *)FirstItem(tmp);
 					if(item->typ == Const)
@@ -5180,7 +5180,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 						}
 					}
 				}
-				else //³õÊ¼µÄ¸öÊıºÍÊı×éÎ¬ÊıÒ»ÖÂ£¬Ôò¿ÉÒÔ²ÉÈ¡ÕâÑùµÄ¸³ÖµĞÎÊ½£ºval pp:Array[Int](1) = [1,2,3,4,5];
+				else //åˆå§‹çš„ä¸ªæ•°å’Œæ•°ç»„ç»´æ•°ä¸€è‡´ï¼Œåˆ™å¯ä»¥é‡‡å–è¿™æ ·çš„èµ‹å€¼å½¢å¼ï¼šval pp:Array[Int](1) = [1,2,3,4,5];
 				{	
 					RecursiveAdclInit(tmp);
 					tempdeclInitList<<tempdeclList.str()<<declInitList.str()<<";\n";
@@ -5198,7 +5198,7 @@ void GPUCodeGenerate::ExtractDeclVariables(Node *from)
 			thisBuf << "\t\tthis." << name << " = " << name <<";\n";
 		}
 	}
-	else if (from->u.decl.type->typ == Ptr) // Ö¸Õë£¬Ö»ÄÜ³öÏÖÔÚparamÖĞ
+	else if (from->u.decl.type->typ == Ptr) // æŒ‡é’ˆï¼Œåªèƒ½å‡ºç°åœ¨paramä¸­
 	{
 	}
 	else
@@ -5215,7 +5215,7 @@ void GPUCodeGenerate::SPL2GPU_Cast(Node *node, castNode *u, int offset)
 
 void GPUCodeGenerate::SPL2GPU_Comma(Node *node, commaNode *u, int offset)
 {
-	isInComma = true;//Õı´¦ÓÚ¶ººÅ±í´ïÊ½ÖĞ
+	isInComma = true;//æ­£å¤„äºé€—å·è¡¨è¾¾å¼ä¸­
 	SPL2GPU_List(u->exprs,offset);
 	isInComma = false;
 }
@@ -5233,7 +5233,7 @@ void GPUCodeGenerate::SPL2GPU_Array(Node *node, arrayNode *u, int offset)
 {
 	SPL2GPU_Node(u->name,offset);
 	List *tmp = u->dims;
-	while(tmp != NULL)//¿ÉÄÜÊÇ¶àÎ¬Êı×é£¬ĞèÒª±éÀúdimÕâ¸ölist
+	while(tmp != NULL)//å¯èƒ½æ˜¯å¤šç»´æ•°ç»„ï¼Œéœ€è¦éå†dimè¿™ä¸ªlist
 	{
 		declInitList<<"[";
 		Node *item = (Node *)FirstItem(tmp);
@@ -5247,7 +5247,7 @@ void GPUCodeGenerate::SPL2GPU_Call(Node *node, callNode *u, int offset)
 {
 	assert(u->name->typ == Id);
 	{
-		int flag=1;//±êÊ¶ÊÇ·ñ¼ÓÀ¨ºÅ
+		int flag=1;//æ ‡è¯†æ˜¯å¦åŠ æ‹¬å·
 		const char *ident = u->name->u.id.text;
 		if (strcmp(ident,"acos") == 0) declInitList<<"acos";
 		else if (strcmp(ident,"acosh")==0) declInitList<<"acosh";
@@ -5296,7 +5296,7 @@ void GPUCodeGenerate::SPL2GPU_Call(Node *node, callNode *u, int offset)
 		if (flag==1)
 		{
 			declInitList<<"(";
-			OutputArgList(u->args,offset);//²ÎÊı
+			OutputArgList(u->args,offset);//å‚æ•°
 			declInitList<<")";
 		}
 		else if(flag==2)
@@ -5310,7 +5310,7 @@ void GPUCodeGenerate::SPL2GPU_Call(Node *node, callNode *u, int offset)
 			else
 			{
 				declInitList<<"cout<<";
-				OutputArgList(u->args,offset);//²ÎÊı
+				OutputArgList(u->args,offset);//å‚æ•°
 				declInitList<<"<<endl";
 			}
 		}
@@ -5325,12 +5325,12 @@ void GPUCodeGenerate::SPL2GPU_Call(Node *node, callNode *u, int offset)
 			else
 			{
 				declInitList<<"cout<<";
-				OutputArgList(u->args,offset);//²ÎÊı
+				OutputArgList(u->args,offset);//å‚æ•°
 			}
 		}
 		else
 		{
-			OutputArgList(u->args,offset);//²ÎÊı
+			OutputArgList(u->args,offset);//å‚æ•°
 		}
 	}
 }
@@ -5377,12 +5377,12 @@ void GPUCodeGenerate::SPL2GPU_If(Node *node, IfNode *u, int offset)
 	declInitList<<"if (";
 	SPL2GPU_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block) // Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block) // å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2GPU_Node(u->stmt,offset+1);
-	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -5391,21 +5391,21 @@ void GPUCodeGenerate::SPL2GPU_IfElse(Node *node, IfElseNode *u, int offset)
 	declInitList<<"if (";
 	SPL2GPU_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->true_->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->true_->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2GPU_Node(u->true_,offset);
-	if(u->true_->typ == Binop || u->true_->typ == Unary || u->true_->typ == Ternary || u->true_->typ == Call || u->true_->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->true_->typ == Binop || u->true_->typ == Unary || u->true_->typ == Ternary || u->true_->typ == Call || u->true_->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 	OutputCRSpaceAndTabs(offset);
 	declInitList<<"else ";
-	if (u->false_->typ != Block && u->false_->typ != IfElse)//Èç¹ûÊÇ·Çblock½áµã»òÕßifelse½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->false_->typ != Block && u->false_->typ != IfElse)//å¦‚æœæ˜¯éblockç»“ç‚¹æˆ–è€…ifelseç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2GPU_Node(u->false_,offset);
-	if(u->false_->typ == Binop || u->false_->typ == Unary || u->false_->typ == Ternary || u->false_->typ == Call || u->false_->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->false_->typ == Binop || u->false_->typ == Unary || u->false_->typ == Ternary || u->false_->typ == Call || u->false_->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -5414,12 +5414,12 @@ void GPUCodeGenerate::SPL2GPU_While(Node *node, WhileNode *u, int offset)
 	declInitList<<"while (";
 	SPL2GPU_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2GPU_Node(u->stmt,offset);
-	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -5441,7 +5441,7 @@ void GPUCodeGenerate::SPL2GPU_For(Node *node, ForNode *u, int offset)
 	declInitList<<";";
 	SPL2GPU_Node(u->next,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		declInitList<<"\n";
 	}
@@ -5471,10 +5471,10 @@ void GPUCodeGenerate::SPL2GPU_Block(Node *node, BlockNode *u, int offset)
 	//OutputCRSpaceAndTabs(offset + 1);
 	SPL2GPU_List(u->decl,  offset);
 
-	declInitList<<"\n"; // ÁíÆğÒ»ĞĞ
+	declInitList<<"\n"; // å¦èµ·ä¸€è¡Œ
 	OutputStmtList(u->stmts, offset);	
 	OutputCRSpaceAndTabs(offset);
-	declInitList<<"}\n"; // '}'¶ÀÕ¼Ò»ĞĞ
+	declInitList<<"}\n"; // '}'ç‹¬å ä¸€è¡Œ
 }
 
 void GPUCodeGenerate::SPL2GPU_Prim(Node *node, primNode *u, int offset)
@@ -5495,9 +5495,9 @@ void GPUCodeGenerate::SPL2GPU_Ptr(Node *node, ptrNode *u, int offset)
 void GPUCodeGenerate::SPL2GPU_Adcl(Node *node, adclNode *u, int offset)
 {
 #if 0
-	/*GPU-2.2ºó¶àÎ¬µÄÊı×éĞèÒªÈ¥µô¾ßÌåÀàĞÍ¡£ÀıÈç
+	/*GPU-2.2åå¤šç»´çš„æ•°ç»„éœ€è¦å»æ‰å…·ä½“ç±»å‹ã€‚ä¾‹å¦‚
 	val kkey=[[14,4,13,1],[2,5,67,80]];
-	ÈÃGPU±àÒëÆ÷×Ô¼ºÅĞ¶ÏÀàĞÍ¡£
+	è®©GPUç¼–è¯‘å™¨è‡ªå·±åˆ¤æ–­ç±»å‹ã€‚
 	*/
 	if((node->u.adcl.type)->typ != Adcl){ 
 		string arrayType = getArrayDataType(node->u.adcl.type);
@@ -5505,7 +5505,7 @@ void GPUCodeGenerate::SPL2GPU_Adcl(Node *node, adclNode *u, int offset)
 	}
 #endif
 
-#if 1 //GPU-2.1Êı×é´¦Àí·½Ê½
+#if 1 //GPU-2.1æ•°ç»„å¤„ç†æ–¹å¼
 	string arrayType = GetArrayDataType(node->u.adcl.type);
 	//declInitList<<"Array["<<arrayType<<"](1)";
 	declInitList<<arrayType<<" ";
@@ -5552,7 +5552,7 @@ void GPUCodeGenerate::SPL2GPU_Decl(Node *node, declNode *u, int offset)
 			string dim1= GetArrayDim(u->type->u.adcl.type->u.adcl.dim);
 			if (flag_Global)
 			{
-				declInitList<<node->u.decl.name<<"["<<dim<<"]["<<dim1<<"]"; //GPU-2.2¶àÎ¬Êı×éÉùÃ÷µÄ¸Ä¶¯
+				declInitList<<node->u.decl.name<<"["<<dim<<"]["<<dim1<<"]"; //GPU-2.2å¤šç»´æ•°ç»„å£°æ˜çš„æ”¹åŠ¨
 			}
 			else
 			{
@@ -5613,7 +5613,7 @@ void GPUCodeGenerate::SPL2GPU_Decl(Node *node, declNode *u, int offset)
 	{
 		if (node->u.decl.init) 
 		{
-			if (u->type->typ == Prim && u->type->u.prim.basic == Char)//Èç¹ûÊÇ¸ö×Ö·ûÉùÃ÷
+			if (u->type->typ == Prim && u->type->u.prim.basic == Char)//å¦‚æœæ˜¯ä¸ªå­—ç¬¦å£°æ˜
 			{
 				declInitList<<" = "<<u->init->u.implicitcast.expr->u.Const.text;
 			}
@@ -5642,7 +5642,7 @@ void GPUCodeGenerate::SPL2GPU_Text(Node *node, textNode *u, int offset)
 
 //bool GPUCodeGenerate::IsUpBorder(FlatNode *actor)
 //{
-//	bool flag = false;   //cwb Èç¹ûÊÇcpuÓëgpuµÄ±ß½ç½áµã
+//	bool flag = false;   //cwb å¦‚æœæ˜¯cpuä¸gpuçš„è¾¹ç•Œç»“ç‚¹
 //	vector<FlatNode *>::iterator iter1;
 //	if (actor != sssg_->GetFlatNodes()[0])
 //	{
@@ -5660,7 +5660,7 @@ void GPUCodeGenerate::SPL2GPU_Text(Node *node, textNode *u, int offset)
 //
 //bool GPUCodeGenerate::IsDownBorder(FlatNode *actor)
 //{
-//	bool flag = false;   //cwb Èç¹ûÊÇcpuÓëgpuµÄ±ß½ç½áµã
+//	bool flag = false;   //cwb å¦‚æœæ˜¯cpuä¸gpuçš„è¾¹ç•Œç»“ç‚¹
 //	vector<FlatNode *>::iterator iter1;
 //	if (actor != sssg_->GetFlatNodes()[sssg_->flatNodes.size()-1])
 //	{

@@ -14,8 +14,8 @@ using namespace std;
 class ClusterAmortize
 {
 public:
-	ClusterAmortize(ClusterPartition *cp, SchedulerSSG* sssg,int nclusters, int nplaces);//¹¹Ôìº¯Êı
-	void AmortizingClusters();//ÔÚÌ¯Ïú¼¯Èº¼äÌ¯Ïú
+	ClusterAmortize(ClusterPartition *cp, SchedulerSSG* sssg,int nclusters, int nplaces);//æ„é€ å‡½æ•°
+	void AmortizingClusters();//åœ¨æ‘Šé”€é›†ç¾¤é—´æ‘Šé”€
 	map<FlatNode *,int> GetAmortizeSteadyCount()
 	{
 		return flatNode2amortizationSteadycount;
@@ -27,27 +27,27 @@ public:
 	~ClusterAmortize(){};
 
 private:
-	float PrepassReplication(map<FlatNode *,int>_flatNode2core, int _amortizeFactor);//ÔÚ¼¯ÈºµÄµ¥¸ö½ÚµãÉÏ×ö¸´ÖÆ·ÖÁÑËã·¨,·µ»ØµÄÖµÊÇµ±Ç°»®·ÖÍê³Éºócluster¾­¹ıË®Æ½·ÖÁÑºóµÄÆ½ºâÒò×Ó£¨°´ÕÕ¸ÃËã·¨Ö´ĞĞµÄ½á¹û×îÖÕµ÷ÓÃË®Æ½·ÖÁÑÖĞµÄÏà¹ØÄ£¿é£©
-	void horizontialFisssionInCluster(map<FlatNode *,int>_flatNode2core,map<FlatNode *, int>_flatNode2localsteadycount,int _amortizingFactor,int _ncluster);//ÓÃÓÚ×öÊµ¼ÊµÄ·ÖÁÑ
+	float PrepassReplication(map<FlatNode *,int>_flatNode2core, int _amortizeFactor);//åœ¨é›†ç¾¤çš„å•ä¸ªèŠ‚ç‚¹ä¸Šåšå¤åˆ¶åˆ†è£‚ç®—æ³•,è¿”å›çš„å€¼æ˜¯å½“å‰åˆ’åˆ†å®Œæˆåclusterç»è¿‡æ°´å¹³åˆ†è£‚åçš„å¹³è¡¡å› å­ï¼ˆæŒ‰ç…§è¯¥ç®—æ³•æ‰§è¡Œçš„ç»“æœæœ€ç»ˆè°ƒç”¨æ°´å¹³åˆ†è£‚ä¸­çš„ç›¸å…³æ¨¡å—ï¼‰
+	void horizontialFisssionInCluster(map<FlatNode *,int>_flatNode2core,map<FlatNode *, int>_flatNode2localsteadycount,int _amortizingFactor,int _ncluster);//ç”¨äºåšå®é™…çš„åˆ†è£‚
 
 	int GetLocalSteadyCount(FlatNode *flatNode);
-	int GetSteadyCount(FlatNode *flatNode);//È¡È«¾ÖÎÈÌ¬ÏÂµÄÖ´ĞĞ´ÎÊı
+	int GetSteadyCount(FlatNode *flatNode);//å–å…¨å±€ç¨³æ€ä¸‹çš„æ‰§è¡Œæ¬¡æ•°
 	
-	map<FlatNode *,int> GetflatNodes2core(int _Ncluster);//È¡Ò»¸ö»®·ÖÖĞµÄËùÓĞµÄflatNode½Úµã
+	map<FlatNode *,int> GetflatNodes2core(int _Ncluster);//å–ä¸€ä¸ªåˆ’åˆ†ä¸­çš„æ‰€æœ‰çš„flatNodeèŠ‚ç‚¹
 
 
 private:
-	std::map<int, std::map<FlatNode *, int > > cluster2FlatNode2Core;//clusterµÄ±àºÅ,flatNode,coreÖ®¼äµÄÓ³Éä
-	std::map<int, std::map<FlatNode *, int > > _amortizeCluster2FlatNode2Core;//´æ·ÅÌ¯ÏúÍê³ÉºóµÄ»®·Ö
+	std::map<int, std::map<FlatNode *, int > > cluster2FlatNode2Core;//clusterçš„ç¼–å·,flatNode,coreä¹‹é—´çš„æ˜ å°„
+	std::map<int, std::map<FlatNode *, int > > _amortizeCluster2FlatNode2Core;//å­˜æ”¾æ‘Šé”€å®Œæˆåçš„åˆ’åˆ†
 
-	std::map<FlatNode *,int> flatNode2steadycountCluster;//flatNodeÔÚclusterÖĞ¾Ö²¿ÎÈÌ¬µÄÖ´ĞĞ´ÎÊı
-	std::map<FlatNode *,int> flatNode2amortizationSteadycount;//±£´æÌ¯ÏúÍê³Éºó½ÚµãµÄÖ´ĞĞ´ÎÊı
-	SchedulerSSG *ca_sssg;//»®·ÖÍê³ÉºóµÄsssgÍ¼
-	int mnClusters;//¼¯ÈºÖĞ×Ü¹²µÄ½ÚµãÊı
-	int mnCores;//¼¯ÈºÖĞÒ»¸ö½ÚµãµÄºËµÄÊıÄ¿
+	std::map<FlatNode *,int> flatNode2steadycountCluster;//flatNodeåœ¨clusterä¸­å±€éƒ¨ç¨³æ€çš„æ‰§è¡Œæ¬¡æ•°
+	std::map<FlatNode *,int> flatNode2amortizationSteadycount;//ä¿å­˜æ‘Šé”€å®ŒæˆåèŠ‚ç‚¹çš„æ‰§è¡Œæ¬¡æ•°
+	SchedulerSSG *ca_sssg;//åˆ’åˆ†å®Œæˆåçš„sssgå›¾
+	int mnClusters;//é›†ç¾¤ä¸­æ€»å…±çš„èŠ‚ç‚¹æ•°
+	int mnCores;//é›†ç¾¤ä¸­ä¸€ä¸ªèŠ‚ç‚¹çš„æ ¸çš„æ•°ç›®
 };
 
-GLOBAL void CPAmortizating(ClusterPartition *cp,SchedulerSSG *sssg,int nclusters, int nplaces);//¶Ô»®·ÖµÄ½á¹û×öÌ¯Ïú
+GLOBAL void CPAmortizating(ClusterPartition *cp,SchedulerSSG *sssg,int nclusters, int nplaces);//å¯¹åˆ’åˆ†çš„ç»“æœåšæ‘Šé”€
 
 
 

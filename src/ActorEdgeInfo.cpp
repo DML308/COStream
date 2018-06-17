@@ -3,9 +3,9 @@ ActorEdgeInfo::ActorEdgeInfo(SchedulerSSG* sssg)
 {
 	this->flatNodes_ = sssg->flatNodes;
 	vector<FlatNode *>::iterator iter_1,iter_2;
-	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓÐ½áµã
+	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éåŽ†æ‰€æœ‰ç»“ç‚¹
 	{
-		for (iter_2=(*iter_1)->outFlatNodes.begin();iter_2!=(*iter_1)->outFlatNodes.end();iter_2++)//±éÀú½ÚµãÊä³ö±ßÁ¬½ÓµÄ½áµã
+		for (iter_2=(*iter_1)->outFlatNodes.begin();iter_2!=(*iter_1)->outFlatNodes.end();iter_2++)//éåŽ†èŠ‚ç‚¹è¾“å‡ºè¾¹è¿žæŽ¥çš„ç»“ç‚¹
 		{
 			Node *outputNode = NULL;
 			List *outputList =(*iter_1)->contents->decl->u.decl.type->u.operdcl.outputs;
@@ -13,7 +13,7 @@ ActorEdgeInfo::ActorEdgeInfo(SchedulerSSG* sssg)
 			StreamType *streamType = NULL;
 			IterateList(&output_maker,outputList);
 			int outOrder = iter_2 - (*iter_1)->outFlatNodes.begin(),i=0;			
-			while(NextOnList(&output_maker,(GenericREF)&outputNode))			//²éÕÒstreamType
+			while(NextOnList(&output_maker,(GenericREF)&outputNode))			//æŸ¥æ‰¾streamType
 			{
 				if(i == outOrder){
 					if(outputNode->typ == Id) streamType = outputNode->u.id.decl->u.decl.type->u.strdcl.type;
@@ -29,9 +29,9 @@ ActorEdgeInfo::ActorEdgeInfo(SchedulerSSG* sssg)
 			Node *fieldNode = NULL;
 			string type,typeName,typedefine, xstemp;
 			int size = 0;
-			while(NextOnList(&streamField_maker,(GenericREF)&fieldNode))		//²éÕÒstreamTypeµÄÀàÐÍÓò
+			while(NextOnList(&streamField_maker,(GenericREF)&fieldNode))		//æŸ¥æ‰¾streamTypeçš„ç±»åž‹åŸŸ
 			{
-				if (fieldNode->u.decl.type->typ == Prim) // »ù±¾ÀàÐÍ
+				if (fieldNode->u.decl.type->typ == Prim) // åŸºæœ¬ç±»åž‹
 				{
 					Node *typeNode = fieldNode->u.decl.type;
 					int curSize;
@@ -59,7 +59,7 @@ ActorEdgeInfo::ActorEdgeInfo(SchedulerSSG* sssg)
 					break;
 				}
 			}
-			if(stIter==vStreamTypeInfo.end())	//Ìí¼ÓÐÂÀàÐÍ
+			if(stIter==vStreamTypeInfo.end())	//æ·»åŠ æ–°ç±»åž‹
 			{
 				vStreamTypeInfo.push_back(StreamEdgeInfo(size,typeName,typedefine));
 				mapEdge2TypeInfo.insert(make_pair(make_pair((*iter_1),(*iter_2)),vStreamTypeInfo[vStreamTypeInfo.size()-1]));
@@ -82,7 +82,7 @@ void ActorEdgeInfo::DeclEdgeType(stringstream &buf)
 		buf<<vStreamTypeInfo.at(i).typeName<<"\n{\n\t"<<vStreamTypeInfo.at(i).typedefine<<"};\n";
 	}
 }
-string ActorEdgeInfo::GetPrimDataType(Node *from,int *size)//ÀàÐÍ¶¨Òå
+string ActorEdgeInfo::GetPrimDataType(Node *from,int *size)//ç±»åž‹å®šä¹‰
 {
 	string type;
 

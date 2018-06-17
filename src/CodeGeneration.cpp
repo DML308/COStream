@@ -11,32 +11,32 @@ using namespace std;
 #define mkdir(tmp) mkdir(tmp.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 char* objName;
-//ÊäÈëÎªÒÑÍê³Éµ÷¶ÈµÄ¾²Ì¬Êı¾İÁ÷Í¼
+//è¾“å…¥ä¸ºå·²å®Œæˆè°ƒåº¦çš„é™æ€æ•°æ®æµå›¾
 GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring,StageAssignment *psa,MetisPartiton *Mp,HAFLPartition *haflp,TemplateClass *tc,DNBPartition *dnbp)
-{//20121127ÈÕ¸ù¾İliheĞÂ°æ±¾´úÂëĞŞ¸Ä
+{//20121127æ—¥æ ¹æ®liheæ–°ç‰ˆæœ¬ä»£ç ä¿®æ”¹
 	assert(currentDir);
 	assert(sssg);
-	//Ñ¡Ôñ´úÂëÉú³Éºó¶ËÀàĞÍ
+	//é€‰æ‹©ä»£ç ç”Ÿæˆåç«¯ç±»å‹
 	if (X10Backend == TRUE)//x10
 	{
 		string dir = currentDir;
 		dir += "\\X10DistCode\\";
 		dir += substring;
         cout<<"-----------Generate x10 Code-----------"<<endl;
-		//È¡µÃÃüÁîĞĞÖ¸¶¨µÄplace¸öÊı£¬ÈôÎŞÖ¸¶¨ÔòÉèÖÃ³ÉÓë³ÌĞòactor¸öÊıÒ»ÖÂ
+		//å–å¾—å‘½ä»¤è¡ŒæŒ‡å®šçš„placeä¸ªæ•°ï¼Œè‹¥æ— æŒ‡å®šåˆ™è®¾ç½®æˆä¸ç¨‹åºactorä¸ªæ•°ä¸€è‡´
 		int nCpucore = CpuCoreNum > 0 ? CpuCoreNum : sssg->GetFlatNodes().size();
 
 		X10CodeGenerate *X10Code = new X10CodeGenerate(sssg, nCpucore, Buffer_Size, dir.c_str());
 
-		// Éú³É½Ó¿ÚÎÄ¼ş, º¬¸÷¸öÁ÷ÀàĞÍµÄÉùÃ÷
+		// ç”Ÿæˆæ¥å£æ–‡ä»¶, å«å„ä¸ªæµç±»å‹çš„å£°æ˜
 		X10Code->CGinterface();
-		// Éú³É¸÷¸öÀàÎÄ¼ş
+		// ç”Ÿæˆå„ä¸ªç±»æ–‡ä»¶
 		X10Code->CGactors();
-		// Éú³ÉÖ÷¿ØÎÄ¼ş
+		// ç”Ÿæˆä¸»æ§æ–‡ä»¶
 		X10Code->SimpleScheduler();
 		X10Code->CGmain();
 
-		// ¿½±´libÎÄ¼ş
+		// æ‹·è´libæ–‡ä»¶
 		X10LibCopy tmp;
 		tmp.Run(dir.c_str());
 
@@ -58,7 +58,7 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 		strcpy(objName,substring.c_str());
 
 #else
-        if(dir == "./")	//ÈôÊÇÃ»ÓĞÖ¸¶¨Ä¿Â¼£¬ÔòÔÚµ±Ç°Ä¿Â¼ÏÂĞÂ½¨ÎÄ¼ş¼Ğ£¬ĞÂÎÄ¼ş¼ĞµÄÃû×ÖÎªµ±Ç°spl
+        if(dir == "./")	//è‹¥æ˜¯æ²¡æœ‰æŒ‡å®šç›®å½•ï¼Œåˆ™åœ¨å½“å‰ç›®å½•ä¸‹æ–°å»ºæ–‡ä»¶å¤¹ï¼Œæ–°æ–‡ä»¶å¤¹çš„åå­—ä¸ºå½“å‰spl
 		{
             dir += substring;
 			dir += "/";
@@ -85,18 +85,18 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 #endif
 
         cout<<"-----------Generate x86 Code-----------"<<endl;
-		//È¡µÃÃüÁîĞĞÖ¸¶¨µÄplace¸öÊı£¬ÈôÎŞÖ¸¶¨ÔòÉèÖÃ³ÉÓë³ÌĞòactor¸öÊıÒ»ÖÂ
+		//å–å¾—å‘½ä»¤è¡ŒæŒ‡å®šçš„placeä¸ªæ•°ï¼Œè‹¥æ— æŒ‡å®šåˆ™è®¾ç½®æˆä¸ç¨‹åºactorä¸ªæ•°ä¸€è‡´
 		int nCpucore = CpuCoreNum > 0 ? CpuCoreNum : sssg->GetFlatNodes().size();
 
 		X86CodeGenerate *X86Code = new X86CodeGenerate(sssg, nCpucore, dir.c_str(),psa,Mp,tc);
-		X86Code->CGGlobalvar();//Éú³ÉÁ÷³ÌĞòÒıÈëµÄÈ«¾Ö±äÁ¿¶¨ÒåÎÄ¼ş	GlobalVar.cpp
-		X86Code->CGGlobalvarextern();//Éú³ÉÁ÷³ÌĞòÒıÈëµÄÈ«¾Ö±äÁ¿µÄÉùÃ÷ÎÄ¼ş GlobalVar.h
-		X86Code->CGglobalHeader();	//Éú³ÉstreamÁ÷ÀàĞÍºÍÈ«¾ÖÊı¾İÁ÷»º´æÇøµÄÉùÃ÷
-		X86Code->CGglobalCpp();		//Éú³ÉÁ÷»º³åÇøµÄ¶¨Òå
-		X86Code->CGThreads();		//Éú³ÉËùÓĞÏß³Ì
-		X86Code->CGactors();		//Éú³ÉÒÔÀà±íÊ¾µÄ¼ÆËãµ¥Ôªactor
-		X86Code->CGMain();//Éú³ÉÆô¶¯Ïß³ÌµÄmainÎÄ¼ş
-		X86Code->CGExternType(); // Ç¶ÈëÄ£Ê½ÖĞÉú³ÉÍâ²¿µÄ±äÁ¿ÓÃ
+		X86Code->CGGlobalvar();//ç”Ÿæˆæµç¨‹åºå¼•å…¥çš„å…¨å±€å˜é‡å®šä¹‰æ–‡ä»¶	GlobalVar.cpp
+		X86Code->CGGlobalvarextern();//ç”Ÿæˆæµç¨‹åºå¼•å…¥çš„å…¨å±€å˜é‡çš„å£°æ˜æ–‡ä»¶ GlobalVar.h
+		X86Code->CGglobalHeader();	//ç”Ÿæˆstreamæµç±»å‹å’Œå…¨å±€æ•°æ®æµç¼“å­˜åŒºçš„å£°æ˜
+		X86Code->CGglobalCpp();		//ç”Ÿæˆæµç¼“å†²åŒºçš„å®šä¹‰
+		X86Code->CGThreads();		//ç”Ÿæˆæ‰€æœ‰çº¿ç¨‹
+		X86Code->CGactors();		//ç”Ÿæˆä»¥ç±»è¡¨ç¤ºçš„è®¡ç®—å•å…ƒactor
+		X86Code->CGMain();//ç”Ÿæˆå¯åŠ¨çº¿ç¨‹çš„mainæ–‡ä»¶
+		X86Code->CGExternType(); // åµŒå…¥æ¨¡å¼ä¸­ç”Ÿæˆå¤–éƒ¨çš„å˜é‡ç”¨
 #ifdef WIN32
 		X86LibCopy tmp;
 		tmp.Run(dir.c_str());
@@ -121,18 +121,18 @@ GLOBAL void CodeGeneration(char *currentDir, SchedulerSSG *sssg,string substring
 		dir += substring;
 		dir += "\\";
         cout<<"-----------Generate GPU(OpenCL) Code-----------"<<endl;
-		//È¡µÃÃüÁîĞĞÖ¸¶¨µÄplace¸öÊı£¬ÈôÎŞÖ¸¶¨ÔòÉèÖÃ³ÉÓë³ÌĞòactor¸öÊıÒ»ÖÂ
+		//å–å¾—å‘½ä»¤è¡ŒæŒ‡å®šçš„placeä¸ªæ•°ï¼Œè‹¥æ— æŒ‡å®šåˆ™è®¾ç½®æˆä¸ç¨‹åºactorä¸ªæ•°ä¸€è‡´
 		int ngpu = GpuNum > 0 ? GpuNum : sssg->GetFlatNodes().size();
 
 		GPUCodeGenerate *GPUCode = new GPUCodeGenerate(sssg, ngpu, Buffer_Size, dir.c_str(),psa,haflp,tc,substring,dnbp);
-		GPUCode->CGGlobalvar();//Éú³ÉÈ«¾Ö±äÁ¿
+		GPUCode->CGGlobalvar();//ç”Ÿæˆå…¨å±€å˜é‡
 		GPUCode->CGGlobalvarextern();
 		GPUCode->CGThreads();
 		GPUCode->CGglobalHeader();
 		GPUCode->CGactors();
 		GPUCode->CGAllKernel();
 		GPUCode->CGglobalCpp();
-		GPUCode->CGMain();//Éú³ÉÆô¶¯Ïß³ÌµÄmainÎÄ¼ş
+		GPUCode->CGMain();//ç”Ÿæˆå¯åŠ¨çº¿ç¨‹çš„mainæ–‡ä»¶
 		GPULibCopy tmp;
 		tmp.Run(dir.c_str());
 		cout<<"done!"<<endl;

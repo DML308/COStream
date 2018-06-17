@@ -16,19 +16,19 @@ class StaticStreamGraph
 {
 protected:
 	std::string comName;
-	FlatNode *topLevel; // SDFÍ¼µÄÆğÊ¼½Úµã£¬¼ÙÉèÖ»ÓĞÒ»¸öÊäÈëÎª0µÄ½Úµã
+	FlatNode *topLevel; // SDFå›¾çš„èµ·å§‹èŠ‚ç‚¹ï¼Œå‡è®¾åªæœ‰ä¸€ä¸ªè¾“å…¥ä¸º0çš„èŠ‚ç‚¹
 
-	std::vector<FlatNode *> tmpFlatNodes;// SDFÍ¼Ä³placeÉÏ»òÄ³threadÉÏµÄ½Úµã¼¯ºÏ
+	std::vector<FlatNode *> tmpFlatNodes;// SDFå›¾æŸplaceä¸Šæˆ–æŸthreadä¸Šçš„èŠ‚ç‚¹é›†åˆ
 
-public://½«·ÃÎÊÊôĞÔÓÉprotectedĞŞ¸Ä³Épublic£¬ÒÔ±ãÄÜ¶ÔÆä½øĞĞĞŞ¸Ä
+public://å°†è®¿é—®å±æ€§ç”±protectedä¿®æ”¹æˆpublicï¼Œä»¥ä¾¿èƒ½å¯¹å…¶è¿›è¡Œä¿®æ”¹
 	
-	std::vector<FlatNode *> flatNodes;// SDFÍ¼ËùÓĞ½Úµã¼¯ºÏ
+	std::vector<FlatNode *> flatNodes;// SDFå›¾æ‰€æœ‰èŠ‚ç‚¹é›†åˆ
 	
-	std::map<Node *, FlatNode *>  mapEdge2UpFlatNode; // ½«ÓĞÏò±ßÓëÆäÉÏ¶Ë°ó¶¨
-	std::multimap<Node *, FlatNode *>  mapEdge2DownFlatNode;//½«ÓĞÏò±ßÓëÆäÏÂ¶Ë°ó¶¨
+	std::map<Node *, FlatNode *>  mapEdge2UpFlatNode; // å°†æœ‰å‘è¾¹ä¸å…¶ä¸Šç«¯ç»‘å®š
+	std::multimap<Node *, FlatNode *>  mapEdge2DownFlatNode;//å°†æœ‰å‘è¾¹ä¸å…¶ä¸‹ç«¯ç»‘å®š
 	
-	std::map<FlatNode *, int> mapSteadyWork2FlatNode; // ´æ·Å¸÷¸öoperatorµÄworkestimate£¨ÎÈÌ¬¹¤×÷Á¿¹À¼Æ£©
-	std::map<FlatNode *, int> mapInitWork2FlatNode; // ´æ·Å¸÷¸öoperatorµÄworkestimate£¨³õÌ¬£©
+	std::map<FlatNode *, int> mapSteadyWork2FlatNode; // å­˜æ”¾å„ä¸ªoperatorçš„workestimateï¼ˆç¨³æ€å·¥ä½œé‡ä¼°è®¡ï¼‰
+	std::map<FlatNode *, int> mapInitWork2FlatNode; // å­˜æ”¾å„ä¸ªoperatorçš„workestimateï¼ˆåˆæ€ï¼‰
 
 public:
 	StaticStreamGraph()	{	}
@@ -42,24 +42,24 @@ public:
 		assert (flatNodes[0] != NULL && flatNodes[0]->nIn == 0); 
 		topLevel = flatNodes[0];
 	}
-	void PrintFlatNodes(); // ´òÓ¡SDFÍ¼
-	void GenerateFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite); // ¹¹½¨SDFÍ¼£¬³õÊ¼»¯flatNodes, mapEdge2FlatNode
+	void PrintFlatNodes(); // æ‰“å°SDFå›¾
+	void GenerateFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite); // æ„å»ºSDFå›¾ï¼Œåˆå§‹åŒ–flatNodes, mapEdge2FlatNode
 	
-	FlatNode *GenerateFlatNodes(operatorNode *u);//zww 20120917 Ìí¼Ó
+	FlatNode *GenerateFlatNodes(operatorNode *u);//zww 20120917 æ·»åŠ 
 	FlatNode * InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,FlatNode *oldFlatNode);
-	FlatNode * InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,std::set<FlatNode *> oldFlatNodeSet);//zww 20121011 Ìí¼Ó
+	FlatNode * InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,std::set<FlatNode *> oldFlatNodeSet);//zww 20121011 æ·»åŠ 
 
-	void SetFlatNodesWeights(); // ¸ø¸÷½ÚµãÉèÖÃÈ¨ÖØ
-	void SetFlatNodesWeights(FlatNode *flatNode); // ÖØÔØ£¬ÎªÁËÊ¹Ã¿¸öFlatNodeÄÜ¹»µ¥¶ÀÉèÖÃÈ¨ÖØ£¬¸ø¸÷½ÚµãÉèÖÃÈ¨ÖØ   zww-20120312
-	void ResetFlatNodeNames(); // ÖØÖÃÃ¿¸öflatnodeµÄnameÖµ
-	bool IsUpBorder(FlatNode *);   //cwbÅĞ¶Ï¸¸½áµãÊÇ·ñÓĞ±ß½ç½áµã
-	bool IsDownBorder(FlatNode *); //cwbÅĞ¶Ï×Ó½áµãÊÇ·ñÓĞ±ß½ç½áµã
-	void GetPreName();   //cwb»ñÈ¡¸÷actor±»ÖØÃüÃûÇ°µÄÃû×Ö
-	void ResetFlatNodeVisitTimes(); // ÖØÖÃÃ¿¸öflastnodeµÄvisttimesÖµ
+	void SetFlatNodesWeights(); // ç»™å„èŠ‚ç‚¹è®¾ç½®æƒé‡
+	void SetFlatNodesWeights(FlatNode *flatNode); // é‡è½½ï¼Œä¸ºäº†ä½¿æ¯ä¸ªFlatNodeèƒ½å¤Ÿå•ç‹¬è®¾ç½®æƒé‡ï¼Œç»™å„èŠ‚ç‚¹è®¾ç½®æƒé‡   zww-20120312
+	void ResetFlatNodeNames(); // é‡ç½®æ¯ä¸ªflatnodeçš„nameå€¼
+	bool IsUpBorder(FlatNode *);   //cwbåˆ¤æ–­çˆ¶ç»“ç‚¹æ˜¯å¦æœ‰è¾¹ç•Œç»“ç‚¹
+	bool IsDownBorder(FlatNode *); //cwbåˆ¤æ–­å­ç»“ç‚¹æ˜¯å¦æœ‰è¾¹ç•Œç»“ç‚¹
+	void GetPreName();   //cwbè·å–å„actorè¢«é‡å‘½åå‰çš„åå­—
+	void ResetFlatNodeVisitTimes(); // é‡ç½®æ¯ä¸ªflastnodeçš„visttimeså€¼
 	inline FlatNode *GetTopLevel(void)
 	{ return topLevel;}
-	void AddSteadyWork(FlatNode *,int); // ´æ·ÅÎÈÌ¬µ÷¶È¹¤×÷Á¿
-	void AddInitWork(FlatNode *,int); // ´æ·Å³õÌ¬µ÷¶È¹¤×÷Á¿
+	void AddSteadyWork(FlatNode *,int); // å­˜æ”¾ç¨³æ€è°ƒåº¦å·¥ä½œé‡
+	void AddInitWork(FlatNode *,int); // å­˜æ”¾åˆæ€è°ƒåº¦å·¥ä½œé‡
 	int GetSteadyWork(FlatNode *n);
 	int GetInitWork(FlatNode *n);
 	std::vector<FlatNode *> GetFlatNodes(int place_id); //lxx.2012.03.28

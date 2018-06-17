@@ -822,7 +822,7 @@ PRIVATE inline void PrintCompositeCall(FILE *out, Node *node, comCallNode *u, in
 	PrintCRSpaces(out, offset + 2);
 	assert(&(u->call->u.composite) != NULL);
 
-	PrintCRSpaces(out, offset + 2); // ÏÈ´òÓ¡operdclÐÅÏ¢±È½ÏºÃ£¡
+	PrintCRSpaces(out, offset + 2); // å…ˆæ‰“å°operdclä¿¡æ¯æ¯”è¾ƒå¥½ï¼
 	PrintNode(out, u->operdcl,    offset + 2);
 
 	//PrintNode(out, u->call->u.composite.decl, offset + 2);
@@ -938,7 +938,7 @@ PRIVATE inline void PrintDuplicate(FILE *out, Node *node, duplicateNode *u, int 
 }
 
 
-/********3********ÐÂÎÄ·¨**********/
+/********3********æ–°æ–‡æ³•**********/
 
 PRIVATE inline void PrintAdd(FILE *out, Node *node, addNode *u, int offset, Bool norecurse)
 {

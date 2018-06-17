@@ -19,13 +19,13 @@ void RRSPartiton::SssgPartition(SchedulerSSG *sssg ,int level){
 			part[this->perParts*i+j]=i;
 
 	for (int i=0;i<this->totalActors;i++){
-		FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],part[i]));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+		FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],part[i]));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 	}
 
 	for (int i=0;i<this->totalActors;i++)
 		PartitonNum2FlatNode.insert(make_pair(part[i],sssg->GetFlatNodes()[i]));
 
-#if 1 //´òÓ¡Í¼
-	DumpStreamGraph(sssg,this,"RRSPartitionGraph.dot",NULL);//zww_20120605Ìí¼ÓµÚËÄ¸ö²ÎÊı
+#if 1 //æ‰“å°å›¾
+	DumpStreamGraph(sssg,this,"RRSPartitionGraph.dot",NULL);//zww_20120605æ·»åŠ ç¬¬å››ä¸ªå‚æ•°
 #endif
 }

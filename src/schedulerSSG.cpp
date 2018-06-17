@@ -38,73 +38,73 @@ bool SchedulerSSG::SteadyScheduling()
 {
 	list<FlatNode *> flatNodeList;
 	std::map<FlatNode *,int>::iterator pos;
-	// Ä¬ÈÏµÚÒ»¸ö½ÚµãÊÇÔ´£¬Ò²¾ÍÊÇËµpeekºÍpop¾ùÎª0,ÔÚÍ¼µÄ±íÊ¾ÉÏÔİ²»ÔÊĞíÓĞ¶à¸öÔ´£¬µ«¿ÉÒÔÓĞ¶à¸öpeek = pop = 0½Úµã
+	// é»˜è®¤ç¬¬ä¸€ä¸ªèŠ‚ç‚¹æ˜¯æºï¼Œä¹Ÿå°±æ˜¯è¯´peekå’Œpopå‡ä¸º0,åœ¨å›¾çš„è¡¨ç¤ºä¸Šæš‚ä¸å…è®¸æœ‰å¤šä¸ªæºï¼Œä½†å¯ä»¥æœ‰å¤šä¸ªpeek = pop = 0èŠ‚ç‚¹
 	FlatNode *up = topLevel, *down = NULL;
 	int nPush = 0, nPop = 0, nLcm = 0;
 	int x, y, i, j;
 
-	// ÏÖÔÚ¿¼ÂÇµÄÊÇÖ»ÓĞÒ»¸öÊäÈë¿ÚµÄÇé¿ö
+	// ç°åœ¨è€ƒè™‘çš„æ˜¯åªæœ‰ä¸€ä¸ªè¾“å…¥å£çš„æƒ…å†µ
 	while (1)
 	{
-		// ÎÈÌ¬µ÷¶ÈÏµÁĞ³õÊ¼ÏµÊıÎª1
+		// ç¨³æ€è°ƒåº¦ç³»åˆ—åˆå§‹ç³»æ•°ä¸º1
 		mapSteadyCount2FlatNode.insert(make_pair(up, 1));
-		// ±éÀú¸Ã½ÚµãµÄËùÓĞÊä³ö½Úµã£¨¹ã¶ÈÓÅÏÈ±éÀú£©
+		// éå†è¯¥èŠ‚ç‚¹çš„æ‰€æœ‰è¾“å‡ºèŠ‚ç‚¹ï¼ˆå¹¿åº¦ä¼˜å…ˆéå†ï¼‰
 		for (i = 0; i < up->nOut; ++i)
 		{
-			nPush = up->outPushWeights[i]; // ÉÏ¶Ë½ÚµãµÄpushÖµ
+			nPush = up->outPushWeights[i]; // ä¸Šç«¯èŠ‚ç‚¹çš„pushå€¼
 			//if(!nPush)continue;
-			down = up->outFlatNodes[i]; // ÕÒµ½ÏÂ¶Ë½Úµã
+			down = up->outFlatNodes[i]; // æ‰¾åˆ°ä¸‹ç«¯èŠ‚ç‚¹
 
-			for (j = 0; down->inFlatNodes[j] != up; j++); // ÏÂ¶Ë½ÚµãÕÒµ½ÓëÉÏ¶Ë½Úµã¶ÔÓ¦µÄ±êºÅ
-			nPop = down->inPopWeights[j]; // ÏÂ¶Ë½ÚµãÈ¡³ö¶ÔÓ¦µÄpopÖµ
+			for (j = 0; down->inFlatNodes[j] != up; j++); // ä¸‹ç«¯èŠ‚ç‚¹æ‰¾åˆ°ä¸ä¸Šç«¯èŠ‚ç‚¹å¯¹åº”çš„æ ‡å·
+			nPop = down->inPopWeights[j]; // ä¸‹ç«¯èŠ‚ç‚¹å–å‡ºå¯¹åº”çš„popå€¼
 
-			// ¼ì²é¸Ã½ÚµãÊÇ·ñÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬Ã¿ÌõÖ»½øĞĞÒ»´ÎÎÈÌ¬µ÷¶È
+			// æ£€æŸ¥è¯¥èŠ‚ç‚¹æ˜¯å¦å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ¯æ¡åªè¿›è¡Œä¸€æ¬¡ç¨³æ€è°ƒåº¦
 			pos = mapSteadyCount2FlatNode.find(down);
-			// ¸Ã½ÚµãÎ´½øĞĞÎÈÌ¬µ÷¶È
+			// è¯¥èŠ‚ç‚¹æœªè¿›è¡Œç¨³æ€è°ƒåº¦
 			if (pos == mapSteadyCount2FlatNode.end())
 			{
-				// µÃµ½ÉÏ¶Ë½ÚµãµÄÎÈÌ¬µ÷¶ÈÏµÊı
+				// å¾—åˆ°ä¸Šç«¯èŠ‚ç‚¹çš„ç¨³æ€è°ƒåº¦ç³»æ•°
 				pos = mapSteadyCount2FlatNode.find(up);
 				x = pos->second;
-				nPush *= x; // ÎªÊ²Ã´ÊÇx*nPushÄØ£¿Àí½âÎÈÌ¬µ÷¶ÈµÄ¸ÅÄî--½ÚµãÔÚÁ÷Ë®ÏßÎÈ¶¨ÔËĞĞÖĞÖ´ĞĞµÄ×îÉÙ´ÎÊı
+				nPush *= x; // ä¸ºä»€ä¹ˆæ˜¯x*nPushå‘¢ï¼Ÿç†è§£ç¨³æ€è°ƒåº¦çš„æ¦‚å¿µ--èŠ‚ç‚¹åœ¨æµæ°´çº¿ç¨³å®šè¿è¡Œä¸­æ‰§è¡Œçš„æœ€å°‘æ¬¡æ•°
 				if(nPush != 0)
 				{
-					// nPush, nPopµÄ×îĞ¡¹«±¶Êı;
+					// nPush, nPopçš„æœ€å°å…¬å€æ•°;
 					nLcm = lcm(nPush, nPop);
 					int temp = nLcm/nPush;
-					if( temp != 1) // ¼ÓÒ»¸öÅĞ¶Ï£¬Ìá¸ßĞ§ÂÊ£¬³Ë1ÊÇ²»±ØÒªµÄ
+					if( temp != 1) // åŠ ä¸€ä¸ªåˆ¤æ–­ï¼Œæé«˜æ•ˆç‡ï¼Œä¹˜1æ˜¯ä¸å¿…è¦çš„
 					{
-						// ¸ù¾İ¼ÆËã¹æÔòµÃÀ´µÄ
+						// æ ¹æ®è®¡ç®—è§„åˆ™å¾—æ¥çš„
 						for (pos = mapSteadyCount2FlatNode.begin(); pos != mapSteadyCount2FlatNode.end(); ++pos)
 							pos->second *= temp;
 					}
 					mapSteadyCount2FlatNode.insert(make_pair(down, nLcm/nPop));
 				}
-				else // ¶Ôpush(0)×÷´¦Àí lxx.2012.02.22
+				else // å¯¹push(0)ä½œå¤„ç† lxx.2012.02.22
 				{
 					assert(nPop == 0);
-					// È¡ 1 Öµ lxx.2012.02.22
+					// å– 1 å€¼ lxx.2012.02.22
 					mapSteadyCount2FlatNode.insert(make_pair(down, 1)); 
 				}
-				// ½«down¼ÓÈëlistNodeÊÇÎªÁË¶ÔdownµÄÊä³ö½Úµã½øĞĞµ÷¶È
+				// å°†downåŠ å…¥listNodeæ˜¯ä¸ºäº†å¯¹downçš„è¾“å‡ºèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 				flatNodeList.push_back(down);
 			}
-			else //¸Ã½ÚµãÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬¼ì²éSDFÍ¼ÊÇ·ñ´æÔÚÎÈÌ¬µ÷¶ÈÏµÁĞ£¬Ò»°ã²»´æÔÚµÄ»°±íÃ÷³ÌĞòÓĞÎó
+			else //è¯¥èŠ‚ç‚¹å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ£€æŸ¥SDFå›¾æ˜¯å¦å­˜åœ¨ç¨³æ€è°ƒåº¦ç³»åˆ—ï¼Œä¸€èˆ¬ä¸å­˜åœ¨çš„è¯è¡¨æ˜ç¨‹åºæœ‰è¯¯
 			{
 				y = pos->second;
 				pos = mapSteadyCount2FlatNode.find(up);
 				x = pos->second;
 
-				//nPop == 0 ËµÃ÷ÔÚ½øĞĞjoin 0 ²Ù×÷
+				//nPop == 0 è¯´æ˜åœ¨è¿›è¡Œjoin 0 æ“ä½œ
 				if((nPop != 0 ) && (nPush * x) != (nPop * y))
 				{
-					cout<<"²»´æÔÚÎÈÌ¬µ÷¶È..."<<endl;
+					cout<<"ä¸å­˜åœ¨ç¨³æ€è°ƒåº¦..."<<endl;
 					system("pause");
-					exit(1); // ±íÊ¾²»´æÔÚÎÈÌ¬µ÷¶È 
+					exit(1); // è¡¨ç¤ºä¸å­˜åœ¨ç¨³æ€è°ƒåº¦ 
 				}
 			}
 		}
-		if(flatNodeList.size() == 0) break; // Á´±íÎª¿Õ£¬ËµÃ÷ËùÓĞ½ÚµãÒÑµ÷¶ÈÍê±Ï
+		if(flatNodeList.size() == 0) break; // é“¾è¡¨ä¸ºç©ºï¼Œè¯´æ˜æ‰€æœ‰èŠ‚ç‚¹å·²è°ƒåº¦å®Œæ¯•
 		up = flatNodeList.front();
 		flatNodeList.pop_front();
 	}
@@ -120,8 +120,8 @@ bool SchedulerSSG::InitScheduling()
 	int nPush = 0, nPop = 0, nPeek = 0;
 	int x, y, i, j, n, num = 0;
 
-	//ÏÖÔÚ¿¼ÂÇµÄÊÇÖ»ÓĞÒ»¸öÊä³ö¿ÚµÄÇé¿ö
-	//ÕÒµ½sink½Úµã
+	//ç°åœ¨è€ƒè™‘çš„æ˜¯åªæœ‰ä¸€ä¸ªè¾“å‡ºå£çš„æƒ…å†µ
+	//æ‰¾åˆ°sinkèŠ‚ç‚¹
 	for (i = 0; i < flatNodes.size(); ++i)
 	{
 		if(!flatNodes[i]->nOut)
@@ -133,39 +133,39 @@ bool SchedulerSSG::InitScheduling()
 
 	if(num > 1)
 	{
-		fprintf(stdout, "FATAL ERROR: ³ÌĞò´æÔÚ¶à¸öÊä³ö¿Ú£¡\n");
+		fprintf(stdout, "FATAL ERROR: ç¨‹åºå­˜åœ¨å¤šä¸ªè¾“å‡ºå£ï¼\n");
 		system("pause");
 		exit(1);
 	}
 
 	if(num == 0)
 	{
-		fprintf(stdout, "FATAL ERROR: ³ÌĞòÎŞÊä³ö¿Ú£¡\n");
+		fprintf(stdout, "FATAL ERROR: ç¨‹åºæ— è¾“å‡ºå£ï¼\n");
 		system("pause");
 		exit(1);
 	}
 
-	//Ã¿¸ö½ÚµãµÄ³õÊ¼»¯µ÷¶È´ÎÊı³õÊ¼ÖµÎª0
+	//æ¯ä¸ªèŠ‚ç‚¹çš„åˆå§‹åŒ–è°ƒåº¦æ¬¡æ•°åˆå§‹å€¼ä¸º0
 	mapInitCount2FlatNode.insert(make_pair(down, 0));
 	while (1)
 	{
-		//±éÀú¸Ã½ÚµãµÄËùÓĞÊäÈë½Úµã
+		//éå†è¯¥èŠ‚ç‚¹çš„æ‰€æœ‰è¾“å…¥èŠ‚ç‚¹
 		for (i = 0; i < down->nIn; i++)
 		{
-			//ÕÒµ½ÏÂ¶Ë½ÚµãµÄpeek¡¢popÖµ
+			//æ‰¾åˆ°ä¸‹ç«¯èŠ‚ç‚¹çš„peekã€popå€¼
 			nPeek = down->inPeekWeights[i];
 			nPop  = down->inPopWeights[i];
 			up = down->inFlatNodes[i];
 
-			//ÕÒµ½¶ÔÓ¦ÉÏ¶Ë½ÚµãµÄpopÖµ
+			//æ‰¾åˆ°å¯¹åº”ä¸Šç«¯èŠ‚ç‚¹çš„popå€¼
 			for (j = 0; up->outFlatNodes[j] != down; j++);
 			nPush = up->outPushWeights[j];
 
 			pos = mapInitCount2FlatNode.find(down);
-			//ÏÂ¶Ë½ÚµãÒÑÓĞµÄ³õÊ¼»¯µ÷¶È´ÎÊı
+			//ä¸‹ç«¯èŠ‚ç‚¹å·²æœ‰çš„åˆå§‹åŒ–è°ƒåº¦æ¬¡æ•°
 			x = pos->second;
 
-			//ÏÂ¶Ë½ÚµãÔËĞĞÒ»´ÎĞèÒªµÄ¶îÍâÊı¾İÁ¿
+			//ä¸‹ç«¯èŠ‚ç‚¹è¿è¡Œä¸€æ¬¡éœ€è¦çš„é¢å¤–æ•°æ®é‡
 			y = nPeek - nPop;
 			if(y <= 0 || nPeek <= nPush)
 				y = 0;
@@ -174,7 +174,7 @@ bool SchedulerSSG::InitScheduling()
 			else
 				n = 0;
 			pos = mapInitCount2FlatNode.find(up);
-			if (pos == mapInitCount2FlatNode.end())//zww£º20120322£¬ÎªÁËÕÒÃ»ÓĞÊä³öµÄ½Úµã¶øĞŞ¸Ä
+			if (pos == mapInitCount2FlatNode.end())//zwwï¼š20120322ï¼Œä¸ºäº†æ‰¾æ²¡æœ‰è¾“å‡ºçš„èŠ‚ç‚¹è€Œä¿®æ”¹
 			{
 				mapInitCount2FlatNode.insert(make_pair(up, n));
 				flatNodeList.push_back(up);
@@ -184,12 +184,12 @@ bool SchedulerSSG::InitScheduling()
 				if(pos->second < n) 
 				{
 					pos->second = n;
-					//¸Ã½ÚµãµÄ³õÊ¼»¯µ÷¶È´ÎÊıÒÑ¸Ä±ä£¬±ØĞëÖØĞÂ¼ÓÈë¶ÓÁĞ¶ÔÆäÉÏ¶Ë½Úµã½øĞĞµ÷¶È
+					//è¯¥èŠ‚ç‚¹çš„åˆå§‹åŒ–è°ƒåº¦æ¬¡æ•°å·²æ”¹å˜ï¼Œå¿…é¡»é‡æ–°åŠ å…¥é˜Ÿåˆ—å¯¹å…¶ä¸Šç«¯èŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 					flatNodeList.push_back(up);
 				}
 			}
 		}
-		if(flatNodeList.size() == 0) break;//Á´±íÎª¿Õ£¬ËµÃ÷ËùÓĞ½ÚµãÒÑµ÷¶ÈÍê±Ï
+		if(flatNodeList.size() == 0) break;//é“¾è¡¨ä¸ºç©ºï¼Œè¯´æ˜æ‰€æœ‰èŠ‚ç‚¹å·²è°ƒåº¦å®Œæ¯•
 		down = flatNodeList.front();
 		flatNodeList.pop_front();
 	}
@@ -197,7 +197,7 @@ bool SchedulerSSG::InitScheduling()
 }
 
 
-//Çóa,bµÄ×î´ó¹«Ô¼Êı
+//æ±‚a,bçš„æœ€å¤§å…¬çº¦æ•°
 int SchedulerSSG::gcd(int a, int b)
 {
 	int r = 0;
@@ -220,7 +220,7 @@ int SchedulerSSG::gcd(int a, int b)
 }
 
 
-//Çóa,bµÄ×îĞ¡¹«±¶Êı
+//æ±‚a,bçš„æœ€å°å…¬å€æ•°
 int SchedulerSSG::lcm(int a, int b)
 {
 	int product = a * b;
@@ -229,33 +229,33 @@ int SchedulerSSG::lcm(int a, int b)
 }
 
 std::map<FlatNode *, int> SchedulerSSG::SteadySchedulingGroup(std::vector<FlatNode *>flatNodeVec)
-{//¹¹ÔìÒ»¸ö¾Ö²¿µÄÎÈÌ¬
+{//æ„é€ ä¸€ä¸ªå±€éƒ¨çš„ç¨³æ€
 
 
 	list<FlatNode *> flatNodeList;
 	std::map<FlatNode *,int>::iterator pos;
 	std::map<FlatNode *, int> flatNode2SteadyCount;
 	assert(flatNodeVec.size() > 0);
-	map<FlatNode * ,Bool> flatNodesTag;//ÓÉÓÚ±êÊ¾flatNodeVecÖĞµÄ½ÚµãÊÇ·ñ±»µ÷¶È
+	map<FlatNode * ,Bool> flatNodesTag;//ç”±äºæ ‡ç¤ºflatNodeVecä¸­çš„èŠ‚ç‚¹æ˜¯å¦è¢«è°ƒåº¦
 	for (int indexNode = 0; indexNode != flatNodeVec.size(); indexNode++)
 	{
 		flatNodesTag.insert(make_pair(flatNodeVec[indexNode],FALSE));
 	}
-	// Ä¬ÈÏµÚÒ»¸ö½ÚµãÊÇÔ´£¬Ò²¾ÍÊÇËµpeekºÍpop¾ùÎª0,ÔÚÍ¼µÄ±íÊ¾ÉÏÔİ²»ÔÊĞíÓĞ¶à¸öÔ´£¬µ«¿ÉÒÔÓĞ¶à¸öpeek = pop = 0½Úµã
+	// é»˜è®¤ç¬¬ä¸€ä¸ªèŠ‚ç‚¹æ˜¯æºï¼Œä¹Ÿå°±æ˜¯è¯´peekå’Œpopå‡ä¸º0,åœ¨å›¾çš„è¡¨ç¤ºä¸Šæš‚ä¸å…è®¸æœ‰å¤šä¸ªæºï¼Œä½†å¯ä»¥æœ‰å¤šä¸ªpeek = pop = 0èŠ‚ç‚¹
 	FlatNode *up = flatNodeVec[0], *down = NULL, *parent = NULL;
 	int nPush = 0, nPop = 0, nLcm = 0;
 	int x, y, i, j;
-	Bool flag = FALSE;//Ö»ÓĞµ±flatNodeÔÚflatNodeVecÖĞ²Å½øĞĞµ÷¶È
+	Bool flag = FALSE;//åªæœ‰å½“flatNodeåœ¨flatNodeVecä¸­æ‰è¿›è¡Œè°ƒåº¦
 	while (!flatNodesTag.empty())
 	{	
 		up = flatNodesTag.begin()->first;
 		while(1)
 		{		
-			// ÎÈÌ¬µ÷¶ÈÏµÁĞ³õÊ¼ÏµÊıÎª1
+			// ç¨³æ€è°ƒåº¦ç³»åˆ—åˆå§‹ç³»æ•°ä¸º1
 			flatNode2SteadyCount.insert(make_pair(up, 1));
 			flatNodesTag.erase(up);
-			// ±éÀú¸Ã½ÚµãµÄËùÓĞÊä³ö½Úµãup¶Ôchild½Úµã½øĞĞµÄµ÷¶È£¬¸ÃÑ­»·Ö´ĞĞÍê£¬¶ÔupµÄparent½Úµã½øĞĞµ÷¶È
-			/*µ÷¶ÈupµÄchild½Úµã*/
+			// éå†è¯¥èŠ‚ç‚¹çš„æ‰€æœ‰è¾“å‡ºèŠ‚ç‚¹upå¯¹childèŠ‚ç‚¹è¿›è¡Œçš„è°ƒåº¦ï¼Œè¯¥å¾ªç¯æ‰§è¡Œå®Œï¼Œå¯¹upçš„parentèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
+			/*è°ƒåº¦upçš„childèŠ‚ç‚¹*/
 			for (i = 0; i < up->nOut; ++i)
 			{
 				flag = FALSE;
@@ -268,62 +268,62 @@ std::map<FlatNode *, int> SchedulerSSG::SteadySchedulingGroup(std::vector<FlatNo
 				}
 				if(flag)
 				{
-					nPush = up->outPushWeights[i]; // ÉÏ¶Ë½ÚµãµÄpushÖµ
-					down = up->outFlatNodes[i]; // ÕÒµ½ÏÂ¶Ë½Úµã
+					nPush = up->outPushWeights[i]; // ä¸Šç«¯èŠ‚ç‚¹çš„pushå€¼
+					down = up->outFlatNodes[i]; // æ‰¾åˆ°ä¸‹ç«¯èŠ‚ç‚¹
 
-					for (j = 0; down->inFlatNodes[j] != up; j++); // ÏÂ¶Ë½ÚµãÕÒµ½ÓëÉÏ¶Ë½Úµã¶ÔÓ¦µÄ±êºÅ
-					nPop = down->inPopWeights[j]; // ÏÂ¶Ë½ÚµãÈ¡³ö¶ÔÓ¦µÄpopÖµ
+					for (j = 0; down->inFlatNodes[j] != up; j++); // ä¸‹ç«¯èŠ‚ç‚¹æ‰¾åˆ°ä¸ä¸Šç«¯èŠ‚ç‚¹å¯¹åº”çš„æ ‡å·
+					nPop = down->inPopWeights[j]; // ä¸‹ç«¯èŠ‚ç‚¹å–å‡ºå¯¹åº”çš„popå€¼
 
-					// ¼ì²é¸Ã½ÚµãÊÇ·ñÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬Ã¿ÌõÖ»½øĞĞÒ»´ÎÎÈÌ¬µ÷¶È
+					// æ£€æŸ¥è¯¥èŠ‚ç‚¹æ˜¯å¦å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ¯æ¡åªè¿›è¡Œä¸€æ¬¡ç¨³æ€è°ƒåº¦
 					pos = flatNode2SteadyCount.find(down);
-					// ¸Ã½ÚµãÎ´½øĞĞÎÈÌ¬µ÷¶È
+					// è¯¥èŠ‚ç‚¹æœªè¿›è¡Œç¨³æ€è°ƒåº¦
 					if (pos == flatNode2SteadyCount.end())
 					{
-						// µÃµ½ÉÏ¶Ë½ÚµãµÄÎÈÌ¬µ÷¶ÈÏµÊı
+						// å¾—åˆ°ä¸Šç«¯èŠ‚ç‚¹çš„ç¨³æ€è°ƒåº¦ç³»æ•°
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
-						nPush *= x; // ÎªÊ²Ã´ÊÇx*nPushÄØ£¿Àí½âÎÈÌ¬µ÷¶ÈµÄ¸ÅÄî--½ÚµãÔÚÁ÷Ë®ÏßÎÈ¶¨ÔËĞĞÖĞÖ´ĞĞµÄ×îÉÙ´ÎÊı
+						nPush *= x; // ä¸ºä»€ä¹ˆæ˜¯x*nPushå‘¢ï¼Ÿç†è§£ç¨³æ€è°ƒåº¦çš„æ¦‚å¿µ--èŠ‚ç‚¹åœ¨æµæ°´çº¿ç¨³å®šè¿è¡Œä¸­æ‰§è¡Œçš„æœ€å°‘æ¬¡æ•°
 						if(nPush != 0)
 						{
-							// nPush, nPopµÄ×îĞ¡¹«±¶Êı;
+							// nPush, nPopçš„æœ€å°å…¬å€æ•°;
 							nLcm = lcm(nPush, nPop);
 							int temp = nLcm/nPush;
-							if( temp != 1) // ¼ÓÒ»¸öÅĞ¶Ï£¬Ìá¸ßĞ§ÂÊ£¬³Ë1ÊÇ²»±ØÒªµÄ
+							if( temp != 1) // åŠ ä¸€ä¸ªåˆ¤æ–­ï¼Œæé«˜æ•ˆç‡ï¼Œä¹˜1æ˜¯ä¸å¿…è¦çš„
 							{
-								// ¸ù¾İ¼ÆËã¹æÔòµÃÀ´µÄ
+								// æ ¹æ®è®¡ç®—è§„åˆ™å¾—æ¥çš„
 								for (pos = flatNode2SteadyCount.begin(); pos != flatNode2SteadyCount.end(); ++pos)
 									pos->second *= temp;
 							}
 
 							flatNode2SteadyCount.insert(make_pair(down, nLcm/nPop));
 							flatNodesTag.erase(down);
-							// ½«down¼ÓÈëlistNodeÊÇÎªÁË¶ÔdownµÄÊä³ö½Úµã½øĞĞµ÷¶È
+							// å°†downåŠ å…¥listNodeæ˜¯ä¸ºäº†å¯¹downçš„è¾“å‡ºèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 							flatNodeList.push_back(down);
 						}
 
 					}
-					else //¸Ã½ÚµãÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬¼ì²éSDFÍ¼ÊÇ·ñ´æÔÚÎÈÌ¬µ÷¶ÈÏµÁĞ£¬Ò»°ã²»´æÔÚµÄ»°±íÃ÷³ÌĞòÓĞÎó
+					else //è¯¥èŠ‚ç‚¹å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ£€æŸ¥SDFå›¾æ˜¯å¦å­˜åœ¨ç¨³æ€è°ƒåº¦ç³»åˆ—ï¼Œä¸€èˆ¬ä¸å­˜åœ¨çš„è¯è¡¨æ˜ç¨‹åºæœ‰è¯¯
 					{
 						y = pos->second;
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
 
-						//nPop == 0 ËµÃ÷ÔÚ½øĞĞjoin 0 ²Ù×÷
+						//nPop == 0 è¯´æ˜åœ¨è¿›è¡Œjoin 0 æ“ä½œ
 						if((nPop != 0 ) && (nPush * x) != (nPop * y)) 
 						{
-							cout<<"²»´æÔÚÎÈÌ¬µ÷¶È1"<<endl;
+							cout<<"ä¸å­˜åœ¨ç¨³æ€è°ƒåº¦1"<<endl;
 							system("pause");
-							exit(1); // ±íÊ¾²»´æÔÚÎÈÌ¬µ÷¶È
+							exit(1); // è¡¨ç¤ºä¸å­˜åœ¨ç¨³æ€è°ƒåº¦
 						}
 					}
 				}
 			}
-			/*µ÷¶ÈupµÄparent½Úµã*/
+			/*è°ƒåº¦upçš„parentèŠ‚ç‚¹*/
 			for (i = 0; i < up->nIn; ++i)
 			{
 				flag = FALSE;
 				for (int k = 0; k != flatNodeVec.size(); ++k)
-				{//ÅĞ¶Ïparent½ÚµãÔÚ²»ÔÚflatNodeVecÖĞ
+				{//åˆ¤æ–­parentèŠ‚ç‚¹åœ¨ä¸åœ¨flatNodeVecä¸­
 					if(up->inFlatNodes[i] == flatNodeVec[k]) 
 					{
 						flag = TRUE;break;
@@ -332,58 +332,58 @@ std::map<FlatNode *, int> SchedulerSSG::SteadySchedulingGroup(std::vector<FlatNo
 
 				if(flag)
 				{
-					nPop = up->inPopWeights[i]; // µ±Ç°½ÚµãµÄpopÖµ
-					parent = up->inFlatNodes[i]; // ÕÒµ½µ±Ç°½ÚµãµÄ¸¸½Úµã
+					nPop = up->inPopWeights[i]; // å½“å‰èŠ‚ç‚¹çš„popå€¼
+					parent = up->inFlatNodes[i]; // æ‰¾åˆ°å½“å‰èŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹
 
-					for (j = 0; parent->outFlatNodes[j] != up; j++); // up½ÚµãÔÚparentµÄÊä³ö½ÚµãÖĞ¶ÔÓ¦µÄ±êºÅ
-					nPush = parent->outPushWeights[j]; // parent½ÚµãÈ¡³ö¶ÔÓ¦µÄpushÖµ
+					for (j = 0; parent->outFlatNodes[j] != up; j++); // upèŠ‚ç‚¹åœ¨parentçš„è¾“å‡ºèŠ‚ç‚¹ä¸­å¯¹åº”çš„æ ‡å·
+					nPush = parent->outPushWeights[j]; // parentèŠ‚ç‚¹å–å‡ºå¯¹åº”çš„pushå€¼
 
-					// ¼ì²é¸Ã½ÚµãÊÇ·ñÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬Ã¿ÌõÖ»½øĞĞÒ»´ÎÎÈÌ¬µ÷¶È
+					// æ£€æŸ¥è¯¥èŠ‚ç‚¹æ˜¯å¦å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ¯æ¡åªè¿›è¡Œä¸€æ¬¡ç¨³æ€è°ƒåº¦
 					pos = flatNode2SteadyCount.find(parent);
-					// ¸Ã½ÚµãÎ´½øĞĞÎÈÌ¬µ÷¶È
+					// è¯¥èŠ‚ç‚¹æœªè¿›è¡Œç¨³æ€è°ƒåº¦
 					if (pos == flatNode2SteadyCount.end())
 					{
-						// µÃµ½ÉÏ¶Ë½ÚµãµÄÎÈÌ¬µ÷¶ÈÏµÊı
+						// å¾—åˆ°ä¸Šç«¯èŠ‚ç‚¹çš„ç¨³æ€è°ƒåº¦ç³»æ•°
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
-						nPop *= x; // ÎªÊ²Ã´ÊÇx*nPushÄØ£¿Àí½âÎÈÌ¬µ÷¶ÈµÄ¸ÅÄî--½ÚµãÔÚÁ÷Ë®ÏßÎÈ¶¨ÔËĞĞÖĞÖ´ĞĞµÄ×îÉÙ´ÎÊı
+						nPop *= x; // ä¸ºä»€ä¹ˆæ˜¯x*nPushå‘¢ï¼Ÿç†è§£ç¨³æ€è°ƒåº¦çš„æ¦‚å¿µ--èŠ‚ç‚¹åœ¨æµæ°´çº¿ç¨³å®šè¿è¡Œä¸­æ‰§è¡Œçš„æœ€å°‘æ¬¡æ•°
 						if(nPop != 0)
 						{
-							// nPush, nPopµÄ×îĞ¡¹«±¶Êı;
+							// nPush, nPopçš„æœ€å°å…¬å€æ•°;
 							nLcm = lcm(nPush, nPop);
 							int temp = nLcm/nPop;
-							if( temp != 1) // ¼ÓÒ»¸öÅĞ¶Ï£¬Ìá¸ßĞ§ÂÊ£¬³Ë1ÊÇ²»±ØÒªµÄ
+							if( temp != 1) // åŠ ä¸€ä¸ªåˆ¤æ–­ï¼Œæé«˜æ•ˆç‡ï¼Œä¹˜1æ˜¯ä¸å¿…è¦çš„
 							{
-								// ¸ù¾İ¼ÆËã¹æÔòµÃÀ´µÄ
+								// æ ¹æ®è®¡ç®—è§„åˆ™å¾—æ¥çš„
 								for (pos = flatNode2SteadyCount.begin(); pos != flatNode2SteadyCount.end(); ++pos)
 									pos->second *= temp;
 							}
 
 							flatNode2SteadyCount.insert(make_pair(parent, nLcm/nPush));
 							flatNodesTag.erase(parent);
-							// ½«down,parent¼ÓÈëlistNodeÊÇÎªÁË¶ÔdownµÄÊä³ö½Úµã½øĞĞµ÷¶È
+							// å°†down,parentåŠ å…¥listNodeæ˜¯ä¸ºäº†å¯¹downçš„è¾“å‡ºèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 							flatNodeList.push_back(parent);
 						}
 
 					}
-					else //¸Ã½ÚµãÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬¼ì²éSDFÍ¼ÊÇ·ñ´æÔÚÎÈÌ¬µ÷¶ÈÏµÁĞ£¬Ò»°ã²»´æÔÚµÄ»°±íÃ÷³ÌĞòÓĞÎó
+					else //è¯¥èŠ‚ç‚¹å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ£€æŸ¥SDFå›¾æ˜¯å¦å­˜åœ¨ç¨³æ€è°ƒåº¦ç³»åˆ—ï¼Œä¸€èˆ¬ä¸å­˜åœ¨çš„è¯è¡¨æ˜ç¨‹åºæœ‰è¯¯
 					{
 						y = pos->second;
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
 
-						//nPop == 0 ËµÃ÷ÔÚ½øĞĞjoin 0 ²Ù×÷
+						//nPop == 0 è¯´æ˜åœ¨è¿›è¡Œjoin 0 æ“ä½œ
 						if((nPop != 0 ) && (nPop * x) != (nPush * y))
 						{
-							cout<<"²»´æÔÚÎÈÌ¬µ÷¶È2"<<endl;
+							cout<<"ä¸å­˜åœ¨ç¨³æ€è°ƒåº¦2"<<endl;
 							system("pause");
-							exit(1); // ±íÊ¾²»´æÔÚÎÈÌ¬µ÷¶È
+							exit(1); // è¡¨ç¤ºä¸å­˜åœ¨ç¨³æ€è°ƒåº¦
 						}
 					}
 				}
 
 			}
-			if(flatNodeList.size() == 0) break; // Á´±íÎª¿Õ£¬ËµÃ÷ËùÓĞ½ÚµãÒÑµ÷¶ÈÍê±Ï
+			if(flatNodeList.size() == 0) break; // é“¾è¡¨ä¸ºç©ºï¼Œè¯´æ˜æ‰€æœ‰èŠ‚ç‚¹å·²è°ƒåº¦å®Œæ¯•
 			up = flatNodeList.front();
 			flatNodeList.pop_front();
 

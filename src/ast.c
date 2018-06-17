@@ -115,7 +115,7 @@ typedef struct{//zww
 	Node *old_container;
 	Node *new_container;
 } revised_container;
-List *containerList =NULL;//zww:ÓÃÓÚÉî¿½±´ÊÇÐÞ¸Ä½ÚµãµÄcontainer
+List *containerList =NULL;//zww:ç”¨äºŽæ·±æ‹·è´æ˜¯ä¿®æ”¹èŠ‚ç‚¹çš„container
 
 GLOBAL inline char *AddPostFixName(const char *name)
 {
@@ -152,7 +152,7 @@ GLOBAL inline Node *NewNode(NodeType typ)
 	return(create);
 }
 
-/*ZWW: define for spl »ñÈ¡ÔËËãµÄÊý¾ÝÀàÐÍ*/
+/*ZWW: define for spl èŽ·å–è¿ç®—çš„æ•°æ®ç±»åž‹*/
 GLOBAL inline opDataType getOpDataType(Node *arg)
 {
 	opDataType tmp;
@@ -175,7 +175,7 @@ GLOBAL inline opDataType getOpDataType(Node *arg)
 		break;
 	case Id:
 		tmpN = arg->u.id.decl;
-		if(tmpN == NULL)/*Èç¹ûÊÇ¸öÃ»ÓÐÉùÃ÷µÄidÔò·µ»ØunknownµÄopdatatype*/
+		if(tmpN == NULL)/*å¦‚æžœæ˜¯ä¸ªæ²¡æœ‰å£°æ˜Žçš„idåˆ™è¿”å›žunknownçš„opdatatype*/
 			tmp = op_unkonwn;
 		else{
 			tmpN = tmpN->u.decl.type;
@@ -417,7 +417,7 @@ create->u.unary.expr = expr;
 
 create->u.unary.type = NULL;
 create->u.unary.value = NULL;
-if(expr != NULL)/*zww:¼ÆËã¸Ã1Ôª²Ù×÷µÄÊý¾ÝÀàÐÍ*/
+if(expr != NULL)/*zww:è®¡ç®—è¯¥1å…ƒæ“ä½œçš„æ•°æ®ç±»åž‹*/
 	create->u.unary.opType = getOpDataType(create->u.unary.expr);
 else create->u.unary.opType = op_unkonwn;
 
@@ -442,13 +442,13 @@ create->u.binop.right = right;
 create->u.binop.type = NULL;
 create->u.binop.value = NULL;
 
-if (left!=NULL && right != NULL){ /*zww:¼ÆËã¸Ã2Ôª²Ù×÷µÄÊý¾ÝÀàÐÍ*/
+if (left!=NULL && right != NULL){ /*zww:è®¡ç®—è¯¥2å…ƒæ“ä½œçš„æ•°æ®ç±»åž‹*/
 	if(op != '='){
 		opDataType l,r;
 		l = getOpDataType(create->u.binop.left);
 		r = getOpDataType(create->u.binop.right);
 		create->u.binop.opType = l > r ? l:r;
-	}else//Èç¹ûÊÇ¸³Öµ±í´ïÊ½£¬Ö±½ÓÈ¡×ó±ßµÄÀàÐÍ×÷ÎªopÀàÐÍ
+	}else//å¦‚æžœæ˜¯èµ‹å€¼è¡¨è¾¾å¼ï¼Œç›´æŽ¥å–å·¦è¾¹çš„ç±»åž‹ä½œä¸ºopç±»åž‹
 		create->u.binop.opType = getOpDataType(create->u.binop.left);
 }else  create->u.binop.opType = op_unkonwn;
 
@@ -1643,7 +1643,7 @@ GLOBAL inline Node *MakePipelineCoord(Node *output, Node *input, List *decl,List
 	return(create);
 }
 
-/* ÐÂÎÄ·¨*/
+/* æ–°æ–‡æ³•*/
 
 
 
@@ -1757,7 +1757,7 @@ PRIVATE inline Kinds KindsOfRoundRobin()
 PRIVATE inline Kinds KindsOfDuplicate()
 { return KIND_STMT; }
 
-/*****ÐÂÎÄ·¨*1**/
+/*****æ–°æ–‡æ³•*1**/
 
 PRIVATE inline Kinds KindsOfAdd()
 { return KIND_DECL | KIND_STMT ; }
@@ -1817,18 +1817,18 @@ GLOBAL Node *NodeCopy(Node *from, TreeOpDepth d)  //zww
 			  {
 				  tmpnode = LookupPARAMSymbol(ParameterPassTable,from->u.id.text,from->u.id.decl);
 				  if(tmpnode!=NULL )
-				  {/*Èç¹ûÊÇ²ÎÊý·ûºÅ±íÄÚ*/
-					  if (tmpnode->typ == Id)/*ÊäÈëÁ÷ÊÇ¸öid*/ 
+				  {/*å¦‚æžœæ˜¯å‚æ•°ç¬¦å·è¡¨å†…*/
+					  if (tmpnode->typ == Id)/*è¾“å…¥æµæ˜¯ä¸ªid*/ 
 					  {
 						  newNode = tmpnode;
 					  }
-					  else if (tmpnode->typ == Decl)/*ÊäÈëÁ÷ÊÇ¸östrdclµÄÉùÃ÷*/
+					  else if (tmpnode->typ == Decl)/*è¾“å…¥æµæ˜¯ä¸ªstrdclçš„å£°æ˜Ž*/
 					  {
 						  newNode->u.id.text = tmpnode->u.decl.name;
 						  newNode->u.id.decl = tmpnode;
 					  }
 					  else
-					  {/*Èç¹ûÊÇparamºóÃæµÄ²ÎÊý*/
+					  {/*å¦‚æžœæ˜¯paramåŽé¢çš„å‚æ•°*/
 						  newNode = tmpnode; 
 						  gIsInSymbolTable = TRUE;
 					  }
@@ -1958,11 +1958,11 @@ GLOBAL Node *NodeCopy(Node *from, TreeOpDepth d)  //zww
 			{
 				tmpnode = LookupPARAMSymbol(ParameterPassTable,from->u.decl.name,from);
 				if(tmpnode != NULL){
-					//if(tmpnode->typ == Decl)/*Ìæ»»Êä³öÁ÷£¨Ò»°ãÇé¿ö£©*/
+					//if(tmpnode->typ == Decl)/*æ›¿æ¢è¾“å‡ºæµï¼ˆä¸€èˆ¬æƒ…å†µï¼‰*/
 					newNode = tmpnode;
 					gIsInSymbolTable = TRUE;
 				}else
-					newNode = ASTInsertSymbol(ToTransformDecl,from->u.decl.name,from->u.decl.name,from,newNode);/*½«¸ÃÉùÃ÷¿½±´ÐÅÏ¢²åÈëµ½·ûºÅ±íToTransformDecl*/
+					newNode = ASTInsertSymbol(ToTransformDecl,from->u.decl.name,from->u.decl.name,from,newNode);/*å°†è¯¥å£°æ˜Žæ‹·è´ä¿¡æ¯æ’å…¥åˆ°ç¬¦å·è¡¨ToTransformDecl*/
 			}
 		}
 		break;
@@ -2001,13 +2001,13 @@ GLOBAL Node *NodeCopy(Node *from, TreeOpDepth d)  //zww
 	if (d == Subtree) 
 	{
 		/* recursively copy children */
-		if (gIsInSymbolTable == FALSE)/*±íÊ¾ÒÑ¾­´æÔÚÓÚ·ûºÅ±í£¬ÒÑ¾­±»¸´ÖÆÁË²»ÐèÒªÔÙ½øÐÐ¸´ÖÆ*/
+		if (gIsInSymbolTable == FALSE)/*è¡¨ç¤ºå·²ç»å­˜åœ¨äºŽç¬¦å·è¡¨ï¼Œå·²ç»è¢«å¤åˆ¶äº†ä¸éœ€è¦å†è¿›è¡Œå¤åˆ¶*/
 		{
 			Node *tmpNode = NULL;
 			if(newNode->typ == CompositeCall)
 			{
 				tmpNode = newNode->u.comCall.call;
-				newNode->u.comCall.call = NULL; // ÖÃ NULL
+				newNode->u.comCall.call = NULL; // ç½® NULL
 			}
 #define CHILD(n)   n = NodeCopy(n, d)
 			ASTWALK(newNode, CHILD);
@@ -2016,7 +2016,7 @@ GLOBAL Node *NodeCopy(Node *from, TreeOpDepth d)  //zww
 			{
 				assert(newNode->u.comCall.call == NULL);
 				assert(tmpNode && tmpNode->typ == Composite);
-				newNode->u.comCall.call = tmpNode;  // »Ö¸´
+				newNode->u.comCall.call = tmpNode;  // æ¢å¤
 			}
 
 		}
@@ -2026,59 +2026,59 @@ GLOBAL Node *NodeCopy(Node *from, TreeOpDepth d)  //zww
 	return newNode;
 }
 /****************************zww:myNodeCopy*********************************************
-*¹¦ÄÜ£º¶Ô½Úµã½øÐÐÉî¿½±´£¬²¢½øÐÐ±äÁ¿µÄ¶¯Ì¬Æ¥Åä£¬ÒÔ¼°ÊäÈëÊä³öÁ÷µÄÌæ»»
+*åŠŸèƒ½ï¼šå¯¹èŠ‚ç‚¹è¿›è¡Œæ·±æ‹·è´ï¼Œå¹¶è¿›è¡Œå˜é‡çš„åŠ¨æ€åŒ¹é…ï¼Œä»¥åŠè¾“å…¥è¾“å‡ºæµçš„æ›¿æ¢
 *****************************************************************************************/
 
 GLOBAL Node *myNodeCopy(Node *from, TreeOpDepth d)   //zww
-{//¸ÃfromÎªÒ»¸öoperator½Úµã,½«operatorÖÐµÄcallËùÖ¸µÄcomposite½øÐÐÉî¿½±´
+{//è¯¥fromä¸ºä¸€ä¸ªoperatorèŠ‚ç‚¹,å°†operatorä¸­çš„callæ‰€æŒ‡çš„compositeè¿›è¡Œæ·±æ‹·è´
 	Node *tmp_oper, *tmp_composite, *copynode, *tmpnode, *tmp_oper_node, *tmp_comp_node;
 	List *tmp_oper_list, *tmp_comp_list;
 
 	// assert(gIsTransform == TRUE && from->typ == CompositeCall && from->u.comCall.call == NULL);
 	assert(gIsTransform == TRUE && from->typ == CompositeCall && from->u.comCall.call != NULL);
 
-	tmp_oper = from;/*È¡³ö´ýÀ©Õ¹µÄoperator*/
-	tmp_composite = from->u.comCall.call;/*È¡³öÒª¸´ÖÆµÄcomposite*/
-	//ÊäÈëÁ÷
-	tmp_oper_list = tmp_oper->u.comCall.operdcl->u.operdcl.inputs;   //operatorµÄÊäÈëÁ÷
-	tmp_comp_list = tmp_composite->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.inputs;    //compositeµÄÊäÈëÁ÷
-	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorºÍcompositeµÄÊäÈëÁ÷Ìæ»»
+	tmp_oper = from;/*å–å‡ºå¾…æ‰©å±•çš„operator*/
+	tmp_composite = from->u.comCall.call;/*å–å‡ºè¦å¤åˆ¶çš„composite*/
+	//è¾“å…¥æµ
+	tmp_oper_list = tmp_oper->u.comCall.operdcl->u.operdcl.inputs;   //operatorçš„è¾“å…¥æµ
+	tmp_comp_list = tmp_composite->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.inputs;    //compositeçš„è¾“å…¥æµ
+	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorå’Œcompositeçš„è¾“å…¥æµæ›¿æ¢
 		tmp_comp_node = FirstItem(tmp_comp_list);
 		tmp_oper_node = FirstItem(tmp_oper_list);
-		//Á÷µÄ±êÊ¶·û¿ÉÄÜÊÇ¸öid½Úµã£¬Ò²¿ÉÄÜÊÇÒ»¸ödecl½Úµã
-		if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Id)/*×îÒ»°ãµÄÇé¿ö*/
+		//æµçš„æ ‡è¯†ç¬¦å¯èƒ½æ˜¯ä¸ªidèŠ‚ç‚¹ï¼Œä¹Ÿå¯èƒ½æ˜¯ä¸€ä¸ªdeclèŠ‚ç‚¹
+		if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Id)/*æœ€ä¸€èˆ¬çš„æƒ…å†µ*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.id.text,tmp_oper_node->u.id.text,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*Ö»·¢ÉúÔÚ±»Ìæ»»µÄoperatorÎªµÚÒ»¸öoperatorÇÒÊäÈëÁ÷·Çid¶øÊÇÒ»¸ö¾ßÌåµÄstrdcl*/
+		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*åªå‘ç”Ÿåœ¨è¢«æ›¿æ¢çš„operatorä¸ºç¬¬ä¸€ä¸ªoperatorä¸”è¾“å…¥æµéžidè€Œæ˜¯ä¸€ä¸ªå…·ä½“çš„strdcl*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.id.text,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Decl)/*Ö»·¢ÉúÔÚ±»¸´ÖÆµÄcompositeµÄÊäÈëÁ÷·Çid¶øÊÇÒ»¸ö¾ßÌåµÄstrdcl*/
+		}else if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Decl)/*åªå‘ç”Ÿåœ¨è¢«å¤åˆ¶çš„compositeçš„è¾“å…¥æµéžidè€Œæ˜¯ä¸€ä¸ªå…·ä½“çš„strdcl*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.decl.name,tmp_oper_node->u.id.text,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)/*ÉÏµÚ¶þºÍµÚÈýÇé¿öÍ¬Ê±·¢Éú*/
+		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)/*ä¸Šç¬¬äºŒå’Œç¬¬ä¸‰æƒ…å†µåŒæ—¶å‘ç”Ÿ*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.decl.name,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
 		}
 		tmp_comp_list = GetNextList(tmp_comp_list);
 		tmp_oper_list = GetNextList(tmp_oper_list);
 	}
-	//Êä³öÁ÷
-	tmp_oper_list = tmp_oper->u.comCall.operdcl->u.operdcl.outputs;   //operatorµÄÊäÈëÁ÷
-	tmp_comp_list = tmp_composite->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.outputs;    //compositeµÄÊäÈëÁ÷
-	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorºÍcompositeµÄÊä³öÁ÷Ìæ»»
+	//è¾“å‡ºæµ
+	tmp_oper_list = tmp_oper->u.comCall.operdcl->u.operdcl.outputs;   //operatorçš„è¾“å…¥æµ
+	tmp_comp_list = tmp_composite->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.outputs;    //compositeçš„è¾“å…¥æµ
+	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorå’Œcompositeçš„è¾“å‡ºæµæ›¿æ¢
 		tmp_comp_node = FirstItem(tmp_comp_list);
 		tmp_oper_node = FirstItem(tmp_oper_list);
-		//Á÷µÄ±êÊ¶·û¿ÉÄÜÊÇ¸öid½Úµã£¬Ò²¿ÉÄÜÊÇÒ»¸ödecl½Úµã
-		if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Id)/*×îÒ»°ãµÄÇé¿ö*/
+		//æµçš„æ ‡è¯†ç¬¦å¯èƒ½æ˜¯ä¸ªidèŠ‚ç‚¹ï¼Œä¹Ÿå¯èƒ½æ˜¯ä¸€ä¸ªdeclèŠ‚ç‚¹
+		if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Id)/*æœ€ä¸€èˆ¬çš„æƒ…å†µ*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.id.text,tmp_oper_node->u.id.text,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*Ö»·¢ÉúÔÚ±»Ìæ»»µÄoperatorÎªµÚÒ»¸öoperatorÇÒÊäÈëÁ÷·Çid¶øÊÇÒ»¸ö¾ßÌåµÄstrdcl*/
+		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*åªå‘ç”Ÿåœ¨è¢«æ›¿æ¢çš„operatorä¸ºç¬¬ä¸€ä¸ªoperatorä¸”è¾“å…¥æµéžidè€Œæ˜¯ä¸€ä¸ªå…·ä½“çš„strdcl*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.id.text,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Decl)/*Ö»·¢ÉúÔÚ±»¸´ÖÆµÄcompositeµÄÊäÈëÁ÷·Çid¶øÊÇÒ»¸ö¾ßÌåµÄstrdcl*/
+		}else if (tmp_oper_node->typ == Id && tmp_comp_node->typ == Decl)/*åªå‘ç”Ÿåœ¨è¢«å¤åˆ¶çš„compositeçš„è¾“å…¥æµéžidè€Œæ˜¯ä¸€ä¸ªå…·ä½“çš„strdcl*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.decl.name,tmp_oper_node->u.id.text,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)/*ÉÏµÚ¶þºÍµÚÈýÇé¿öÍ¬Ê±·¢Éú*/
+		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)/*ä¸Šç¬¬äºŒå’Œç¬¬ä¸‰æƒ…å†µåŒæ—¶å‘ç”Ÿ*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.decl.name,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
 		}
@@ -2088,18 +2088,18 @@ GLOBAL Node *myNodeCopy(Node *from, TreeOpDepth d)   //zww
 	
 	copynode = NodeCopy(tmp_composite,d);
 	
-	ResetASTSymbolTable(ParameterPassTable);/*½áµã¸´ÖÆÍê³É²¢ÇÒ²ÎÊýÌæ»»ºó½«·ûºÅ±íÇå¿Õ*/
+	ResetASTSymbolTable(ParameterPassTable);/*ç»“ç‚¹å¤åˆ¶å®Œæˆå¹¶ä¸”å‚æ•°æ›¿æ¢åŽå°†ç¬¦å·è¡¨æ¸…ç©º*/
 	return copynode;
 
 }
 
 /*********************************************************************************
-*¸Ãº¯ÊýÊÇ¶Ôcomposite½øÐÐÒ»´ÎÉîµÃ¿½±´£¬¼´½«Ô­À´µÄcompositeÖÐµÄËùÓÐ½á¹¹ÖØ½¨£¬
-*Í¬Ê±ÓÃÊäÈëÊä³öcomposite_input£¬composite_output×÷ÎªÊäÈëÊä³öÀ´´úÌæÔ­compositeµÄÊäÈëÊä³ö±ß
-*Í¬Ê±ÐÞ¸ÄÔ­compositeÖÐoperatorµÄworkºÍwindowÖÐ¶ÔÊäÈëÊä³ö±ßµÄÒýÓÃ
-*from£ºÐèÒª¿½±´µÄcomposite
-*composite_inputList£º¿½±´ºóµÄcompositeµÄÊäÈë±ß(ÀïÃæ¶¼ÊÇdeclÀàÐÍ)
-*composite_outputList:¿½±´ºóµÄcompositeµÄÊä³ö±ß(ÀïÃæ¶¼ÊÇdeclÀàÐÍ)
+*è¯¥å‡½æ•°æ˜¯å¯¹compositeè¿›è¡Œä¸€æ¬¡æ·±å¾—æ‹·è´ï¼Œå³å°†åŽŸæ¥çš„compositeä¸­çš„æ‰€æœ‰ç»“æž„é‡å»ºï¼Œ
+*åŒæ—¶ç”¨è¾“å…¥è¾“å‡ºcomposite_inputï¼Œcomposite_outputä½œä¸ºè¾“å…¥è¾“å‡ºæ¥ä»£æ›¿åŽŸcompositeçš„è¾“å…¥è¾“å‡ºè¾¹
+*åŒæ—¶ä¿®æ”¹åŽŸcompositeä¸­operatorçš„workå’Œwindowä¸­å¯¹è¾“å…¥è¾“å‡ºè¾¹çš„å¼•ç”¨
+*fromï¼šéœ€è¦æ‹·è´çš„composite
+*composite_inputListï¼šæ‹·è´åŽçš„compositeçš„è¾“å…¥è¾¹(é‡Œé¢éƒ½æ˜¯declç±»åž‹)
+*composite_outputList:æ‹·è´åŽçš„compositeçš„è¾“å‡ºè¾¹(é‡Œé¢éƒ½æ˜¯declç±»åž‹)
 *zww:201203219
 **********************************************************************************/
 GLOBAL Node *compositeCopy(Node *composite,List *composite_inputList,List *composite_outputList)
@@ -2108,15 +2108,15 @@ GLOBAL Node *compositeCopy(Node *composite,List *composite_inputList,List *compo
 	List *tmp_oper_list = NULL, *tmp_comp_list =NULL;
 	Node *from = NodeCopy(composite,Subtree);
 	assert(gIsTransform == TRUE&&from->typ == Composite);
-	//ÊäÈëÁ÷
-	tmp_oper_list = composite_inputList;   //ÐÂÉú³ÉcompositeµÄÊäÈëÁ÷
-	tmp_comp_list = from->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.inputs;    //compositeµÄÊäÈëÁ÷
-	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorºÍcompositeµÄÊäÈëÁ÷Ìæ»»
+	//è¾“å…¥æµ
+	tmp_oper_list = composite_inputList;   //æ–°ç”Ÿæˆcompositeçš„è¾“å…¥æµ
+	tmp_comp_list = from->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.inputs;    //compositeçš„è¾“å…¥æµ
+	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorå’Œcompositeçš„è¾“å…¥æµæ›¿æ¢
 		tmp_comp_node = (Node *)FirstItem(tmp_comp_list);
 		tmp_oper_node = (Node *)FirstItem(tmp_oper_list);
 		assert(tmp_oper_node->typ == Decl);
 
-		if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*Ö»·¢ÉúÔÚ±»Ìæ»»µÄoperatorÎªµÚÒ»¸öoperatorÇÒÊäÈëÁ÷·Çid¶øÊÇÒ»¸ö¾ßÌåµÄstrdcl*/
+		if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*åªå‘ç”Ÿåœ¨è¢«æ›¿æ¢çš„operatorä¸ºç¬¬ä¸€ä¸ªoperatorä¸”è¾“å…¥æµéžidè€Œæ˜¯ä¸€ä¸ªå…·ä½“çš„strdcl*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.id.text,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
 		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)
@@ -2126,18 +2126,18 @@ GLOBAL Node *compositeCopy(Node *composite,List *composite_inputList,List *compo
 		tmp_comp_list = GetNextList(tmp_comp_list);
 		tmp_oper_list = GetNextList(tmp_oper_list);
 	}
-	//Êä³öÁ÷
-	tmp_oper_list = composite_outputList;   //operatorµÄÊä³öÁ÷
-	tmp_comp_list = from->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.outputs;    //compositeµÄÊä´¦Á÷
-	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorºÍcompositeµÄÊäÈëÁ÷Ìæ»»
+	//è¾“å‡ºæµ
+	tmp_oper_list = composite_outputList;   //operatorçš„è¾“å‡ºæµ
+	tmp_comp_list = from->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.outputs;    //compositeçš„è¾“å¤„æµ
+	while(tmp_oper_list!=NULL && tmp_comp_list !=NULL){	//operatorå’Œcompositeçš„è¾“å…¥æµæ›¿æ¢
 		tmp_comp_node = (Node *)FirstItem(tmp_comp_list);
 		tmp_oper_node = (Node *)FirstItem(tmp_oper_list);
 		assert(tmp_oper_node->typ == Decl);
 
-		if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*Ö»·¢ÉúÔÚ±»Ìæ»»µÄoperatorÎªµÚÒ»¸öoperatorÇÒÊäÈëÁ÷·Çid¶øÊÇÒ»¸ö¾ßÌåµÄstrdcl*/
+		if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Id)/*åªå‘ç”Ÿåœ¨è¢«æ›¿æ¢çš„operatorä¸ºç¬¬ä¸€ä¸ªoperatorä¸”è¾“å…¥æµéžidè€Œæ˜¯ä¸€ä¸ªå…·ä½“çš„strdcl*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.id.text,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
-		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)/*ÉÏµÚ¶þºÍµÚÈýÇé¿öÍ¬Ê±·¢Éú*/
+		}else if (tmp_oper_node->typ == Decl && tmp_comp_node->typ == Decl)/*ä¸Šç¬¬äºŒå’Œç¬¬ä¸‰æƒ…å†µåŒæ—¶å‘ç”Ÿ*/
 		{
 			ASTInsertSymbol(ParameterPassTable,tmp_comp_node->u.decl.name,tmp_oper_node->u.decl.name,tmp_comp_node,tmp_oper_node);
 		}
@@ -2146,17 +2146,17 @@ GLOBAL Node *compositeCopy(Node *composite,List *composite_inputList,List *compo
 	}
 	containerList=NULL;
 	copynode = NodeCopy(from,Subtree);
-	ResetASTSymbolTable(ParameterPassTable);/*½áµã¸´ÖÆÍê³É²¢ÇÒ²ÎÊýÌæ»»ºó½«·ûºÅ±íÇå¿Õ*/
+	ResetASTSymbolTable(ParameterPassTable);/*ç»“ç‚¹å¤åˆ¶å®Œæˆå¹¶ä¸”å‚æ•°æ›¿æ¢åŽå°†ç¬¦å·è¡¨æ¸…ç©º*/
 	return copynode;
 }
 
 
 /****************************zww:TransformOperator**************************************
-*¹¦ÄÜ£º¶ÔCompositeCallÖÐcallÖ¸ÏòµÄcomposite½øÐÐÕ¹¿ª£¬ÊäÈëÊä³öÁ÷µÄÌæ»»
+*åŠŸèƒ½ï¼šå¯¹CompositeCallä¸­callæŒ‡å‘çš„compositeè¿›è¡Œå±•å¼€ï¼Œè¾“å…¥è¾“å‡ºæµçš„æ›¿æ¢
 *****************************************************************************************/
 GLOBAL Node *TransformOperator(Node *node)
 {  //zww
-	//Node *tmp_composite;//Ä¿±êcomposite
+	//Node *tmp_composite;//ç›®æ ‡composite
 	gIsTransform = TRUE;
 	containerList=NULL;
 	node->u.comCall.actual_composite = myNodeCopy(node,Subtree);

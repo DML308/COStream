@@ -6,27 +6,27 @@ using namespace std;
 const float MIN_WEIGHT = numeric_limits <float> ::min();
 
 ClusterGroupGraph::ClusterGroupGraph(SchedulerSSG *SSSG)
-{//ÏÈ¸ù¾İSSGÖĞflatNode¹¹ÔìÒ»¸ögroup graph
+{//å…ˆæ ¹æ®SSGä¸­flatNodeæ„é€ ä¸€ä¸ªgroup graph
 	for(int i = 0; i!= SSSG->flatNodes.size();i++)
 	{
 		ClusterGroup *group = new ClusterGroup(SSSG->flatNodes[i]);
 		clusterGroup2Radio.insert(make_pair(group,(float)(group->GetWorkload())/group->GetCommunicationCost()));
 		flatNode2ClusterGroup.insert(make_pair(SSSG->flatNodes[i],group));
 	}
-	//¹¹½¨group¼äµÄÒÀÀµ¹ØÏµ£¨ÔÚÕâÀïÒª´¦ÀíÒ»¶Ô½ÚµãËûÃÇÓĞ±ßµÄÁ¬½Óµ«ÊÇÃ»ÓĞÊı¾İ´«Êä£¨push = 0,pop = 0£©£©
+	//æ„å»ºgroupé—´çš„ä¾èµ–å…³ç³»ï¼ˆåœ¨è¿™é‡Œè¦å¤„ç†ä¸€å¯¹èŠ‚ç‚¹ä»–ä»¬æœ‰è¾¹çš„è¿æ¥ä½†æ˜¯æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼ˆpush = 0,pop = 0ï¼‰ï¼‰
 	for (std::map<ClusterGroup *,float>::iterator iter = clusterGroup2Radio.begin();iter != clusterGroup2Radio.end(); iter++)
 	{
 		std::vector<FlatNode *> precedenceFlatNode = iter->first->GetPrecedenceFlatNode();
 		std::vector<FlatNode *> successorFlatNode = iter->first->GetSuccessorFlatNode();
 		std::map<FlatNode *,ClusterGroup *>::iterator pos;
-		//Ç°Çı
+		//å‰é©±
 		for (int i = 0; i != precedenceFlatNode.size(); i++)
 		{
 			pos = flatNode2ClusterGroup.find(precedenceFlatNode[i]);
 			assert(pos != flatNode2ClusterGroup.end());
-			iter->first->AddPrecedenceClusterGroup(pos->second);//½«groupµÄÇ°Çı²åÈëµ½clusterGroupµÄprecedenceFlatNodeÖĞ
+			iter->first->AddPrecedenceClusterGroup(pos->second);//å°†groupçš„å‰é©±æ’å…¥åˆ°clusterGroupçš„precedenceFlatNodeä¸­
 		}
-		//ºó¼Ì
+		//åç»§
 		for (int i = 0; i != successorFlatNode.size(); i++)
 		{
 			pos = flatNode2ClusterGroup.find(successorFlatNode[i]);
@@ -37,13 +37,13 @@ ClusterGroupGraph::ClusterGroupGraph(SchedulerSSG *SSSG)
 	}	
 }
 
-//group¼äµÄÈÚºÏ
+//groupé—´çš„èåˆ
 ClusterGroup* ClusterGroupGraph::FussGroup(ClusterGroup *group1,ClusterGroup *group2)
 { 
 	ClusterGroup *newGroup = new ClusterGroup(group1,group2);
 	ModifyConnectionOfGroup(group1,group2,newGroup);
-	//ĞŞ¸Ägroup graphµÄĞÅÏ¢
-	/*ĞŞ¸ÄclusterGroup2RadioµÄĞÅÏ¢*/
+	//ä¿®æ”¹group graphçš„ä¿¡æ¯
+	/*ä¿®æ”¹clusterGroup2Radioçš„ä¿¡æ¯*/
 	std::map<ClusterGroup *,float>::iterator pos1;
 	std::map<ClusterGroup *,float>::iterator pos2;
 	pos1 = this->clusterGroup2Radio.find(group1);
@@ -51,7 +51,7 @@ ClusterGroup* ClusterGroupGraph::FussGroup(ClusterGroup *group1,ClusterGroup *gr
 	pos2 = this->clusterGroup2Radio.find(group2);
 	this->clusterGroup2Radio.erase(pos2);
 	this->clusterGroup2Radio.insert(make_pair(newGroup, CompToCommRadio(newGroup)));
-	//ĞŞ¸ÄflatNode2ClusterGroup
+	//ä¿®æ”¹flatNode2ClusterGroup
 	std::vector<FlatNode *> group1FlatNode = group1->GetFlatNodes();
 	std::vector<FlatNode *> group2FlatNode = group2->GetFlatNodes();
 	std::map<FlatNode *,ClusterGroup *>::iterator pos3;
@@ -65,10 +65,10 @@ ClusterGroup* ClusterGroupGraph::FussGroup(ClusterGroup *group1,ClusterGroup *gr
 		pos3 =this->flatNode2ClusterGroup.find(group2FlatNode[i]);
 		pos3->second = newGroup;
 	}
-	//ĞŞ¸ÄgroupSrc2SnkChannelÖĞµÄĞÅÏ¢
-	this->groupSrc2SnkChannel.erase(group1);//É¾³ıÒÔgroup1×÷ÎªÆğµãµÄ±ß
-	this->groupSrc2SnkChannel.erase(group2);//É¾³ıÒÔGroup2×÷ÎªÆğµãµÄ±ß
-	//Òª¸Ä³ÉÉ¾³ıÒÔgroup1£¬group2 ×÷ÎªÖÕµãµÄ±ß
+	//ä¿®æ”¹groupSrc2SnkChannelä¸­çš„ä¿¡æ¯
+	this->groupSrc2SnkChannel.erase(group1);//åˆ é™¤ä»¥group1ä½œä¸ºèµ·ç‚¹çš„è¾¹
+	this->groupSrc2SnkChannel.erase(group2);//åˆ é™¤ä»¥Group2ä½œä¸ºèµ·ç‚¹çš„è¾¹
+	//è¦æ”¹æˆåˆ é™¤ä»¥group1ï¼Œgroup2 ä½œä¸ºç»ˆç‚¹çš„è¾¹
 	std::multimap<ClusterGroup*, ClusterGroup*>::iterator iter = this->groupSrc2SnkChannel.begin();
 	Bool eraseflag = false;
 	while (iter !=  this->groupSrc2SnkChannel.end())
@@ -80,7 +80,7 @@ ClusterGroup* ClusterGroupGraph::FussGroup(ClusterGroup *group1,ClusterGroup *gr
 		if(eraseflag){ this->groupSrc2SnkChannel.erase(iter1);}
 		
 	}
-	//ÏògroupSrc2SnkChannelÖĞ²åÈëÒÔnewgroup×÷ÎªÇ°ÇıµÄ±ß
+	//å‘groupSrc2SnkChannelä¸­æ’å…¥ä»¥newgroupä½œä¸ºå‰é©±çš„è¾¹
 	std::vector<ClusterGroup *> successorClusterGroup = newGroup->GetSuccessorClusterGroup();
 	for(int i =0; i != successorClusterGroup.size(); i++)
 	{
@@ -94,7 +94,7 @@ ClusterGroup* ClusterGroupGraph::FussGroup(ClusterGroup *group1,ClusterGroup *gr
 	return newGroup;
 }
 
-//¼ÆËãÒ»¸ögroupµÄ¼ÆËãºÍÍ¨ĞÅ±È
+//è®¡ç®—ä¸€ä¸ªgroupçš„è®¡ç®—å’Œé€šä¿¡æ¯”
 float ClusterGroupGraph::CompToCommRadio(ClusterGroup *group)
 {
 	float commCost = group->GetCommunicationCost();
@@ -102,19 +102,19 @@ float ClusterGroupGraph::CompToCommRadio(ClusterGroup *group)
 	return ((float)workload)/commCost;
 }
 
-//¶Ôgroup graph½øĞĞÍØÆË£¬ÎŞ»·Ôò·µ»Øtrue£¬·ñÔò·µ»Øfalse
+//å¯¹group graphè¿›è¡Œæ‹“æ‰‘ï¼Œæ— ç¯åˆ™è¿”å›trueï¼Œå¦åˆ™è¿”å›false
 Bool ClusterGroupGraph::HasGroupTopologicalSort(std::vector<ClusterGroup *>original)
 {
 	vector<ClusterGroup *>::iterator iter1,iter2,iter4;
 	vector<ClusterGroup *>::iterator iter;
-	vector<int> nInDegree;//ÓÃÓÚ±£´æ¸÷½ÚµãµÄÈë¶È
+	vector<int> nInDegree;//ç”¨äºä¿å­˜å„èŠ‚ç‚¹çš„å…¥åº¦
 	vector<ClusterGroup *> groupStack;
 	vector<int>::iterator iter3;
 	int nsize=original.size();
 	int count = 0;
 	for (iter1=original.begin();iter1!=original.end();++iter1)
 	{
-		nInDegree.push_back(((*iter1)->GetPrecedenceClusterGroup()).size());//½«¸÷½ÚµãÈë¶È±£´æ
+		nInDegree.push_back(((*iter1)->GetPrecedenceClusterGroup()).size());//å°†å„èŠ‚ç‚¹å…¥åº¦ä¿å­˜
 	}
 	for (int i = 0; i != nInDegree.size();i++)
 	{
@@ -123,17 +123,17 @@ Bool ClusterGroupGraph::HasGroupTopologicalSort(std::vector<ClusterGroup *>origi
 
 	while (!groupStack.empty())
 	{
-		ClusterGroup *group = groupStack.back();// È¡½«Òª³öÕ»µÄ½Úµã
-		std::vector<ClusterGroup *>tmpProClusterGroup = group->GetSuccessorClusterGroup();//È¡groupµÄËùÓĞºó¼Ì
+		ClusterGroup *group = groupStack.back();// å–å°†è¦å‡ºæ ˆçš„èŠ‚ç‚¹
+		std::vector<ClusterGroup *>tmpProClusterGroup = group->GetSuccessorClusterGroup();//å–groupçš„æ‰€æœ‰åç»§
 		groupStack.pop_back();
 		++count;
-		for(int i= 0; i != tmpProClusterGroup.size();i++)//¶ÔËùÓĞgroupµÄÁÚ½ÓµãµÄÈë¶È¼õ1
+		for(int i= 0; i != tmpProClusterGroup.size();i++)//å¯¹æ‰€æœ‰groupçš„é‚»æ¥ç‚¹çš„å…¥åº¦å‡1
 		{
 			for (int j =0;j != original.size(); j++)
 			{
 				if(original[j] == tmpProClusterGroup[i])
 				{
-					if(!(--nInDegree[j])) groupStack.push_back(original[j]);//Èë¶ÈÎª0µã½øÕ»
+					if(!(--nInDegree[j])) groupStack.push_back(original[j]);//å…¥åº¦ä¸º0ç‚¹è¿›æ ˆ
 				}
 			}
 		}
@@ -143,17 +143,17 @@ Bool ClusterGroupGraph::HasGroupTopologicalSort(std::vector<ClusterGroup *>origi
 }
 
 //************************************
-// Qualifier: ½«group graph ÈÚºÏ³ÉK·İ£¬¼´×îÖÕµÄgroupÖ»º¬ÓĞK½Úµã
+// Qualifier: å°†group graph èåˆæˆKä»½ï¼Œå³æœ€ç»ˆçš„groupåªå«æœ‰KèŠ‚ç‚¹
 //************************************
 void ClusterGroupGraph::CreateCoarseGraph(int k)
 {
-	coarseGroupSort.clear();//Ê¹ÓÃÇ°ÏÈ½«ÆäÇå¿Õ
+	coarseGroupSort.clear();//ä½¿ç”¨å‰å…ˆå°†å…¶æ¸…ç©º
 	coarseGroupResult.clear();
 
 	while( clusterGroup2Radio.size() > k)
 	{
-		//ÕÒÒ»¶Ôgroup½øĞĞºÏ²¢£¬ÒªÇóÍ¨ĞÅ±ÈµÄÔöÁ¿×î´ó£¬²¢ÇÒºÏ²¢¹ıºó²»»áÒıÈë»·
-		//¼ÆËãÃ¿Ò»¶ÔgroupµÄ¼ÆËãÍ¨ĞÅ±È
+		//æ‰¾ä¸€å¯¹groupè¿›è¡Œåˆå¹¶ï¼Œè¦æ±‚é€šä¿¡æ¯”çš„å¢é‡æœ€å¤§ï¼Œå¹¶ä¸”åˆå¹¶è¿‡åä¸ä¼šå¼•å…¥ç¯
+		//è®¡ç®—æ¯ä¸€å¯¹groupçš„è®¡ç®—é€šä¿¡æ¯”
 		std::vector<float> coarsingWeight;
 
 		std::vector<ClusterGroup *> currentGroups;
@@ -161,7 +161,7 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 		{
 			currentGroups.push_back(cluster_iter->first);
 		}		
-		//¼ÆËãÃ¿Ò»¶ÔÏàÁÚgroupµÄ¼ÆËãÍ¨ĞÅ±È
+		//è®¡ç®—æ¯ä¸€å¯¹ç›¸é‚»groupçš„è®¡ç®—é€šä¿¡æ¯”
 		for(std::multimap<ClusterGroup* ,ClusterGroup *>::iterator iter= this->groupSrc2SnkChannel.begin();iter != this->groupSrc2SnkChannel.end(); iter++)
 		{
 			ClusterGroup* tmpGroup = new ClusterGroup(iter->first,iter->second);
@@ -183,7 +183,7 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 
 			if(HasGroupTopologicalSort(currentGroups))
 			{
-				coarsingWeight.push_back((iter->first->GetCompCommRadio() + iter->second->GetCompCommRadio()) - tmpGroup->GetCompCommRadio() );//ÎŞ»·£¬²åÈë
+				coarsingWeight.push_back((iter->first->GetCompCommRadio() + iter->second->GetCompCommRadio()) - tmpGroup->GetCompCommRadio() );//æ— ç¯ï¼Œæ’å…¥
 			}
 			else 
 			{
@@ -193,7 +193,7 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 			currentGroups.push_back(iter->first);
 			currentGroups.push_back(iter->second);
 			
-			//ÓÉÓÚÔÚ¹¹ÔìĞÂµÄgroupÊ±ĞŞ¸ÄÁËiter->first£¬ºÍiter->secondÖĞµÄÇ°ÇıgroupµÄºó¼Ì£¬ºÍºó¼ÌgroupÖĞµÄÇ°Çı£¬ÏÖÔÚÒª»¹Ô­
+			//ç”±äºåœ¨æ„é€ æ–°çš„groupæ—¶ä¿®æ”¹äº†iter->firstï¼Œå’Œiter->secondä¸­çš„å‰é©±groupçš„åç»§ï¼Œå’Œåç»§groupä¸­çš„å‰é©±ï¼Œç°åœ¨è¦è¿˜åŸ
 			vector<ClusterGroup *>tmpPreGroup = tmpGroup->GetPrecedenceClusterGroup();
 			vector<ClusterGroup *>tmpSuccGroup = tmpGroup->GetSuccessorClusterGroup();
 			vector<FlatNode *> tmpFlatNodes1 = iter->first->GetFlatNodes();
@@ -206,14 +206,14 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 				flag2 = FALSE;
 				if(tmpPreGroup[i]->DeleteSuccessorClusterGroup(tmpGroup))
 				{
-					//Ç°ÇıµÄsnk½Úµã				
+					//å‰é©±çš„snkèŠ‚ç‚¹				
 					vector<FlatNode *> tmpSnkFlatNode = tmpPreGroup[i]->GetSnkFlatNode();
 					for(int j =0; j != tmpSnkFlatNode.size();j++)
 					{
 						
 						for(int k = 0; k < tmpSnkFlatNode[j]->nOut;k++)
 						{
-							if(tmpSnkFlatNode[j]->outPushWeights[k] == 0)  continue;//20130119 zww Ìí¼Ó
+							if(tmpSnkFlatNode[j]->outPushWeights[k] == 0)  continue;//20130119 zww æ·»åŠ 
 							for (int l = 0; l != tmpFlatNodes1.size(); l++)
 							{
 								if(tmpSnkFlatNode[j]->outFlatNodes[k] == tmpFlatNodes1[l]) {flag1 = TRUE;break;}
@@ -234,14 +234,14 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 				flag2 = FALSE;
 				if(tmpSuccGroup[i]->DeletePrecedenceClusterGroup(tmpGroup))
 				{
-					//Ç°ÇıµÄsrc½Úµã				
+					//å‰é©±çš„srcèŠ‚ç‚¹				
 					vector<FlatNode *> tmpSrcFlatNode = tmpSuccGroup[i]->GetSrcFlatNode();
 
 					for(int j =0; j != tmpSrcFlatNode.size();j++)
 					{
 						for(int k = 0; k < tmpSrcFlatNode[j]->nIn;k++)
 						{
-							if(tmpSrcFlatNode[j]->inPopWeights[k] == 0)  continue;//20130119 zww Ìí¼Ó
+							if(tmpSrcFlatNode[j]->inPopWeights[k] == 0)  continue;//20130119 zww æ·»åŠ 
 							for (int l = 0; l != tmpFlatNodes1.size(); l++)
 							{
 								if(tmpSrcFlatNode[j]->inFlatNodes[k] == tmpFlatNodes1[l]) {flag1 = TRUE;break;}
@@ -256,9 +256,9 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 					if(flag2)  tmpSuccGroup[i]->AddPrecedenceClusterGroup(iter->second);
 				}								
 			}
-			assert(currentGroups.size() == this->clusterGroup2Radio.size());//±£Ö¤¾­¹ıÉÏÃæµÄ²Ù×÷ºógroupµÄÊıÄ¿Ã»ÓĞ±ä
+			assert(currentGroups.size() == this->clusterGroup2Radio.size());//ä¿è¯ç»è¿‡ä¸Šé¢çš„æ“ä½œågroupçš„æ•°ç›®æ²¡æœ‰å˜
 		}
-		//ÕÒ×î´ó±ßµÄÎ»ÖÃ
+		//æ‰¾æœ€å¤§è¾¹çš„ä½ç½®
 		float maxWeight = MIN_WEIGHT;
 		int maxIter = 0;
 		for(int i = 0; i!= coarsingWeight.size();i++)
@@ -277,7 +277,7 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 			p++;
 		}
 		coarseGroupSort.push_back(make_pair(wait_pos->first, wait_pos->second));
-		//ÈÚºÏ
+		//èåˆ
 		ClusterGroup *resultGroup = FussGroup(wait_pos->first, wait_pos->second);	
 		coarseGroupResult.push_back(resultGroup);
 		coarsingWeight.clear();
@@ -287,11 +287,11 @@ void ClusterGroupGraph::CreateCoarseGraph(int k)
 }
 
 /*
-//ÈÚºÏ£¬×îÖÕÈÚºÏµÄ½á¹ûÊÇ²»¶¨µÄ£¬¼´KµÄ²»ÊÇÔ¤ÏÈÊäÈëµÄ£¬¶øÊÇ¸ù¾İÍ¼µÄĞÔÖÊÀ´È·¶¨µÄ£¨²»¹ı×îÖÕÈÚºÏºóµÄgroupµÄÊıÄ¿Òª´óÓÚ¼¯Èº½ÚµãµÄÊıÄ¿£©
+//èåˆï¼Œæœ€ç»ˆèåˆçš„ç»“æœæ˜¯ä¸å®šçš„ï¼Œå³Kçš„ä¸æ˜¯é¢„å…ˆè¾“å…¥çš„ï¼Œè€Œæ˜¯æ ¹æ®å›¾çš„æ€§è´¨æ¥ç¡®å®šçš„ï¼ˆä¸è¿‡æœ€ç»ˆèåˆåçš„groupçš„æ•°ç›®è¦å¤§äºé›†ç¾¤èŠ‚ç‚¹çš„æ•°ç›®ï¼‰
 void ClusterGroupGraph::CreateCoarseGraph()
-{//(¸Ãº¯ÊıÎ´µ÷ÊÔ)
+{//(è¯¥å‡½æ•°æœªè°ƒè¯•)
 	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > vecswap;
-	coarseGroupSort.swap(vecswap);//Ê¹ÓÃÇ°ÏÈ½«ÆäÇå¿Õ
+	coarseGroupSort.swap(vecswap);//ä½¿ç”¨å‰å…ˆå°†å…¶æ¸…ç©º
 	coarseGroupResult.clear();
 	int coarsingcount = 0;
 
@@ -299,8 +299,8 @@ void ClusterGroupGraph::CreateCoarseGraph()
 	{
 		int groupcount = 0;
 
-		//ÕÒÒ»¶Ôgroup½øĞĞºÏ²¢£¬ÒªÇóÍ¨ĞÅ±ÈµÄÔöÁ¿×î´ó£¬²¢ÇÒºÏ²¢¹ıºó²»»áÒıÈë»·
-		//¼ÆËãÃ¿Ò»¶ÔgroupµÄ¼ÆËãÍ¨ĞÅ±È
+		//æ‰¾ä¸€å¯¹groupè¿›è¡Œåˆå¹¶ï¼Œè¦æ±‚é€šä¿¡æ¯”çš„å¢é‡æœ€å¤§ï¼Œå¹¶ä¸”åˆå¹¶è¿‡åä¸ä¼šå¼•å…¥ç¯
+		//è®¡ç®—æ¯ä¸€å¯¹groupçš„è®¡ç®—é€šä¿¡æ¯”
 		std::vector<float> coarsingWeight;
 
 		std::vector<ClusterGroup *> currentGroups;
@@ -308,8 +308,8 @@ void ClusterGroupGraph::CreateCoarseGraph()
 		{
 			currentGroups.push_back(cluster_iter->first);
 		}
-		cout<<"===µ±Ç°groupµÄÊıÄ¿  "<<clusterGroup2Radio.size()<<"  ±ßµÄÊıÄ¿  "<<groupSrc2SnkChannel.size() <<endl;			
-		//¼ÆËãÃ¿Ò»¶ÔÏàÁÚgroupµÄ¼ÆËãÍ¨ĞÅ±È
+		cout<<"===å½“å‰groupçš„æ•°ç›®  "<<clusterGroup2Radio.size()<<"  è¾¹çš„æ•°ç›®  "<<groupSrc2SnkChannel.size() <<endl;			
+		//è®¡ç®—æ¯ä¸€å¯¹ç›¸é‚»groupçš„è®¡ç®—é€šä¿¡æ¯”
 		for(std::multimap<ClusterGroup* ,ClusterGroup *>::iterator iter= this->groupSrc2SnkChannel.begin();iter != this->groupSrc2SnkChannel.end();iter++)
 		{
 			groupcount++;
@@ -331,22 +331,22 @@ void ClusterGroupGraph::CreateCoarseGraph()
 			assert(pos2 != currentGroups.end() && (*pos2) == (iter->second) );
 			currentGroups.erase(pos2);
 			currentGroups.push_back(tmpGroup);
-			cout<<"   ¼ÆËãÍ¨ĞÅ±ÈÔöÁ¿ "<<tmpGroup->GetCompCommRadio()-(iter->first->GetCompCommRadio() + iter->second->GetCompCommRadio())<<endl;
+			cout<<"   è®¡ç®—é€šä¿¡æ¯”å¢é‡ "<<tmpGroup->GetCompCommRadio()-(iter->first->GetCompCommRadio() + iter->second->GetCompCommRadio())<<endl;
 			if(HasGroupTopologicalSort(currentGroups))
 			{
-				coarsingWeight.push_back(tmpGroup->GetCompCommRadio()-(iter->first->GetCompCommRadio() + iter->second->GetCompCommRadio()));//ÎŞ»·£¬²åÈë
-				cout<<"   ÎŞ»·  "<<groupcount<<"   "<<coarsingcount<<endl;
+				coarsingWeight.push_back(tmpGroup->GetCompCommRadio()-(iter->first->GetCompCommRadio() + iter->second->GetCompCommRadio()));//æ— ç¯ï¼Œæ’å…¥
+				cout<<"   æ— ç¯  "<<groupcount<<"   "<<coarsingcount<<endl;
 			}
 			else 
 			{
-				cout<<"   ÓĞ»·   "<<groupcount<<"   "<<coarsingcount<<endl;
+				cout<<"   æœ‰ç¯   "<<groupcount<<"   "<<coarsingcount<<endl;
 				coarsingWeight.push_back(MIN_WEIGHT);
 			}
 			currentGroups.pop_back();
 			currentGroups.push_back(iter->first);
 			currentGroups.push_back(iter->second);
 
-			//ÓÉÓÚÔÚ¹¹ÔìĞÂµÄgroupÊ±ĞŞ¸ÄÁËiter->first£¬ºÍiter->secondÖĞµÄÇ°ÇıgroupµÄºó¼Ì£¬ºÍºó¼ÌgroupÖĞµÄÇ°Çı£¬ÏÖÔÚÒª»¹Ô­
+			//ç”±äºåœ¨æ„é€ æ–°çš„groupæ—¶ä¿®æ”¹äº†iter->firstï¼Œå’Œiter->secondä¸­çš„å‰é©±groupçš„åç»§ï¼Œå’Œåç»§groupä¸­çš„å‰é©±ï¼Œç°åœ¨è¦è¿˜åŸ
 			vector<ClusterGroup *>tmpPreGroup = tmpGroup->GetPrecedenceClusterGroup();
 			vector<ClusterGroup *>tmpSuccGroup = tmpGroup->GetSuccessorClusterGroup();
 			vector<FlatNode *> tmpFlatNodes1 = iter->first->GetFlatNodes();
@@ -359,7 +359,7 @@ void ClusterGroupGraph::CreateCoarseGraph()
 				flag2 = FALSE;
 				if(tmpPreGroup[i]->DeleteSuccessorClusterGroup(tmpGroup))
 				{
-					//Ç°ÇıµÄsnk½Úµã				
+					//å‰é©±çš„snkèŠ‚ç‚¹				
 					vector<FlatNode *> tmpSnkFlatNode = tmpPreGroup[i]->GetSnkFlatNode();
 
 					for(int j =0; j != tmpSnkFlatNode.size();j++)
@@ -387,7 +387,7 @@ void ClusterGroupGraph::CreateCoarseGraph()
 				flag2 = FALSE;
 				if(tmpSuccGroup[i]->DeletePrecedenceClusterGroup(tmpGroup))
 				{
-					//Ç°ÇıµÄsnk½Úµã				
+					//å‰é©±çš„snkèŠ‚ç‚¹				
 					vector<FlatNode *> tmpSrcFlatNode = tmpSuccGroup[i]->GetSrcFlatNode();
 
 					for(int j =0; j != tmpSrcFlatNode.size();j++)
@@ -408,9 +408,9 @@ void ClusterGroupGraph::CreateCoarseGraph()
 					if(flag2)  tmpSuccGroup[i]->AddPrecedenceClusterGroup(iter->second);
 				}								
 			}
-			assert(currentGroups.size() == this->clusterGroup2Radio.size());//±£Ö¤¾­¹ıÉÏÃæµÄ²Ù×÷ºógroupµÄÊıÄ¿Ã»ÓĞ±ä
+			assert(currentGroups.size() == this->clusterGroup2Radio.size());//ä¿è¯ç»è¿‡ä¸Šé¢çš„æ“ä½œågroupçš„æ•°ç›®æ²¡æœ‰å˜
 		}
-		//ÕÒ×î´ó±ßµÄÎ»ÖÃ
+		//æ‰¾æœ€å¤§è¾¹çš„ä½ç½®
 		float maxWeight = MIN_WEIGHT;
 		int maxIter = 0;
 		for(int i = 0; i!= coarsingWeight.size();i++)
@@ -430,7 +430,7 @@ void ClusterGroupGraph::CreateCoarseGraph()
 			p++;
 		}
 		coarseGroupSort.push_back(make_pair(wait_pos->first, wait_pos->second));
-		//ÈÚºÏ
+		//èåˆ
 		ClusterGroup *resultGroup = FussGroup(wait_pos->first, wait_pos->second);	
 		//currentGroups.push_back(resultGroup);
 		coarseGroupResult.push_back(resultGroup);
@@ -440,24 +440,24 @@ void ClusterGroupGraph::CreateCoarseGraph()
 		currentGroups.swap(swapVec);
 
 	}
-	SetGroupNum(clusterGroup2Radio.size());//ÉèÖÃ×îÖÕµÄgroupÊıÄ¿
+	SetGroupNum(clusterGroup2Radio.size());//è®¾ç½®æœ€ç»ˆçš„groupæ•°ç›®
 }
 */
 
 std::vector< std::pair<ClusterGroup*,ClusterGroup*> > ClusterGroupGraph::GetCoarseGroupSort()
-{//·µ»ØÈÚºÏµÄË³Ğò
+{//è¿”å›èåˆçš„é¡ºåº
 	return coarseGroupSort;
 }
 
 std::vector<ClusterGroup *> ClusterGroupGraph::GetCoarseGroupResult()
-{//·µ»ØÈÚºÏµÄË³Ğò
+{//è¿”å›èåˆçš„é¡ºåº
 	return coarseGroupResult;
 }
 
 std::vector<ClusterGroup *> ClusterGroupGraph::GetClusterGroupSet()
 {
 	std::vector<ClusterGroup *> vecswap;
-	clusterGroupVec.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	clusterGroupVec.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	typedef std::map<ClusterGroup *,float>::iterator Num2NodeIter;
 	for(Num2NodeIter iter=clusterGroup2Radio.begin();iter!=clusterGroup2Radio.end();++iter)
 	{
@@ -491,8 +491,8 @@ std::multimap<ClusterGroup*, ClusterGroup*> ClusterGroupGraph::GetGroupSrc2SnkCh
 
 void ClusterGroupGraph::ModifyConnectionOfGroup(ClusterGroup *group1,ClusterGroup *group2,ClusterGroup* group)
 {
-	//Ç°ÇıclusterGroup
-	//Á½¸ögroupºÏ²¢¹ıºóÒªĞŞ¸ÄËûÃÇµÄÇ°ÇıµÄºó¼ÌÒÔ¼°ºó¼ÌµÄÇ°Çı£¬£¨×¢ÒâÖ®ºó»¹Òª»¹Ô­£©
+	//å‰é©±clusterGroup
+	//ä¸¤ä¸ªgroupåˆå¹¶è¿‡åè¦ä¿®æ”¹ä»–ä»¬çš„å‰é©±çš„åç»§ä»¥åŠåç»§çš„å‰é©±ï¼Œï¼ˆæ³¨æ„ä¹‹åè¿˜è¦è¿˜åŸï¼‰
 	vector<ClusterGroup*> precedenceClusterGroup1 = group1->GetPrecedenceClusterGroup();
 	vector<ClusterGroup*> precedenceClusterGroup2 = group2->GetPrecedenceClusterGroup();
 	vector<ClusterGroup*> successorClusterGroup1 = group1->GetSuccessorClusterGroup();
@@ -502,8 +502,8 @@ void ClusterGroupGraph::ModifyConnectionOfGroup(ClusterGroup *group1,ClusterGrou
 		if(precedenceClusterGroup1[i] != group2) 
 		{
 			group->AddPrecedenceClusterGroup(precedenceClusterGroup1[i]);
-			//ÒªĞŞ¸ÄÇ°ÇıµÄºó¼Ì
-			if(precedenceClusterGroup1[i]->DeleteSuccessorClusterGroup(group1))//ĞŞ¸ÄÇ°ÇıµÄºó¼Ì
+			//è¦ä¿®æ”¹å‰é©±çš„åç»§
+			if(precedenceClusterGroup1[i]->DeleteSuccessorClusterGroup(group1))//ä¿®æ”¹å‰é©±çš„åç»§
 				precedenceClusterGroup1[i]->AddSuccessorClusterGroup(group);
 		}
 	}
@@ -512,19 +512,19 @@ void ClusterGroupGraph::ModifyConnectionOfGroup(ClusterGroup *group1,ClusterGrou
 		if(precedenceClusterGroup2[i] != group1)
 		{
 			group->AddPrecedenceClusterGroup(precedenceClusterGroup2[i]);
-			//ÒªĞŞ¸ÄÇ°ÇıµÄºó¼Ì
-			if(precedenceClusterGroup2[i]->DeleteSuccessorClusterGroup(group2))//ĞŞ¸ÄÇ°ÇıµÄºó¼Ì
+			//è¦ä¿®æ”¹å‰é©±çš„åç»§
+			if(precedenceClusterGroup2[i]->DeleteSuccessorClusterGroup(group2))//ä¿®æ”¹å‰é©±çš„åç»§
 				precedenceClusterGroup2[i]->AddSuccessorClusterGroup(group);
 		}		
 	}
-	//ºó¼ÌclusterGroup
+	//åç»§clusterGroup
 	for(int i = 0; i != successorClusterGroup1.size(); i++)
 	{
 		if(successorClusterGroup1[i] != group2) 
 		{
 			group->AddSuccessorClusterGroup(successorClusterGroup1[i]);
-			//ÒªĞŞ¸Äºó¼ÌµÄÇ°Çı
-			if(successorClusterGroup1[i]->DeletePrecedenceClusterGroup(group1))//ĞŞ¸Äºó¼ÌµÄÇ°Çı
+			//è¦ä¿®æ”¹åç»§çš„å‰é©±
+			if(successorClusterGroup1[i]->DeletePrecedenceClusterGroup(group1))//ä¿®æ”¹åç»§çš„å‰é©±
 				successorClusterGroup1[i]->AddPrecedenceClusterGroup(group);
 		}
 	}
@@ -533,13 +533,13 @@ void ClusterGroupGraph::ModifyConnectionOfGroup(ClusterGroup *group1,ClusterGrou
 		if(successorClusterGroup2[i] != group1)
 		{
 			group->AddSuccessorClusterGroup(successorClusterGroup2[i]);
-			if(successorClusterGroup2[i]->DeletePrecedenceClusterGroup(group2))//ĞŞ¸Äºó¼ÌµÄÇ°Çı
+			if(successorClusterGroup2[i]->DeletePrecedenceClusterGroup(group2))//ä¿®æ”¹åç»§çš„å‰é©±
 				successorClusterGroup2[i]->AddPrecedenceClusterGroup(group);
 		}		
 	}
 }
 
 std::map<FlatNode *,ClusterGroup *> ClusterGroupGraph::GetFlatNode2ClusterGroup()
-{	//·µ»ØflatNodeÓëgroupÖ®¼äµÄmap
+{	//è¿”å›flatNodeä¸groupä¹‹é—´çš„map
 	return flatNode2ClusterGroup;
 }

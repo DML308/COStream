@@ -6,31 +6,31 @@
 using namespace std;
 class DNBPartition:public HAFLPartition{
 private:
-	double CPUTotalWork;  //cpu¶ËËùÓĞactor¹¤×÷×ÜÁ¿
-	double GPUTotalWork;  //GPU¶ËËùÓĞactorµÄ¹¤×÷×ÜÁ¿
-	double CpuGpuTotalComm;   //cpuÓëGPU¼äµÄÊı¾İ´«ÊäÁ¿
-	double Cpu2GpuVelocity;  //cpuÓëGPU´«ÊäËÙÂÊ
-	double CpuFrequency;  //cpu¼ÆËãÆµÂÊ
-	double GpuFrequency;  //gpu¼ÆËãÆµÂÊ
-	int PENumber;    //GPU  Ã¿¸öCUÖĞPE¸öÊı
-	int CUNumber;   //GPU  CU¸öÊı
-	int MaxCputhreadNum; //¿ÉÓÃ×÷cputhreadµÄ×î´ó¸öÊı
+	double CPUTotalWork;  //cpuç«¯æ‰€æœ‰actorå·¥ä½œæ€»é‡
+	double GPUTotalWork;  //GPUç«¯æ‰€æœ‰actorçš„å·¥ä½œæ€»é‡
+	double CpuGpuTotalComm;   //cpuä¸GPUé—´çš„æ•°æ®ä¼ è¾“é‡
+	double Cpu2GpuVelocity;  //cpuä¸GPUä¼ è¾“é€Ÿç‡
+	double CpuFrequency;  //cpuè®¡ç®—é¢‘ç‡
+	double GpuFrequency;  //gpuè®¡ç®—é¢‘ç‡
+	int PENumber;    //GPU  æ¯ä¸ªCUä¸­PEä¸ªæ•°
+	int CUNumber;   //GPU  CUä¸ªæ•°
+	int MaxCputhreadNum; //å¯ç”¨ä½œcputhreadçš„æœ€å¤§ä¸ªæ•°
 public:
-	//multimap<FlatNode*,int> Actor2Cputhread;  //actorÓëÆäCPUÏß³ÌµÄÓ³Éä
+	//multimap<FlatNode*,int> Actor2Cputhread;  //actorä¸å…¶CPUçº¿ç¨‹çš„æ˜ å°„
 	multimap<int,pair<FlatNode*,string> > Cputhread2Actor;
 	map<string,pair<int,int> > actorName2count;
 	//multimap<int,pair<FlatNode*,pair<int,int>>> Cputhread2Actor;
-	vector<double> CputhreadWorkValue; //´æ´¢Ã¿¸öCPUÏß³ÌµÄ¹¤×÷Á¿
-	vector<FlatNode*> statelessNodes; //cpuÖĞµÄstateless½Úµã
+	vector<double> CputhreadWorkValue; //å­˜å‚¨æ¯ä¸ªCPUçº¿ç¨‹çš„å·¥ä½œé‡
+	vector<FlatNode*> statelessNodes; //cpuä¸­çš„statelessèŠ‚ç‚¹
 	vector<FlatNode*> FissionNodes;
 	multimap<FlatNode*,pair<int,int> > FissionNodes2count;
-	map<FlatNode*,bool> actor2fission; //·ÖÁÑ¹ıµÄ½ÚµãÓÃ1±íÊ¾£¬Î´·ÖÁÑÓÃ0±íÊ¾ 
+	map<FlatNode*,bool> actor2fission; //åˆ†è£‚è¿‡çš„èŠ‚ç‚¹ç”¨1è¡¨ç¤ºï¼Œæœªåˆ†è£‚ç”¨0è¡¨ç¤º 
 	SchedulerSSG *Sssg;
-	ActorEdgeInfo* pEdgeInfo;//´æ·Å¸÷¸ö±ßµÄÀàĞÍĞÅÏ¢
+	ActorEdgeInfo* pEdgeInfo;//å­˜æ”¾å„ä¸ªè¾¹çš„ç±»å‹ä¿¡æ¯
 public:
 	DNBPartition(HAFLPartition *,SchedulerSSG*);
 	void DiscreteNodePartition();
-	int minThreadnumofWorkvalue(); //workvalue×îĞ¡µÄthreadºÅ
+	int minThreadnumofWorkvalue(); //workvalueæœ€å°çš„threadå·
 
 };
 extern "C"

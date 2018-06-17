@@ -22,17 +22,17 @@
 //#include "process.h"
 using namespace std;
 /***************************************************/
-/*********************GPU(OpenCL)´úÂëÉú³É*******************/
+/*********************GPU(OpenCL)ä»£ç ç”Ÿæˆ*******************/
 /***************************************************/
 
-//Éú³É¶à¸öÎÄ¼ş
+//ç”Ÿæˆå¤šä¸ªæ–‡ä»¶
 class GPUCodeGenerate
 {
 public:
-	/******************¹¹Ôìº¯Êı******************/
+	/******************æ„é€ å‡½æ•°******************/
 	GPUCodeGenerate(SchedulerSSG *, int, int, const char *,StageAssignment *,HAFLPartition*,TemplateClass*,string,DNBPartition*);
 	/********************************************/
-	void OutputToFile(std::string, std::string);//Êä³öµ½ÎÄ¼ş
+	void OutputToFile(std::string, std::string);//è¾“å‡ºåˆ°æ–‡ä»¶
 	string GetPrimDataType(Node *);
 	string GetNodeDataType(Node *);
 	string GetArrayDataType(Node *);
@@ -44,8 +44,8 @@ public:
 	void RecursiveAdclInit(List *init);
 	void AdclInit(Node * from,int offset);
 	/***********************************************/
-	void CGactors(); // Éú³É¸÷¸öactor³ÌĞò
-	void CGactor(FlatNode *actor,string name, OperatorType ot);//Éú³ÉÖ¸¶¨actor³ÌĞò
+	void CGactors(); // ç”Ÿæˆå„ä¸ªactorç¨‹åº
+	void CGactor(FlatNode *actor,string name, OperatorType ot);//ç”ŸæˆæŒ‡å®šactorç¨‹åº
 	void CGwork(FlatNode *actor, OperatorType ot, stringstream &);
 	/***********************************************/
 	void OutputCRSpaceAndTabs(int );
@@ -65,21 +65,21 @@ public:
 	void CGdataGetforGPU(FlatNode *actor,stringstream &buf);
 	void CGdataSendforGPU(FlatNode *actor,stringstream &buf);
 	void CGexternbuffer(FlatNode *actor,stringstream &buf);
-	void CGrun(stringstream &buf, string initFun); // Éú³Érun·½·¨
+	void CGrun(stringstream &buf, string initFun); // ç”Ÿæˆrunæ–¹æ³•
 	void CGrunInitScheduleWork(FlatNode *actor,stringstream &buf);
 	void CGrunInitScheduleWorkforGPU(FlatNode *actor,stringstream &buf);//
 	void CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf);
 	void CGrunSteadyScheduleWorkforGPU(FlatNode *actor,stringstream &buf);//
 	void CGrecv(FlatNode *, OperatorType , string, stringstream & ,stringstream & ,stringstream & ,stringstream &); 
 	void CGsend(FlatNode *, OperatorType , string, stringstream & ,stringstream & ,stringstream & ,stringstream & ,stringstream &); 
-	void CGflush(stringstream &, string);// Éú³Éflush·½·¨
+	void CGflush(stringstream &, string);// ç”Ÿæˆflushæ–¹æ³•
 	void CGinitWork(stringstream &, string);
 	void CGinitPeek(stringstream &, string);
 	void CGinitPush(stringstream &, string);
 	void CGpopToken(FlatNode *,stringstream &, string);
 	void CGpushToken(FlatNode *,stringstream &, string);
-	void CGpopTokenForGPU(FlatNode *,stringstream &, string);//ÓÃÓÚÉú³ÉGPUÉÏactorµÄpopº¯Êı
-	void CGpushTokenForGPU(FlatNode *,stringstream &, string);//ÓÃÓÚÉú³ÉGPUÉÏactorµÄpushº¯Êı
+	void CGpopTokenForGPU(FlatNode *,stringstream &, string);//ç”¨äºç”ŸæˆGPUä¸Šactorçš„popå‡½æ•°
+	void CGpushTokenForGPU(FlatNode *,stringstream &, string);//ç”¨äºç”ŸæˆGPUä¸Šactorçš„pushå‡½æ•°
 	void CGpushToken(stringstream &, string);
 	void CGdeclList(FlatNode *actor, OperatorType ot, stringstream &);
 	void CGinitVarAndState(FlatNode *actor, OperatorType ot, stringstream &);
@@ -87,42 +87,42 @@ public:
 	void CGthis(FlatNode *actor, OperatorType ot, stringstream &,string);
 	void CGEdgeParam(FlatNode *actor,stringstream &);
 	/********************************************/
-	void CGGlobalvar(); // Éú³ÉÈ«¾Ö±äÁ¿
-	void CGAllKernel();//Éú³ÉOpenCL kernelÎÄ¼ş
+	void CGGlobalvar(); // ç”Ÿæˆå…¨å±€å˜é‡
+	void CGAllKernel();//ç”ŸæˆOpenCL kernelæ–‡ä»¶
 	void CGGlobalvarextern();
-	void CGglobalHeader();//Éú³ÉÈ«¾Ö±äÁ¿¡ª¡ª±ßµÄĞÅÏ¢
+	void CGglobalHeader();//ç”Ÿæˆå…¨å±€å˜é‡â€”â€”è¾¹çš„ä¿¡æ¯
 	void CGglobalCpp();
-	void CGAllActor();//Éú³ÉËùÓĞactorµÄÀà
-	void CGThreads();//Éú³ÉËùÓĞÏß³ÌÎÄ¼ş
+	void CGAllActor();//ç”Ÿæˆæ‰€æœ‰actorçš„ç±»
+	void CGThreads();//ç”Ÿæˆæ‰€æœ‰çº¿ç¨‹æ–‡ä»¶
 	void CGThread(int,stringstream&);
-	void CGdatatag(FlatNode *,stringstream &);//Îª·ÖÅäÔÚGPUÉÏµÄActorÉú³É¶ÁĞ´±êÖ¾
-	void CGCreateBuffer(FlatNode *,stringstream &);//cwbÎªactor´´½¨GPU¿Õ¼ä
-	void CGdatataginit(FlatNode *,stringstream &);//ÔÚ¹¹Ôìº¯ÊıÖĞ¶ÔÉÏÊö±êÖ¾Î»½øĞĞ³õÊ¼»¯
-	void InitBufferSize();//ÍùEdge2BuffersizeÖĞÌîÊı¾İ
-	void SetMultiNum();//×Ô¶¯ÉèÖÃÀ©´óÒò×Ó
+	void CGdatatag(FlatNode *,stringstream &);//ä¸ºåˆ†é…åœ¨GPUä¸Šçš„Actorç”Ÿæˆè¯»å†™æ ‡å¿—
+	void CGCreateBuffer(FlatNode *,stringstream &);//cwbä¸ºactoråˆ›å»ºGPUç©ºé—´
+	void CGdatataginit(FlatNode *,stringstream &);//åœ¨æ„é€ å‡½æ•°ä¸­å¯¹ä¸Šè¿°æ ‡å¿—ä½è¿›è¡Œåˆå§‹åŒ–
+	void InitBufferSize();//å¾€Edge2Buffersizeä¸­å¡«æ•°æ®
+	void SetMultiNum();//è‡ªåŠ¨è®¾ç½®æ‰©å¤§å› å­
 
 
 
 
-	void CGAllActorHeader();//ÎªÃ¿¸öactorÉú³ÉÒ»¸öÀà²¢·ÅÔÚÍ¬Ò»¸öÎÄ¼şÖĞ,´Ëº¯ÊıÉú³ÉÍ·ÎÄ¼ş
-	void CGAllActorCpp();//ÎªÃ¿¸öactorÉú³ÉÒ»¸öÀà²¢·ÅÔÚÍ¬Ò»¸öÎÄ¼şÖĞ,´Ëº¯ÊıÉú³É.cppÎÄ¼ş
-	void CGMain();//Éú³ÉÆô¶¯¸÷¸öÏß³ÌµÄº¯Êı
-	void CGTestFile();//²âÊÔÎÄ¼ş£¬¶ÔÓÚ×îºóµÄ¹¤³ÌÀ´ËµÃ»ÓĞÒâÒå
+	void CGAllActorHeader();//ä¸ºæ¯ä¸ªactorç”Ÿæˆä¸€ä¸ªç±»å¹¶æ”¾åœ¨åŒä¸€ä¸ªæ–‡ä»¶ä¸­,æ­¤å‡½æ•°ç”Ÿæˆå¤´æ–‡ä»¶
+	void CGAllActorCpp();//ä¸ºæ¯ä¸ªactorç”Ÿæˆä¸€ä¸ªç±»å¹¶æ”¾åœ¨åŒä¸€ä¸ªæ–‡ä»¶ä¸­,æ­¤å‡½æ•°ç”Ÿæˆ.cppæ–‡ä»¶
+	void CGMain();//ç”Ÿæˆå¯åŠ¨å„ä¸ªçº¿ç¨‹çš„å‡½æ•°
+	void CGTestFile();//æµ‹è¯•æ–‡ä»¶ï¼Œå¯¹äºæœ€åçš„å·¥ç¨‹æ¥è¯´æ²¡æœ‰æ„ä¹‰
 	/**********************************************/
-	void CGMakefile();//ÎªlinuxÏÂµÄ´úÂëÉú³ÉMakefileÎÄ¼ş
+	void CGMakefile();//ä¸ºlinuxä¸‹çš„ä»£ç ç”ŸæˆMakefileæ–‡ä»¶
 	/**********************************************/
-	string FindNumofNode(FlatNode *);//·µ»Ø½áµãµÄĞòºÅ
-	int ReturnBufferSize(FlatNode *,FlatNode *);//·µ»ØÁ½¸ö½áµãÖ®¼äµÄ»º³åÇø´óĞ¡
-	int ReturnPushWeight(FlatNode *actorA,FlatNode *actorB);//·µ»ØA push¸øBµÄÊı¾İÁ¿
-	int ReturnPeekWeight(FlatNode *actorA,FlatNode *actorB);//·µ»ØB´ÓA´¦peekµÄÊı¾İÁ¿
-	string ReturnNameOfEdge(FlatNode *actorA,FlatNode *actorB);//·µ»ØABÖ®¼ä½á¹¹Ìå°üº¬µÄ±äÁ¿£¬Èçx
-	string ReturnTypeOfEdge(FlatNode *actorA,FlatNode *actorB);//·µ»ØABÖ®¼ä½á¹¹Ìå°üº¬µÄ±äÁ¿ÀàĞÍ£¬Èçdouble
+	string FindNumofNode(FlatNode *);//è¿”å›ç»“ç‚¹çš„åºå·
+	int ReturnBufferSize(FlatNode *,FlatNode *);//è¿”å›ä¸¤ä¸ªç»“ç‚¹ä¹‹é—´çš„ç¼“å†²åŒºå¤§å°
+	int ReturnPushWeight(FlatNode *actorA,FlatNode *actorB);//è¿”å›A pushç»™Bçš„æ•°æ®é‡
+	int ReturnPeekWeight(FlatNode *actorA,FlatNode *actorB);//è¿”å›Bä»Aå¤„peekçš„æ•°æ®é‡
+	string ReturnNameOfEdge(FlatNode *actorA,FlatNode *actorB);//è¿”å›ABä¹‹é—´ç»“æ„ä½“åŒ…å«çš„å˜é‡ï¼Œå¦‚x
+	string ReturnTypeOfEdge(FlatNode *actorA,FlatNode *actorB);//è¿”å›ABä¹‹é—´ç»“æ„ä½“åŒ…å«çš„å˜é‡ç±»å‹ï¼Œå¦‚double
 	string ReturnNameOfEdgestr(string namestr);
 	string ReturnTypeOfEdgestr(string typestr);
-	string ReturnNameOfTheEdge(string searchstring);//·µ»Ø±ßµÄÃû³Æ
-	int ReturnNumBiger(int size);//·µ»Ø±Èsize´óµÄ×îĞ¡µÄÊı£¬¸ÃÊıÊÇ2µÄÃİ¼¶Êı
-	bool DataDependence(FlatNode *,FlatNode *); //cwbÅĞ¶ÏÁ½¸öactor¼äÊı¾İÒÀÀµ¹ØÏµ£¬peek>pop
-	bool ExistDependence(FlatNode *); //cwbÅĞ¶Ï¸ÃactorÖĞ´æÔÚpeek>pop
+	string ReturnNameOfTheEdge(string searchstring);//è¿”å›è¾¹çš„åç§°
+	int ReturnNumBiger(int size);//è¿”å›æ¯”sizeå¤§çš„æœ€å°çš„æ•°ï¼Œè¯¥æ•°æ˜¯2çš„å¹‚çº§æ•°
+	bool DataDependence(FlatNode *,FlatNode *); //cwbåˆ¤æ–­ä¸¤ä¸ªactoré—´æ•°æ®ä¾èµ–å…³ç³»ï¼Œpeek>pop
+	bool ExistDependence(FlatNode *); //cwbåˆ¤æ–­è¯¥actorä¸­å­˜åœ¨peek>pop
 private:
 	string BenchmarkName;
 	StageAssignment *pSa;
@@ -133,11 +133,11 @@ private:
 	TemplateClass *Tc;
 	DNBPartition *Dnbp;
 	std::vector<FlatNode *> flatNodes_;
-	std::vector<FlatNode *> vTemplateNode_; //chenwenbin 20140724 ´æ´¢ËùÓĞÄ£°å½áµã
-	std::vector<std::string> vTemplateName_; //chenwenbin ¼ÇÂ¼Ã¿¸öÄ£°åÀàµÄÃû×Ö
-	std::map<FlatNode *,std::string> mapFlatnode2Template_; //chenwenbin ´æ·Åflatnode¶ÔÓ¦µÄÄ£°åÀà
+	std::vector<FlatNode *> vTemplateNode_; //chenwenbin 20140724 å­˜å‚¨æ‰€æœ‰æ¨¡æ¿ç»“ç‚¹
+	std::vector<std::string> vTemplateName_; //chenwenbin è®°å½•æ¯ä¸ªæ¨¡æ¿ç±»çš„åå­—
+	std::map<FlatNode *,std::string> mapFlatnode2Template_; //chenwenbin å­˜æ”¾flatnodeå¯¹åº”çš„æ¨¡æ¿ç±»
 	int nTemplateNode_;  //cwb
-	ActorEdgeInfo* pEdgeInfo;//´æ·Å¸÷¸ö±ßµÄÀàĞÍĞÅÏ¢
+	ActorEdgeInfo* pEdgeInfo;//å­˜æ”¾å„ä¸ªè¾¹çš„ç±»å‹ä¿¡æ¯
 	map<string,string> mapOperator2EdgeName;
 	int nGpu_;
 	int nActors_;
@@ -145,7 +145,7 @@ private:
 	int buffer_size_;
 	bool extractDecl, isInParam;
 	FlatNode* curactor;
-	std::map<FlatNode *, int> mapFlatNode2Place; // ´æ·Å¸÷ FlatNode ¶ÔÓ¦µÄ placeĞòºÅ
+	std::map<FlatNode *, int> mapFlatNode2Place; // å­˜æ”¾å„ FlatNode å¯¹åº”çš„ placeåºå·
 	stringstream declList, declInitList, stateInit;
 	stringstream edgexy;
 	stringstream strScheduler, parameterBuf, thisBuf;
@@ -153,45 +153,45 @@ private:
 	stringstream declInitList_temp;
 	string OutputPath;
 	string InputPath;
-	map<operatorNode *, std::string> mapOperator2ClassName; // ´æ·Å¸÷ class ¶ÔÓ¦µÄ composite
+	map<operatorNode *, std::string> mapOperator2ClassName; // å­˜æ”¾å„ class å¯¹åº”çš„ composite
 	multimap<FlatNode*,string> mapActor2InEdge;
 	multimap<FlatNode*,string> mapActor2OutEdge;
-	map<int,set<int> > mapNum2Stage;//´¦ÀíÆ÷±àºÅµ½stageµÄ¶ÔÓ¦¹ØÏµ
-	multimap<string,string> mapedge2xy;//´æ·Å¸÷±ßµÄÀàĞÍ
-	multimap<string,string> mapedge2xy2;//mapedge2xyµÄ¸±±¾
-	map<map<FlatNode *,FlatNode *>,map<string,string> > edge2nameandtype;//´æ´¢±ßµÄÀàĞÍ,Ç°ÃæÁ½¸öFlatNode±íÊ¾½áµã£¬µÚÒ»¸östring±íÊ¾¸Ã±ß¶ÔÓ¦µÄ½á¹¹Ìå°üº¬±äÁ¿µÄÀàĞÍÈçdouble£¬µÚ¶ş¸östring±íÊ¾ÆäÃû³ÆÈçx
-	map<string,string>nameandtypeofedge;//±ßµÄÃû³ÆÒÔ¼°ÀàĞÍ,Ä¿Ç°Ö»Ö§³Öµ¥¸öÀàĞÍ£¬²»Ö§³ÖÊı×éºÍ½á¹¹Ìå
+	map<int,set<int> > mapNum2Stage;//å¤„ç†å™¨ç¼–å·åˆ°stageçš„å¯¹åº”å…³ç³»
+	multimap<string,string> mapedge2xy;//å­˜æ”¾å„è¾¹çš„ç±»å‹
+	multimap<string,string> mapedge2xy2;//mapedge2xyçš„å‰¯æœ¬
+	map<map<FlatNode *,FlatNode *>,map<string,string> > edge2nameandtype;//å­˜å‚¨è¾¹çš„ç±»å‹,å‰é¢ä¸¤ä¸ªFlatNodeè¡¨ç¤ºç»“ç‚¹ï¼Œç¬¬ä¸€ä¸ªstringè¡¨ç¤ºè¯¥è¾¹å¯¹åº”çš„ç»“æ„ä½“åŒ…å«å˜é‡çš„ç±»å‹å¦‚doubleï¼Œç¬¬äºŒä¸ªstringè¡¨ç¤ºå…¶åç§°å¦‚x
+	map<string,string>nameandtypeofedge;//è¾¹çš„åç§°ä»¥åŠç±»å‹,ç›®å‰åªæ”¯æŒå•ä¸ªç±»å‹ï¼Œä¸æ”¯æŒæ•°ç»„å’Œç»“æ„ä½“
 	map<string,map<string,string> > edgestrnameandtype;//
-	map<string,string>edge2name;//´æ´¢±ßÓëÆäÃû³ÆµÄ¶ÔÓ¦¹ØÏµ
-	map<string,string>allnameandtype;//ÓÃÓÚ´æ´¢ËùÓĞµÄ±ßµÄÃû³ÆºÍÀàĞÍ£¬Ö÷Òª×÷ÓÃÊÇÉú³ÉglobalheaderÖĞµÄ×Ô¶¨Òå½á¹¹Ìå
-	//map<string,string> mapStruct2Struct;//´æ·ÅÃ¿¸öoperateµÄstructµÄÓ³Éä
+	map<string,string>edge2name;//å­˜å‚¨è¾¹ä¸å…¶åç§°çš„å¯¹åº”å…³ç³»
+	map<string,string>allnameandtype;//ç”¨äºå­˜å‚¨æ‰€æœ‰çš„è¾¹çš„åç§°å’Œç±»å‹ï¼Œä¸»è¦ä½œç”¨æ˜¯ç”Ÿæˆglobalheaderä¸­çš„è‡ªå®šä¹‰ç»“æ„ä½“
+	//map<string,string> mapStruct2Struct;//å­˜æ”¾æ¯ä¸ªoperateçš„structçš„æ˜ å°„
 	vector<string> staticname2value;
-	vector<string> ptrname;//ÓÃÓÚ´æ·ÅÃ¿¸öactorÖĞ¶¯Ì¬Éú³ÉµÄÊı×éµÄÃû³Æ£¬ÒÔ±ãÓÚºóÃæµÄdelete²Ù×÷
-	vector<string> ptrtype;//ÓÃÓÚ´æ·ÅÓëÉÏÃævector¶ÔÓ¦²ÎÊıµÄÀàĞÍ
-	multimap<string,string>ptrdim;//ÓÃÓÚ±£´æÓëÉÏÃæ¶ÔÓ¦µÄÊı×éµÄÎ»Êı
-	multimap<FlatNode *,map<string,string> > actor2ptr;//ÓÃÓÚ´æ·ÅËùÓĞµÄactorÖĞ¶¯Ì¬Éú³ÉµÄÊı×é²ÎÊıĞÅÏ¢
-	vector<string> kernelparam;//ÓÃÓÚ´æ·Å´«¸øÃ¿¸öactorµÄkernelµÄ²ÎÊı£¬´Ë²ÎÊı²»°üÀ¨±ßÒÔ¼°¶ÁĞ´±êÖ¾£¬Ä¿Ç°½ö½ö°üÀ¨Ã¿¸öactorµÄlogic state²¿·ÖµÄ²ÎÊı
-	vector<string> kernelparamtype;//ÓëÉÏÃæµÄÊı×é¶ÔÓ¦£¬¼ÇÂ¼ÁË²ÎÊıµÄÀàĞÍ
-	map<FlatNode *,vector<string> >Actor2KernelPar;//ÓÃÓÚ´æ·Å´«¸øÃ¿¸öactorÓëÆäkernelµÄ²ÎÊıÓ³Éä¹ØÏµ
-	map<FlatNode *,vector<string> >Actor2KernelParType;//ÓÃÓÚ´æ·Å´«¸øÃ¿¸öactorÓëÆäkernelµÄ²ÎÊıÀàĞÍÓ³Éä¹ØÏµ
-	map<FlatNode*,vector<string> >OutbufferOfActor;//ÓÃÓÚ´æ·ÅÃ¿¸öactorÊä³öbuffer
-	map<FlatNode*,vector<string> >InbufferOfActor;//ÓÃÓÚ´æ·ÅÃ¿¸öactorÖĞÎªÊäÈëactorÔÚCPUÉÏÊ±´´½¨µÄÊäÈëbuffer
-	map<map<FlatNode*,FlatNode*>,string>BufferNameOfEdge;//ÓÃÓÚ´æ·Å½áµãÖ®¼ä±ßµÄÃû³Æ
-	map<int,int>thread2queue;//½«Ïß³ÌºÅÓ³Éäµ½¶ÓÁĞºÅ
-	string structdatatype;//½á¹¹ÌåÖĞÊı¾İ(x,y)µÄÀàĞÍ
-	multimap<FlatNode *,map<string,map<string,string> > >alllocalvariable;//ÓÃÓÚ´æ´¢ËùÓĞactor¶¯Ì¬Éú³ÉµÄ¾Ö²¿Êı×é
-	multimap<FlatNode *,map<string,map<string,string> > >allstaticvariable;//ÓÃÓÚ´æ´¢ËùÓĞactorµÄ¾²Ì¬±äÁ¿
-	vector<map<string,map<string,string> > >staticvariable,staticvariablefinal;//ÓÃÓÚ´æ´¢actorµÄ¾²Ì¬±äÁ¿£¬µÚÒ»¸östring²ÎÊıÊÇ±äÁ¿Ãû£¬µÚ¶ş¸ömapÖĞ£ºÈô²ÎÊıÎª¶şÎ¬Êı×éÔòstring´æ´¢ÆäÎ¬Êı£¬ÎªÒ»Î¬Êı×éÔòµÚ¶ş¸östringÎª0£¬Îª³£ÊıÔòÁ½¸östring¶¼Îª0
-	vector<string>staticvartype,staticvartypefinal;//ÓÃÓÚ´æ´¢ÓëÉÏÃæmap¶ÔÓ¦µÄ²ÎÊıµÄÀàĞÍ
+	vector<string> ptrname;//ç”¨äºå­˜æ”¾æ¯ä¸ªactorä¸­åŠ¨æ€ç”Ÿæˆçš„æ•°ç»„çš„åç§°ï¼Œä»¥ä¾¿äºåé¢çš„deleteæ“ä½œ
+	vector<string> ptrtype;//ç”¨äºå­˜æ”¾ä¸ä¸Šé¢vectorå¯¹åº”å‚æ•°çš„ç±»å‹
+	multimap<string,string>ptrdim;//ç”¨äºä¿å­˜ä¸ä¸Šé¢å¯¹åº”çš„æ•°ç»„çš„ä½æ•°
+	multimap<FlatNode *,map<string,string> > actor2ptr;//ç”¨äºå­˜æ”¾æ‰€æœ‰çš„actorä¸­åŠ¨æ€ç”Ÿæˆçš„æ•°ç»„å‚æ•°ä¿¡æ¯
+	vector<string> kernelparam;//ç”¨äºå­˜æ”¾ä¼ ç»™æ¯ä¸ªactorçš„kernelçš„å‚æ•°ï¼Œæ­¤å‚æ•°ä¸åŒ…æ‹¬è¾¹ä»¥åŠè¯»å†™æ ‡å¿—ï¼Œç›®å‰ä»…ä»…åŒ…æ‹¬æ¯ä¸ªactorçš„logic stateéƒ¨åˆ†çš„å‚æ•°
+	vector<string> kernelparamtype;//ä¸ä¸Šé¢çš„æ•°ç»„å¯¹åº”ï¼Œè®°å½•äº†å‚æ•°çš„ç±»å‹
+	map<FlatNode *,vector<string> >Actor2KernelPar;//ç”¨äºå­˜æ”¾ä¼ ç»™æ¯ä¸ªactorä¸å…¶kernelçš„å‚æ•°æ˜ å°„å…³ç³»
+	map<FlatNode *,vector<string> >Actor2KernelParType;//ç”¨äºå­˜æ”¾ä¼ ç»™æ¯ä¸ªactorä¸å…¶kernelçš„å‚æ•°ç±»å‹æ˜ å°„å…³ç³»
+	map<FlatNode*,vector<string> >OutbufferOfActor;//ç”¨äºå­˜æ”¾æ¯ä¸ªactorè¾“å‡ºbuffer
+	map<FlatNode*,vector<string> >InbufferOfActor;//ç”¨äºå­˜æ”¾æ¯ä¸ªactorä¸­ä¸ºè¾“å…¥actoråœ¨CPUä¸Šæ—¶åˆ›å»ºçš„è¾“å…¥buffer
+	map<map<FlatNode*,FlatNode*>,string>BufferNameOfEdge;//ç”¨äºå­˜æ”¾ç»“ç‚¹ä¹‹é—´è¾¹çš„åç§°
+	map<int,int>thread2queue;//å°†çº¿ç¨‹å·æ˜ å°„åˆ°é˜Ÿåˆ—å·
+	string structdatatype;//ç»“æ„ä½“ä¸­æ•°æ®(x,y)çš„ç±»å‹
+	multimap<FlatNode *,map<string,map<string,string> > >alllocalvariable;//ç”¨äºå­˜å‚¨æ‰€æœ‰actoråŠ¨æ€ç”Ÿæˆçš„å±€éƒ¨æ•°ç»„
+	multimap<FlatNode *,map<string,map<string,string> > >allstaticvariable;//ç”¨äºå­˜å‚¨æ‰€æœ‰actorçš„é™æ€å˜é‡
+	vector<map<string,map<string,string> > >staticvariable,staticvariablefinal;//ç”¨äºå­˜å‚¨actorçš„é™æ€å˜é‡ï¼Œç¬¬ä¸€ä¸ªstringå‚æ•°æ˜¯å˜é‡åï¼Œç¬¬äºŒä¸ªmapä¸­ï¼šè‹¥å‚æ•°ä¸ºäºŒç»´æ•°ç»„åˆ™stringå­˜å‚¨å…¶ç»´æ•°ï¼Œä¸ºä¸€ç»´æ•°ç»„åˆ™ç¬¬äºŒä¸ªstringä¸º0ï¼Œä¸ºå¸¸æ•°åˆ™ä¸¤ä¸ªstringéƒ½ä¸º0
+	vector<string>staticvartype,staticvartypefinal;//ç”¨äºå­˜å‚¨ä¸ä¸Šé¢mapå¯¹åº”çš„å‚æ•°çš„ç±»å‹
 	multimap<FlatNode *,vector<string> >allstatictype;
-	vector<map<string,map<string,string> > >globalvariable,globalvariablefinal;//Í¬ÉÏ
-	vector<string>globalvartype,globalvartypefinal;//Í¬ÉÏ
-	set<string>array2Dname,array2Dnamefinal;//½«staticºÍglobalÖĞµÄ¶şÎ¬Êı×éÃû³Æ´æ´¢ÆğÀ´£¬ÓÃÓÚkernelµÄÉú³É
+	vector<map<string,map<string,string> > >globalvariable,globalvariablefinal;//åŒä¸Š
+	vector<string>globalvartype,globalvartypefinal;//åŒä¸Š
+	set<string>array2Dname,array2Dnamefinal;//å°†staticå’Œglobalä¸­çš„äºŒç»´æ•°ç»„åç§°å­˜å‚¨èµ·æ¥ï¼Œç”¨äºkernelçš„ç”Ÿæˆ
 	set<string>array1Dname,array1Dnamefinal;//
-	set<string>arraylocal2Dname;//½«¾Ö²¿¶şÎ¬¶¯Ì¬Êı×é´æÆğÀ´£¬ÓÃÓÚkernelµÄÉú³É
-	map<string,int>Edge2Buffersize;//¼ÇÂ¼Ã¿Ìõ±ß¶ÔÓ¦bufferµÄ´óĞ¡
-	map<FlatNode *,int>Node2QueueID;//¼ÇÂ¼½áµãµ½GPU¶ÓÁĞµÄÓ³Éä¹ØÏµ
-	int RetrunBufferSizeOfGpu(int num);//·µ»Ø±àºÅÎªnumµÄgpuÖĞbufferµÄ×Ü´óĞ¡
+	set<string>arraylocal2Dname;//å°†å±€éƒ¨äºŒç»´åŠ¨æ€æ•°ç»„å­˜èµ·æ¥ï¼Œç”¨äºkernelçš„ç”Ÿæˆ
+	map<string,int>Edge2Buffersize;//è®°å½•æ¯æ¡è¾¹å¯¹åº”bufferçš„å¤§å°
+	map<FlatNode *,int>Node2QueueID;//è®°å½•ç»“ç‚¹åˆ°GPUé˜Ÿåˆ—çš„æ˜ å°„å…³ç³»
+	int RetrunBufferSizeOfGpu(int num);//è¿”å›ç¼–å·ä¸ºnumçš„gpuä¸­bufferçš„æ€»å¤§å°
 	//string structdataname;
 	/*********************************************/
 	void UpdateFlatNodeEdgeName(vector<FlatNode *>::iterator flatnode,string edgeName);

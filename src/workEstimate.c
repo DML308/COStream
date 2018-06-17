@@ -97,7 +97,7 @@ void WEST_astwalk(Node *n)
 	 case Goto:          break; 
 	 case Continue:      break; 
 	 case Break:         break; 
-	 case Return:        if ((n)->u.Return.expr) {rWorkCompute((n)->u.Return.expr);} break; //spl…Ÿ”–
+	 case Return:        if ((n)->u.Return.expr) {rWorkCompute((n)->u.Return.expr);} break; //splÂ∞ëÊúâ
 	 case Block:         if ((n)->u.Block.decl)
 							{WEST_listwalk((n)->u.Block.decl);} 
 						 if ((n)->u.Block.stmts) 
@@ -141,14 +141,14 @@ void rWorkCompute(Node *from)
 			  totalWork+=MEMORY_OP;}
 		  break;
 	  case Ternary:		  WEST_astwalk(from);break;
-	  case Initializer:   //ƒø«∞≤ªª·µΩ’‚“ª≤Ω
+	  case Initializer:   //ÁõÆÂâç‰∏ç‰ºöÂà∞Ëøô‰∏ÄÊ≠•
 	  case Block:         WEST_astwalk(from);break;
-	  case Fdcl:          break;//ƒø«∞≤ªª·µΩ’‚“ª≤Ω
+	  case Fdcl:          break;//ÁõÆÂâç‰∏ç‰ºöÂà∞Ëøô‰∏ÄÊ≠•
 	  case Decl:		  
-		  if (from->u.decl.init != NULL)//±ÿ–Î «“—æ≠≥ı ºªØ≤≈º∆À„work
+		  if (from->u.decl.init != NULL)//ÂøÖÈ°ªÊòØÂ∑≤ÁªèÂàùÂßãÂåñÊâçËÆ°ÁÆówork
 		  {
 			  tmpNode = from->u.decl.type;
-			  if (tmpNode->typ == Adcl)//»Áπ˚ « ˝◊È…˘√˜
+			  if (tmpNode->typ == Adcl)//Â¶ÇÊûúÊòØÊï∞ÁªÑÂ£∞Êòé
 			  {
 				  int tmpw=0;
 				  if (tmpNode->u.adcl.dim->typ == Const)
@@ -174,32 +174,32 @@ void rWorkCompute(Node *from)
 		  if (from->u.unary.opType == op_float)
 		  {
 			  tmp=FLOAT_ARITH_OP;
-			  if (from->u.unary.op == '/')//Ωˆµ±∏°µ„µƒ≥˝∑®–Ë“™x16
+			  if (from->u.unary.op == '/')//‰ªÖÂΩìÊµÆÁÇπÁöÑÈô§Ê≥ïÈúÄË¶Åx16
 				  tmp*=16;
 		  }else if(from->u.unary.opType == op_int){
 			  tmp=INT_ARITH_OP;
 		  }else if(from->u.unary.opType == op_unkonwn){
-			  tmp=FLOAT_ARITH_OP;//Œ¥÷™µƒ∂˛‘™≤Ÿ◊˜‘›À„∏°µ„¥Û–°
+			  tmp=FLOAT_ARITH_OP;//Êú™Áü•ÁöÑ‰∫åÂÖÉÊìç‰ΩúÊöÇÁÆóÊµÆÁÇπÂ§ßÂ∞è
 		  }
 		  totalWork+=tmp;
 		  break;
 	  case Binop:
-		  if(from->u.binop.op != '=' && from->u.binop.op != '.'){//∏≥÷µ±Ì¥Ô Ω≤ª≤Œ”Îº∆À„,memory_op◊„πª±Ì æ
+		  if(from->u.binop.op != '=' && from->u.binop.op != '.'){//ËµãÂÄºË°®ËææÂºè‰∏çÂèÇ‰∏éËÆ°ÁÆó,memory_opË∂≥Â§üË°®Á§∫
 			  if (from->u.binop.opType == op_float)
 			  {
 				  tmp=FLOAT_ARITH_OP;
-				  if (from->u.binop.op == '/')//Ωˆµ±∏°µ„µƒ≥˝∑®–Ë“™x16
+				  if (from->u.binop.op == '/')//‰ªÖÂΩìÊµÆÁÇπÁöÑÈô§Ê≥ïÈúÄË¶Åx16
 					  tmp*=16;
 			  }else if(from->u.binop.opType == op_int){
 				  tmp=INT_ARITH_OP;
 			  }else if(from->u.binop.opType == op_unkonwn){
-				  tmp=FLOAT_ARITH_OP;//Œ¥÷™µƒ∂˛‘™≤Ÿ◊˜‘›À„∏°µ„¥Û–°
+				  tmp=FLOAT_ARITH_OP;//Êú™Áü•ÁöÑ‰∫åÂÖÉÊìç‰ΩúÊöÇÁÆóÊµÆÁÇπÂ§ßÂ∞è
 			  }
 		  }else if(from->u.binop.op == '='){
 			  tmp = 0;
 		  }else if(from->u.binop.op == '.'){
 			  isSTREAM = 1;
-			  rWorkCompute(from->u.binop.left);//»Áπ˚ «µ„≤Ÿ◊˜£¨‘ÚΩˆ»°◊Û±ﬂ±Ì¥Ô Ωº∆À„
+			  rWorkCompute(from->u.binop.left);//Â¶ÇÊûúÊòØÁÇπÊìç‰ΩúÔºåÂàô‰ªÖÂèñÂ∑¶ËæπË°®ËææÂºèËÆ°ÁÆó
 			  isSTREAM = 0;
 			  break;
 		  }
@@ -212,7 +212,7 @@ void rWorkCompute(Node *from)
 		  oldWork=totalWork;
 		  if ((GetValue(from->u.For.cond->u.binop.right)==NULL)) 
 			  tmp = LOOP_COUNT;
-		  else if (GetValue(from->u.For.cond->u.binop.right)->typ == Const)//ªÒ»°for —≠ª∑µƒ¥Œ ˝,forÃıº˛±Ì¥Ô Ω±ÿ–Î“—ÕÍ≥…≥£¡ø¥´≤•
+		  else if (GetValue(from->u.For.cond->u.binop.right)->typ == Const)//Ëé∑Âèñfor Âæ™ÁéØÁöÑÊ¨°Êï∞,forÊù°‰ª∂Ë°®ËææÂºèÂøÖÈ°ªÂ∑≤ÂÆåÊàêÂ∏∏Èáè‰º†Êí≠
 			tmp =GetValue(from->u.For.cond->u.binop.right)->u.Const.value.i ;
 		  else
 			  tmp = LOOP_COUNT;
@@ -226,7 +226,7 @@ void rWorkCompute(Node *from)
 		  oldWork=totalWork;
 		  if ((GetValue(from->u.For.cond->u.binop.right)==NULL)) 
 			  tmp = LOOP_COUNT;
-		  else if (GetValue(from->u.For.cond->u.binop.right)->typ == Const)//ªÒ»°for —≠ª∑µƒ¥Œ ˝,forÃıº˛±Ì¥Ô Ω±ÿ–Î“—ÕÍ≥…≥£¡ø¥´≤•
+		  else if (GetValue(from->u.For.cond->u.binop.right)->typ == Const)//Ëé∑Âèñfor Âæ™ÁéØÁöÑÊ¨°Êï∞,forÊù°‰ª∂Ë°®ËææÂºèÂøÖÈ°ªÂ∑≤ÂÆåÊàêÂ∏∏Èáè‰º†Êí≠
 			{
 				int condition = 0,init = 0,step =0;
 				tmp = 0;
@@ -239,7 +239,7 @@ void rWorkCompute(Node *from)
 					tmp = condition - init;
 				else 
 					tmp = condition -init + 1;
-				if(from->u.For.next->typ  == Unary)		//“ª‘™≤Ÿ◊˜∑˚
+				if(from->u.For.next->typ  == Unary)		//‰∏ÄÂÖÉÊìç‰ΩúÁ¨¶
 				{
 					if(from->u.For.next->u.unary.op == DECR)		
 						tmp *= -1;
@@ -357,7 +357,7 @@ void rWorkCompute(Node *from)
 			  else if (strcmp(ident,"min")==0) 
 				  totalWork += 60/1;
 			  else if(strcmp(ident,"println")==0)
-				  totalWork += PRINTLN_OP/1;			//–ﬁ∏ƒ		
+				  totalWork += PRINTLN_OP/1;			//‰øÆÊîπ		
 			  else
 			  {
 				 /* JMethodDeclaration target = findMethod(ident);
@@ -373,7 +373,7 @@ void rWorkCompute(Node *from)
 			  totalWork += METHOD_CALL_OVERHEAD/1;
 		  }
 		  break;
-	  case OperBody:		//»Îø⁄
+	  case OperBody:		//ÂÖ•Âè£
 		  WEST_astwalk(from);
 		  break;
 	  case Cast:

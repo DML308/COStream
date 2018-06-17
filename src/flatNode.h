@@ -29,34 +29,34 @@ extern "C" {
 class  FlatNode
 {
 public:
-	std::string name; // opeatorÃû×Ö
-	std::string PreName;//cwb¼ÇÂ¼Operator±»ÖØÃüÃûÇ°µÄÃû×Ö
-	int visitTimes; // ±íÊ¾¸Ã½áµãÊÇ·ñÒÑ¾­±»·ÃÎÊ¹ı
+	std::string name; // opeatoråå­—
+	std::string PreName;//cwbè®°å½•Operatorè¢«é‡å‘½åå‰çš„åå­—
+	int visitTimes; // è¡¨ç¤ºè¯¥ç»“ç‚¹æ˜¯å¦å·²ç»è¢«è®¿é—®è¿‡
 
-	operatorNode *contents; // Ö¸Ïòoperator(¾­³£Á¿´«²¥ºóµÄ)
-	compositeNode *composite; // Ö¸Ïòoperator ËùÔÚµÄ composite £¨Êµ¼ÊÕ¹¿ªµÄ£©
-	operatorNode *oldContents; // Ö¸ÏòÔ­Ê¼operator
-	compositeNode *oldComposite; // Ö¸ÏòÔ­Ê¼operator ËùÔÚµÄ composite  £¨ÎªoperatorÌá¹©compositeÖĞµÄparam£¬varÖĞµÄ²ÎÊı£©
+	operatorNode *contents; // æŒ‡å‘operator(ç»å¸¸é‡ä¼ æ’­åçš„)
+	compositeNode *composite; // æŒ‡å‘operator æ‰€åœ¨çš„ composite ï¼ˆå®é™…å±•å¼€çš„ï¼‰
+	operatorNode *oldContents; // æŒ‡å‘åŸå§‹operator
+	compositeNode *oldComposite; // æŒ‡å‘åŸå§‹operator æ‰€åœ¨çš„ composite  ï¼ˆä¸ºoperatoræä¾›compositeä¸­çš„paramï¼Œvarä¸­çš„å‚æ•°ï¼‰
 
-	int nOut; // Êä ³ö ±ß¸öÊı
-	int nIn; // Êä Èë ±ß¸öÊı
+	int nOut; // è¾“ å‡º è¾¹ä¸ªæ•°
+	int nIn; // è¾“ å…¥ è¾¹ä¸ªæ•°
 
 
-	//Á½¼¶»®·ÖËã·¨ÖĞ,actorËùÔÚµÄplaceºÅ¡¢threadºÅ¡¢threadÖĞµÄĞòÁĞºÅ
+	//ä¸¤çº§åˆ’åˆ†ç®—æ³•ä¸­,actoræ‰€åœ¨çš„placeå·ã€threadå·ã€threadä¸­çš„åºåˆ—å·
 	int place_id;
 	int thread_id, post_thread_id;
 	int serial_id;
 
-	std::vector<FlatNode *> outFlatNodes; // Êä ³ö ±ß¸÷operator
-	std::vector<FlatNode *> inFlatNodes; // Êä Èë ±ß¸÷operator
+	std::vector<FlatNode *> outFlatNodes; // è¾“ å‡º è¾¹å„operator
+	std::vector<FlatNode *> inFlatNodes; // è¾“ å…¥ è¾¹å„operator
 	
-	//std::vector<int> AddPopAtCodeGen;//	zww:20120313,Ò»°ãÇé¿öÏÂÎªÁã£¬µ«²ÉÓÃHorizontalfissionÊ±»á²úÉú¶îÍâµÄpopÖµ£¬ÓÃ´ËÊı¾İÀ´¼ÇÂ¼
+	//std::vector<int> AddPopAtCodeGen;//	zww:20120313,ä¸€èˆ¬æƒ…å†µä¸‹ä¸ºé›¶ï¼Œä½†é‡‡ç”¨Horizontalfissionæ—¶ä¼šäº§ç”Ÿé¢å¤–çš„popå€¼ï¼Œç”¨æ­¤æ•°æ®æ¥è®°å½•
 	
-	std::vector<int> outPushWeights; // Êä ³ö ±ß¸÷È¨ÖØ
-	std::vector<int> inPopWeights; // Êä Èë ±ß¸÷È¨ÖØ
-	std::vector<int> inPeekWeights; // Êä Èë ±ß¸÷È¨ÖØ
+	std::vector<int> outPushWeights; // è¾“ å‡º è¾¹å„æƒé‡
+	std::vector<int> inPopWeights; // è¾“ å…¥ è¾¹å„æƒé‡
+	std::vector<int> inPeekWeights; // è¾“ å…¥ è¾¹å„æƒé‡
 
-	// ÎªÀàÄ£°å´úÂëÉú³É·½°¸Ìí¼Ó
+	// ä¸ºç±»æ¨¡æ¿ä»£ç ç”Ÿæˆæ–¹æ¡ˆæ·»åŠ 
 	std::vector<std::string> outPushString; 
 	std::vector<std::string> inPopString; 
 	std::vector<std::string> inPeekString;
@@ -64,20 +64,20 @@ public:
 	std::vector<std::string> pushString; 
 	std::vector<std::string> peekString; 
 
-	//½Úµãworkº¯ÊıµÄ¾²Ì¬¹¤×÷Á¿
+	//èŠ‚ç‚¹workå‡½æ•°çš„é™æ€å·¥ä½œé‡
 	long work_estimate;
 
-	// opeatorÔÚssgµÄflatnodesÖĞµÄË³Ğò±àºÅ
+	// opeatoråœ¨ssgçš„flatnodesä¸­çš„é¡ºåºç¼–å·
 	int num;
 
-	// opeatorÊÇ·ñÉú³É»º´æ»¯ÀàĞÍ
+	// opeatoræ˜¯å¦ç”Ÿæˆç¼“å­˜åŒ–ç±»å‹
 	bool memorizedNode;
 
-	//GPU½Úµã»®·ÖÊ±×¨ÓÃ±äÁ¿ cwb
+	//GPUèŠ‚ç‚¹åˆ’åˆ†æ—¶ä¸“ç”¨å˜é‡ cwb
 	int GPUPart;
 	bool BorderFlag;
 
-	// ÒÔÏÂ²ÎÊı¹©½ñºóÀ©Õ¹ÓÃ
+	// ä»¥ä¸‹å‚æ•°ä¾›ä»Šåæ‰©å±•ç”¨
 	int currentIn;
 	int currentOut;
 	int schedMult;
@@ -88,13 +88,13 @@ public:
 
 public:
 	FlatNode(operatorNode *node, compositeNode *com, compositeNode *newCom);
-	FlatNode(operatorNode *node);//ÖØÔØ¹¹Ôìº¯Êı£¬ÎªÁËÒÔºóÔÚ¹¹ÔìĞÂµÄ½ÚµãµÄÊ±ºòÊ¹ÓÃ
+	FlatNode(operatorNode *node);//é‡è½½æ„é€ å‡½æ•°ï¼Œä¸ºäº†ä»¥ååœ¨æ„é€ æ–°çš„èŠ‚ç‚¹çš„æ—¶å€™ä½¿ç”¨
 	void AddOutEdges(FlatNode *dest);
 	void AddInEdges(FlatNode *src);
-	std::string GetOperatorName(); // »ñÈ¡¸Ãflatnode½áµãµÄoperatorµÄname
-	void VisitNode(); // ·ÃÎÊ¸Ã½áµã
-	void ResetVistTimes(); // ÖØÖÃvisitTimesĞÅÏ¢
-	int GetVisitTimes(); // »ñÈ¡¸Ã½áµãµÄ·ÃÎÊĞÅÏ¢
+	std::string GetOperatorName(); // è·å–è¯¥flatnodeç»“ç‚¹çš„operatorçš„name
+	void VisitNode(); // è®¿é—®è¯¥ç»“ç‚¹
+	void ResetVistTimes(); // é‡ç½®visitTimesä¿¡æ¯
+	int GetVisitTimes(); // è·å–è¯¥ç»“ç‚¹çš„è®¿é—®ä¿¡æ¯
 	void SetIOStreams();
 };
 

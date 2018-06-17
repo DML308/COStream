@@ -2,11 +2,11 @@
 
 DNBPartition::DNBPartition(HAFLPartition *haflp,SchedulerSSG *sssg)
 {
-	Cpu2GpuVelocity = 8000*1024;  //cpuÓëGPU´«ÊäËÙÂÊ8000MB/s,µ¥Î»ÎªkB/s
-	CpuFrequency = 2400000000;  //cpu¼ÆËãÆµÂÊ2.4GHz
-	GpuFrequency = 1150000000;  //gpu¼ÆËãÆµÂÊ1.15GHz
-	PENumber = 32;    //GPU  Ã¿¸öCUÖĞPE¸öÊı
-	CUNumber = 14;   //GPU  CU¸öÊı
+	Cpu2GpuVelocity = 8000*1024;  //cpuä¸GPUä¼ è¾“é€Ÿç‡8000MB/s,å•ä½ä¸ºkB/s
+	CpuFrequency = 2400000000;  //cpuè®¡ç®—é¢‘ç‡2.4GHz
+	GpuFrequency = 1150000000;  //gpuè®¡ç®—é¢‘ç‡1.15GHz
+	PENumber = 32;    //GPU  æ¯ä¸ªCUä¸­PEä¸ªæ•°
+	CUNumber = 14;   //GPU  CUä¸ªæ•°
 	MaxCputhreadNum = 8-2*GpuNum;
 	CPUTotalWork = 0;
 	GPUTotalWork = 0;
@@ -21,8 +21,8 @@ DNBPartition::DNBPartition(HAFLPartition *haflp,SchedulerSSG *sssg)
 
 void DNBPartition::DiscreteNodePartition()
 {
-	//·Ö±ğµÃµ½cpu¶Ë£¬gpu¶Ëactor×Ü¹¤×÷Á¿
-	double CpuTime = 0,GpuTime = 0,CommTime = 0; //µ¥Î»ms
+	//åˆ†åˆ«å¾—åˆ°cpuç«¯ï¼Œgpuç«¯actoræ€»å·¥ä½œé‡
+	double CpuTime = 0,GpuTime = 0,CommTime = 0; //å•ä½ms
 	vector<FlatNode*>::iterator iter;
 	for (iter = CPUNodes.begin(); iter != CPUNodes.end(); iter++)
 		CPUTotalWork = CPUTotalWork + Sssg->GetInitWork(*iter)*Sssg->GetInitCount(*iter) + Sssg->GetSteadyWork(*iter)*Sssg->GetSteadyCount(*iter)*MultiNum2FlatNode[*iter];
@@ -92,16 +92,16 @@ void DNBPartition::DiscreteNodePartition()
 				NCpuThreads = MaxCputhreadNum;
 				maxTotalWork = CPUTotalWork/NCpuThreads;
 			}
-			//³õÊ¼»¯Ã¿¸öcputhreadµÄ¹¤×÷Á¿
+			//åˆå§‹åŒ–æ¯ä¸ªcputhreadçš„å·¥ä½œé‡
 			for(int i = 0; i < NCpuThreads; i++)
 				CputhreadWorkValue.push_back(0);
-			//»ñµÃcpu½ÚµãÖĞµÄstateless½Úµã
+			//è·å¾—cpuèŠ‚ç‚¹ä¸­çš„statelessèŠ‚ç‚¹
 			for (int i = 0; i < CPUNodes.size(); i++)
 			{
 				if(!DetectiveActorState(CPUNodes[i]))
 					statelessNodes.push_back(CPUNodes[i]);
 			}
-			//¶ÔÏà¶Ô½Ï´óµÄstateless½Úµã½øĞĞ·ÖÁÑ,±£Ö¤Ã¿¸östateless½ÚµãµÄ¼ÆËãÁ¿¶¼²»´óÓÚmaxTotalWork
+			//å¯¹ç›¸å¯¹è¾ƒå¤§çš„statelessèŠ‚ç‚¹è¿›è¡Œåˆ†è£‚,ä¿è¯æ¯ä¸ªstatelessèŠ‚ç‚¹çš„è®¡ç®—é‡éƒ½ä¸å¤§äºmaxTotalWork
 			
 			for (int i = 0; i < statelessNodes.size(); i++)
 			{
@@ -118,7 +118,7 @@ void DNBPartition::DiscreteNodePartition()
 					FissionNodes2count.insert(make_pair(statelessNodes[i],make_pair(Sssg->GetSteadyCount(statelessNodes[i])*MultiNum2FlatNode[statelessNodes[i]]/count*j,Sssg->GetSteadyCount(statelessNodes[i])*MultiNum2FlatNode[statelessNodes[i]]-Sssg->GetSteadyCount(statelessNodes[i])*MultiNum2FlatNode[statelessNodes[i]]/count*j)));
 			    }
 			}
-			//·ÖÁÑ¹ıµÄ½ÚµãÓÃ1±íÊ¾£¬Î´·ÖÁÑÓÃ0±íÊ¾
+			//åˆ†è£‚è¿‡çš„èŠ‚ç‚¹ç”¨1è¡¨ç¤ºï¼Œæœªåˆ†è£‚ç”¨0è¡¨ç¤º
 			int i = 0,j = 0;
 			while(i < CPUNodes.size() && j < FissionNodes.size())
 			{
@@ -138,7 +138,7 @@ void DNBPartition::DiscreteNodePartition()
 				actor2fission.insert(make_pair(CPUNodes[i],false));
 				i++;
 			}
-			//½«¸÷actor·ÖÅä¸ø¸÷thread
+			//å°†å„actoråˆ†é…ç»™å„thread
 			int index = 0;
 			map<FlatNode*,bool>::iterator iter;
 			typedef multimap<FlatNode*,pair<int,int> >::iterator fission_iter;
@@ -248,7 +248,7 @@ void DNBPartition::DiscreteNodePartition()
 			}
 		}
 	}
-	//µÃµ½actor¶ÔÓ¦µÄ»®·Ö±àºÅ
+	//å¾—åˆ°actorå¯¹åº”çš„åˆ’åˆ†ç¼–å·
 	typedef multimap<int,pair<FlatNode*,string> >::iterator cpuActoriter;
 	for (int i = 0; i < NCpuThreads; i++)
 	{

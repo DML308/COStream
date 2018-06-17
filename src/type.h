@@ -284,7 +284,7 @@ GLOBAL Node *SetDeclBitSize(Node *decl, Node *bitsize);
 GLOBAL Node *SetDeclAttribs(Node *decl, List *attribs);
 
 
-GLOBAL inline Node *MakeNewDecl(const char *name, Node *type, Node *init, ScopeState declStyle);//zww 20120918 Ìí¼Ó
+GLOBAL inline Node *MakeNewDecl(const char *name, Node *type, Node *init, ScopeState declStyle);//zww 20120918 æ·»åŠ 
 
 
 

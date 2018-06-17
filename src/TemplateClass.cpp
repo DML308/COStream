@@ -62,7 +62,7 @@ bool TemplateClass::IsSplitJoinNode(FlatNode *node)
 bool TemplateClass::DimValueSame(FlatNode *node1,FlatNode *node2)
 {
 	bool flag = true;
-	//ÏÈÅÐ¶Ï³£Á¿ÖµÊÇ·ñÏàµÈ
+	//å…ˆåˆ¤æ–­å¸¸é‡å€¼æ˜¯å¦ç›¸ç­‰
 	bool otherType = false;
 	paramList *p = node1->contents->dimParams,*q = node2->contents->dimParams;
 	while(p != NULL)
@@ -85,7 +85,7 @@ bool TemplateClass::DimValueSame(FlatNode *node1,FlatNode *node2)
 		p = p->next;
 		q = q->next;
 	}
-	//ÔÙÅÐ¶Ï³£Êý×éÊÇ·ñÏàµÈ
+	//å†åˆ¤æ–­å¸¸æ•°ç»„æ˜¯å¦ç›¸ç­‰
 	if (flag)
 	{
 		constArrayList *al1 = node1->contents->ArrayInit,*al2 = node2->contents->ArrayInit;

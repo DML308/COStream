@@ -6,36 +6,36 @@ static SchedulerSSG *Sssg = NULL;
 static int *processed = NULL; 
 
 Partition::Partition(){
-	mnparts=1;//³õÊ¼»¯»®·ÖÊıÄ¿Îª1
+	mnparts=1;//åˆå§‹åŒ–åˆ’åˆ†æ•°ç›®ä¸º1
 }
 
 int Partition::getParts(){
 	return this->mnparts;
 }
-//ÉèÖÃplaceÊıÄ¿£¨¼´½ø³ÌÊıÄ¿£©
+//è®¾ç½®placeæ•°ç›®ï¼ˆå³è¿›ç¨‹æ•°ç›®ï¼‰
 void Partition::setCpuCoreNum(int nplaces,SchedulerSSG *sssg)
 {
 	this->mnparts = 2;
 	if(nplaces != 0){
 		vector<FlatNode *> tmp = sssg->GetFlatNodes();
 		if(nplaces > tmp.size())
-			this->mnparts = tmp.size();//Èç¹ûÍ¼ÖĞ½áµãÊıÉÙÓÚplaceÊıÄ¿£¬ÔòÈ¡½áµãÊıÄ¿¼´¿É
+			this->mnparts = tmp.size();//å¦‚æœå›¾ä¸­ç»“ç‚¹æ•°å°‘äºplaceæ•°ç›®ï¼Œåˆ™å–ç»“ç‚¹æ•°ç›®å³å¯
 		else
 			mnparts = nplaces;
 	}
 }
-//¸ù¾İflatnodeÕÒµ½ÆäÏÂ±êºÅ Èçsource_0ÖĞµÄ0
+//æ ¹æ®flatnodeæ‰¾åˆ°å…¶ä¸‹æ ‡å· å¦‚source_0ä¸­çš„0
 int Partition::findID(SchedulerSSG *sssg,FlatNode *flatnode)
 {
 	for (int i=0;i<sssg->GetFlatNodes().size();i++)
 		if(strcmp(sssg->GetFlatNodes()[i]->name.c_str(),flatnode->name.c_str())==0)
 			return i;
 }
-//¸ù¾İ±àºÅnum²éÕÒÆäÖĞµÄ½Úµã(¸öÊı´óÓÚµÈÓÚ1¸ö)£¬½«½Úµã¼¯ºÏ·µ»Ø¸øPartitonNumSet(±àºÅ->½Úµã)
+//æ ¹æ®ç¼–å·numæŸ¥æ‰¾å…¶ä¸­çš„èŠ‚ç‚¹(ä¸ªæ•°å¤§äºç­‰äº1ä¸ª)ï¼Œå°†èŠ‚ç‚¹é›†åˆè¿”å›ç»™PartitonNumSet(ç¼–å·->èŠ‚ç‚¹)
 vector<FlatNode *> Partition::findNodeSetInPartition(int partitionNum)
 {
 	vector<FlatNode *> vecswap;
-	PartitonNumSet.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	PartitonNumSet.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	typedef multimap<int,FlatNode*>::iterator Num2NodeIter;
 	pair<Num2NodeIter,Num2NodeIter>range=PartitonNum2FlatNode.equal_range(partitionNum);
 	for(Num2NodeIter iter=range.first;iter!=range.second;++iter)
@@ -45,7 +45,7 @@ vector<FlatNode *> Partition::findNodeSetInPartition(int partitionNum)
 	}
 	return PartitonNumSet;
 }
-//¸ù¾İ½Úµã·µ»ØÆäËùÔÚ»®·ÖÇøµÄ±àºÅ(½Úµã->±àºÅ)
+//æ ¹æ®èŠ‚ç‚¹è¿”å›å…¶æ‰€åœ¨åˆ’åˆ†åŒºçš„ç¼–å·(èŠ‚ç‚¹->ç¼–å·)
 int Partition::findPartitionNumForFlatNode(FlatNode *flatnode)
 {
 	map<FlatNode *,int>::iterator iter=FlatNode2PartitionNum.find(flatnode);
@@ -147,17 +147,17 @@ void Partition::AddFlatnodes(std::vector<FlatNode *> &groups, const std::vector<
 }
 
 
-//ËÀËøÏû³ı¿¼ÂÇÁË¸ºÔØÆ½ºâ£¬×Ôµ×ÏòÉÏ£¬ÉÏ²ã½Úµã¡°³Ô¡±ÏÂ²ã½Úµã
+//æ­»é”æ¶ˆé™¤è€ƒè™‘äº†è´Ÿè½½å¹³è¡¡ï¼Œè‡ªåº•å‘ä¸Šï¼Œä¸Šå±‚èŠ‚ç‚¹â€œåƒâ€ä¸‹å±‚èŠ‚ç‚¹
 int Partition::UnLock(const std::vector<FlatNode *> &src,const std::vector<FlatNode *> &dest, const int mode)
 {
-	assert(mode == 1 || mode == 0);// mode == 0£¬placeÖ®¼ä£¬ mode == 1£¬placeÄÚ²¿threadÖ®¼ä
+	assert(mode == 1 || mode == 0);// mode == 0ï¼Œplaceä¹‹é—´ï¼Œ mode == 1ï¼Œplaceå†…éƒ¨threadä¹‹é—´
 	double sumSrc = 0.0, sumDown = 0.0, sumSrcDown = 0.0, sumDestDown = 0.0, sumSrcUp = 0.0, sumDestUp = 0.0;
 	int place = 0; 
 	int thread = 0;
 	sumSrc = SumOfWork(src);
 	sumDown = SumOfWork(dest);
 
-	//ÉÏ²ã½Úµã¡°³Ô¡±ÏÂ²ã½Úµã,¡°È«³Ô¡±
+	//ä¸Šå±‚èŠ‚ç‚¹â€œåƒâ€ä¸‹å±‚èŠ‚ç‚¹,â€œå…¨åƒâ€
 	if (mode == 0)
 	{
 		place = currentSrcDown[0]->place_id;
@@ -224,7 +224,7 @@ int Partition::UnLock(const std::vector<FlatNode *> &src,const std::vector<FlatN
 
 	switch(solution)
 	{
-	case 0://ÍÌµôcurrentSrcDown
+	case 0://åæ‰currentSrcDown
 		place = dest[0]->place_id;
 		thread = dest[0]->thread_id;
 		for (int i = 0; i < currentSrcDown.size(); ++i)
@@ -233,7 +233,7 @@ int Partition::UnLock(const std::vector<FlatNode *> &src,const std::vector<FlatN
 			currentSrcDown[i]->thread_id = thread;
 		}
 		break;
-	case 1://ÍÌµôcurrentDestUp
+	case 1://åæ‰currentDestUp
 		place = src[0]->place_id;
 		thread = src[0]->thread_id;
 		for (int i = 0; i < currentDestUp.size(); ++i)
@@ -249,12 +249,12 @@ int Partition::UnLock(const std::vector<FlatNode *> &src,const std::vector<FlatN
 	return solution;
 }
 
-//Ä¿Ç°ÅĞ¶ÏÁËÖ±½ÓËÀËø£¬¼´A,B¼¯ºÏÖ®¼äµÄÏà»¥Á´½Ó
+//ç›®å‰åˆ¤æ–­äº†ç›´æ¥æ­»é”ï¼Œå³A,Bé›†åˆä¹‹é—´çš„ç›¸äº’é“¾æ¥
 bool Partition::IsDeadLock(const std::vector<FlatNode *> &src, const std::vector<FlatNode *> &dest,const int mode)
 {
-	assert(mode == 1 || mode == 0);// mode == 0£¬placeÖ®¼ä£¬ mode == 1£¬placeÄÚ²¿threadÖ®¼ä
-	currentSrc2Dest.clear();//ÏÈÇå¿Õ
-	currentDest2Src.clear();//ÏÈÇå¿Õ
+	assert(mode == 1 || mode == 0);// mode == 0ï¼Œplaceä¹‹é—´ï¼Œ mode == 1ï¼Œplaceå†…éƒ¨threadä¹‹é—´
+	currentSrc2Dest.clear();//å…ˆæ¸…ç©º
+	currentDest2Src.clear();//å…ˆæ¸…ç©º
 	currentSrcUp.clear();
 	currentSrcDown.clear();
 	currentDestUp.clear();
@@ -303,11 +303,11 @@ bool Partition::IsDeadLock(const std::vector<FlatNode *> &src, const std::vector
 		return true;
 }
 
-//Ã¿¸öasyncÖ»ÄÜÔÊĞíÓĞÒ»¸öÁ¬Í¨×ÓÍ¼
+//æ¯ä¸ªasyncåªèƒ½å…è®¸æœ‰ä¸€ä¸ªè¿é€šå­å›¾
 void Partition::FinalAdjust(SchedulerSSG *sssg)
 {
 	std::vector<FlatNode *> nodes = sssg->GetFlatNodes(-1);
-	for (int i = 0; i < nodes.size(); ++i) //¶ÔÓÚjoin½Úµã£¬²»´æÔÚpeek>popµÄÇé¿ö
+	for (int i = 0; i < nodes.size(); ++i) //å¯¹äºjoinèŠ‚ç‚¹ï¼Œä¸å­˜åœ¨peek>popçš„æƒ…å†µ
 	{
 		if(nodes[i]->inFlatNodes.size() == 1)
 		{
@@ -324,7 +324,7 @@ void Partition::FinalAdjust(SchedulerSSG *sssg)
 
 int Partition::Adjust(SchedulerSSG *sssg, int mode)
 {
-	assert(mode == 1 || mode == 0);// mode == 0£¬placeÖ®¼ä£¬ mode == 1£¬placeÄÚ²¿threadÖ®¼ä
+	assert(mode == 1 || mode == 0);// mode == 0ï¼Œplaceä¹‹é—´ï¼Œ mode == 1ï¼Œplaceå†…éƒ¨threadä¹‹é—´
 	Sssg = sssg;
 	assert(X10DistributedBackEnd == TRUE);
 	if (mode == 0)
@@ -339,10 +339,10 @@ int Partition::Adjust(SchedulerSSG *sssg, int mode)
 			std::vector<FlatNode *> groups;
 			for (int ki = 0; ki < CpuCoreNum; ++ki)
 			{
-				if (processed[i] == 0)//Î´´¦Àí
+				if (processed[i] == 0)//æœªå¤„ç†
 					AddFlatnodes(groups, sssg->GetFlatNodes(i));
 			}
-			//ÕÒµ½ÍØÆËÅÅĞòµÄ¶¥¶Ë½Úµã
+			//æ‰¾åˆ°æ‹“æ‰‘æ’åºçš„é¡¶ç«¯èŠ‚ç‚¹
 			FlatNode *top = FindTopFlatnode(groups);
 
 			if (top != NULL)
@@ -352,7 +352,7 @@ int Partition::Adjust(SchedulerSSG *sssg, int mode)
 				{
 					if (ki == place || processed[ki] == 1)
 						continue;
-					while (1) //placeÖ®¼äËÀËøÏû³ı
+					while (1) //placeä¹‹é—´æ­»é”æ¶ˆé™¤
 					{
 						std::vector<FlatNode *> src = sssg->GetFlatNodes(place);
 						std::vector<FlatNode *> dest = sssg->GetFlatNodes(ki);
@@ -384,10 +384,10 @@ int Partition::Adjust(SchedulerSSG *sssg, int mode)
 
 				for (int kj = 0; kj < NThreads; ++kj)
 				{
-					if (processed[kj] == 0)//Î´´¦Àí
+					if (processed[kj] == 0)//æœªå¤„ç†
 						AddFlatnodes(groups, sssg->GetFlatNodes(i, kj));
 				}
-				//ÕÒµ½ÍØÆËÅÅĞòµÄ¶¥¶Ë½Úµã
+				//æ‰¾åˆ°æ‹“æ‰‘æ’åºçš„é¡¶ç«¯èŠ‚ç‚¹
 				FlatNode *top = FindTopFlatnode(groups);
 				if (top != NULL)
 				{
@@ -397,7 +397,7 @@ int Partition::Adjust(SchedulerSSG *sssg, int mode)
 					{
 						if (kj == thread || processed[kj] == 1)
 							continue;
-						while (1) //placeÄÚ²¿threadÖ®¼äËÀËøÏû³ı
+						while (1) //placeå†…éƒ¨threadä¹‹é—´æ­»é”æ¶ˆé™¤
 						{
 							std::vector<FlatNode *> src = sssg->GetFlatNodes(i, thread);
 							std::vector<FlatNode *> dest = sssg->GetFlatNodes(i, kj);

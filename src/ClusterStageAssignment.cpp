@@ -8,9 +8,9 @@ ClusterStageAssignment::ClusterStageAssignment(ClusterPartition *cp):cpartition(
 }
 
 void ClusterStageAssignment::CreateStageAssignment()
-{//¶ÔÕû¸ö¼¯Èº¼äµÄËùÓĞ»úÆ÷ÉÏµÄ½Úµã½øĞĞ½×¶Î»®·Ö
-	map<FlatNode *,int>actor2StageSwap;//ÓÃÓÚ´æ´¢½×¶Î¸³ÖµµÄ½á¹û
-	multimap<int,FlatNode*>stage2ActorSwap;//ÓÃÓÚ´æ´¢½×¶Î¸³ÖµµÄ½á¹û
+{//å¯¹æ•´ä¸ªé›†ç¾¤é—´çš„æ‰€æœ‰æœºå™¨ä¸Šçš„èŠ‚ç‚¹è¿›è¡Œé˜¶æ®µåˆ’åˆ†
+	map<FlatNode *,int>actor2StageSwap;//ç”¨äºå­˜å‚¨é˜¶æ®µèµ‹å€¼çš„ç»“æœ
+	multimap<int,FlatNode*>stage2ActorSwap;//ç”¨äºå­˜å‚¨é˜¶æ®µèµ‹å€¼çš„ç»“æœ
 	for(int i = 0 ;i != cpartition->GetClusters(); i++ )
 	{
 		stage2Actor.swap(stage2ActorSwap);
@@ -31,10 +31,10 @@ void ClusterStageAssignment::CreateStageAssignment()
 }
 
 vector<FlatNode *> ClusterStageAssignment::CreateTopoLogicalOrder(vector<FlatNode *>original)
-{//ÔÚ¼¯ÈºµÄÒ»¸ö½ÚµãÉÏÕÒÒ»¸öÍØÆËĞòÁĞ
+{//åœ¨é›†ç¾¤çš„ä¸€ä¸ªèŠ‚ç‚¹ä¸Šæ‰¾ä¸€ä¸ªæ‹“æ‰‘åºåˆ—
 	vector<FlatNode *> actorTopoVec;
 	actorTopoOrder.swap(actorTopoVec);
-	vector<int> nInDegree;//ÓÃÓÚ±£´æ¸÷½ÚµãµÄÈë¶È
+	vector<int> nInDegree;//ç”¨äºä¿å­˜å„èŠ‚ç‚¹çš„å…¥åº¦
 	vector<FlatNode *> flatNodeStack;
 	int nsize=original.size();
 	for (int i = 0;i != nsize;++i)
@@ -47,7 +47,7 @@ vector<FlatNode *> ClusterStageAssignment::CreateTopoLogicalOrder(vector<FlatNod
 				if ( original[i]->inFlatNodes[j] == original[k]) inCount++;
 			}
 		}
-		nInDegree.push_back(inCount);//½«¸÷½ÚµãÈë¶È±£´æ
+		nInDegree.push_back(inCount);//å°†å„èŠ‚ç‚¹å…¥åº¦ä¿å­˜
 	}
 	for (int i = 0; i != nInDegree.size();i++)
 	{
@@ -56,16 +56,16 @@ vector<FlatNode *> ClusterStageAssignment::CreateTopoLogicalOrder(vector<FlatNod
 
 	while (!flatNodeStack.empty())
 	{
-		FlatNode *tmpFlatNode = flatNodeStack.back();// È¡½«Òª³öÕ»µÄ½Úµã
+		FlatNode *tmpFlatNode = flatNodeStack.back();// å–å°†è¦å‡ºæ ˆçš„èŠ‚ç‚¹
 		actorTopoOrder.push_back(tmpFlatNode);
 		flatNodeStack.pop_back();
-		for(int i= 0; i != tmpFlatNode->nOut;i++)//¶ÔËùÓĞgroupµÄÁÚ½ÓµãµÄÈë¶È¼õ1
+		for(int i= 0; i != tmpFlatNode->nOut;i++)//å¯¹æ‰€æœ‰groupçš„é‚»æ¥ç‚¹çš„å…¥åº¦å‡1
 		{
 			for (int j =0;j != original.size(); j++)
 			{
 				if(original[j] == tmpFlatNode->outFlatNodes[i])
 				{
-					if(!(--nInDegree[j])) flatNodeStack.push_back(original[j]);//Èë¶ÈÎª0µã½øÕ»
+					if(!(--nInDegree[j])) flatNodeStack.push_back(original[j]);//å…¥åº¦ä¸º0ç‚¹è¿›æ ˆ
 				}
 			}
 		}
@@ -117,8 +117,8 @@ void ClusterStageAssignment::CreateFlatNode2StageMap(map<FlatNode *,int>FlatNode
 				{
 					maxstage=iter->second;
 				}
-				iter3=FlatNode2Core.find(*iter1);//²éÕÒ*iter1Ëù¶ÔÓ¦µÄ»®·ÖºÅ
-				iter4=FlatNode2Core.find(*iter2);//²éÕÒ*iter2Ëù¶ÔÓ¦µÄ»®·ÖºÅ
+				iter3=FlatNode2Core.find(*iter1);//æŸ¥æ‰¾*iter1æ‰€å¯¹åº”çš„åˆ’åˆ†å·
+				iter4=FlatNode2Core.find(*iter2);//æŸ¥æ‰¾*iter2æ‰€å¯¹åº”çš„åˆ’åˆ†å·
 				if (iter3->second != iter4->second)
 				{
 					flag=true;
@@ -150,7 +150,7 @@ int ClusterStageAssignment::GetStageNum(FlatNode* actor)
 	else return -1;
 }
 
-multimap<int,FlatNode *> ClusterStageAssignment::GetCluster2Stage2Actor(int clusterNum)//È¡¼¯ÈºÉÏÒ»¸ö½ÚµãµÄ½×¶Î¸´ÖÆµÄ½á¹û
+multimap<int,FlatNode *> ClusterStageAssignment::GetCluster2Stage2Actor(int clusterNum)//å–é›†ç¾¤ä¸Šä¸€ä¸ªèŠ‚ç‚¹çš„é˜¶æ®µå¤åˆ¶çš„ç»“æœ
 {
 	map<int,multimap<int, FlatNode *> >::iterator pos;
 	pos = cluster2Stage2Actor.find(clusterNum);
@@ -167,7 +167,7 @@ map<FlatNode*, int> ClusterStageAssignment::GetCluster2Actor2Stage(int clusterNu
 }
 
 map<int,multimap<int ,FlatNode *> > ClusterStageAssignment::GetAllCluster2Stage2Actor()
-{//·µ»ØËùÓĞµÄ½á¹û
+{//è¿”å›æ‰€æœ‰çš„ç»“æœ
 	return this->cluster2Stage2Actor;
 }
 

@@ -10,24 +10,24 @@ using namespace std;
 #else
 	#define mkdir(tmp) mkdir(tmp.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif	
-static bool isInComma = false;//±íÊ¾µ±Ç°´¦ÓÚ¶ººÅ±í´ïÊ½ÖĞ
+static bool isInComma = false;//è¡¨ç¤ºå½“å‰å¤„äºé€—å·è¡¨è¾¾å¼ä¸­
 static int flag=0;
-static int flag_Global = 0;//±êÊ¶ÊÇ·ñÔÚÊä³öGlobalVarCppÎÄ¼ş£¬³õÊ¼»¯Îª0
-//static bool FileRW = 0;//±êÊ¶ÊÇ·ñÓĞÎÄ¼ş¶ÁĞ´actor
+static int flag_Global = 0;//æ ‡è¯†æ˜¯å¦åœ¨è¾“å‡ºGlobalVarCppæ–‡ä»¶ï¼Œåˆå§‹åŒ–ä¸º0
+//static bool FileRW = 0;//æ ‡è¯†æ˜¯å¦æœ‰æ–‡ä»¶è¯»å†™actor
 
-static bool isInFileReader = false;//±íÊ¾µ±Ç°´¦ÓÚFileReaderÖĞ
-static bool isInFileWriter = false;//±íÊ¾µ±Ç°´¦ÓÚFileWriterÖĞ
-static bool FileRW = 0;//±êÊ¶ÊÇ·ñÓĞÎÄ¼ş¶ÁĞ´actor
-static bool FileR  = 0; // ±êÊ¶ÊÇ·ñÓĞÎÄ¼ş¶Á actor
-static bool FileW  = 0; // ±êÊ¶ÊÇ·ñÓĞÎÄ¼şĞ´ actor
-static bool existFileWriter = false;//ÓÃÓÚ±êÊ¶ÊÇ·ñ´æÔÚFileWriter£¬Ä¬ÈÏÎª·ñ
+static bool isInFileReader = false;//è¡¨ç¤ºå½“å‰å¤„äºFileReaderä¸­
+static bool isInFileWriter = false;//è¡¨ç¤ºå½“å‰å¤„äºFileWriterä¸­
+static bool FileRW = 0;//æ ‡è¯†æ˜¯å¦æœ‰æ–‡ä»¶è¯»å†™actor
+static bool FileR  = 0; // æ ‡è¯†æ˜¯å¦æœ‰æ–‡ä»¶è¯» actor
+static bool FileW  = 0; // æ ‡è¯†æ˜¯å¦æœ‰æ–‡ä»¶å†™ actor
+static bool existFileWriter = false;//ç”¨äºæ ‡è¯†æ˜¯å¦å­˜åœ¨FileWriterï¼Œé»˜è®¤ä¸ºå¦
 
-static bool isExternType = false; //±íÊ¾Ä¿Ç°Õı´¦ÓÚÉú³ÉÇ¶ÈëÊ½µÄ½á¹¹ÎÄ¼şExternTypeÖĞ
-static bool needExternType = false; //±íÊ¾Ê±ºòĞèÒªÉú³É½Ó¿ÚÎÄ¼ş
+static bool isExternType = false; //è¡¨ç¤ºç›®å‰æ­£å¤„äºç”ŸæˆåµŒå…¥å¼çš„ç»“æ„æ–‡ä»¶ExternTypeä¸­
+static bool needExternType = false; //è¡¨ç¤ºæ—¶å€™éœ€è¦ç”Ÿæˆæ¥å£æ–‡ä»¶
 
-//static bool existFileWriter = false, existFileReader = false;//ÓÃÓÚ±êÊ¶ÊÇ·ñ´æÔÚFileWriter£¬Ä¬ÈÏÎª·ñ
-static bool isCGGlobalVar = false;//±íÊ¾Ä¿Ç°Õı´¦ÓÚÉú³ÉÈ«¾Ö±äÁ¿
-static FlatNode* curActor = NULL;//ÓÃÓÚ±íÊ¾µ±Ç°µÄÉú³ÉactorÎÄ¼ş
+//static bool existFileWriter = false, existFileReader = false;//ç”¨äºæ ‡è¯†æ˜¯å¦å­˜åœ¨FileWriterï¼Œé»˜è®¤ä¸ºå¦
+static bool isCGGlobalVar = false;//è¡¨ç¤ºç›®å‰æ­£å¤„äºç”Ÿæˆå…¨å±€å˜é‡
+static FlatNode* curActor = NULL;//ç”¨äºè¡¨ç¤ºå½“å‰çš„ç”Ÿæˆactoræ–‡ä»¶
 extern char* objName;
 X86CodeGenerate::X86CodeGenerate(SchedulerSSG *Sssg, int nCpucore, const char *currentDir,StageAssignment *psa,MetisPartiton *Mptemp,TemplateClass *tc)
 {
@@ -45,7 +45,7 @@ X86CodeGenerate::X86CodeGenerate(SchedulerSSG *Sssg, int nCpucore, const char *c
 	mapFlatnode2Template_ = Tc->GetFlatnode2Template();
 	readerActor = writerActor = NULL;
 	dir_ = currentDir;
-	//½¨Á¢´úÂëÉú³ÉÄ¿±êÎÄ¼şµÄÄ¿Â¼
+	//å»ºç«‹ä»£ç ç”Ÿæˆç›®æ ‡æ–‡ä»¶çš„ç›®å½•
 
 	int index = 0; 
 	int i = 0; 
@@ -60,13 +60,13 @@ X86CodeGenerate::X86CodeGenerate(SchedulerSSG *Sssg, int nCpucore, const char *c
 		i++; 
 		index = pos + 1; 
 	} 
-	//½¨Á¢mapActor2InEdge£¬mapActor2OutEdgeÒÔ¼°readerActor¡¢writeActor
+	//å»ºç«‹mapActor2InEdgeï¼ŒmapActor2OutEdgeä»¥åŠreaderActorã€writeActor
 	vector<FlatNode*>::iterator iter1,iter2,iter3;
 	for (iter1=flatNodes_.begin();iter1!=flatNodes_.end();++iter1)
 	{
 		for (iter2=(*iter1)->inFlatNodes.begin();iter2!=(*iter1)->inFlatNodes.end();++iter2)
 		{
-			string tempstring1=(*iter2)->name+"_"+(*iter1)->name;//µÃµ½ĞÎÈçA_BµÄ±ßÃû³Æ
+			string tempstring1=(*iter2)->name+"_"+(*iter1)->name;//å¾—åˆ°å½¢å¦‚A_Bçš„è¾¹åç§°
 			mapActor2InEdge.insert(make_pair((*iter1),tempstring1));
 		}
 		for (iter3=(*iter1)->outFlatNodes.begin();iter3!=(*iter1)->outFlatNodes.end();++iter3)
@@ -87,15 +87,15 @@ X86CodeGenerate::X86CodeGenerate(SchedulerSSG *Sssg, int nCpucore, const char *c
 			FileW = 1;
 		}
 	}
-	//¹¹ÔìÃ¿¸öÏß³ÌÉÏµÄstage¼¯ºÏmapNum2Stage
+	//æ„é€ æ¯ä¸ªçº¿ç¨‹ä¸Šçš„stageé›†åˆmapNum2Stage
 	vector<FlatNode*>tempactors;
 	vector<FlatNode*>::iterator iter;
 	for (int i=0;i<nCpucore;i++)
 	{
 		set<int>tempstageset;
 		tempstageset.clear();
-		tempactors=Mp->findNodeSetInPartition(i);		//¸ù¾İÏß³ÌºÅÕÒµ½actor¼¯ºÏ
-		//±éÀúactor
+		tempactors=Mp->findNodeSetInPartition(i);		//æ ¹æ®çº¿ç¨‹å·æ‰¾åˆ°actoré›†åˆ
+		//éå†actor
 		for (iter=tempactors.begin();iter!=tempactors.end();++iter)
 		{
 			tempstageset.insert(pSa->FindStage(*iter));
@@ -106,22 +106,22 @@ X86CodeGenerate::X86CodeGenerate(SchedulerSSG *Sssg, int nCpucore, const char *c
 	extractDecl = false;
 	isInParam = false;
 }
-void X86CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream &buf)		//Êä³ö±äÁ¿ÉùÃ÷
+void X86CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream &buf)		//è¾“å‡ºå˜é‡å£°æ˜
 {
 	List *state = NULL;
 	Node  *param = NULL;
 	assert(actor);
 	buf <<"\t// AST Variables\n";
-	//state£¬var£¬param±»³£Á¿´«²¥Ïû³ı
+	//stateï¼Œvarï¼Œparamè¢«å¸¸é‡ä¼ æ’­æ¶ˆé™¤
 	state = actor->contents->body->u.operBody.state;
 
 
-	extractDecl = true;//±êÖ¾Éú³Édecl
-	declList.str(""); // Çå¿ÕdeclListÄÚÈİ
-	buf<<"\tint steadyScheduleCount;\t//ÎÈÌ¬Ê±Ò»´Îµü´úµÄÖ´ĞĞ´ÎÊı\n";
+	extractDecl = true;//æ ‡å¿—ç”Ÿæˆdecl
+	declList.str(""); // æ¸…ç©ºdeclListå†…å®¹
+	buf<<"\tint steadyScheduleCount;\t//ç¨³æ€æ—¶ä¸€æ¬¡è¿­ä»£çš„æ‰§è¡Œæ¬¡æ•°\n";
 	buf<<"\tint initScheduleCount;\n";
-	//chenwenbin½«compositeÖĞparam¼ÓÈëÄ£°åÀàÖĞ
-	buf<<"\t//½«compositeÖĞparam¼ÓÈëÄ£°åÀàÖĞ"<<endl;
+	//chenwenbinå°†compositeä¸­paramåŠ å…¥æ¨¡æ¿ç±»ä¸­
+	buf<<"\t//å°†compositeä¸­paramåŠ å…¥æ¨¡æ¿ç±»ä¸­"<<endl;
 	paramList *plist = actor->contents->params;
 	for (int i = 0; i < actor->contents->paramSize; i++)
 	{
@@ -130,11 +130,11 @@ void X86CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 		plist = plist->next;
 	}
 	//state
-	SPL2X86_List(state, 0);//Êä³östate
+	SPL2X86_List(state, 0);//è¾“å‡ºstate
 	buf << "\t/* *****logic state***** */\n\t" << declList.str();
 	
-	//chenwenbin Ôö¼Ópop,pushÊı¾İ±äÁ¿
-	buf<<"\t//Ôö¼Ópop,push±äÁ¿"<<endl;
+	//chenwenbin å¢åŠ pop,pushæ•°æ®å˜é‡
+	buf<<"\t//å¢åŠ pop,pushå˜é‡"<<endl;
 	int popSize = actor->inFlatNodes.size();
 	int pushSize = actor->outFlatNodes.size();
 	if (popSize > 0)
@@ -165,9 +165,9 @@ void X86CodeGenerate::CGdeclList(FlatNode *actor, OperatorType ot, stringstream 
 	extractDecl = false;
 	//state init
 	stateInit << declInitList.str();
-	declInitList.str(""); // Çå¿ÕdeclInitListÄÚÈİ
+	declInitList.str(""); // æ¸…ç©ºdeclInitListå†…å®¹
 }
-void X86CodeGenerate::CGinitVarAndState(FlatNode *actor, OperatorType ot, stringstream &buf)	//Êä³öinitVarºÍState
+void X86CodeGenerate::CGinitVarAndState(FlatNode *actor, OperatorType ot, stringstream &buf)	//è¾“å‡ºinitVarå’ŒState
 {
 	buf << "\t// initVarAndState\n";
 	buf << "\tvoid initVarAndState() {\n";
@@ -176,34 +176,34 @@ void X86CodeGenerate::CGinitVarAndState(FlatNode *actor, OperatorType ot, string
 	buf << declInitList.str();
 	buf << "\n\t\t/**** State Init ****/\n";
 	buf << stateInit.str();
-	buf << "\n\t}\n"; // initVarAndState·½·¨½áÊø
+	buf << "\n\t}\n"; // initVarAndStateæ–¹æ³•ç»“æŸ
 
-	declInitList.str(""); // Çå¿Õ
-	stateInit.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
+	stateInit.str(""); // æ¸…ç©º
 }
 void X86CodeGenerate::CGlogicInit(FlatNode *actor, OperatorType ot, stringstream &buf)
 {
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 	buf << "\t// init\n";
 	buf << "\tvoid init()";
 	Node *init = actor->contents->body->u.operBody.init;
 	if (init)
 	{
 		SPL2X86_Node(init, 2);
-		buf << declInitList.str(); // init½á¹¹±ØĞë´ø"{}"
+		buf << declInitList.str(); // initç»“æ„å¿…é¡»å¸¦"{}"
 	}
 	else
 	{
 		buf << " {\n";
-		buf << "\t}\n"; // '}'¶ÀÕ¼Ò»ĞĞ
+		buf << "\t}\n"; // '}'ç‹¬å ä¸€è¡Œ
 	}
-	declInitList.str(""); // Çå¿Õ
+	declInitList.str(""); // æ¸…ç©º
 }
-void X86CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf,string templatename)	//Êä³öactorµÄ¹¹Ôìº¯Êı
+void X86CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf,string templatename)	//è¾“å‡ºactorçš„æ„é€ å‡½æ•°
 {
 	buf <<"\t// Constructor\n";
 	buf << "\t"<<templatename<<"(" ;
-	//chenwenbin ¹¹Ôìparam±äÁ¿
+	//chenwenbin æ„é€ paramå˜é‡
 	paramList *plist = actor->contents->params;
 	for (int i = 0; i < actor->contents->paramSize; i++)
 	{
@@ -212,7 +212,7 @@ void X86CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		buf<<plist->paramnode->u.id.text<<", ";
 		plist = plist->next;
 	}
-	//chenwenbin ¹¹Ôìpop,push±äÁ¿
+	//chenwenbin æ„é€ pop,pushå˜é‡
 	if (actor->inPopWeights.size() > 0)
 	{
 		for (int i = 0; i < actor->inPopWeights.size(); i++)
@@ -227,10 +227,10 @@ void X86CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 			buf<<"int pushValue"<<i<<",";
 		}
 	}
-	//chenwenbin ³õÌ¬ÎÈÌ¬Ö´ĞĞ´ÎÊı
+	//chenwenbin åˆæ€ç¨³æ€æ‰§è¡Œæ¬¡æ•°
 	buf<<"int steadyCount,int initCount,";
 	vector<FlatNode*>::iterator iter,end;	
-	//±éÀúÊä³ö±ß
+	//éå†è¾“å‡ºè¾¹
 	iter = actor->outFlatNodes.begin();
 	end = actor->outFlatNodes.end();
 	List *outputList = actor->contents->decl->u.decl.type->u.operdcl.outputs;
@@ -247,10 +247,10 @@ void X86CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 		buf<<"Buffer<T>& "<<outputString<<",";
 		iter++;
 	}
-	//±éÀúÊäÈë±ß
+	//éå†è¾“å…¥è¾¹
 	iter = actor->inFlatNodes.begin();
 	end = actor->inFlatNodes.end();
-	//»ñÈ¡actorÄÚÊäÈë±ßµÄÃû³Æ
+	//è·å–actorå†…è¾“å…¥è¾¹çš„åç§°
 	List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
 	ListMarker input_maker;
 	Node *inputNode = NULL;
@@ -311,7 +311,7 @@ void X86CodeGenerate::CGthis(FlatNode *actor, OperatorType ot, stringstream &buf
 	//buf << "\t\tRepeatCount = rc;\n ";
 	buf<< "\t\tsteadyScheduleCount = steadyCount;\n";
 	buf<< "\t\tinitScheduleCount = initCount;\n";
-	buf << "\t}\n"; // init·½·¨½áÊø
+	buf << "\t}\n"; // initæ–¹æ³•ç»“æŸ
 }
 
 
@@ -322,7 +322,7 @@ void X86CodeGenerate::CGinitWork(stringstream &buf)
 	buf << "\t\tinitVarAndState();\n";
 	buf << "\t\tinit();\n";
 
-	buf << "\t}\n"; // initWork·½·¨½áÊø
+	buf << "\t}\n"; // initWorkæ–¹æ³•ç»“æŸ
 }
 
 void X86CodeGenerate::CGinitPeek(stringstream &buf, string initPeekBuf)
@@ -332,7 +332,7 @@ void X86CodeGenerate::CGinitPeek(stringstream &buf, string initPeekBuf)
 
 	buf << initPeekBuf;
 
-	buf << "\t}\n"; // initPeek·½·¨½áÊø
+	buf << "\t}\n"; // initPeekæ–¹æ³•ç»“æŸ
 }
 
 
@@ -357,7 +357,7 @@ void X86CodeGenerate::CGpopToken(FlatNode *actor,stringstream &buf)
 		buf<<"\n\t"<<inputString<<".updatehead"<<"(popValue"<<index<<");\n";
 		index++;
 	}
-	buf << "\t}\n"; // popToken·½·¨½áÊø
+	buf << "\t}\n"; // popTokenæ–¹æ³•ç»“æŸ
 }
 void X86CodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf)
 {
@@ -379,7 +379,7 @@ void X86CodeGenerate::CGpushToken(FlatNode *actor,stringstream &buf)
 	}
 	//buf << popingBuf;
 
-	buf << "\t}\n"; // popToken·½·¨½áÊø
+	buf << "\t}\n"; // popTokenæ–¹æ³•ç»“æŸ
 }
 
 void X86CodeGenerate::CGpushToken(stringstream &buf, string pushingBuf)
@@ -389,27 +389,27 @@ void X86CodeGenerate::CGpushToken(stringstream &buf, string pushingBuf)
 
 	buf << pushingBuf;
 
-	buf << "\t}\n"; // pushToken·½·¨½áÊø
+	buf << "\t}\n"; // pushTokenæ–¹æ³•ç»“æŸ
 }
 void X86CodeGenerate::CGrun(stringstream &buf, string initFun)
 {
 	buf <<"\t// run\n";
-	buf << "\tpublic void run() {\n";//run·½·¨,ÀàÖĞ×îÖ÷ÒªµÄ·½·¨
+	buf << "\tpublic void run() {\n";//runæ–¹æ³•,ç±»ä¸­æœ€ä¸»è¦çš„æ–¹æ³•
 
-	buf << "\t\t" << initFun << ";\n"; // µ÷ÓÃinit·½·¨
+	buf << "\t\t" << initFun << ";\n"; // è°ƒç”¨initæ–¹æ³•
 
 	buf << strScheduler.str();
 
-	buf << "\t}\n"; // run·½·¨½áÊø
+	buf << "\t}\n"; // runæ–¹æ³•ç»“æŸ
 }
 void X86CodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 {
 	buf <<"\t// runInitScheduleWork\n";
 	buf << "\tvoid runInitScheduleWork() {\n";
-	buf << "\t\tinitWork();\n"; // µ÷ÓÃinitwork·½·¨
+	buf << "\t\tinitWork();\n"; // è°ƒç”¨initworkæ–¹æ³•
 	buf<<"\t\tfor(int i=0;i<initScheduleCount;i++)\n\t\t\twork();\n";
 	if(NoCheckBuffer){
-		//³ö±ß
+		//å‡ºè¾¹
 		List *outputList = actor->contents->decl->u.decl.type->u.operdcl.outputs;
 		ListMarker output_maker;
 		Node *outputNode = NULL;
@@ -421,7 +421,7 @@ void X86CodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 			else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
 			buf<<"\t\t"<<outputString<<".resetTail();\n";
 		}
-		//Èë±ß
+		//å…¥è¾¹
 		List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
 		ListMarker input_maker;
 		Node *inputNode = NULL;
@@ -435,7 +435,7 @@ void X86CodeGenerate::CGrunInitScheduleWork(FlatNode *actor,stringstream &buf)
 		}
 		//buf<<"\t\t//cout<<\""<<actor->name<<" init over\"<<endl;\n";
 	}
-	buf << "\t}\n"; // CGrunInitScheduleWork·½·¨½áÊø
+	buf << "\t}\n"; // CGrunInitScheduleWorkæ–¹æ³•ç»“æŸ
 }
 void X86CodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 {
@@ -448,7 +448,7 @@ void X86CodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 	buf<<"\t\tfor(int i=0;i<steadyScheduleCount;i++)\n\t\t\twork();\n";
 	if(NoCheckBuffer)
 	{
-		//³ö±ß
+		//å‡ºè¾¹
 		List *outputList = actor->contents->decl->u.decl.type->u.operdcl.outputs;
 		ListMarker output_maker;
 		Node *outputNode = NULL;
@@ -460,7 +460,7 @@ void X86CodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 			else if (outputNode->typ == Decl) outputString = outputNode->u.decl.name;
 			buf<<"\t\t"<<outputString<<".resetTail();\n";
 		}
-		//Èë±ß
+		//å…¥è¾¹
 		List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
 		ListMarker input_maker;
 		Node *inputNode = NULL;
@@ -476,17 +476,17 @@ void X86CodeGenerate::CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf)
 	}
 	if(AmplifySchedule)
 		buf<<"\t\t}\n";
-	buf << "\t}\n"; // // CGrunSteadyScheduleWork·½·¨½áÊø
+	buf << "\t}\n"; // // CGrunSteadyScheduleWorkæ–¹æ³•ç»“æŸ
 }
 void X86CodeGenerate::CGEdgeParam(FlatNode *actor,stringstream &buf)
 {
 	buf<<"\t//edge param\n\t";
 	
-	vector<FlatNode*>::iterator iter,end;	//±éÀúÊäÈëÊä³ö±ß£¬Éú³ÉproducerºÍconsumer	
-	//Êä³ö±ß
+	vector<FlatNode*>::iterator iter,end;	//éå†è¾“å…¥è¾“å‡ºè¾¹ï¼Œç”Ÿæˆproducerå’Œconsumer	
+	//è¾“å‡ºè¾¹
 	iter = actor->outFlatNodes.begin();
 	end = actor->outFlatNodes.end();
-	//»ñÈ¡actorÊä³ö±ßµÄÃû³Æ
+	//è·å–actorè¾“å‡ºè¾¹çš„åç§°
 	List *outputList = actor->contents->decl->u.decl.type->u.operdcl.outputs;
 	ListMarker output_maker;
 	Node *outputNode = NULL;
@@ -501,10 +501,10 @@ void X86CodeGenerate::CGEdgeParam(FlatNode *actor,stringstream &buf)
 		buf<<"\tProducer<T> "<<outputString<<";\n";
 		iter ++;
 	}
-	//Èë±ß
+	//å…¥è¾¹
 	iter = actor->inFlatNodes.begin();
 	end = actor->inFlatNodes.end();
-	//»ñÈ¡actorÄÚÊäÈë±ßµÄÃû³Æ
+	//è·å–actorå†…è¾“å…¥è¾¹çš„åç§°
 	List *inputList =actor->contents->decl->u.decl.type->u.operdcl.inputs;
 	ListMarker input_maker;
 	Node *inputNode = NULL;
@@ -525,7 +525,7 @@ void X86CodeGenerate::CGGlobalvar()
 {
 	isCGGlobalVar = true;
 	stringstream buf;
-	// ¶ÔÈ«¾Ö±äÁ¿½øĞĞ´úÂëÉú³É
+	// å¯¹å…¨å±€å˜é‡è¿›è¡Œä»£ç ç”Ÿæˆ
 	flag_Global = 1;
 	SPL2X86_List(gDeclList, 1);
 	buf <<" #include \""<< string(objName) <<"GlobalVar.h\"\n";
@@ -536,7 +536,7 @@ void X86CodeGenerate::CGGlobalvar()
 	//buf <<"} \n";
 	declInitList.str("");
 	flag_Global=0;
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	isCGGlobalVar = false;
 	ss<<dir_<<string(objName)<<"GlobalVar.cpp";
@@ -576,17 +576,17 @@ void X86CodeGenerate::CGExternType()
 
 void X86CodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType ot)
 {
-	stringstream buf; //´æ·ÅÊä³öµ½actorÍ·ÎÄ¼şµÄ×Ö·û´®Á÷
-	stringstream srcBuf;//´æ·ÅÊä³öµ½actorÔ´ÎÄ¼şµÄ×Ö·û´®Á÷£¬ÆäÖĞ¶ÔactorÄÚµÄvarºÍstateÊı¾İ½øĞĞ³õÊ¼»¯
+	stringstream buf; //å­˜æ”¾è¾“å‡ºåˆ°actorå¤´æ–‡ä»¶çš„å­—ç¬¦ä¸²æµ
+	stringstream srcBuf;//å­˜æ”¾è¾“å‡ºåˆ°actoræºæ–‡ä»¶çš„å­—ç¬¦ä¸²æµï¼Œå…¶ä¸­å¯¹actorå†…çš„varå’Œstateæ•°æ®è¿›è¡Œåˆå§‹åŒ–
 	vector<string>::iterator iter;
 	string classNmae = templatename;
 	curactor=actor;
 	assert(actor);
 	//cout<<actor->name<<"       "<<endl;
 	actor->SetIOStreams();
-	//×¢ÊÍÎÄ¼şÃû³Æ
+	//æ³¨é‡Šæ–‡ä»¶åç§°
 	buf <<"/**\n * Class "<<classNmae<<"\n */\n";
-	//Ìí¼ÓÍ·ÎÄ¼ş
+	//æ·»åŠ å¤´æ–‡ä»¶
 	string headstr = "";
 	for(int i = 0; i < classNmae.size(); i++)
 		if(classNmae[i]-'a' >= 0 && classNmae[i]-'a' <= 26)
@@ -609,17 +609,17 @@ void X86CodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 	buf<<"using namespace std;\n";
 	//buf<<"\tinclude \""<<classNmae<<".h\"\n";
 	//if(CallModelEmbed)	
-	//	buf <<" namespace COStream" << string(objName)<<"{ \n";//Ìí¼ÓÃû×Ö¿Õ¼ä
+	//	buf <<" namespace COStream" << string(objName)<<"{ \n";//æ·»åŠ åå­—ç©ºé—´
 	if((actor->inFlatNodes.size() == 0 && actor->outFlatNodes.size() != 0))
 		buf<<"template<typename T>\n";
 	else if((actor->inFlatNodes.size() != 0 && actor->outFlatNodes.size() == 0))
 		buf<<"template<typename U>\n";
 	else if(actor->inFlatNodes.size() != 0 && actor->outFlatNodes.size() != 0)
 	    buf<<"template<typename T,typename U>\n";
-	buf <<"class "<<classNmae<<"{\n"; // Ä£°åÀà¿é¿ªÊ¼	
-	//¶¨ÒåactorµÄÊäÈë±ßconsumer£¬Êä³ö±ßproducer
+	buf <<"class "<<classNmae<<"{\n"; // æ¨¡æ¿ç±»å—å¼€å§‹	
+	//å®šä¹‰actorçš„è¾“å…¥è¾¹consumerï¼Œè¾“å‡ºè¾¹producer
 	CGEdgeParam(actor,buf);
-	/*FileReaderºÍFileWriterÁíÍâÉú³É*/		
+	/*FileReaderå’ŒFileWriterå¦å¤–ç”Ÿæˆ*/		
 	if(actor == readerActor)
 	{
 		SPL2X86_List(actor->contents->body->u.operBody.state, 0);
@@ -643,47 +643,47 @@ void X86CodeGenerate::CGactor(FlatNode *actor,string templatename, OperatorType 
 	}
 	else 
 	{
-		// Ğ´Èë·¢ËÍ¡¢½ÓÊÕĞÅÏ¢
-		parameterBuf.str(""); // Çå¿ÕparameterBufÄÚÈİ
-		thisBuf.str(""); // Çå¿ÕthisBufÄÚÈİ
+		// å†™å…¥å‘é€ã€æ¥æ”¶ä¿¡æ¯
+		parameterBuf.str(""); // æ¸…ç©ºparameterBufå†…å®¹
+		thisBuf.str(""); // æ¸…ç©ºthisBufå†…å®¹
 		buf<<"private:\n\t";
-		// Ğ´ÈëÓï·¨Ê÷³ÉÔ±±äÁ¿ĞÅÏ¢£¨param, var, state£©
+		// å†™å…¥è¯­æ³•æ ‘æˆå‘˜å˜é‡ä¿¡æ¯ï¼ˆparam, var, stateï¼‰
 		CGdeclList(actor, ot, buf);
-		// Ğ´Èë var, state µÄ³õÊ¼»¯ĞÅÏ¢
+		// å†™å…¥ var, state çš„åˆå§‹åŒ–ä¿¡æ¯
 		CGinitVarAndState(actor, ot, buf);
-		// Ğ´Èë init µÄ³õÊ¼»¯ĞÅÏ¢(¿¼ÂÇµ½init¿ÉÒÔ¶¨Òå¾Ö²¿±äÁ¿£¬ËùÒÔ²»ÓëÉÏ²¿·ÖºÏ²¢)
-		CGlogicInit(actor, ot, buf);			//Éú³Éinitº¯Êı
-		// Ğ´ÈëpopTokenºÍpushTokenº¯Êı£¬µ÷Õû»º´æÇø
+		// å†™å…¥ init çš„åˆå§‹åŒ–ä¿¡æ¯(è€ƒè™‘åˆ°initå¯ä»¥å®šä¹‰å±€éƒ¨å˜é‡ï¼Œæ‰€ä»¥ä¸ä¸ä¸Šéƒ¨åˆ†åˆå¹¶)
+		CGlogicInit(actor, ot, buf);			//ç”Ÿæˆinitå‡½æ•°
+		// å†™å…¥popTokenå’ŒpushTokenå‡½æ•°ï¼Œè°ƒæ•´ç¼“å­˜åŒº
 		CGpopToken(actor,buf);
 		CGpushToken(actor,buf);	
-		// Ğ´ÈëinitWorkº¯Êı
+		// å†™å…¥initWorkå‡½æ•°
 		CGinitWork(buf);
-		// Ğ´Èëworkº¯Êı
+		// å†™å…¥workå‡½æ•°
 		CGwork(actor, ot, buf);
 	}
-	//ÒÔÏÂÉú³ÉÃ¿¸öactorµÄ³ÉÔ±º¯Êı£¬°üÀ¨¹¹Ôìº¯Êı£¬³õÌ¬µ÷¶Èº¯ÊıºÍÎÈÌ¬µ÷¶Èº¯Êı
+	//ä»¥ä¸‹ç”Ÿæˆæ¯ä¸ªactorçš„æˆå‘˜å‡½æ•°ï¼ŒåŒ…æ‹¬æ„é€ å‡½æ•°ï¼Œåˆæ€è°ƒåº¦å‡½æ•°å’Œç¨³æ€è°ƒåº¦å‡½æ•°
 	buf<<"public:\n\t";
-	// Ğ´Èë¹¹Ôìº¯ÊıĞÅÏ¢
+	// å†™å…¥æ„é€ å‡½æ•°ä¿¡æ¯
 	CGthis(actor, ot, buf,classNmae);
-	//Ğ´ÈërunInitScheduleWorkº¯Êı
+	//å†™å…¥runInitScheduleWorkå‡½æ•°
 	CGrunInitScheduleWork(actor,buf);
-	//Ğ´ÈërunSteadyScheduleWorkº¯Êı
+	//å†™å…¥runSteadyScheduleWorkå‡½æ•°
 	CGrunSteadyScheduleWork(actor,buf);
-		buf <<"};\n";//Àà¿é½áÊø
+		buf <<"};\n";//ç±»å—ç»“æŸ
 	if(CallModelEmbed)
-		//buf<<"}\n";//Ãû×Ö¿Õ¼ä¿é½áÊø
-	//¹¹ÔìÔ´ÎÄ¼şÄÚÈİ
+		//buf<<"}\n";//åå­—ç©ºé—´å—ç»“æŸ
+	//æ„é€ æºæ–‡ä»¶å†…å®¹
 	//srcBuf<<"#include \""<<actor->name<<".h\"\n";
 	for (iter=staticNameInit.begin();iter!=staticNameInit.end();++iter)
 		srcBuf<<(*iter);
-	//Êä³öµ½ÎÄ¼ş
-	stringstream headerFileName;	//±£´æÍ·ÎÄ¼şÃû
+	//è¾“å‡ºåˆ°æ–‡ä»¶
+	stringstream headerFileName;	//ä¿å­˜å¤´æ–‡ä»¶å
 	headerFileName<<dir_<<string(objName)<<classNmae<<".h";
 	//srcFileName<<dir_<<classNmae<<".cpp";
-	if (staticNameInit.size()!=0)		//chenwenbinÈô°üº¬¾²Ì¬³ÉÔ±£¬ÔòÔÚÄ£°åÀàÖĞ¶ÔÆä½øĞĞ³õÊ¼»¯
+	if (staticNameInit.size()!=0)		//chenwenbinè‹¥åŒ…å«é™æ€æˆå‘˜ï¼Œåˆ™åœ¨æ¨¡æ¿ç±»ä¸­å¯¹å…¶è¿›è¡Œåˆå§‹åŒ–
 		buf<<srcBuf.str();
 	buf<<"#endif\n";
-	OutputToFile(headerFileName.str(),buf.str());	//Í·ÎÄ¼ş
+	OutputToFile(headerFileName.str(),buf.str());	//å¤´æ–‡ä»¶
 	staticNameInit.clear();
 }
 void X86CodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf)
@@ -699,14 +699,14 @@ void X86CodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 	if(actor->memorizedNode && actor->inPeekWeights.size()==1 && actor->outPushWeights.size()==1){
 		curInStream = (Node*)FirstItem(actor->contents->decl->u.decl.type->u.operdcl.inputs);
 		curOutStream = (Node*)FirstItem(actor->contents->decl->u.decl.type->u.operdcl.outputs);
-		buf << "\t// ÁÙÊ±·ÅÖÃinout\n";
+		buf << "\t// ä¸´æ—¶æ”¾ç½®inout\n";
 		buf << "\tdouble inputMemorizedWindow["<<actor->inPeekWeights[0]<<"];\n";
 		buf << "\tdouble outputMemorizedWindow["<<actor->outPushWeights[0]<<"] = {0.0};\n";
 		buf << "\tfor(int i=0;i<"<<actor->inPeekWeights[0]<<";i++)\n";
 		buf << "\t\tinputMemorizedWindow[i] = "<<curInStream->u.id.text<<"[i].x;\n";
-		buf << "\t// Ô¤´¦Àí¹şÏ£±í\n";
+		buf << "\t// é¢„å¤„ç†å“ˆå¸Œè¡¨\n";
 		buf << "\tpstablePreProccess();\n";
-		buf << "\t// Êı¾İ²éÕÒ\n";
+		buf << "\t// æ•°æ®æŸ¥æ‰¾\n";
 		buf << "\tif(pstableQuery(inputMemorizedWindow,outputMemorizedWindow)){\n";
 		buf << "\t\tfor(int i=0;i<"<<actor->outPushWeights[0]<<";i++)\n";
 		buf << "\t\t\t"<<curOutStream->u.id.text<<"[i].x = outputMemorizedWindow[i];\n";
@@ -714,11 +714,11 @@ void X86CodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 		buf << "\telse{\n";
 	}
 
-	SPL2X86_Node(work, 2);		//·ÃÎÊwork½«workÖĞµÄÄÚÈİÊä³öµ½declInitList
+	SPL2X86_Node(work, 2);		//è®¿é—®workå°†workä¸­çš„å†…å®¹è¾“å‡ºåˆ°declInitList
 	buf << declInitList.str();
 
 	if(actor->memorizedNode && actor->inPeekWeights.size()==1 && actor->outPushWeights.size()==1){
-		buf << "\t// ²åÈë¹şÏ£±í\n";
+		buf << "\t// æ’å…¥å“ˆå¸Œè¡¨\n";
 		buf << "\t\tfor(int i=0;i<"<<actor->outPushWeights[0]<<";i++)\n";
 		buf << "\t\t\toutputMemorizedWindow[i] = "<<curOutStream->u.id.text<<"[i].x;\n";
 		buf << "\t\tpstableInsert(inputMemorizedWindow,outputMemorizedWindow,"<<actor->inPeekWeights[0]<<","<<actor->outPushWeights[0]<<");\n";
@@ -727,9 +727,9 @@ void X86CodeGenerate::CGwork(FlatNode *actor, OperatorType ot, stringstream &buf
 
 	buf << "\n\t\tpushToken();\n";
 	buf << "\n\t\tpopToken();\n";
-	buf << "\t}\n"; // work·½·¨½áÊø
-	declInitList.str(""); // Çå¿Õ
-	//ptrname.clear();//Çå¿Õ
+	buf << "\t}\n"; // workæ–¹æ³•ç»“æŸ
+	declInitList.str(""); // æ¸…ç©º
+	//ptrname.clear();//æ¸…ç©º
 }
 void X86CodeGenerate::OutputToFile(string fileName, string oldContents)
 {
@@ -746,14 +746,14 @@ void X86CodeGenerate::CGactors()
 {
 	stringstream ss,buf;
 	std::map<operatorNode *, string>::iterator pos;
-	for (int i = 0; i < nTemplateNode_; ++i)//cwbÉú³É ¸÷¸ö ÀàÄ£°å
+	for (int i = 0; i < nTemplateNode_; ++i)//cwbç”Ÿæˆ å„ä¸ª ç±»æ¨¡æ¿
 	{
 		int len = ListLength(vTemplateNode_[i]->oldContents->decl->u.decl.type->u.operdcl.outputs);
 		int nOut = vTemplateNode_[i]->nOut;
 		OperatorType ot = vTemplateNode_[i]->oldContents->ot;
 	   
 		pos = mapOperator2ClassName.find(vTemplateNode_[i]->oldContents);
-		//if (pos == mapOperator2ClassName.end()) // ĞÂµÄÀàÄ£°å½øÈëÁË
+		//if (pos == mapOperator2ClassName.end()) // æ–°çš„ç±»æ¨¡æ¿è¿›å…¥äº†
 		{
 
 			string name = vTemplateNode_[i]->name;
@@ -761,7 +761,7 @@ void X86CodeGenerate::CGactors()
 			string tmp = name.substr(0, index);
 			mapOperator2ClassName.insert(make_pair(vTemplateNode_[i]->oldContents, vTemplateNode_[i]->name));
 
-			if (len == nOut)			//nOutÎªÃ¿¸öoperatorµÄÊä³ö±ß¸öÊı
+			if (len == nOut)			//nOutä¸ºæ¯ä¸ªoperatorçš„è¾“å‡ºè¾¹ä¸ªæ•°
 			{
 				buf<<"#include \""<<string(objName)<<vTemplateName_[i]<<".h\"\n";
 				if (strcmp(tmp.c_str(), "FileReader") == 0)
@@ -771,7 +771,7 @@ void X86CodeGenerate::CGactors()
 				curActor = vTemplateNode_[i];
 				CGactor(vTemplateNode_[i],vTemplateName_[i], ot);
 			}
-			else // Ò»Ìõ±ß±»¶à¸öactor¹²ÓÃ, Ôİ²»´¦Àí
+			else // ä¸€æ¡è¾¹è¢«å¤šä¸ªactorå…±ç”¨, æš‚ä¸å¤„ç†
 			{
 				cout << "test" << endl;
 				UNREACHABLE;
@@ -825,9 +825,9 @@ void X86CodeGenerate::CGglobalHeader()
 	vector<FlatNode *>::iterator iter_1,iter_2;
 	buf<<"#ifndef _GLOBAL_H\n";
 	buf<<"#define _GLOBAL_H\n";
-	buf<<"/*È«¾Ö±äÁ¿£¬ÓÃÓÚ´æ´¢±ßµÄĞÅÏ¢*/\n";
-	buf<<"/*±ßµÄÃüÃû¹æÔò£ºA_B,ÆäÖĞA->B*/\n\n";
-	if (FileR || FileW)		//´æÔÚÎÄ¼ş¶ÁĞ´²Ù×÷
+	buf<<"/*å…¨å±€å˜é‡ï¼Œç”¨äºå­˜å‚¨è¾¹çš„ä¿¡æ¯*/\n";
+	buf<<"/*è¾¹çš„å‘½åè§„åˆ™ï¼šA_B,å…¶ä¸­A->B*/\n\n";
+	if (FileR || FileW)		//å­˜åœ¨æ–‡ä»¶è¯»å†™æ“ä½œ
 	{
 		buf<<"#include <sstream>\n";
 		buf<<"#include <fstream>\n";
@@ -857,12 +857,12 @@ void X86CodeGenerate::CGglobalHeader()
 		buf<<"#define MAX_ITER 10\n";
 	}
 	//if(CallModelEmbed)
-	//	buf <<" namespace COStream" << string(objName)<<"{ \n";//Ãû×Ö¿Õ¼ä
-	//Êä³östream½á¹¹ÌåÀàĞÍ¶¨Òå 
+	//	buf <<" namespace COStream" << string(objName)<<"{ \n";//åå­—ç©ºé—´
+	//è¾“å‡ºstreamç»“æ„ä½“ç±»å‹å®šä¹‰ 
 	pEdgeInfo->DeclEdgeType(buf);
-	//Êä³öÈ«¾Ö±äÁ¿BufferµÄÉùÃ÷
+	//è¾“å‡ºå…¨å±€å˜é‡Bufferçš„å£°æ˜
 	vector<FlatNode *>::iterator iter;
-	for (iter=flatNodes_.begin();iter!=flatNodes_.end();++iter)//±éÀúËùÓĞ½áµã
+	for (iter=flatNodes_.begin();iter!=flatNodes_.end();++iter)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		for (iter_2=(*iter)->outFlatNodes.begin();iter_2!=(*iter)->outFlatNodes.end();iter_2++)
 		{
@@ -871,7 +871,7 @@ void X86CodeGenerate::CGglobalHeader()
 			buf<<pEdgeInfo->getEdgeInfo((*iter),(*iter_2)).typeName<<"> "<<edgename<<";"<<endl;
 		}	
 	}
-	if(readerActor)		//¶ÁÎÄ¼şActor
+	if(readerActor)		//è¯»æ–‡ä»¶Actor
 	{		
 		string typeName = pEdgeInfo->getEdgeInfo(readerActor,readerActor->outFlatNodes[0]).typeName;
 		buf<<"extern "<<typeName <<"* source;\n";
@@ -887,44 +887,44 @@ void X86CodeGenerate::CGglobalHeader()
 		buf<<"extern int outPutCount;\n";
 	}
 	//if(CallModelEmbed)
-		//buf<<"}\n";//Ãû×Ö¿Õ¼ä½áÊø
+		//buf<<"}\n";//åå­—ç©ºé—´ç»“æŸ
 	buf<<"#endif\n";
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	ss<<dir_<<string(objName)<<"global.h";
 	OutputToFile(ss.str(),  buf.str());
 }
 void X86CodeGenerate::CGglobalCpp()
 {
-	stringstream buf;			//´æ·ÅÊä³öµ½globalCppµÄ×Ö·û´®Á÷
-	buf<<"/*cppÎÄ¼ş,È«¾Ö±äÁ¿£¬ÓÃÓÚ´æ´¢±ßµÄĞÅÏ¢*/\n";
+	stringstream buf;			//å­˜æ”¾è¾“å‡ºåˆ°globalCppçš„å­—ç¬¦ä¸²æµ
+	buf<<"/*cppæ–‡ä»¶,å…¨å±€å˜é‡ï¼Œç”¨äºå­˜å‚¨è¾¹çš„ä¿¡æ¯*/\n";
 	buf<<"#include \"Buffer.h\"\n";
 	buf<<"#include \"" << string(objName) <<"global.h\"\n";
 	buf<<"#include <vector>\n";
 	buf<<"using namespace std;\n";
 	//if(CallModelEmbed)
-		//buf <<" namespace COStream" << string(objName)<<"{ \n";//Ãû×Ö¿Õ¼ä
-	int init1,init2;//·¢ËÍactorºÍ½ÓÊÜactor³õÌ¬µ÷¶È²úÉúºÍ½ÓÊÜµÄÊı¾İÁ¿
-	for (vector<FlatNode *>::iterator iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓĞ½áµã
+		//buf <<" namespace COStream" << string(objName)<<"{ \n";//åå­—ç©ºé—´
+	int init1,init2;//å‘é€actorå’Œæ¥å—actoråˆæ€è°ƒåº¦äº§ç”Ÿå’Œæ¥å—çš„æ•°æ®é‡
+	for (vector<FlatNode *>::iterator iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		for (vector<FlatNode *>::iterator iter_2=(*iter_1)->outFlatNodes.begin();iter_2!=(*iter_1)->outFlatNodes.end();iter_2++)
 		{
-			int stageminus; //stageminus±íÊ¾Á½¸öactorËù·ÖÅäµÄ½×¶Î²î
-			int size;	//»º³åÇøµÄ´óĞ¡
-			string edgename=(*iter_1)->name+"_"+(*iter_2)->name;	//±ßµÄÃû³Æ
-			stageminus=pSa->FindStage(*iter_2)-pSa->FindStage(*iter_1);//·¢ËÍ·½ºÍ½ÓÊÜ·½µÄÈí¼şÁ÷Ë®½×¶Î²î
-			int edgePos = iter_2 - (*iter_1)->outFlatNodes.begin();	//iter_2ÔÚiter_1µÄÊä³ö±ßµÄĞòºÅ
-			int perSteadyPushCount = sssg_->GetSteadyCount(*iter_1)*(*iter_1)->outPushWeights.at(edgePos);//·¢ËÍactorÃ¿´Îµ÷ÓÃsteadyworkĞèÒªpushµÄ¸öÊı,nc
-			//¸ù¾İNoCheckBufferÑ¡ÔñÊÇ·ñÊ¹ÓÃ±ß½ç¼ì²éµÄ»º³åÇø¹ÜÀí
-			if(NoCheckBuffer)			//Ê¹ÓÃÎŞ±ß½ç¼ì²éµÄ»º´æÇø¹ÜÀí£¬ÀûÓÃÊı¾İ¿½±´ÊµÏÖ
+			int stageminus; //stageminusè¡¨ç¤ºä¸¤ä¸ªactoræ‰€åˆ†é…çš„é˜¶æ®µå·®
+			int size;	//ç¼“å†²åŒºçš„å¤§å°
+			string edgename=(*iter_1)->name+"_"+(*iter_2)->name;	//è¾¹çš„åç§°
+			stageminus=pSa->FindStage(*iter_2)-pSa->FindStage(*iter_1);//å‘é€æ–¹å’Œæ¥å—æ–¹çš„è½¯ä»¶æµæ°´é˜¶æ®µå·®
+			int edgePos = iter_2 - (*iter_1)->outFlatNodes.begin();	//iter_2åœ¨iter_1çš„è¾“å‡ºè¾¹çš„åºå·
+			int perSteadyPushCount = sssg_->GetSteadyCount(*iter_1)*(*iter_1)->outPushWeights.at(edgePos);//å‘é€actoræ¯æ¬¡è°ƒç”¨steadyworkéœ€è¦pushçš„ä¸ªæ•°,nc
+			//æ ¹æ®NoCheckBufferé€‰æ‹©æ˜¯å¦ä½¿ç”¨è¾¹ç•Œæ£€æŸ¥çš„ç¼“å†²åŒºç®¡ç†
+			if(NoCheckBuffer)			//ä½¿ç”¨æ— è¾¹ç•Œæ£€æŸ¥çš„ç¼“å­˜åŒºç®¡ç†ï¼Œåˆ©ç”¨æ•°æ®æ‹·è´å®ç°
 			{	 
-				int copySize=0,copyStartPos=0;	//¿½±´µÄÊı¾İ´óĞ¡£¬copy´æ·ÅµÄ¿ªÊ¼Î»ÖÃ
+				int copySize=0,copyStartPos=0;	//æ‹·è´çš„æ•°æ®å¤§å°ï¼Œcopyå­˜æ”¾çš„å¼€å§‹ä½ç½®
 				for(int inEdgeIndex =0;inEdgeIndex<(*iter_2)->inFlatNodes.size();inEdgeIndex++)
 					if((*iter_2)->inFlatNodes.at(inEdgeIndex) == (*iter_1))
 					{
-						int perWorkPeekCount = (*iter_2)->inPeekWeights[inEdgeIndex];//½ÓÊÕ±ßactorÃ¿´ÎpeekµÄ¸öÊı,b
-						int perWorkPopCount = (*iter_2)->inPopWeights[inEdgeIndex];//½ÓÊÕ±ßactorÃ¿´Îµ÷ÓÃworkĞèÒªpopµÄ¸öÊı,c
-						init1 = sssg_->GetInitCount(*iter_1)*(*iter_1)->outPushWeights.at(edgePos);//·¢ËÍactorµ÷ÓÃinitwork²úÉúµÄÊı¾İÁ¿
+						int perWorkPeekCount = (*iter_2)->inPeekWeights[inEdgeIndex];//æ¥æ”¶è¾¹actoræ¯æ¬¡peekçš„ä¸ªæ•°,b
+						int perWorkPopCount = (*iter_2)->inPopWeights[inEdgeIndex];//æ¥æ”¶è¾¹actoræ¯æ¬¡è°ƒç”¨workéœ€è¦popçš„ä¸ªæ•°,c
+						init1 = sssg_->GetInitCount(*iter_1)*(*iter_1)->outPushWeights.at(edgePos);//å‘é€actorè°ƒç”¨initworkäº§ç”Ÿçš„æ•°æ®é‡
 						init2 =sssg_->GetInitCount(*iter_2)*perWorkPopCount;
 						size = init1 + perSteadyPushCount*(stageminus+2);
 						if(perWorkPeekCount == perWorkPopCount)	//peek == pop
@@ -946,7 +946,7 @@ void X86CodeGenerate::CGglobalCpp()
 						break;
 					}
 			}
-			else		//Ê¹ÓÃ±ß½ç¼ì²é£¬»º´æÇø´óĞ¡=£¨³õÌ¬Ö´ĞĞ´ÎÊı+£¨ÎÈÌ¬½×¶Î²î+1£©*ÎÈÌ¬Ö´ĞĞ´ÎÊı£©* Ã¿´ÎpushµÄÊı¾İÁ¿
+			else		//ä½¿ç”¨è¾¹ç•Œæ£€æŸ¥ï¼Œç¼“å­˜åŒºå¤§å°=ï¼ˆåˆæ€æ‰§è¡Œæ¬¡æ•°+ï¼ˆç¨³æ€é˜¶æ®µå·®+1ï¼‰*ç¨³æ€æ‰§è¡Œæ¬¡æ•°ï¼‰* æ¯æ¬¡pushçš„æ•°æ®é‡
 			{
 				size=(sssg_->GetInitCount(*iter_1)+sssg_->GetSteadyCount(*iter_1)*(stageminus+1))*(*iter_1)->outPushWeights.at(edgePos);
 				int tempSize = 1;
@@ -957,7 +957,7 @@ void X86CodeGenerate::CGglobalCpp()
 			}
 		}
 	}
-	if(readerActor)		//¶ÁÎÄ¼şActor
+	if(readerActor)		//è¯»æ–‡ä»¶Actor
 	{
 		StreamEdgeInfo edgeInfo = pEdgeInfo->getEdgeInfo(readerActor,readerActor->outFlatNodes[0]);
 		buf<<edgeInfo.typeName <<"* source;\n";
@@ -1044,7 +1044,7 @@ void X86CodeGenerate::CGglobalCpp()
 	}
 	//if(CallModelEmbed)
 		//buf<<"}\n";
-	//Êä³öµ½ÎÄ¼ş
+	//è¾“å‡ºåˆ°æ–‡ä»¶
 	stringstream ss;
 	ss<<dir_<< string(objName)<<"global.cpp";
 	OutputToFile(ss.str(),  buf.str());
@@ -1088,16 +1088,16 @@ void X86CodeGenerate::CGMakefile()
 	OutputToFile(ss.str(),buf.str());
 #endif
 }
-void X86CodeGenerate::CGThreads()   //Éú³ÉÏß³Ì´úÂë
+void X86CodeGenerate::CGThreads()   //ç”Ÿæˆçº¿ç¨‹ä»£ç 
 {
 	string threadname;
 	stringstream buf; 
 	for (int i=0;i<nCpucore_;i++)
 	{
-		buf<<"/*¸ÃÎÄ¼ş¶¨Òå¸÷threadµÄÈë¿Úº¯Êı£¬ÔÚº¯ÊıÄÚ²¿Íê³ÉÈí¼şÁ÷Ë®µü´ú*/\n";
+		buf<<"/*è¯¥æ–‡ä»¶å®šä¹‰å„threadçš„å…¥å£å‡½æ•°ï¼Œåœ¨å‡½æ•°å†…éƒ¨å®Œæˆè½¯ä»¶æµæ°´è¿­ä»£*/\n";
 		stringstream ss;
 		ss<<dir_<< string(objName)<<"thread_"<<i<<".cpp";
-		CGThread(i,buf);			//Éú³ÉÏß³Ìi
+		CGThread(i,buf);			//ç”Ÿæˆçº¿ç¨‹i
 		OutputToFile(ss.str(),buf.str());
 		ss.str("");
 		buf.str("");
@@ -1106,21 +1106,21 @@ void X86CodeGenerate::CGThreads()   //Éú³ÉÏß³Ì´úÂë
 }
 void X86CodeGenerate::CGThread(int index,stringstream&buf)
 {
-	int totalstagenum=pSa->MaxStageNum();//×î´ó½×¶ÎºÅ
+	int totalstagenum=pSa->MaxStageNum();//æœ€å¤§é˜¶æ®µå·
 	pair<multimap<FlatNode *,string>::iterator,multimap<FlatNode *,string>::iterator>pos1,pos2;
-	//Ìí¼ÓÍ·ÎÄ¼ş
+	//æ·»åŠ å¤´æ–‡ä»¶
 	buf<<"#include \"Buffer.h\"\n";
 	buf<<"#include \"Producer.h\"\n";
 	buf<<"#include \"Consumer.h\"\n";
 	buf<<"#include \""<< string(objName) <<"global.h\"\n";
-	buf<<"#include \"lock_free_barrier.h\"\t//°üº¬barrierº¯Êı\n";
-	buf<<"#include \"" << string(objName)<< "AllActorHeader.h\"\t//°üº¬ËùÓĞactorµÄÍ·ÎÄ¼ş\n";
+	buf<<"#include \"lock_free_barrier.h\"\t//åŒ…å«barrierå‡½æ•°\n";
+	buf<<"#include \"" << string(objName)<< "AllActorHeader.h\"\t//åŒ…å«æ‰€æœ‰actorçš„å¤´æ–‡ä»¶\n";
 	buf<<"#include \"rdtsc.h\"\n";
 	buf<<"#include <fstream>\n";
-	vector<FlatNode *>tempactorset = Mp->findNodeSetInPartition(index);//tempactorset´æ·ÅÏß³ÌindexÉÏËùÓĞactorµÄ¼¯ºÏ
-	//±éÀútempactorsetËùÓĞactor£¬Éú³ÉÆäÀàĞÍÊµÀı
+	vector<FlatNode *>tempactorset = Mp->findNodeSetInPartition(index);//tempactorsetå­˜æ”¾çº¿ç¨‹indexä¸Šæ‰€æœ‰actorçš„é›†åˆ
+	//éå†tempactorsetæ‰€æœ‰actorï¼Œç”Ÿæˆå…¶ç±»å‹å®ä¾‹
 	for (vector<FlatNode *>::iterator iter=tempactorset.begin();iter!=tempactorset.end();++iter)	
-	{//chenwenbin¸÷actorÊµÀı»¯
+	{//chenwenbinå„actorå®ä¾‹åŒ–
 		buf<<"extern "<<mapFlatnode2Template_[*iter]<<"<";
 		if((*iter)->inFlatNodes.size() == 0 && (*iter)->outFlatNodes.size() != 0)
 			buf<<pEdgeInfo->getEdgeInfo(*iter,(*iter)->outFlatNodes[0]).typeName;
@@ -1128,33 +1128,33 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 			buf<<pEdgeInfo->getEdgeInfo((*iter)->inFlatNodes[0],*iter).typeName;
 		else if((*iter)->inFlatNodes.size() != 0 && (*iter)->outFlatNodes.size() != 0)
 			buf<<pEdgeInfo->getEdgeInfo(*iter,(*iter)->outFlatNodes[0]).typeName<<","<<pEdgeInfo->getEdgeInfo((*iter)->inFlatNodes[0],*iter).typeName;
-		buf<<"> "<<(*iter)->name<<"_obj;\n";//¶¨Òåactor¶ÔÏó£¬actor->name_obj,µ÷ÓÃ¹¹Ôìº¯Êı£¬²ÎÊıÎªÊäÈëÊä³ö±ßµÄÈ«¾Ö±äÁ¿
+		buf<<"> "<<(*iter)->name<<"_obj;\n";//å®šä¹‰actorå¯¹è±¡ï¼Œactor->name_obj,è°ƒç”¨æ„é€ å‡½æ•°ï¼Œå‚æ•°ä¸ºè¾“å…¥è¾“å‡ºè¾¹çš„å…¨å±€å˜é‡
 	}
 	if(MakeProfile)
 	{
 		buf<<"#include  <sys/stat.h>\n";
 		buf<<"#include <sys/types.h>\n";
 	}
-	if(CHECKEACHACTORTIME || MakeProfile)		//¼ÇÂ¼Ã¿¸öactorµÄÖ´ĞĞÊ±¼ä
+	if(CHECKEACHACTORTIME || MakeProfile)		//è®°å½•æ¯ä¸ªactorçš„æ‰§è¡Œæ—¶é—´
 	{	
 		buf<<"#include <sstream>\n";
 		
 	}
-	//if(CallModelEmbed)		//Ç¶ÈëÔÚÃû×Ö¿Õ¼äCOStreamÖĞ
+	//if(CallModelEmbed)		//åµŒå…¥åœ¨åå­—ç©ºé—´COStreamä¸­
 		//buf <<" namespace COStream" << string(objName)<<"{ \n";
-	//ÉùÃ÷Íâ²¿¶¨ÒåµÄÈ«¾Ö±äÁ¿
+	//å£°æ˜å¤–éƒ¨å®šä¹‰çš„å…¨å±€å˜é‡
 	if (Linux)
 	{	
-		buf<<"extern int MAX_ITER;\n";//Ö´ĞĞ´ÎÊı£¬ÓÃ×÷µü´úÉÏÏŞ
+		buf<<"extern int MAX_ITER;\n";//æ‰§è¡Œæ¬¡æ•°ï¼Œç”¨ä½œè¿­ä»£ä¸Šé™
 	}
 	if (TRACE)
 	{
-		buf<<"extern double (*deltatimes)["<<nCpucore_<<"][2];\n";	//Èç¹ûÎªtraceµÄ»°£¬Ôò¼ÇÂ¼Ã¿¸öÏß³ÌÃ¿´Îµü´úµÄÍ¬²½ºÍ¼ÆËãÊ±¼ä³¤¶È
-		buf<<"#define	MEASURE_RUNS 100000\n";					//MEASURE_RUNSÎªÊ±ÖÓ³¤¶Èµ¥Î»£¬Îª10MÊ±ÖÓÖÜÆÚ
+		buf<<"extern double (*deltatimes)["<<nCpucore_<<"][2];\n";	//å¦‚æœä¸ºtraceçš„è¯ï¼Œåˆ™è®°å½•æ¯ä¸ªçº¿ç¨‹æ¯æ¬¡è¿­ä»£çš„åŒæ­¥å’Œè®¡ç®—æ—¶é—´é•¿åº¦
+		buf<<"#define	MEASURE_RUNS 100000\n";					//MEASURE_RUNSä¸ºæ—¶é’Ÿé•¿åº¦å•ä½ï¼Œä¸º10Mæ—¶é’Ÿå‘¨æœŸ
 	}
 	else if(CALRATIO)
 		buf<<"#define	MEASURE_RUNS 100000\n";
-	if (index)			//³ıÏß³Ì0Íâ£¬ÆäËûÏß³Ìµ÷ÓÃworkSyncµÈ´ıÏß³Ì0£¬Ïß³Ì0½øĞĞÀÛ¼ÆÆäËûÏß³ÌÊÇ·ñ½áÊø£¬²¢ÉèÖÃ±êÖ¾Î»
+	if (index)			//é™¤çº¿ç¨‹0å¤–ï¼Œå…¶ä»–çº¿ç¨‹è°ƒç”¨workSyncç­‰å¾…çº¿ç¨‹0ï¼Œçº¿ç¨‹0è¿›è¡Œç´¯è®¡å…¶ä»–çº¿ç¨‹æ˜¯å¦ç»“æŸï¼Œå¹¶è®¾ç½®æ ‡å¿—ä½
 	{
 		buf<<"void thread_"<<index<<"_fun()\n{\n";
 		buf<<"\tworkerSync("<<index<<");\n";
@@ -1169,38 +1169,38 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 	}
 	if(CALRATIO)
 		buf<<"\tdouble cal=0,total=0;\n";
-	if(CHECKEACHACTORTIME)						//Êä³öÃ¿¸öactorÔÚÃ¿¸östageÉÏµÄsteadyworkÊ±¼ä
+	if(CHECKEACHACTORTIME)						//è¾“å‡ºæ¯ä¸ªactoråœ¨æ¯ä¸ªstageä¸Šçš„steadyworkæ—¶é—´
 	{
 		buf<<"\tofstream txtfw;\n\tstringstream ss;\n";
-		buf<<"\tss<<\"¸ÃÎÄ¼ş¼ÇÂ¼¸ÃÏß³ÌÉÏÃ¿¸öactorÎÈÌ¬Ö´ĞĞµÄÊ±¼ä£¬µÚÒ»ÁĞÎªactorµÄÃû³Æ£¬µÚ¶şÁĞÎª¸Ã´ÎÎÈÌ¬Ö´ĞĞµÄÊ±ÖÓÖÜÆÚÊı£¨µ¥Î»Îª10^6£©\"<<endl;\n";
+		buf<<"\tss<<\"è¯¥æ–‡ä»¶è®°å½•è¯¥çº¿ç¨‹ä¸Šæ¯ä¸ªactorç¨³æ€æ‰§è¡Œçš„æ—¶é—´ï¼Œç¬¬ä¸€åˆ—ä¸ºactorçš„åç§°ï¼Œç¬¬äºŒåˆ—ä¸ºè¯¥æ¬¡ç¨³æ€æ‰§è¡Œçš„æ—¶é’Ÿå‘¨æœŸæ•°ï¼ˆå•ä½ä¸º10^6ï¼‰\"<<endl;\n";
 		buf<<"\ttsc_counter c2, c3;\n";	
 	}
 	else if(CALRATIO)
 		buf<<"\tofstream txtfw;\n";
-	if(MakeProfile)            //cwb£¬¼ÇÂ¼Ã¿¸öactorµÄÎÈÌ¬µÄÖ´ĞĞÊ±¼ä
+	if(MakeProfile)            //cwbï¼Œè®°å½•æ¯ä¸ªactorçš„ç¨³æ€çš„æ‰§è¡Œæ—¶é—´
 	{
 		buf<<"\tofstream txtpf;\n\tstringstream sst;\n";
 		buf<<"\ttsc_counter cc2, cc3;\n";	
 	}
 
 	
-	//stage±íÊ¾½×¶ÎºÅÊı×é£¬³õÊ¼³ı0Íâ¶¼Îª0
+	//stageè¡¨ç¤ºé˜¶æ®µå·æ•°ç»„ï¼Œåˆå§‹é™¤0å¤–éƒ½ä¸º0
 	buf<<"\tchar stage["<<totalstagenum<<"]={0};\n";
 	buf<<"\tstage[0]=1;\n";
-	//±éÀú¸ÃÏß³ÌÉÏµÄËùÓĞµÄ½×¶ÎºÅ£¬ÔÚ¶ÔÓ¦µÄ½×¶ÎºÅÄÚµ÷ÓÃÃ¿¸öactorµÄinitwork
+	//éå†è¯¥çº¿ç¨‹ä¸Šçš„æ‰€æœ‰çš„é˜¶æ®µå·ï¼Œåœ¨å¯¹åº”çš„é˜¶æ®µå·å†…è°ƒç”¨æ¯ä¸ªactorçš„initwork
 	buf<<"\tfor(int _stageNum=0;_stageNum<"<<totalstagenum<<";_stageNum++)\n";
 	buf<<"\t{\n";
-	set<int>* ptempstagenum=&mapNum2Stage.find(index)->second;		//²éÕÒ¸Ãthread¶ÔÓ¦µÄ½×¶ÎºÅ¼¯ºÏ
-	set<int>::iterator endIter = ptempstagenum->end();//±ê¼Ç½×¶ÎºÅ¼¯ºÏµÄEnd
+	set<int>* ptempstagenum=&mapNum2Stage.find(index)->second;		//æŸ¥æ‰¾è¯¥threadå¯¹åº”çš„é˜¶æ®µå·é›†åˆ
+	set<int>::iterator endIter = ptempstagenum->end();//æ ‡è®°é˜¶æ®µå·é›†åˆçš„End
 	if(CALRATIO||TRACE)			
 			buf<<"\t\tRDTSC(c0);\n";
-		for (int i=totalstagenum-1;i>=0;i--)	//µü´ústage Num
+		for (int i=totalstagenum-1;i>=0;i--)	//è¿­ä»£stage Num
 		{
-			set<int>::iterator stageiter = ptempstagenum->find(i);		//²éÕÒ¸ÃÏß³Ì¶ÔÓ¦ÔÚ½×¶ÎiÊÇ·ñÓĞactor
-			if(stageiter!=endIter){					//¸ÃstageÔÚ¸ÃthreadÉÏ
+			set<int>::iterator stageiter = ptempstagenum->find(i);		//æŸ¥æ‰¾è¯¥çº¿ç¨‹å¯¹åº”åœ¨é˜¶æ®µiæ˜¯å¦æœ‰actor
+			if(stageiter!=endIter){					//è¯¥stageåœ¨è¯¥threadä¸Š
 				buf<<"\t\tif("<<i<<"==_stageNum)\n\t\t{\n";
-				vector<FlatNode*> flatVec = pSa->FindActor(i);	//È¡µÃÔÚ¸Ã½×¶ÎµÄËùÓĞactor¼¯ºÏ
-				for(vector<FlatNode*>::iterator iter1=flatVec.begin();iter1!=flatVec.end();++iter1)//±éÀúactor£¬µ÷ÓÃ³õÌ¬initScheduleWork
+				vector<FlatNode*> flatVec = pSa->FindActor(i);	//å–å¾—åœ¨è¯¥é˜¶æ®µçš„æ‰€æœ‰actoré›†åˆ
+				for(vector<FlatNode*>::iterator iter1=flatVec.begin();iter1!=flatVec.end();++iter1)//éå†actorï¼Œè°ƒç”¨åˆæ€initScheduleWork
 				{
 					if(index == Mp->findPartitionNumForFlatNode(*iter1))
 					{
@@ -1210,7 +1210,7 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 				buf<<"\t\t}\n";
 			}
 		}	
-	if (TRACE)		//¼ÇÂ¼Ê±¼ä
+	if (TRACE)		//è®°å½•æ—¶é—´
 	{
 		buf<<"\t\tRDTSC(c1);\n";
 		if(CALRATIO)
@@ -1224,7 +1224,7 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 		buf<<"\t\tRDTSC(c1);\n";
 		buf<<"\t\tcal += COUNTER_DIFF(c1, c0, CYCLES)/MEASURE_RUNS;\n";
 	}
-	//Çø·ÖÏß³Ì0ºÍÆäËûÏß³Ì
+	//åŒºåˆ†çº¿ç¨‹0å’Œå…¶ä»–çº¿ç¨‹
 	if(index)
 		buf<<"\t\n\t\tworkerSync("<<index<<");\n";
 	else
@@ -1242,9 +1242,9 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 		buf<<"\t\tRDTSC(c1);\n";
 		buf<<"\t\ttotal += COUNTER_DIFF(c1, c0, CYCLES)/MEASURE_RUNS;\n";
 	}
-	//³õÌ¬µ÷¶ÈÍê³É
+	//åˆæ€è°ƒåº¦å®Œæˆ
 	buf<<"\t}\n";
-	//ÒÔÏÂ¿ªÊ¼Êä³ö¸ÃÏß³ÌÃ¿¸ö½×¶ÎÃ¿¸öactorµÄÎÈÌ¬µ÷¶È
+	//ä»¥ä¸‹å¼€å§‹è¾“å‡ºè¯¥çº¿ç¨‹æ¯ä¸ªé˜¶æ®µæ¯ä¸ªactorçš„ç¨³æ€è°ƒåº¦
 	buf<<"\tfor(int _stageNum="<<totalstagenum<<";_stageNum<2*"<<totalstagenum<<"+MAX_ITER-1;_stageNum++)\n\t{\n";
 	if(CALRATIO||TRACE)
 		buf<<"\t\tRDTSC(c0);\n";
@@ -1258,11 +1258,11 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 	{
 		buf<<"\t\tint steadycount;\n";
 	}
-	for (int i=totalstagenum-1;i>=0;i--)	//µü´ústage
+	for (int i=totalstagenum-1;i>=0;i--)	//è¿­ä»£stage
 	{			
 
 		set<int>::iterator stageiter = ptempstagenum->find(i);
-		if(stageiter!=endIter){					//¸ÃstageÔÚ¸ÃthreadÉÏ
+		if(stageiter!=endIter){					//è¯¥stageåœ¨è¯¥threadä¸Š
 			buf<<"\t\tif(stage["<<i<<"])\n\t\t{\n";
 
 			vector<FlatNode*> flatVec = pSa->FindActor(i);
@@ -1284,7 +1284,7 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 						buf<<"\t\t\tRDTSC(c3);\n";
 						buf<<"\t\t\tss<<\"\\t"<<(*iter1)->name<<":\"<<COUNTER_DIFF(c3,c2,CYCLES)<<endl;\n";
 					}
-					if(MakeProfile)                    //cwb,Êä³ö¸Ãactor¸Ã´ÎworkµÄËùĞèµÄÊ±ÖÓÖÜÆÚ
+					if(MakeProfile)                    //cwb,è¾“å‡ºè¯¥actorè¯¥æ¬¡workçš„æ‰€éœ€çš„æ—¶é’Ÿå‘¨æœŸ
 					{
 						buf<<"\t\t\tRDTSC(cc3);\n";
 						buf<<"\t\t\tsteadycount = "<<sssg_->GetSteadyCount((*iter1))<<";\n";
@@ -1332,14 +1332,14 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 		buf<<"\t\tRDTSC(c1);\n";
 		buf<<"\t\ttotal += COUNTER_DIFF(c1, c0, CYCLES)/MEASURE_RUNS;\n";
 	}
-	buf<<"\t}\n";//ÎÈÌ¬µ÷¶È½ØÖ¹
+	buf<<"\t}\n";//ç¨³æ€è°ƒåº¦æˆªæ­¢
 	if(CHECKEACHACTORTIME)
 	{
 		buf<<"\ttry\n\t{\n\t\ttxtfw.open(\"thread "<<index<<"'s stage.txt\");\n\t\ttxtfw<<ss.str();\n\t\ttxtfw.close();\n\t}\n\tcatch(...)\n\t\t{cout<<\"error:output to file\"<<endl;\n\t}\n";
 	}
 	if(MakeProfile)    //cwb
 	{
-		//Êä³öÃ¿¸öactorµÄÆ½¾ù¼ÆËãÊ±¼ä
+		//è¾“å‡ºæ¯ä¸ªactorçš„å¹³å‡è®¡ç®—æ—¶é—´
 		for (vector<FlatNode *>::iterator iter=tempactorset.begin();iter!=tempactorset.end();++iter)
 			//buf<<"\tsst<<\""<<(*iter)->name<<" \"<<(int)"<<(*iter)->name<<"_time/MAX_ITER<<endl;\n";
 			buf<<"\tsst<<\""<<(*iter)->name<<" \"<<(int)"<<(*iter)->name<<"_time/MAX_ITER<<endl;\n";
@@ -1347,7 +1347,7 @@ void X86CodeGenerate::CGThread(int index,stringstream&buf)
 		buf<<"\ttry\n\t{\n\t\tmkdir(\"profile\",S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);\n\t\ttxtpf.open(\""<<string(objName)<<".profile\");\n\t\ttxtpf<<sst.str();\n\t\ttxtpf.close();\n\t\tsystem(\"mv "<<string(objName)<<".profile ./profile\");\n\t}\n\tcatch(...)\n\t\t{cout<<\"error:output to file\"<<endl;\n\t}\n";
 	}
 	if(CALRATIO)
-		buf<<"\ttry\n\t{\n\t\ttxtfw.open(\"thread "<<index<<"'s CALRATIO.txt\");\n\t\ttxtfw<<\"¼ÆËã:\t\"<<cal<<endl<<\"×ÜÊ±¼ä:\t\"<<total<<endl;\n\t\ttxtfw.close();\n\t}\n\tcatch(...)\n\t\t{cout<<\"error:output to file\"<<endl;\n\t}\n";
+		buf<<"\ttry\n\t{\n\t\ttxtfw.open(\"thread "<<index<<"'s CALRATIO.txt\");\n\t\ttxtfw<<\"è®¡ç®—:\t\"<<cal<<endl<<\"æ€»æ—¶é—´:\t\"<<total<<endl;\n\t\ttxtfw.close();\n\t}\n\tcatch(...)\n\t\t{cout<<\"error:output to file\"<<endl;\n\t}\n";
 	buf<<"}\n";
 	//if(CallModelEmbed)
 		//buf<<"}";
@@ -1356,11 +1356,11 @@ void X86CodeGenerate::CGAllActorHeader()
 {
 	vector<FlatNode*>::iterator iter;
 	stringstream buf,ss;
-	//Ìí¼ÓÌõ¼ş±àÒë
+	//æ·»åŠ æ¡ä»¶ç¼–è¯‘
 	buf<<"#ifndef _H"<<string(objName)<<"AllActorHeader_H\n";
 	buf<<"#define _H"<<string(objName)<<"AllActorHeader_H\n";
 	
-	buf<<"/*°üº¬ËùÓĞactorµÄÍ·ÎÄ¼ş£¬Ö÷ÒªÊÇÎªÁË·½±ãÖ÷ÎÄ¼ş°üº¬*/\n\n";
+	buf<<"/*åŒ…å«æ‰€æœ‰actorçš„å¤´æ–‡ä»¶ï¼Œä¸»è¦æ˜¯ä¸ºäº†æ–¹ä¾¿ä¸»æ–‡ä»¶åŒ…å«*/\n\n";
 	for (iter=flatNodes_.begin();iter!=flatNodes_.end();++iter)
 	{	
 		buf<<"#include \""<< string(objName) <<(*iter)->name<<".h\"\n";	
@@ -1376,7 +1376,7 @@ void X86CodeGenerate::CGAllActorCpp()
 {
 
 }
-//Éú³Émain.cpp£¬°üº¬mainº¯ÊıµÄ¶¨Òå
+//ç”Ÿæˆmain.cppï¼ŒåŒ…å«mainå‡½æ•°çš„å®šä¹‰
 void X86CodeGenerate::CGMain()
 {
 	stringstream buf,ss;
@@ -1388,7 +1388,7 @@ void X86CodeGenerate::CGMain()
 		buf<<"#include <fstream>\n";
 	}
 	string Tab;
-	if(CallModelEmbed)     //´ËÊ±Îª»ìºÏÄ£Ê½
+	if(CallModelEmbed)     //æ­¤æ—¶ä¸ºæ··åˆæ¨¡å¼
 	{
 		buf<<"#include \"" << string(objName) <<"RunCOStream.h\"\n";
 		buf<<"#include \"setCpu.h\"\n";
@@ -1405,14 +1405,14 @@ void X86CodeGenerate::CGMain()
 		buf<<"#include \"stdlib.h\"\n";
 		buf<<"#include <pthread.h>\n";
 		buf<<"#include \"setCpu.h\"\n";
-		buf<<"#include \"lock_free_barrier.h\"	//°üº¬barrierº¯Êı\n";
-		buf<<"#include \"" << string(objName)<<"AllActorHeader.h\"\t//°üº¬ËùÓĞactorµÄÍ·ÎÄ¼ş\n";
+		buf<<"#include \"lock_free_barrier.h\"	//åŒ…å«barrierå‡½æ•°\n";
+		buf<<"#include \"" << string(objName)<<"AllActorHeader.h\"\t//åŒ…å«æ‰€æœ‰actorçš„å¤´æ–‡ä»¶\n";
 		buf<<"#include \"" << string(objName) <<"global.h\"\n";
 		buf<<"using namespace std;\n";
 	}
-	buf<<Tab<<"int MAX_ITER=1;//Ä¬ÈÏµÄÖ´ĞĞ´ÎÊıÊÇ1\n";
+	buf<<Tab<<"int MAX_ITER=1;//é»˜è®¤çš„æ‰§è¡Œæ¬¡æ•°æ˜¯1\n";
 	if(needExternType)
-		buf<<Tab<<"SPLExternType *splExtern; //½Ó¿Ú½á¹¹Ìå\n";
+		buf<<Tab<<"SPLExternType *splExtern; //æ¥å£ç»“æ„ä½“\n";
 	pair<multimap<FlatNode *,string>::iterator,multimap<FlatNode *,string>::iterator>pos1,pos2;
 	for (vector<FlatNode*>::iterator iter = sssg_->flatNodes.begin();iter != sssg_->flatNodes.end(); iter++)
 	{
@@ -1423,8 +1423,8 @@ void X86CodeGenerate::CGMain()
 			buf<<pEdgeInfo->getEdgeInfo((*iter)->inFlatNodes[0],*iter).typeName;
 		else if((*iter)->inFlatNodes.size() != 0 && (*iter)->outFlatNodes.size() != 0)
 			buf<<pEdgeInfo->getEdgeInfo(*iter,(*iter)->outFlatNodes[0]).typeName<<","<<pEdgeInfo->getEdgeInfo((*iter)->inFlatNodes[0],*iter).typeName;
-		buf<<"> "<<(*iter)->name<<"_obj(";//¶¨Òåactor¶ÔÏó£¬actor->name_obj,µ÷ÓÃ¹¹Ôìº¯Êı£¬²ÎÊıÎªÊäÈëÊä³ö±ßµÄÈ«¾Ö±äÁ¿
-		//chenwenbin ½«¸÷actor¶ÔÓ¦µÄparam×÷Îª²ÎÊı´«Èë¹¹Ôìº¯Êı
+		buf<<"> "<<(*iter)->name<<"_obj(";//å®šä¹‰actorå¯¹è±¡ï¼Œactor->name_obj,è°ƒç”¨æ„é€ å‡½æ•°ï¼Œå‚æ•°ä¸ºè¾“å…¥è¾“å‡ºè¾¹çš„å…¨å±€å˜é‡
+		//chenwenbin å°†å„actorå¯¹åº”çš„paramä½œä¸ºå‚æ•°ä¼ å…¥æ„é€ å‡½æ•°
 		paramList *pList = (*iter)->contents->params;
 		for (int i = 0; i < (*iter)->contents->paramSize; i++)
 		{
@@ -1441,7 +1441,7 @@ void X86CodeGenerate::CGMain()
 			}
 			pList = pList->next;
 		}
-		//chenwenbin ¶Ôpop,pushvalue¹¹Ôì¸³Öµ
+		//chenwenbin å¯¹pop,pushvalueæ„é€ èµ‹å€¼
 		for (int i = 0; i < (*iter)->inPopWeights.size(); i++)
 		{
 			buf<<(*iter)->inPopWeights[i]<<",";
@@ -1450,9 +1450,9 @@ void X86CodeGenerate::CGMain()
 		{
 			buf<<(*iter)->outPushWeights[i]<<",";
 		}
-		//chenwenbin ³õÌ¬ÎÈÌ¬Ö´ĞĞ´ÎÊı¹¹Ôì
+		//chenwenbin åˆæ€ç¨³æ€æ‰§è¡Œæ¬¡æ•°æ„é€ 
 		buf<<sssg_->GetSteadyCount(*iter)<<","<<sssg_->GetInitCount(*iter)<<",";
-		//mapActor2InEdgeºÍmapActor2OutEdge´æ·Å¸ÃactorËù¶ÔÓ¦µÄÊäÈëÊä³ö±ßbufferµÄÃû³Æ
+		//mapActor2InEdgeå’ŒmapActor2OutEdgeå­˜æ”¾è¯¥actoræ‰€å¯¹åº”çš„è¾“å…¥è¾“å‡ºè¾¹bufferçš„åç§°
 		pos1=mapActor2InEdge.equal_range(*iter);		
 		pos2=mapActor2OutEdge.equal_range(*iter);
 		while (pos2.first!=pos2.second)
@@ -1482,8 +1482,8 @@ void X86CodeGenerate::CGMain()
 	{
 		buf<<Tab<<"void* thread_"<<i<<"_fun_start(void *)\n"<<Tab<<"{\n\t"<<Tab<<"set_cpu("<<i<<");\n\t"<<Tab<<"thread_"<<i<<"_fun();\n\t"<<Tab<<"return 0;\n"<<Tab<<"}\n";
 	}
-	if(CallModelEmbed){               // »ìºÏÄ£Ê½
-		if(readerActor)	//´æÔÚfilereader£¬¹¹ÔìÒÔÊäÈëÁ÷inÀ´´´½¨Á÷³ÌĞòµÄÊı¾İÔ´
+	if(CallModelEmbed){               // æ··åˆæ¨¡å¼
+		if(readerActor)	//å­˜åœ¨filereaderï¼Œæ„é€ ä»¥è¾“å…¥æµinæ¥åˆ›å»ºæµç¨‹åºçš„æ•°æ®æº
 		{
 			int fileReaderPush,fileReaderSteadyCount,fileReaderInitCount;
 			StreamEdgeInfo  readerEdgeInfo = pEdgeInfo->getEdgeInfo(readerActor,readerActor->outFlatNodes[0]);
@@ -1494,25 +1494,25 @@ void X86CodeGenerate::CGMain()
 			buf<<"\t\tvector<"<<readerEdgeInfo.typeName<<"> sourceDataVec;\n";
 			buf<<"\t\t"<<readerEdgeInfo.typeName<<" temp;\n";
 			buf<<"\t\twhile(in >> temp)\n\t\t\tsourceDataVec.push_back(temp);\n\t\tint size = sourceDataVec.size();\n\t\tsource = new "<<readerEdgeInfo.typeName<<"[size];\n\t\tfor(int i=0;i<size;i++)\n\t\t\tsource[i] = sourceDataVec[i];\n";
-			buf<<"\t\tMAX_ITER = (size-"<<fileReaderInitCount<<"*"<<fileReaderPush<<")/("<<fileReaderSteadyCount<<"*"<<fileReaderPush<<");\n";//ÉèÖÃµü´úÖ´ĞĞ´ÎÊı (size - ³õÌ¬Ö´ĞĞ´ÎÊı*push)/(ÎÈÌ¬Ö´ĞĞ´ÎÊı*push)
+			buf<<"\t\tMAX_ITER = (size-"<<fileReaderInitCount<<"*"<<fileReaderPush<<")/("<<fileReaderSteadyCount<<"*"<<fileReaderPush<<");\n";//è®¾ç½®è¿­ä»£æ‰§è¡Œæ¬¡æ•° (size - åˆæ€æ‰§è¡Œæ¬¡æ•°*push)/(ç¨³æ€æ‰§è¡Œæ¬¡æ•°*push)
 
 			StreamEdgeInfo  writerEdgeInfo;
 			int fileWriterPush,fileWriterSteadyCount,fileWriterInitCount;
-			if(writerActor)	//´æÔÚfilewriter£¬¹¹ÔìÊä³öÊı×éÖ¸Õë
+			if(writerActor)	//å­˜åœ¨filewriterï¼Œæ„é€ è¾“å‡ºæ•°ç»„æŒ‡é’ˆ
 			{
 				writerEdgeInfo = pEdgeInfo->getEdgeInfo(writerActor->inFlatNodes[0],writerActor);
 				fileWriterInitCount = sssg_->GetInitCount(writerActor);
 				fileWriterSteadyCount = sssg_->GetSteadyCount(writerActor);
 				fileWriterPush = writerActor->inPopWeights[0];
-				buf<<"\t\tsink = new "<<writerEdgeInfo.typeName<<"[MAX_ITER*"<<(fileWriterInitCount+fileWriterSteadyCount)*fileWriterPush<<"];\n";	//Êä³öÊı×é´óĞ¡
+				buf<<"\t\tsink = new "<<writerEdgeInfo.typeName<<"[MAX_ITER*"<<(fileWriterInitCount+fileWriterSteadyCount)*fileWriterPush<<"];\n";	//è¾“å‡ºæ•°ç»„å¤§å°
 				buf<<"\t\toutputNum = MAX_ITER*"<<(fileWriterInitCount+fileWriterSteadyCount)*fileWriterPush<<";\n";
 			}
 			buf<<"\t}\n";
 
-			/*Ô´Êı¾İÊı×éÖ¸Õë¹¹Ôì*/
+			/*æºæ•°æ®æ•°ç»„æŒ‡é’ˆæ„é€ */
 			buf<<"\tRunCOStream::RunCOStream(void* pSrc,int srcDataCount)\n\t{\n";
 			buf<<"\t\tsource = ("<<readerEdgeInfo.typeName<<"*)pSrc;\n";
-			buf<<"\t\tMAX_ITER = (srcDataCount-"<<fileReaderInitCount<<"*"<<fileReaderPush<<")/("<<fileReaderSteadyCount<<"*"<<fileReaderPush<<");\n";//ÉèÖÃµü´úÖ´ĞĞ´ÎÊı (size - ³õÌ¬Ö´ĞĞ´ÎÊı*push)/(ÎÈÌ¬Ö´ĞĞ´ÎÊı*push)
+			buf<<"\t\tMAX_ITER = (srcDataCount-"<<fileReaderInitCount<<"*"<<fileReaderPush<<")/("<<fileReaderSteadyCount<<"*"<<fileReaderPush<<");\n";//è®¾ç½®è¿­ä»£æ‰§è¡Œæ¬¡æ•° (size - åˆæ€æ‰§è¡Œæ¬¡æ•°*push)/(ç¨³æ€æ‰§è¡Œæ¬¡æ•°*push)
 			if(writerActor)
 			{
 				buf<<"\t\tsink = new "<<writerEdgeInfo.typeName<<"[MAX_ITER*"<<(fileWriterInitCount+fileWriterSteadyCount)*fileWriterPush<<"];\n";
@@ -1520,7 +1520,7 @@ void X86CodeGenerate::CGMain()
 			}
 			buf<<"\t}\n";
 
-			/*Í¨¹ıÎÄ¼şÂ·¾¶¹¹Ôì*/
+			/*é€šè¿‡æ–‡ä»¶è·¯å¾„æ„é€ */
 			buf<<"\tRunCOStream::RunCOStream(string path)\n\t{\n";
 			buf<<"\t\tifstream ifile;\n";
 			buf<<"\t\tifile.open(path.c_str());\n";
@@ -1530,7 +1530,7 @@ void X86CodeGenerate::CGMain()
 			buf<<"\t\tvector<"<<readerEdgeInfo.typeName<<"> sourceDataVec;\n";
 			buf<<"\t\t"<<readerEdgeInfo.typeName<<" temp;\n";
 			buf<<"\t\twhile(instream >> temp)\n\t\t\tsourceDataVec.push_back(temp);\n\t\tint size = sourceDataVec.size();\n\t\tsource = new "<<readerEdgeInfo.typeName<<"[size];\n\t\tfor(int i=0;i<size;i++)\n\t\t\tsource[i] = sourceDataVec[i];\n";
-			buf<<"\t\tMAX_ITER = (size-"<<fileReaderInitCount<<"*"<<fileReaderPush<<")/("<<fileReaderSteadyCount<<"*"<<fileReaderPush<<");\n";//ÉèÖÃµü´úÖ´ĞĞ´ÎÊı (size - ³õÌ¬Ö´ĞĞ´ÎÊı*push)/(ÎÈÌ¬Ö´ĞĞ´ÎÊı*push)
+			buf<<"\t\tMAX_ITER = (size-"<<fileReaderInitCount<<"*"<<fileReaderPush<<")/("<<fileReaderSteadyCount<<"*"<<fileReaderPush<<");\n";//è®¾ç½®è¿­ä»£æ‰§è¡Œæ¬¡æ•° (size - åˆæ€æ‰§è¡Œæ¬¡æ•°*push)/(ç¨³æ€æ‰§è¡Œæ¬¡æ•°*push)
 			if(writerActor)
 			{
 				buf<<"\t\tsink = new "<<writerEdgeInfo.typeName<<"[MAX_ITER*"<<(fileWriterInitCount+fileWriterSteadyCount)*fileWriterPush<<"];\n";
@@ -1538,20 +1538,20 @@ void X86CodeGenerate::CGMain()
 			}
 			buf<<"\t}\n";
 		}
-		else{			//Ã»ÓĞfilereader½Úµã£¬±íÃ÷Êı¾İÁ÷³ÌĞò×Ô¼ºÉú³ÉÊı¾İÔ´£¬Ö»ĞèÒª¶¨ÒåÄ¬ÈÏ¹¹Ôìº¯Êı
-			//´¦Àí´ÓcostreamÈ«¾Ö±äÁ¿ÖĞµÄÊı¾İ
+		else{			//æ²¡æœ‰filereaderèŠ‚ç‚¹ï¼Œè¡¨æ˜æ•°æ®æµç¨‹åºè‡ªå·±ç”Ÿæˆæ•°æ®æºï¼Œåªéœ€è¦å®šä¹‰é»˜è®¤æ„é€ å‡½æ•°
+			//å¤„ç†ä»costreamå…¨å±€å˜é‡ä¸­çš„æ•°æ®
 			buf << "\tRunCOStream::RunCOStream()\n\t{\n\t\n";
 			buf << "\t}\n";
 
-			//´¦Àí´ÓC++mainº¯ÊıÖĞ´«ÈëµÄÊı¾İ
+			//å¤„ç†ä»C++mainå‡½æ•°ä¸­ä¼ å…¥çš„æ•°æ®
 			buf<<"\tRunCOStream::RunCOStream(stringstream& in)\n\t{\n\t\n";
 
 			FlatNode *topleverNode = sssg_->GetTopLevel();
 			StreamEdgeInfo  EdgeInfo = pEdgeInfo->getEdgeInfo(topleverNode, topleverNode->outFlatNodes[0]);
 			
 			buf << "\t\t" <<EdgeInfo.typeName << " temp;\n";
-			//´ÓÊäÈëÁ÷ÖĞ´«ÈëµÄÊı¾İÊÇ»ù±¾ÀàĞÍ£¬Ã»ÓĞ·â×°ÔÚstructÖĞµÄ
-			//½«temp½á¹¹ÌåÖĞµÄ±äÁ¿ÃûÈ¡³öÀ´
+			//ä»è¾“å…¥æµä¸­ä¼ å…¥çš„æ•°æ®æ˜¯åŸºæœ¬ç±»å‹ï¼Œæ²¡æœ‰å°è£…åœ¨structä¸­çš„
+			//å°†tempç»“æ„ä½“ä¸­çš„å˜é‡åå–å‡ºæ¥
 			string name = EdgeInfo.typeName;
 			string val=name.substr(name.find("_")+1);
 			
@@ -1560,7 +1560,7 @@ void X86CodeGenerate::CGMain()
 
 
 		}
-		/*Run,Æô¶¯stream³ÌĞò*/	
+		/*Run,å¯åŠ¨streamç¨‹åº*/	
 		//		if(needExternType)
 		//			buf<<"\tvoid RunCOStream::Run(int iter_num,SPLExternType *splPoint)\n\t{\n";
 		//		else
@@ -1572,16 +1572,16 @@ void X86CodeGenerate::CGMain()
 		string name = EdgeInfo.typeName;
 		string val = name.substr(name.find("_") + 1);
 
-		//½«½ÓÊÕµ½µÄÊı¾İ¿½±´µ½È«¾ÖÊı×éÖĞ
+		//å°†æ¥æ”¶åˆ°çš„æ•°æ®æ‹·è´åˆ°å…¨å±€æ•°ç»„ä¸­
 		buf << "\t\tfor(int i = 0;i < sourceDataVec.size();i++){\n";
 		buf << "\t\t\tsourceData[i] = sourceDataVec[i]."<<val<<";\n";
 		buf << "\t\t}\n";
 
-		//ÊµÏÖÊı¾İµÄÊä³ö£¬Í¨¹ıÈ«¾Ö±äÁ¿½«Êı¾İ·µ»Ø
+		//å®ç°æ•°æ®çš„è¾“å‡ºï¼Œé€šè¿‡å…¨å±€å˜é‡å°†æ•°æ®è¿”å›
 
 	
 		if(CALRATIO){
-			buf<<"\t\t tsc_counter c0, c1;//±ê¼ÇÕû¸ö³ÌĞòrunµÄÊ±¼ä lihe\n";
+			buf<<"\t\t tsc_counter c0, c1;//æ ‡è®°æ•´ä¸ªç¨‹åºrunçš„æ—¶é—´ lihe\n";
 			buf<<"\t\t long totalCal,totalSyn;\n";
 		}
 
@@ -1593,7 +1593,7 @@ void X86CodeGenerate::CGMain()
 		buf<<"\t\tpthread_t tid["<<nCpucore_-1<<"];\n";
 		//buf<<"\t\tset_cpu(0);\n";
 		if(CALRATIO)
-			buf<<"\t\tRDTSC(c0);//³ÌĞò¿ªÊ¼Ê±¼ä£¬ lihe\n";
+			buf<<"\t\tRDTSC(c0);//ç¨‹åºå¼€å§‹æ—¶é—´ï¼Œ lihe\n";
 		buf<<"\t\tallocBarrier("<<nCpucore_<<");\n";
 		for (int i=1;i<nCpucore_;i++)
 		{
@@ -1601,15 +1601,15 @@ void X86CodeGenerate::CGMain()
 		}
 		buf<<"\t\tthread_0_fun();\n";
 		if(CALRATIO){
-			buf<<"\t\tRDTSC(c1);//³ÌĞò½áÊøÊ±¼ä£¬ lihe\n";
-			buf<<"\t\tlong timeCount = COUNTER_DIFF(c1, c0, CYCLES);//µÃµ½³ÌĞòÔËĞĞ×ÜÊ±¼ä lihe\n";
-			buf<<"\t\tcout<<\"totalTime:	\"<<timeCount<<endl;//Êä³ö lihe\n";
+			buf<<"\t\tRDTSC(c1);//ç¨‹åºç»“æŸæ—¶é—´ï¼Œ lihe\n";
+			buf<<"\t\tlong timeCount = COUNTER_DIFF(c1, c0, CYCLES);//å¾—åˆ°ç¨‹åºè¿è¡Œæ€»æ—¶é—´ lihe\n";
+			buf<<"\t\tcout<<\"totalTime:	\"<<timeCount<<endl;//è¾“å‡º lihe\n";
 			buf<<"\t\tfor(int i=0;i<"<<nCpucore_<<";i++){\n";
-			buf<<"\t\t\tcout<<calArr[i]<<\"	\"<<synArr[i]<<endl;//Êä³ö¼ÆËãÊ±¼äºÍÍ¬²½Ê±¼ä£¬ lihe\n";
-			buf<<"\t\t\ttotalCal += calArr[i];//ÀÛ¼ÓÕû¸ö³ÌĞòµÄ¼ÆËãÊ±¼ä£¬ lihe\n" ;
-			buf<<"\t\t\ttotalSyn += synArr[i];//ÀÛ¼ÓÕû¸ö³ÌĞòµÄÍ¬²½Ê±¼ä£¬ lihe\n" ;
+			buf<<"\t\t\tcout<<calArr[i]<<\"	\"<<synArr[i]<<endl;//è¾“å‡ºè®¡ç®—æ—¶é—´å’ŒåŒæ­¥æ—¶é—´ï¼Œ lihe\n";
+			buf<<"\t\t\ttotalCal += calArr[i];//ç´¯åŠ æ•´ä¸ªç¨‹åºçš„è®¡ç®—æ—¶é—´ï¼Œ lihe\n" ;
+			buf<<"\t\t\ttotalSyn += synArr[i];//ç´¯åŠ æ•´ä¸ªç¨‹åºçš„åŒæ­¥æ—¶é—´ï¼Œ lihe\n" ;
 			buf<<"\t\t}\n";
-			buf<<"\t\tcout<<totalCal<<\"	\"<<totalSyn<<endl;//Êä³öÕû¸ö³ÌĞòµÄ¼ÆËãÊ±¼äºÍÍ¬²½Ê±¼ä£¬ lihe\n";
+			buf<<"\t\tcout<<totalCal<<\"	\"<<totalSyn<<endl;//è¾“å‡ºæ•´ä¸ªç¨‹åºçš„è®¡ç®—æ—¶é—´å’ŒåŒæ­¥æ—¶é—´ï¼Œ lihe\n";
 		}
 		if(writerActor)
 			buf<<"\t\toutArray = sink;\n";
@@ -1618,7 +1618,7 @@ void X86CodeGenerate::CGMain()
 	//	buf<<"}\n";
 		ss<<dir_<< string(objName) <<"RunCOStream.cpp";
 	}
-	else				//¶ÀÁ¢Ä£Ê½£¬Éú³Émain
+	else				//ç‹¬ç«‹æ¨¡å¼ï¼Œç”Ÿæˆmain
 	{
 		buf<<"int main(int argc,char **argv)\n{\n";
 		buf<<"\tvoid setRunIterCount(int,char**);\n";
@@ -1641,23 +1641,23 @@ void X86CodeGenerate::CGMain()
 		{
 			buf<<"\tstring txtDataFileName = \"traceDat.txt\";\n\tstringstream txtDataContent;\n";
 			buf<<"\tdouble perThreadTotalTime["<<nCpucore_<<"]={0},perThreadCalucatorTime["<<nCpucore_<<"]={0};\n";
-			buf<<"\ttxtDataContent<<\"¸ÃÎÄ¼ş¼ÇÂ¼Ã¿¸öÏß³ÌÃ¿´Îµü´ú¼ÆËãºÍÍ¬²½ËùĞèÒªµÄÊ±ÖÓÖÜÆÚÊı£¬µ¥Î»Îª10^6\"<<endl;\n";
+			buf<<"\ttxtDataContent<<\"è¯¥æ–‡ä»¶è®°å½•æ¯ä¸ªçº¿ç¨‹æ¯æ¬¡è¿­ä»£è®¡ç®—å’ŒåŒæ­¥æ‰€éœ€è¦çš„æ—¶é’Ÿå‘¨æœŸæ•°ï¼Œå•ä½ä¸º10^6\"<<endl;\n";
 			buf<<"\tfor(int threadindex=0;threadindex<"<<nCpucore_<<";threadindex++)\n\t{\n";
-			buf<<"\t\ttxtDataContent<<\"Ïß³Ì\"<<threadindex<<\"µÄÖ´ĞĞÊ±¼äÈçÏÂ:\"<<endl;\n";
-			buf<<"\t\ttxtDataContent<<\"initworkstage:\\t\\t¼ÆËãÊ±¼ä\\t\\tÍ¬²½Ê±¼ä\"<<endl;\n";
+			buf<<"\t\ttxtDataContent<<\"çº¿ç¨‹\"<<threadindex<<\"çš„æ‰§è¡Œæ—¶é—´å¦‚ä¸‹:\"<<endl;\n";
+			buf<<"\t\ttxtDataContent<<\"initworkstage:\\t\\tè®¡ç®—æ—¶é—´\\t\\tåŒæ­¥æ—¶é—´\"<<endl;\n";
 			buf<<"\t\tfor(int stageindex=0;stageindex<"<<pSa->MaxStageNum()<<";stageindex++)\n\t\t{\n";
 			buf<<"\t\t\ttxtDataContent<<stageindex<<\":\t\"<<deltatimes[stageindex][threadindex][0]<<\"\t\t\t\"<<deltatimes[stageindex][threadindex][1]<<endl;\n\n";
 			buf<<"\t\t\tperThreadCalucatorTime[threadindex] += deltatimes[stageindex][threadindex][0];\n";
 			buf<<"\t\t\tperThreadTotalTime[threadindex] += (deltatimes[stageindex][threadindex][0]+deltatimes[stageindex][threadindex][1]);\n\t\t}\n";
-			buf<<"\t\ttxtDataContent<<\"steadyworkstage:\\t\\t¼ÆËãÊ±¼ä\\t\\tÍ¬²½Ê±¼ä\"<<endl;\n";
+			buf<<"\t\ttxtDataContent<<\"steadyworkstage:\\t\\tè®¡ç®—æ—¶é—´\\t\\tåŒæ­¥æ—¶é—´\"<<endl;\n";
 			buf<<"\t\tfor(int stageindex=0;stageindex<MAX_ITER+"<<pSa->MaxStageNum()-1<<";stageindex++)\n\t\t{\n";
 			buf<<"\t\t\ttxtDataContent<<stageindex<<\":\t\"<<deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][0]<<\"\t\t\t\"<<deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][1]<<endl;\n";
 			buf<<"\t\t\tperThreadCalucatorTime[threadindex] += deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][0];\n";
 			buf<<"\t\t\tperThreadTotalTime[threadindex] += (deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][0]+deltatimes[stageindex+"<<pSa->MaxStageNum()<<"][threadindex][1]);\n\t\t}\n\t}\n";
-			buf<<"\ttxtDataContent<<\"\\n\\nÏß³ÌÔËĞĞÊ±¼ä·Ö²¼ÈçÏÂ£º\"<<endl;\n";
-			buf<<"\ttxtDataContent<<\"Ïß³Ì		¼ÆËãÊ±¼ä		Í¬²½Ê±¼ä		¼ÆËã°Ù·Ö±È\"<<endl;\n";
+			buf<<"\ttxtDataContent<<\"\\n\\nçº¿ç¨‹è¿è¡Œæ—¶é—´åˆ†å¸ƒå¦‚ä¸‹ï¼š\"<<endl;\n";
+			buf<<"\ttxtDataContent<<\"çº¿ç¨‹		è®¡ç®—æ—¶é—´		åŒæ­¥æ—¶é—´		è®¡ç®—ç™¾åˆ†æ¯”\"<<endl;\n";
 			buf<<"\tfor(int threadindex=0;threadindex<"<<nCpucore_<<";threadindex++)\n";
-			buf<<"\t\ttxtDataContent<<\"Ïß³Ì\"<<threadindex<<\":		\"<<perThreadTotalTime[threadindex]<<\"		\"<<(perThreadTotalTime[threadindex]- perThreadCalucatorTime[threadindex])<<\"		\"<<100*perThreadCalucatorTime[threadindex]/perThreadTotalTime[threadindex]<<\"%\"<<endl;\n";
+			buf<<"\t\ttxtDataContent<<\"çº¿ç¨‹\"<<threadindex<<\":		\"<<perThreadTotalTime[threadindex]<<\"		\"<<(perThreadTotalTime[threadindex]- perThreadCalucatorTime[threadindex])<<\"		\"<<100*perThreadCalucatorTime[threadindex]/perThreadTotalTime[threadindex]<<\"%\"<<endl;\n";
 			buf<<"\tofstream txtfw;\n\ttry\n\t{\n\t\ttxtfw.open(txtDataFileName.c_str());\n\t\ttxtfw<<txtDataContent.str();\n\t\ttxtfw.close();\n\t}\n\tcatch(...)\n\t{\n\t\tcout<<\"error:output to file\"<<endl;\n\t}\n";
 			//trace for image
 			buf<<"\tstring imageDataFileName = \"traceDat.dat\";\n\tstringstream imageDataContent;\n\tdouble base;\n";
@@ -1704,8 +1704,8 @@ void X86CodeGenerate::CGMain()
 			int initworkcount = sssg_->GetInitCount(flatNodes_[0]);
 			int steadyworkcount = sssg_->GetSteadyCount(flatNodes_[0]);;
 			int perWorkItem = flatNodes_[0]->outPushWeights[0];
-			buf<<"\tint maxtimes = (sourceCount-"<<perWorkItem<<"*"<<initworkcount<<")/("<<steadyworkcount<<"*"<<perWorkItem<<");\n";//ÉèÖÃµü´úÖ´ĞĞ´ÎÊı
-			buf<<"\tif(MAX_ITER>maxtimes)\n\t{\t\tcout<<\"ÎÄ¼şÖĞÊı¾İ²»¹»Ö´ĞĞ\"<<MAX_ITER<<\"´Î,Êµ¼ÊÖ»Ö´ĞĞ\"<<maxtimes<<\"´Î\";\n\t\tMAX_ITER = maxtimes;\n\t}\n";
+			buf<<"\tint maxtimes = (sourceCount-"<<perWorkItem<<"*"<<initworkcount<<")/("<<steadyworkcount<<"*"<<perWorkItem<<");\n";//è®¾ç½®è¿­ä»£æ‰§è¡Œæ¬¡æ•°
+			buf<<"\tif(MAX_ITER>maxtimes)\n\t{\t\tcout<<\"æ–‡ä»¶ä¸­æ•°æ®ä¸å¤Ÿæ‰§è¡Œ\"<<MAX_ITER<<\"æ¬¡,å®é™…åªæ‰§è¡Œ\"<<maxtimes<<\"æ¬¡\";\n\t\tMAX_ITER = maxtimes;\n\t}\n";
 
 		}
 		if(writerActor && FileW)
@@ -1728,9 +1728,9 @@ void X86CodeGenerate::CGMain()
 	}
 	OutputToFile(ss.str(),buf.str());
 
-	if(CallModelEmbed)	//Éú³ÉRunCOStream.hºÍCOStream.h
+	if(CallModelEmbed)	//ç”ŸæˆRunCOStream.hå’ŒCOStream.h
 	{
-		//Éú³ÉRunCOStream.h
+		//ç”ŸæˆRunCOStream.h
 		buf.str("");
 		ss.str("");
 		if(needExternType)
@@ -1743,7 +1743,7 @@ void X86CodeGenerate::CGMain()
 		buf<<"#include \"stdlib.h\"\n";
 		buf<<"#include <pthread.h>\n";
 		//buf<<"#include \"setCpu.h\"\n";
-		buf<<"#include \"lock_free_barrier.h\"	//°üº¬barrierº¯Êı\n";
+		buf<<"#include \"lock_free_barrier.h\"	//åŒ…å«barrierå‡½æ•°\n";
 		buf<<"#include \"" << string(objName) <<"global.h\"\n";
 		buf << "#include \""<<string(objName)<<"GlobalVar.h\"\n";
 		buf<<"#include <vector>\n";
@@ -1755,9 +1755,9 @@ void X86CodeGenerate::CGMain()
 		buf<<"\t\tRunCOStream();\n";
 		buf<<"\t\tRunCOStream(string path);\n";
 		buf<<"\t\tvoid Run();\n";
-		/*GetOutputNum£¬È¡µÃÊä³öÊı¾İ¸öÊı*/
+		/*GetOutputNumï¼Œå–å¾—è¾“å‡ºæ•°æ®ä¸ªæ•°*/
 		buf<<"\t\tint GetOutputNum()\n\t\t{\n\t\t\treturn  outputNum;\n\t\t}\n";
-		/*GetOutputArray,È¡µÃÊä³öÊı¾İÊı×éÖ¸Õë*/
+		/*GetOutputArray,å–å¾—è¾“å‡ºæ•°æ®æ•°ç»„æŒ‡é’ˆ*/
 
 		FlatNode *topleverNode = sssg_->GetTopLevel();
 		StreamEdgeInfo  EdgeInfo = pEdgeInfo->getEdgeInfo(topleverNode, topleverNode->outFlatNodes[0]);
@@ -1765,7 +1765,7 @@ void X86CodeGenerate::CGMain()
 		string valtype = name.substr(0, name.find("_"));
 		string val = name.substr(name.find("_")+1);
 
-		//·µ»ØÖµÖ±½Ó·µ»ØµÄÊÇvector£¬vectorÀïÊÇÊı¾İÀàĞÍ²»ÊÇ·â×°ÔÚstructÖĞµÄ½á¹¹
+		//è¿”å›å€¼ç›´æ¥è¿”å›çš„æ˜¯vectorï¼Œvectoré‡Œæ˜¯æ•°æ®ç±»å‹ä¸æ˜¯å°è£…åœ¨structä¸­çš„ç»“æ„
 		buf << "\n\t\tvector<" << valtype << ">" ;//EdgeInfo.typeName==int_x;
 		buf << " GetOutputArray()\n\t\t{\n";
 		//buf << "\t\tfor(int i=0;i<outputNum;i++){\n";
@@ -1781,10 +1781,10 @@ void X86CodeGenerate::CGMain()
 		buf << "\t\treturn temp;\n";
 		buf << "\t\t}\n";
 
-		/*Îö¹¹º¯Êı*/
+		/*ææ„å‡½æ•°*/
 		buf<<"\t\t~RunCOStream()\n\t\t{\n\t\t}\n";
-		/*Ë½ÓĞ³ÉÔ±±äÁ¿*/
-		//Ìí¼Ó½ÓÊÜÍâ²¿Êı¾İµÄvector
+		/*ç§æœ‰æˆå‘˜å˜é‡*/
+		//æ·»åŠ æ¥å—å¤–éƒ¨æ•°æ®çš„vector
 		buf<<"\tprivate:\n\t\tint outputNum;\n";
 		buf << "\n\t\tvector<" << EdgeInfo.typeName << "> sourceDataVec;\n";
 		buf << "\n\t\tvector<" << EdgeInfo.typeName << "> resultDataVec;\n";
@@ -1794,7 +1794,7 @@ void X86CodeGenerate::CGMain()
 		//buf<<"}\n";
 		ss<<dir_<< string(objName) <<"RunCOStream.h";
 		OutputToFile(ss.str(),buf.str());
-		//Éú³ÉCOStream.h
+		//ç”ŸæˆCOStream.h
 		buf.str("");
 		ss.str("");
 		//buf <<" namespace COStream" << string(objName)<<"{ \n";
@@ -1803,21 +1803,21 @@ void X86CodeGenerate::CGMain()
 		OutputToFile(ss.str(),buf.str());
 	}
 }
-//Éú³ÉFileReaderActorµÄinitworkºÍworkº¯Êı
+//ç”ŸæˆFileReaderActorçš„initworkå’Œworkå‡½æ•°
 void X86CodeGenerate::CGFileReaderActor(stringstream &buf)		
 {
-	/*Éú³ÉinitWork()*/
+	/*ç”ŸæˆinitWork()*/
 	buf<<"\tvoid initWork()\n\t{\n\t\tdataCount = 0;\n\t}\n";
-	/*FileReaderµÄworkº¯Êı*/
+	/*FileReaderçš„workå‡½æ•°*/
 	buf<<"\tvoid work()\n\t{\n";
 	buf<<"\t\t"<<readerActor->pushString[0]<<"[0] = source[dataCount++];\n\t\tpushToken();\n\t}\n";
 }
-//Éú³ÉFileWriterActorµÄinitworkºÍworkº¯Êı
+//ç”ŸæˆFileWriterActorçš„initworkå’Œworkå‡½æ•°
 void X86CodeGenerate::CGFileWriterActor(stringstream &buf)
 {
-	/*Éú³ÉinitWork()*/
+	/*ç”ŸæˆinitWork()*/
 	buf<<"\tvoid initWork()\n\t{\n\t\tdataCount = 0;\n\t}\n";
-	/*FilewriterµÄworkº¯Êı*/
+	/*Filewriterçš„workå‡½æ•°*/
 	buf<<"\tvoid work()\n\t{\n";
 	//	buf<<"\t\t"<<writerActor->peekString[0]<<"[0] = sink[dataCount++];\n\t\tpopToken();\n\t}\n";
 	buf<<"\t\t"<<"sink[dataCount++] = " << writerActor->peekString[0]<<"[0];\n\t\tpopToken();\n\t}\n";
@@ -1838,7 +1838,7 @@ int X86CodeGenerate::OutputChar(char val)
 	case '\"': declInitList<<"\\\"";break;
 	case '\'': declInitList<<"\\\'";break;
 	default:
-		if (isprint(val)) //ÅĞ¶ÏvalÊÇ·ñÎª¿É´òÓ¡×Ö·û
+		if (isprint(val)) //åˆ¤æ–­valæ˜¯å¦ä¸ºå¯æ‰“å°å­—ç¬¦
 		{
 			declInitList<<(val);
 		} else 
@@ -1882,7 +1882,7 @@ void X86CodeGenerate::CharToText(char *str, unsigned char val){
 		sprintf(str, "0x%x", val);
 	}
 }
-//Éú³ÉactorÄÚµÄÓï¾ä
+//ç”Ÿæˆactorå†…çš„è¯­å¥
 void X86CodeGenerate::OutputStmt(Node *node, int offset)
 {
 	if (node->typ != Block)
@@ -1892,7 +1892,7 @@ void X86CodeGenerate::OutputStmt(Node *node, int offset)
 		declInitList << ";";
 		return;
 	}
-	//±éÀúÓï¾änode
+	//éå†è¯­å¥node
 	SPL2X86_Node(node, offset);
 	switch (node->typ)
 	{
@@ -1972,10 +1972,10 @@ void X86CodeGenerate::OutputStmtList(List *list, int offset)
 		OutputStmt(item, offset);
 	}
 }
-//¶àÎ¬Êı×é³õÊ¼»¯¹ı³Ì£¨µİ¹é£©
+//å¤šç»´æ•°ç»„åˆå§‹åŒ–è¿‡ç¨‹ï¼ˆé€’å½’ï¼‰
 void X86CodeGenerate::RecursiveAdclInit(List *init)
 {
-	//¶àÎ¬Êı×éÔòinitÊÇÒ»¸ö¶àÎ¬µÄÁ´±í
+	//å¤šç»´æ•°ç»„åˆ™initæ˜¯ä¸€ä¸ªå¤šç»´çš„é“¾è¡¨
 	ListMarker marker;
 	Node *item;
 	int i=1;
@@ -1990,12 +1990,12 @@ void X86CodeGenerate::RecursiveAdclInit(List *init)
 			declInitList<<GetOpType(item->u.unary.op);
 			SPL2X86_Node(item->u.unary.expr,0);
 		}
-		else if(item->typ == Const) // Èç¹ûÊı×é³ÉÔ±ÊÇ»ù±¾ÀàĞÍ
+		else if(item->typ == Const) // å¦‚æœæ•°ç»„æˆå‘˜æ˜¯åŸºæœ¬ç±»å‹
 		{
 			if(i!=1) declInitList<<",";
 			SPL2X86_Node(item,0);
 		}
-		else if (item->typ == Initializer)//Èç¹ûÊı×é³ÉÔ±ÊÇÒ»¸öÊı×éÔòµİ¹é
+		else if (item->typ == Initializer)//å¦‚æœæ•°ç»„æˆå‘˜æ˜¯ä¸€ä¸ªæ•°ç»„åˆ™é€’å½’
 		{
 			RecursiveAdclInit(item->u.initializer.exprs);
 			if(i != len)
@@ -2004,7 +2004,7 @@ void X86CodeGenerate::RecursiveAdclInit(List *init)
 				OutputCRSpaceAndTabs(4);
 			}
 		}
-		else if (item->typ == ImplicitCast)//»ù±¾ÀàĞÍµÄÒşÊ½×ª»»
+		else if (item->typ == ImplicitCast)//åŸºæœ¬ç±»å‹çš„éšå¼è½¬æ¢
 		{
 			if(i!=1) declInitList<<",";
 			SPL2X86_Node(item->u.implicitcast.value,0);
@@ -2017,11 +2017,11 @@ void X86CodeGenerate::AdclInit(Node *from, int offset)
 {
 	Node *arrayNode = from->u.decl.type;
 	Node *tmpNode = from->u.decl.type;
-	Node *initNode = from->u.decl.init;//±äÁ¿³õÊ¼»¯node
+	Node *initNode = from->u.decl.init;//å˜é‡åˆå§‹åŒ–node
 	string name = from->u.decl.name;
 	string arrayType = GetArrayDataType(tmpNode->u.adcl.type);
 	string dim = GetArrayDim(tmpNode->u.adcl.dim);
-	if (initNode == NULL) //Èç¹ûÃ»ÓĞ³õÊ¼»¯£¬Ôò°´Êı×éÀàĞÍ½øĞĞ³õÊ¼»¯
+	if (initNode == NULL) //å¦‚æœæ²¡æœ‰åˆå§‹åŒ–ï¼Œåˆ™æŒ‰æ•°ç»„ç±»å‹è¿›è¡Œåˆå§‹åŒ–
 	{
 		Node* tempNode = from->u.decl.type;
 		declList<<arrayType;
@@ -2037,7 +2037,7 @@ void X86CodeGenerate::AdclInit(Node *from, int offset)
 	else if(initNode->typ==Call){
 		declInitList<<";"; 
 	}
-	else//Èç¹û´æÔÚ³õÊ¼»¯Ôò³õÊ¼»¯ÎªÖ¸¶¨Öµ
+	else//å¦‚æœå­˜åœ¨åˆå§‹åŒ–åˆ™åˆå§‹åŒ–ä¸ºæŒ‡å®šå€¼
 	{
 		declInitList<<declInitList_temp.str();
 		declInitList_temp.str("");
@@ -2051,7 +2051,7 @@ void X86CodeGenerate::AdclInit(Node *from, int offset)
 		declList<<";\n";   
 		List *tmp = initNode->u.initializer.exprs;
 		int n = ListLength(tmp);
-		if(n == 1) // Èç¹û³õÊ¼»¯¸öÊı1¸öµ¥Ò»ÖµÊ±£¬Ôò½«Êı×éËùÓĞ³ÉÔ±³õÊ¼»¯Îª¸ÃÖµ
+		if(n == 1) // å¦‚æœåˆå§‹åŒ–ä¸ªæ•°1ä¸ªå•ä¸€å€¼æ—¶ï¼Œåˆ™å°†æ•°ç»„æ‰€æœ‰æˆå‘˜åˆå§‹åŒ–ä¸ºè¯¥å€¼
 		{
 			Node *item = (Node *)FirstItem(tmp);
 			if(item->typ == Const)
@@ -2061,7 +2061,7 @@ void X86CodeGenerate::AdclInit(Node *from, int offset)
 				declInitList<<";\n";
 			}
 		}
-		else //³õÊ¼µÄ¸öÊıºÍÊı×éÎ¬ÊıÒ»ÖÂ£¬Ôò¿ÉÒÔ²ÉÈ¡ÕâÑùµÄ¸³ÖµĞÎÊ½£ºval pp:Array[Int](1) = [1,2,3,4,5];
+		else //åˆå§‹çš„ä¸ªæ•°å’Œæ•°ç»„ç»´æ•°ä¸€è‡´ï¼Œåˆ™å¯ä»¥é‡‡å–è¿™æ ·çš„èµ‹å€¼å½¢å¼ï¼šval pp:Array[Int](1) = [1,2,3,4,5];
 		{	
 			declInitList<<" = ";
 			RecursiveAdclInit(tmp);
@@ -2118,7 +2118,7 @@ void X86CodeGenerate::OutputConstant(Node *c, Bool with_name)
 		break;
 	case Ptr:
 		UNREACHABLE;
-		// declInitList<< c->u.Const.value.u;//splÃ»Ö¸Õë£¬¿ÉÒÔºöÂÔ
+		// declInitList<< c->u.Const.value.u;//splæ²¡æŒ‡é’ˆï¼Œå¯ä»¥å¿½ç•¥
 		break;
 		/* Used for strings */
 	case Adcl:
@@ -2134,13 +2134,13 @@ void X86CodeGenerate::SPL2X86_Node(Node *node, int offset)
 {
 	if (node == NULL) return;
 
-	if(node->parenthesized == TRUE) declInitList << "("; //¼ÓÀ¨ºÅ±£Ö¤Âß¼­ĞÔ
+	if(node->parenthesized == TRUE) declInitList << "("; //åŠ æ‹¬å·ä¿è¯é€»è¾‘æ€§
 
 #define CODE(name, node, union) SPL2X86_##name(node, union, offset)
 	ASTSWITCH(node, CODE)
 #undef CODE
 
-	if(node->parenthesized == TRUE) declInitList << ")"; //¼ÓÀ¨ºÅ±£Ö¤Âß¼­ĞÔ
+	if(node->parenthesized == TRUE) declInitList << ")"; //åŠ æ‹¬å·ä¿è¯é€»è¾‘æ€§
 }
 
 void X86CodeGenerate::SPL2X86_List(List *list, int offset)
@@ -2237,7 +2237,7 @@ string X86CodeGenerate::GetOpType(OpType op)
 		FAIL("Unrecognized node type in CodeGeneration!"); break; 
 	}
 }
-void X86CodeGenerate::SPL2X86_Binop(Node *node, binopNode *u, int offset)//¶Ô·Ç½á¹¹ÌåÀàĞÍµÄStream½øĞĞ¼ò»¯,lihe,2012-09-04
+void X86CodeGenerate::SPL2X86_Binop(Node *node, binopNode *u, int offset)//å¯¹éç»“æ„ä½“ç±»å‹çš„Streamè¿›è¡Œç®€åŒ–,lihe,2012-09-04
 {
 	//OutputTabs(offset);
 	if (node->u.binop.left) 
@@ -2259,7 +2259,7 @@ void X86CodeGenerate::SPL2X86_Unary(Node *node, unaryNode *u, int offset)
 	if(node->u.unary.op == POSTINC || node->u.unary.op == POSTDEC)
 		declInitList << GetOpType(node->u.binop.op);
 }
-string X86CodeGenerate::GetPrimDataType(Node *from)//ÀàĞÍ¶¨Òå
+string X86CodeGenerate::GetPrimDataType(Node *from)//ç±»å‹å®šä¹‰
 {
 	string type;
 	switch(from->u.prim.basic){
@@ -2295,7 +2295,7 @@ string X86CodeGenerate::GetPrimDataType(Node *from)//ÀàĞÍ¶¨Òå
 	return type;
 }
 
-//È¡Êı¾İ³ÉÔ±µÄ³õÊ¼Öµ
+//å–æ•°æ®æˆå‘˜çš„åˆå§‹å€¼
 string X86CodeGenerate::GetDataInitVal(string type)
 {
 	string s ;
@@ -2328,21 +2328,21 @@ string X86CodeGenerate::GetDataInitVal(string type)
 	else if (type == "Any")
 	{
 		s = "null";
-	}else//Èç¹ûÊı×é³ÉÔ±·Ç»ù±¾ÀàĞÍÔò³õÊ¼»¯Îªnull£¬×÷ÎªÒ»¸öÎ´ÖªÀàµÄ³õÖµ£¬ÀıÈç£ºÊı×é³ÉÔ±Ò²ÊÇ¸öÊı×é
+	}else//å¦‚æœæ•°ç»„æˆå‘˜éåŸºæœ¬ç±»å‹åˆ™åˆå§‹åŒ–ä¸ºnullï¼Œä½œä¸ºä¸€ä¸ªæœªçŸ¥ç±»çš„åˆå€¼ï¼Œä¾‹å¦‚ï¼šæ•°ç»„æˆå‘˜ä¹Ÿæ˜¯ä¸ªæ•°ç»„
 		s = "null";
 	return s;
 }
-//È¡Êı×éµÄÎ¬Êı
+//å–æ•°ç»„çš„ç»´æ•°
 string X86CodeGenerate::GetArrayDim(Node *from)
 {
 	string dim;
-	if (from->typ == Const)//Èç¹ûÎ¬Êı½ÚµãÀàĞÍÎª³£Á¿£¬ÀıÈça[10]
+	if (from->typ == Const)//å¦‚æœç»´æ•°èŠ‚ç‚¹ç±»å‹ä¸ºå¸¸é‡ï¼Œä¾‹å¦‚a[10]
 	{
 		if(from->u.Const.text)dim = from->u.Const.text;
 		else 
 		{
 			char *tmpdim = (char *)malloc(20);
-			sprintf(tmpdim,"%d",from->u.Const.value.l);//20120322 zwwÌí¼Ó
+			sprintf(tmpdim,"%d",from->u.Const.value.l);//20120322 zwwæ·»åŠ 
 			dim = tmpdim;
 		}
 	}
@@ -2362,7 +2362,7 @@ string X86CodeGenerate::GetArrayDim(Node *from)
 	}
 	else if(from->typ == Binop)
 	{
-		string tmp = declInitList.str(); // ±£´æ
+		string tmp = declInitList.str(); // ä¿å­˜
 		stringstream tmp2;
 
 		declInitList.str("");
@@ -2370,7 +2370,7 @@ string X86CodeGenerate::GetArrayDim(Node *from)
 		tmp2 << "(" << declInitList.str() << ")";
 		dim = tmp2.str();
 		declInitList.str("");
-		declInitList << tmp; // »Ö¸´ 
+		declInitList << tmp; // æ¢å¤ 
 	}
 	else
 		UNREACHABLE;
@@ -2381,20 +2381,20 @@ string X86CodeGenerate::GetArrayDim(Node *from)
 string X86CodeGenerate::GetArrayDataType(Node *node)
 {
 	string type;
-	if (node->typ == Prim) //»ù±¾ÀàĞÍ
+	if (node->typ == Prim) //åŸºæœ¬ç±»å‹
 	{
 		type = GetPrimDataType(node);
 	}
-	else if (node->typ == Adcl) // Ò²ÊÇ¸öÊı×éÔòµİ¹é²éÕÒÀàĞÍ
+	else if (node->typ == Adcl) // ä¹Ÿæ˜¯ä¸ªæ•°ç»„åˆ™é€’å½’æŸ¥æ‰¾ç±»å‹
 	{
 		stringstream ss;
 		ss<<GetArrayDataType(node->u.adcl.type);
 		type = ss.str();
 	}
-	else // Èç¹ûÊı×éµÄ³ÉÔ±ÊÇ¸´ÔÓÀàĞÍ£¬ÔòÓĞ´ıÀ©Õ¹
+	else // å¦‚æœæ•°ç»„çš„æˆå‘˜æ˜¯å¤æ‚ç±»å‹ï¼Œåˆ™æœ‰å¾…æ‰©å±•
 	{
 		Warning(1,"this arrayDataType can not be handle!");
-		type = "Any";// ÔİÊ±·µ»ØÒ»ÖÖÍ¨ÓÃÀàĞÍ
+		type = "Any";// æš‚æ—¶è¿”å›ä¸€ç§é€šç”¨ç±»å‹
 		UNREACHABLE;
 	}
 	return type;
@@ -2402,7 +2402,7 @@ string X86CodeGenerate::GetArrayDataType(Node *node)
 void X86CodeGenerate::ExtractDeclVariables(Node *from)
 {
 	stringstream tempdeclList,tempdeclInitList;
-	if (from->u.decl.type->typ == Prim) // »ù±¾ÀàĞÍ
+	if (from->u.decl.type->typ == Prim) // åŸºæœ¬ç±»å‹
 	{
 		Node *typeNode = from->u.decl.type;
 		Node *initNode = from->u.decl.init;
@@ -2410,7 +2410,7 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 		string name = from->u.decl.name;
 		char tempvalude[20];
 		declList<<"\t"<<type<<" "<<name<<";\n";
-		if (initNode) // ´æÔÚ³õÊ¼»¯Ôò½øĞĞ³õÊ¼»¯
+		if (initNode) // å­˜åœ¨åˆå§‹åŒ–åˆ™è¿›è¡Œåˆå§‹åŒ–
 		{
 			declInitList << "\t\t"<<name<<" = ";
 			SPL2X86_Node(initNode, 0);
@@ -2423,14 +2423,14 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 			thisBuf << "\t\tthis." << name << " = " << name <<";\n";
 		}
 	}
-	else if (from->u.decl.type->typ == Adcl) // Êı×é, ×î¶à´¦Àí¶şÎ¬Êı×é, ¸ßÎ¬´ıÀ©Õ¹
+	else if (from->u.decl.type->typ == Adcl) // æ•°ç»„, æœ€å¤šå¤„ç†äºŒç»´æ•°ç»„, é«˜ç»´å¾…æ‰©å±•
 	{
 		Node *tmpNode = from->u.decl.type;
 		Node *initNode = from->u.decl.init;
 		string name = from->u.decl.name;
 		string arrayType = GetArrayDataType(tmpNode->u.adcl.type);
 		string dim;
-		if (initNode == NULL) //Èç¹ûÃ»ÓĞ³õÊ¼»¯£¬Ôò°´Êı×éÀàĞÍ½øĞĞ³õÊ¼»¯
+		if (initNode == NULL) //å¦‚æœæ²¡æœ‰åˆå§‹åŒ–ï¼Œåˆ™æŒ‰æ•°ç»„ç±»å‹è¿›è¡Œåˆå§‹åŒ–
 		{
 			string dim = GetArrayDim(tmpNode->u.adcl.dim);
 			stringstream sdim;
@@ -2438,9 +2438,9 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 			int dimNum;
 			bool dynamicArray = false;
 			
-			if(sdim>>dimNum)		//ÎªÊı×é
+			if(sdim>>dimNum)		//ä¸ºæ•°ç»„
 				declList<<"\t"<<arrayType<<" "<<name<<"["<<dim<<"]";
-			else		//Êı×éÎ¬Êı²»È·¶¨£¬Ê¹ÓÃnew¶¯Ì¬Éú³É
+			else		//æ•°ç»„ç»´æ•°ä¸ç¡®å®šï¼Œä½¿ç”¨newåŠ¨æ€ç”Ÿæˆ
 			{
 				dynamicArray = true;
 				declList<<"\t"<<arrayType<<"*"<<name;
@@ -2459,7 +2459,7 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 			if(dynamicArray)
 				declInitList<<"();\n";
 		}
-		else//Èç¹û´æÔÚ³õÊ¼»¯Ôò³õÊ¼»¯ÎªÖ¸¶¨Öµ
+		else//å¦‚æœå­˜åœ¨åˆå§‹åŒ–åˆ™åˆå§‹åŒ–ä¸ºæŒ‡å®šå€¼
 		{
 			declList<<"static "<<arrayType<<" "<<name;
 			int nodeIndex;
@@ -2496,7 +2496,7 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 			tempdeclList<<"=";
 			List *tmp = initNode->u.initializer.exprs;
 			int n = ListLength(tmp);
-			if(n == 1) // Èç¹û³õÊ¼»¯¸öÊı1¸öµ¥Ò»ÖµÊ±£¬Ôò½«Êı×éËùÓĞ³ÉÔ±³õÊ¼»¯Îª¸ÃÖµ
+			if(n == 1) // å¦‚æœåˆå§‹åŒ–ä¸ªæ•°1ä¸ªå•ä¸€å€¼æ—¶ï¼Œåˆ™å°†æ•°ç»„æ‰€æœ‰æˆå‘˜åˆå§‹åŒ–ä¸ºè¯¥å€¼
 			{
 				Node *item = (Node *)FirstItem(tmp);
 				if(item->typ == Const)
@@ -2513,7 +2513,7 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 					}
 				}
 			}
-			else //³õÊ¼µÄ¸öÊıºÍÊı×éÎ¬ÊıÒ»ÖÂ£¬Ôò¿ÉÒÔ²ÉÈ¡ÕâÑùµÄ¸³ÖµĞÎÊ½£ºval pp:Array[Int](1) = [1,2,3,4,5];
+			else //åˆå§‹çš„ä¸ªæ•°å’Œæ•°ç»„ç»´æ•°ä¸€è‡´ï¼Œåˆ™å¯ä»¥é‡‡å–è¿™æ ·çš„èµ‹å€¼å½¢å¼ï¼šval pp:Array[Int](1) = [1,2,3,4,5];
 			{	
 				RecursiveAdclInit(tmp);
 				tempdeclInitList<<tempdeclList.str()<<declInitList.str()<<";\n";
@@ -2531,7 +2531,7 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 			thisBuf << "\t\tthis." << name << " = " << name <<";\n";
 		}
 	}
-	else if (from->u.decl.type->typ == Ptr) // Ö¸Õë£¬Ö»ÄÜ³öÏÖÔÚparamÖĞ
+	else if (from->u.decl.type->typ == Ptr) // æŒ‡é’ˆï¼Œåªèƒ½å‡ºç°åœ¨paramä¸­
 	{
 		Node *typeNode = from->u.decl.type;
 		Node *initNode = from->u.decl.init;
@@ -2540,12 +2540,12 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 			type = GetPrimDataType(typeNode->u.ptr.type);
 		else if(typeNode->u.ptr.type->typ==Tdef)
 			type = typeNode->u.ptr.type->u.tdef.name;
-		else UNREACHABLE;			//ÆäËûÀàĞÍµÄÔİ²»Ö§³Ö
+		else UNREACHABLE;			//å…¶ä»–ç±»å‹çš„æš‚ä¸æ”¯æŒ
 
 		string name = from->u.decl.name;
 		char tempvalude[20];
 		declList<<"\t"<<type<<" "<<"*"<<name<<";\n";
-		if (initNode) // ´æÔÚ³õÊ¼»¯Ôò½øĞĞ³õÊ¼»¯
+		if (initNode) // å­˜åœ¨åˆå§‹åŒ–åˆ™è¿›è¡Œåˆå§‹åŒ–
 		{
 			declInitList << "\t\t"<<name<<" = ";
 			SPL2X86_Node(initNode, 0);
@@ -2564,7 +2564,7 @@ void X86CodeGenerate::ExtractDeclVariables(Node *from)
 
 void X86CodeGenerate::SPL2X86_Cast(Node *node, castNode *u, int offset)
 {
-	if(node->u.cast.type->typ==Ptr&&node->u.cast.expr->typ==Const){//Ìí¼Ó¶ÔNULLµÄÅĞ¶Ï
+	if(node->u.cast.type->typ==Ptr&&node->u.cast.expr->typ==Const){//æ·»åŠ å¯¹NULLçš„åˆ¤æ–­
 		if(node->u.cast.expr->u.Const.value.i==0)
 			declInitList<<"NULL";
 	}
@@ -2577,7 +2577,7 @@ void X86CodeGenerate::SPL2X86_Cast(Node *node, castNode *u, int offset)
 
 void X86CodeGenerate::SPL2X86_Comma(Node *node, commaNode *u, int offset)
 {
-	isInComma = true;//Õı´¦ÓÚ¶ººÅ±í´ïÊ½ÖĞ
+	isInComma = true;//æ­£å¤„äºé€—å·è¡¨è¾¾å¼ä¸­
 	SPL2X86_List(u->exprs,offset);
 	isInComma = false;
 }
@@ -2595,7 +2595,7 @@ void X86CodeGenerate::SPL2X86_Array(Node *node, arrayNode *u, int offset)
 {
 	SPL2X86_Node(u->name,offset);
 	List *tmp = u->dims;
-	while(tmp != NULL)//¿ÉÄÜÊÇ¶àÎ¬Êı×é£¬ĞèÒª±éÀúdimÕâ¸ölist
+	while(tmp != NULL)//å¯èƒ½æ˜¯å¤šç»´æ•°ç»„ï¼Œéœ€è¦éå†dimè¿™ä¸ªlist
 	{
 		declInitList<<"[";
 		Node *item = (Node *)FirstItem(tmp);
@@ -2609,7 +2609,7 @@ void X86CodeGenerate::SPL2X86_Call(Node *node, callNode *u, int offset)
 {
 	assert(u->name->typ == Id);
 	{
-		int flag=1;//±êÊ¶ÊÇ·ñ¼ÓÀ¨ºÅ
+		int flag=1;//æ ‡è¯†æ˜¯å¦åŠ æ‹¬å·
 		const char *ident = u->name->u.id.text;
 		if (strcmp(ident,"acos") == 0) declInitList<<"acos";
 		else if (strcmp(ident,"acosh")==0) declInitList<<"acosh";
@@ -2649,22 +2649,22 @@ void X86CodeGenerate::SPL2X86_Call(Node *node, callNode *u, int offset)
 		else if (strcmp(ident,"print")==0) {declInitList<<"cout<<fixed<<";flag=4;}
 		else //unkonwn methods
 		{
-			declInitList<<u->name->u.id.text;//Êä³öº¯ÊıÃû
+			declInitList<<u->name->u.id.text;//è¾“å‡ºå‡½æ•°å
 		}
 		if (flag==1)
 		{
 			declInitList<<"(";
-			OutputArgList(u->args,offset);//²ÎÊı
+			OutputArgList(u->args,offset);//å‚æ•°
 			declInitList<<")";
 		}
 		else if(flag==2)
 		{
-			OutputArgList(u->args,offset);//²ÎÊı
+			OutputArgList(u->args,offset);//å‚æ•°
 			declInitList<<"<<endl";
 		}
 		else
 		{
-			OutputArgList(u->args,offset);//²ÎÊı
+			OutputArgList(u->args,offset);//å‚æ•°
 		}
 	}
 }
@@ -2711,12 +2711,12 @@ void X86CodeGenerate::SPL2X86_If(Node *node, IfNode *u, int offset)
 	declInitList<<"if (";
 	SPL2X86_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block) // Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block) // å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X86_Node(u->stmt,offset+1);
-	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -2725,21 +2725,21 @@ void X86CodeGenerate::SPL2X86_IfElse(Node *node, IfElseNode *u, int offset)
 	declInitList<<"if (";
 	SPL2X86_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->true_->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->true_->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X86_Node(u->true_,offset);
-	if(u->true_->typ == Binop || u->true_->typ == Unary || u->true_->typ == Ternary || u->true_->typ == Call || u->true_->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->true_->typ == Binop || u->true_->typ == Unary || u->true_->typ == Ternary || u->true_->typ == Call || u->true_->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 	OutputCRSpaceAndTabs(offset);
 	declInitList<<"else ";
-	if (u->false_->typ != Block && u->false_->typ != IfElse)//Èç¹ûÊÇ·Çblock½áµã»òÕßifelse½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->false_->typ != Block && u->false_->typ != IfElse)//å¦‚æœæ˜¯éblockç»“ç‚¹æˆ–è€…ifelseç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X86_Node(u->false_,offset);
-	if(u->false_->typ == Binop || u->false_->typ == Unary || u->false_->typ == Ternary || u->false_->typ == Call || u->false_->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->false_->typ == Binop || u->false_->typ == Unary || u->false_->typ == Ternary || u->false_->typ == Call || u->false_->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -2748,12 +2748,12 @@ void X86CodeGenerate::SPL2X86_While(Node *node, WhileNode *u, int offset)
 	declInitList<<"while (";
 	SPL2X86_Node(u->expr,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		OutputCRSpaceAndTabs(offset+1);
 	}
 	SPL2X86_Node(u->stmt,offset);
-	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//Èç¹ûÊÇ±í´ïÊ½½áµãÔòĞèÒªÔÚÄ©Î»Ìí¼Ó·ÖºÅ±íÊ¾½áÊø
+	if(u->stmt->typ == Binop || u->stmt->typ == Unary || u->stmt->typ == Ternary || u->stmt->typ == Call || u->stmt->typ == Decl)//å¦‚æœæ˜¯è¡¨è¾¾å¼ç»“ç‚¹åˆ™éœ€è¦åœ¨æœ«ä½æ·»åŠ åˆ†å·è¡¨ç¤ºç»“æŸ
 		declInitList<<";";
 }
 
@@ -2775,7 +2775,7 @@ void X86CodeGenerate::SPL2X86_For(Node *node, ForNode *u, int offset)
 	declInitList<<";";
 	SPL2X86_Node(u->next,offset);
 	declInitList<<")";
-	if (u->stmt->typ != Block)//Èç¹ûÊÇ·Çblock½áµã£¬ÔòĞèÒª»»ĞĞ¶ÔÆë
+	if (u->stmt->typ != Block)//å¦‚æœæ˜¯éblockç»“ç‚¹ï¼Œåˆ™éœ€è¦æ¢è¡Œå¯¹é½
 	{
 		declInitList<<"\n";
 	}
@@ -2802,14 +2802,14 @@ void X86CodeGenerate::SPL2X86_Return(Node *node, ReturnNode *u, int offset)
 void X86CodeGenerate::SPL2X86_Block(Node *node, BlockNode *u, int offset)
 {
 	declInitList <<"{\n";
-	//Êä³ödecl
+	//è¾“å‡ºdecl
 	SPL2X86_List(u->decl,  offset);
-	declInitList<<"\n"; // ÁíÆğÒ»ĞĞ
+	declInitList<<"\n"; // å¦èµ·ä¸€è¡Œ
 
 	OutputStmtList(u->stmts, offset);
 
 	OutputCRSpaceAndTabs(offset);
-	declInitList<<"}\n"; // '}'¶ÀÕ¼Ò»ĞĞ
+	declInitList<<"}\n"; // '}'ç‹¬å ä¸€è¡Œ
 }
 
 void X86CodeGenerate::SPL2X86_Prim(Node *node, primNode *u, int offset)
@@ -2897,11 +2897,11 @@ void X86CodeGenerate::SPL2X86_Decl(Node *node, declNode *u, int offset)
 				globalvarbuf<<"extern ";
 			}
 			SPL2X86_Node(u->type, offset);
-			if(u->type->typ == Adcl)	//¶àÎ¬Êı×é
+			if(u->type->typ == Adcl)	//å¤šç»´æ•°ç»„
 			{
 				Node *tempNode = u->type;
 				globalvarbuf<<node->u.decl.name;
-				if (flag_Global)			//Êä³öÔÚGlobalVarÖĞ£¬ÎªÕû¸öÁ÷³ÌĞòµÄÈ«¾Ö±äÁ¿
+				if (flag_Global)			//è¾“å‡ºåœ¨GlobalVarä¸­ï¼Œä¸ºæ•´ä¸ªæµç¨‹åºçš„å…¨å±€å˜é‡
 					declInitList<<node->u.decl.name;
 				else
 					declInitList_temp<<node->u.decl.name;
@@ -2926,33 +2926,33 @@ void X86CodeGenerate::SPL2X86_Decl(Node *node, declNode *u, int offset)
 				temp_declInitList<<declInitList.str()<<";\n";
 				globalvarbuf<<";\n";
 			}
-			else		//±êÁ¿
+			else		//æ ‡é‡
 				{
 					if(isExternType)
-						ExternTypeBuf<<node->u.decl.name<<";\n";//ÉùÃ÷±äÁ¿
+						ExternTypeBuf<<node->u.decl.name<<";\n";//å£°æ˜å˜é‡
 					else{
-						declInitList<<" "<<node->u.decl.name;   //±äÁ¿Ãû
+						declInitList<<" "<<node->u.decl.name;   //å˜é‡å
 						temp_declInitList<<declInitList.str()<<";\n";
-						globalvarbuf<<node->u.decl.name<<";\n";//ÉùÃ÷±äÁ¿
+						globalvarbuf<<node->u.decl.name<<";\n";//å£°æ˜å˜é‡
 					}
 			}
 
 			if(u->type->typ == Adcl)
 			{
 				if(STORAGE_CLASS(node->u.decl.tq) != T_EXTERN)
-					AdclInit(node,offset);		//³õÊ¼»¯Êı×é
+					AdclInit(node,offset);		//åˆå§‹åŒ–æ•°ç»„
 			}
 			else
 			{
 				if (node->u.decl.init) 
 				{
-					if (u->type->typ == Prim && u->type->u.prim.basic == Char)//Èç¹ûÊÇ¸ö×Ö·ûÉùÃ÷
+					if (u->type->typ == Prim && u->type->u.prim.basic == Char)//å¦‚æœæ˜¯ä¸ªå­—ç¬¦å£°æ˜
 					{
 						declInitList<<" = "<<u->init->u.implicitcast.expr->u.Const.text;
 					}
 					else
 					{
-						declInitList<<" = ";			//³õÊ¼»¯±äÁ¿ Èçint a = 2;
+						declInitList<<" = ";			//åˆå§‹åŒ–å˜é‡ å¦‚int a = 2;
 						SPL2X86_Node(u->init,offset );
 					}
 				}

@@ -3,9 +3,9 @@
 #include "ActorStateDetector.h"
 
 PRIVATE int gCurrentFissionStreamNum = 0;
-PRIVATE int HFOperatorNum = 0;//½â¾öĞÂ¹¹ÔìµÄoperatorµÄÖØÃüÃû
+PRIVATE int HFOperatorNum = 0;//è§£å†³æ–°æ„é€ çš„operatorçš„é‡å‘½å
 
-//¹¹Ôìº¯Êı
+//æ„é€ å‡½æ•°
 ClusterHorizontialFission::ClusterHorizontialFission(map<FlatNode *,int>flatNode2partitionNum,map<FlatNode *,int> flatNode2steadycount,SchedulerSSG *tmpsssg,int np,float bf)
 {
 	_flatNode2partitionNum = flatNode2partitionNum;
@@ -15,7 +15,7 @@ ClusterHorizontialFission::ClusterHorizontialFission(map<FlatNode *,int>flatNode
 	npartition = np;
 }
 
-/*¼ÆËã¸÷¸ö»®·ÖµÄºÍÈ¨Öµ²¢±£´æÔÚÒ»¸ömap<»®·ÖµÄ±àºÅ£¬È¨ÖØ>*/
+/*è®¡ç®—å„ä¸ªåˆ’åˆ†çš„å’Œæƒå€¼å¹¶ä¿å­˜åœ¨ä¸€ä¸ªmap<åˆ’åˆ†çš„ç¼–å·ï¼Œæƒé‡>*/
 map<int,int> ClusterHorizontialFission::computeMapPlace2Weight()
 {
 	assert(npartition>0);
@@ -33,7 +33,7 @@ map<int,int> ClusterHorizontialFission::computeMapPlace2Weight()
 }
 
 void ClusterHorizontialFission::initFissionNodeMap()
-{//ÔÚÕâÀïÃæÒª³õÊ¼»¯PartitonNum2FissionNodeµÄ³õÊ¼Öµ
+{//åœ¨è¿™é‡Œé¢è¦åˆå§‹åŒ–PartitonNum2FissionNodeçš„åˆå§‹å€¼
 	map<FlatNode*,int>::iterator iter;
 	for(iter = _flatNode2partitionNum.begin();iter != _flatNode2partitionNum.end();++iter)
 	{
@@ -60,7 +60,7 @@ void ClusterHorizontialFission::initFissionNodeMap()
 	}
 }
 
-/*°´¹¤×÷Á¿´óĞ¡½øĞĞÅÅĞò--´ÓĞ¡µ½´óÅÅ*/
+/*æŒ‰å·¥ä½œé‡å¤§å°è¿›è¡Œæ’åº--ä»å°åˆ°å¤§æ’*/
 vector<int> ClusterHorizontialFission::SortPartitionbyWeight(map<int,int>partition2weight)
 {
 	vector<int> sortPartitions;
@@ -83,18 +83,18 @@ vector<int> ClusterHorizontialFission::SortPartitionbyWeight(map<int,int>partiti
 	return sortPartitions;
 }
 
-Bool ClusterHorizontialFission::SInSOutOPerator(FlatNode *operFlatNode)// 20130119 zww ½«²ÎÊıĞŞ¸ÄÎªflatNode£¬¼ì²âµ¥Èëµ¥³öÇÒpush£¬pop²»Îª0µÄ½Úµã
-{//Èç¹û¸ÃoperatorÊÇµ¥Èëµ¥³öµÄ·µ»ØTrue 
+Bool ClusterHorizontialFission::SInSOutOPerator(FlatNode *operFlatNode)// 20130119 zww å°†å‚æ•°ä¿®æ”¹ä¸ºflatNodeï¼Œæ£€æµ‹å•å…¥å•å‡ºä¸”pushï¼Œpopä¸ä¸º0çš„èŠ‚ç‚¹
+{//å¦‚æœè¯¥operatoræ˜¯å•å…¥å•å‡ºçš„è¿”å›True 
 	operatorNode *oper = operFlatNode->contents;
 	assert(oper);
 	List *inputList = oper->decl->u.decl.type->u.operdcl.inputs;
 	List *outputList = oper->decl->u.decl.type->u.operdcl.outputs;
-	if((ListLength(outputList)==1)&&(ListLength(inputList)==1)&&operFlatNode->inPopWeights[0] && operFlatNode->outPushWeights[0]) return TRUE;// 20130119 zww ½«²ÎÊıĞŞ¸ÄÎªflatNode£¬¼ì²âµ¥Èëµ¥³öÇÒpush£¬pop²»Îª0µÄ½Úµã
+	if((ListLength(outputList)==1)&&(ListLength(inputList)==1)&&operFlatNode->inPopWeights[0] && operFlatNode->outPushWeights[0]) return TRUE;// 20130119 zww å°†å‚æ•°ä¿®æ”¹ä¸ºflatNodeï¼Œæ£€æµ‹å•å…¥å•å‡ºä¸”pushï¼Œpopä¸ä¸º0çš„èŠ‚ç‚¹
 	else return FALSE;
 }
 
 vector<ClusterHorizontialFission::FissionNodeInfo *> ClusterHorizontialFission::findFissionflatNodesInPartition(int npart)
-{	//È¡µ±Ç°»®·ÖÖĞ¿É±»·ÖÁÑµÄËùÓĞflatNode½Úµã
+{	//å–å½“å‰åˆ’åˆ†ä¸­å¯è¢«åˆ†è£‚çš„æ‰€æœ‰flatNodeèŠ‚ç‚¹
 	vector<FissionNodeInfo *>tmpfissionFlatNodes;
 	tmpfissionFlatNodes.clear();
 	typedef multimap<int,FissionNodeInfo*>::iterator Num2NodeIter;
@@ -110,62 +110,62 @@ vector<ClusterHorizontialFission::FissionNodeInfo *> ClusterHorizontialFission::
 	return tmpfissionFlatNodes;
 }
 
-/*½«flatNode½øĞĞÎ±·ÖÁÑ£¬Ö÷ÒªÊÇÔÚPartitonNum2FissionNodeºÍFlatNode2FissionNodeÖĞ½øĞĞÏà¹ØĞÅÏ¢µÄĞŞ¸Ä*/
+/*å°†flatNodeè¿›è¡Œä¼ªåˆ†è£‚ï¼Œä¸»è¦æ˜¯åœ¨PartitonNum2FissionNodeå’ŒFlatNode2FissionNodeä¸­è¿›è¡Œç›¸å…³ä¿¡æ¯çš„ä¿®æ”¹*/
 void ClusterHorizontialFission::SplitFissionNode(FissionNodeInfo *fissionNode,int replicationFactor,int max_partiotion,int min_partiotion)
 {
-	//cout<<"·ÖÁÑ"<<endl;
+	//cout<<"åˆ†è£‚"<<endl;
 	assert(fissionNode && replicationFactor>0 );
-	int steadyCount = fissionNode->fissedSteadycount;  //È¡¸Ã½ÚµãµÄÔÚÎÈÌ¬µ÷¶ÈÖĞµÄÖ´ĞĞ´ÎÊı
+	int steadyCount = fissionNode->fissedSteadycount;  //å–è¯¥èŠ‚ç‚¹çš„åœ¨ç¨³æ€è°ƒåº¦ä¸­çš„æ‰§è¡Œæ¬¡æ•°
 	assert(steadyCount>0);
 
-	if(replicationFactor > steadyCount) replicationFactor = steadyCount;//Èç¹û·ÖÁÑ´ÎÊı´óÓÚÎÈÌ¬Ö´ĞĞ´ÎÊı£¬Ôò·ÖÁÑ´ÎÊıÈ¡Ö´ĞĞ´ÎÊı
-	assert(fissionNode->fissed_pop.size()<=1 && fissionNode->fissed_push.size()<=1 && fissionNode->fissed_peek.size()<=1);//È·¶¨ÊÇµ¥Èëµ¥³öµÄ
+	if(replicationFactor > steadyCount) replicationFactor = steadyCount;//å¦‚æœåˆ†è£‚æ¬¡æ•°å¤§äºç¨³æ€æ‰§è¡Œæ¬¡æ•°ï¼Œåˆ™åˆ†è£‚æ¬¡æ•°å–æ‰§è¡Œæ¬¡æ•°
+	assert(fissionNode->fissed_pop.size()<=1 && fissionNode->fissed_push.size()<=1 && fissionNode->fissed_peek.size()<=1);//ç¡®å®šæ˜¯å•å…¥å•å‡ºçš„
 
-	int outPushWeight =fissionNode->fissingFlatNode->outPushWeights.size()==1? fissionNode->fissingFlatNode->outPushWeights[0] : 0;//operNodeµÄpushÖµ	,Èç¹ûÃ»ÓĞÊä³ö±ßÔòpush = 0£»
-	int inPopWeight =fissionNode->fissingFlatNode->inPopWeights.size()==1? fissionNode->fissingFlatNode->inPopWeights[0] : 0;//operNodeµÄpopÖµ
-	int inPeekWeight = fissionNode->fissingFlatNode->inPeekWeights.size()==1 ? fissionNode->fissingFlatNode->inPeekWeights[0] : 0;//operNodeµÄpeekÖµ
+	int outPushWeight =fissionNode->fissingFlatNode->outPushWeights.size()==1? fissionNode->fissingFlatNode->outPushWeights[0] : 0;//operNodeçš„pushå€¼	,å¦‚æœæ²¡æœ‰è¾“å‡ºè¾¹åˆ™push = 0ï¼›
+	int inPopWeight =fissionNode->fissingFlatNode->inPopWeights.size()==1? fissionNode->fissingFlatNode->inPopWeights[0] : 0;//operNodeçš„popå€¼
+	int inPeekWeight = fissionNode->fissingFlatNode->inPeekWeights.size()==1 ? fissionNode->fissingFlatNode->inPeekWeights[0] : 0;//operNodeçš„peekå€¼
 	
-	/*È·¶¨²ÉÓÃµÄ·ÖÁÑ·½Ê½*/
-	SplitStyle style = (inPeekWeight > inPopWeight)? S_Duplicate: S_RoundRobin;  //peek>popÈ¡1±íÊ¾duplicate·½Ê½£¬peek=popÈ¡0£¬±íÊ¾roundrobin·½Ê½
+	/*ç¡®å®šé‡‡ç”¨çš„åˆ†è£‚æ–¹å¼*/
+	SplitStyle style = (inPeekWeight > inPopWeight)? S_Duplicate: S_RoundRobin;  //peek>popå–1è¡¨ç¤ºduplicateæ–¹å¼ï¼Œpeek=popå–0ï¼Œè¡¨ç¤ºroundrobinæ–¹å¼
 
-	/*¼ÆËã·ÖÁÑ²úÉúµÄÃ¿Ò»·İÔÚÎÈÌ¬Ê±Ö´ĞĞµÄ´ÎÊı*/
-	vector<int> newSteadyCount;//´æ·Å·ÖÁÑºóµÄÃ¿Ò»·İÔÚÎÈÌ¬Ö´ĞĞµÄ´ÎÊı
+	/*è®¡ç®—åˆ†è£‚äº§ç”Ÿçš„æ¯ä¸€ä»½åœ¨ç¨³æ€æ—¶æ‰§è¡Œçš„æ¬¡æ•°*/
+	vector<int> newSteadyCount;//å­˜æ”¾åˆ†è£‚åçš„æ¯ä¸€ä»½åœ¨ç¨³æ€æ‰§è¡Œçš„æ¬¡æ•°
 	for(int i = 0;i<replicationFactor-1;i++)
 		newSteadyCount.push_back(steadyCount/replicationFactor);
 	if(steadyCount%replicationFactor==0) newSteadyCount.push_back(steadyCount/replicationFactor);
 	else newSteadyCount.push_back(steadyCount - steadyCount/replicationFactor*(replicationFactor-1));
-	//ÏÈÈ·¶¨ÔõÃ´·Ö£¬È»ºóÔÙ¿¼ÂÇ¸÷¸ö¸±±¾µÄÆ«ÒÆ£¬ÒÔ¼°¸÷¸öµÄpeek£¬popºÍpushµÄÖµ
+	//å…ˆç¡®å®šæ€ä¹ˆåˆ†ï¼Œç„¶åå†è€ƒè™‘å„ä¸ªå‰¯æœ¬çš„åç§»ï¼Œä»¥åŠå„ä¸ªçš„peekï¼Œpopå’Œpushçš„å€¼
 	set<FissionNodeInfo *>tmpfissionNodeInfoSet;
-	//½«µÚÒ»¸ö¸±±¾·ÅÔÚmin_partiotionÖĞ
+	//å°†ç¬¬ä¸€ä¸ªå‰¯æœ¬æ”¾åœ¨min_partiotionä¸­
 	FissionNodeInfo * tmpFissionNode = HeapNew(FissionNodeInfo);
 	tmpFissionNode->fissingFlatNode = fissionNode->fissingFlatNode;
 	tmpFissionNode->fissedSteadycount = newSteadyCount[0];
 	tmpFissionNode->operatorWeight = fissionNode->operatorWeight;
-	tmpFissionNode->npart = min_partiotion;//µÚÒ»¸ö¸±±¾ÁôÔÚmin_partiotionÖĞ
+	tmpFissionNode->npart = min_partiotion;//ç¬¬ä¸€ä¸ªå‰¯æœ¬ç•™åœ¨min_partiotionä¸­
 	//tmpFissionNode->style = fissionNode->style;
 	PartitonNum2FissionNode.insert(make_pair(min_partiotion,tmpFissionNode));
 	tmpfissionNodeInfoSet.insert(tmpFissionNode);
 
 	for (int i = 1; i < replicationFactor; i++)
-	{//½«·ÖÁÑµÄ¸±±¾¹¹Ôì³ÉÒ»¸öset£¨È·¶¨fissedSteadycount£¬operatorWeight£¬npart£¬style£©
+	{//å°†åˆ†è£‚çš„å‰¯æœ¬æ„é€ æˆä¸€ä¸ªsetï¼ˆç¡®å®šfissedSteadycountï¼ŒoperatorWeightï¼Œnpartï¼Œstyleï¼‰
 		FissionNodeInfo * _tmpFissionNode = HeapNew(FissionNodeInfo);
 		_tmpFissionNode->fissingFlatNode = fissionNode->fissingFlatNode;
 		_tmpFissionNode->fissedSteadycount = newSteadyCount[i];
 		_tmpFissionNode->operatorWeight = fissionNode->operatorWeight;
-		_tmpFissionNode->npart = max_partiotion;//replicationFactor-1¸ö¸±±¾ÁôÔÚmax_partiotionÖĞ
+		_tmpFissionNode->npart = max_partiotion;//replicationFactor-1ä¸ªå‰¯æœ¬ç•™åœ¨max_partiotionä¸­
 		//_tmpFissionNode->style = fissionNode->style;
 		PartitonNum2FissionNode.insert(make_pair(max_partiotion,_tmpFissionNode));
 		tmpfissionNodeInfoSet.insert(_tmpFissionNode);
 	}
 	assert(tmpfissionNodeInfoSet.size() == replicationFactor);
-	//1.ÏÈ¿´flatNodeÔÚ²»ÔÚ£¬(²»ÔÚÖ±½Ó²åÈë£©//2.flatNodeÖĞµÄfissionNodeÔÚ²»ÔÚflatNode¶ÔÓ¦µÄsetÖĞ£¨ÔÚÏÈÉ¾³ıfissionNode£¬ÔÙ²åÈëset£©
+	//1.å…ˆçœ‹flatNodeåœ¨ä¸åœ¨ï¼Œ(ä¸åœ¨ç›´æ¥æ’å…¥ï¼‰//2.flatNodeä¸­çš„fissionNodeåœ¨ä¸åœ¨flatNodeå¯¹åº”çš„setä¸­ï¼ˆåœ¨å…ˆåˆ é™¤fissionNodeï¼Œå†æ’å…¥setï¼‰
 	pair<map<FlatNode *,set<FissionNodeInfo *> >::iterator,bool> ret = FlatNode2FissionNode.insert(make_pair(fissionNode->fissingFlatNode, tmpfissionNodeInfoSet));
 	if(!ret.second)
 	{
 		(ret.first->second).erase(fissionNode);
 		(ret.first->second).insert(tmpfissionNodeInfoSet.begin(),tmpfissionNodeInfoSet.end());
 	}
-	/*½«fissionNode´ÓPartitonNum2FissionNode*/
+	/*å°†fissionNodeä»PartitonNum2FissionNode*/
 	multimap<int,FissionNodeInfo*>::iterator iter;
 	for(iter = PartitonNum2FissionNode.begin();iter != PartitonNum2FissionNode.end();++iter)
 	{
@@ -176,7 +176,7 @@ void ClusterHorizontialFission::SplitFissionNode(FissionNodeInfo *fissionNode,in
 }
 
 void ClusterHorizontialFission::modifyFissionNodeInfo()
-{	//¸ù¾İ¸÷¸öflatNode¸±±¾µÄĞÅÏ¢È·¶¨pop£¬peekÒÔ¼°pushµÄÖµ,Í¬Ê±È·¶¨Òª²»ÒªÔÚ¸±±¾µÄÉÏ¶ËÔìÒ»¸ösplit½Úµã
+{	//æ ¹æ®å„ä¸ªflatNodeå‰¯æœ¬çš„ä¿¡æ¯ç¡®å®špopï¼Œpeekä»¥åŠpushçš„å€¼,åŒæ—¶ç¡®å®šè¦ä¸è¦åœ¨å‰¯æœ¬çš„ä¸Šç«¯é€ ä¸€ä¸ªsplitèŠ‚ç‚¹
 	for(map<FlatNode *,set<FissionNodeInfo*> >::iterator iter = FlatNode2FissionNode.begin(); iter != FlatNode2FissionNode.end();iter++ )
 	{
 		int original_steadycount = _flatNode2steadycount.find(iter->first)->second;
@@ -185,13 +185,13 @@ void ClusterHorizontialFission::modifyFissionNodeInfo()
 		int original_push = iter->first->outPushWeights[0];
 		for(set<FissionNodeInfo *>::iterator _copy_iter = iter->second.begin();_copy_iter != iter->second.end();_copy_iter++)
 		{
-			//È·¶¨peek£¬pop,pushµÄÖµ£¬ÒÔ¼°work²úÉúµÄ·½Ê½
+			//ç¡®å®špeekï¼Œpop,pushçš„å€¼ï¼Œä»¥åŠworkäº§ç”Ÿçš„æ–¹å¼
 			if(original_peek == original_pop)
-			{//ÔÚÊµ¼Ê¹¹Ôì½ÚµãÊÇÒª¼ÓÒ»¸öÆ«ÒÆÁ¿;¸ÃÖÖÇé¿ö½ÚµãµÄÎÈ¶¨×´Ì¬²»ĞèÒªÒÆÈëworkÄÚ
+			{//åœ¨å®é™…æ„é€ èŠ‚ç‚¹æ˜¯è¦åŠ ä¸€ä¸ªåç§»é‡;è¯¥ç§æƒ…å†µèŠ‚ç‚¹çš„ç¨³å®šçŠ¶æ€ä¸éœ€è¦ç§»å…¥workå†…
 				(*_copy_iter)->fissed_peek.push_back(original_peek);
 				(*_copy_iter)->fissed_pop.push_back(original_pop);
 				(*_copy_iter)->fissed_push.push_back(original_push);
-				(*_copy_iter)->fiss_state = TRUE;//ÎÈ¶¨×´Ì¬²»ĞèÒªÒÆÈëworkÄÚ
+				(*_copy_iter)->fiss_state = TRUE;//ç¨³å®šçŠ¶æ€ä¸éœ€è¦ç§»å…¥workå†…
 				//cout<<" 1#  "<<(*_copy_iter)->fissed_peek[0]<<"   "<<(*_copy_iter)->fissed_pop[0]<<"   "<<(*_copy_iter)->fissed_push[0]<<endl;
 			}
 			else
@@ -199,28 +199,28 @@ void ClusterHorizontialFission::modifyFissionNodeInfo()
 				(*_copy_iter)->fissed_peek.push_back(original_peek + original_pop *original_steadycount - 1);
 				(*_copy_iter)->fissed_pop.push_back(original_pop *original_steadycount);
 				(*_copy_iter)->fissed_push.push_back(original_push * (*_copy_iter)->fissedSteadycount);
-				(*_copy_iter)->fiss_state = FALSE;//ÎÈ¶¨×´Ì¬ĞèÒªÒÆÈëworkÄÚ£¬È»ºóÎÈÌ¬Ö´ĞĞ1´Î
+				(*_copy_iter)->fiss_state = FALSE;//ç¨³å®šçŠ¶æ€éœ€è¦ç§»å…¥workå†…ï¼Œç„¶åç¨³æ€æ‰§è¡Œ1æ¬¡
 				//cout<<" 2#  "<<(*_copy_iter)->fissed_peek[0]<<"   "<<(*_copy_iter)->fissed_pop[0]<<"   "<<(*_copy_iter)->fissed_push[0]<<endl;
 			}
 		}
-		//È·¶¨½ÚµãµÄ·ÖÁÑ·½Ê½
+		//ç¡®å®šèŠ‚ç‚¹çš„åˆ†è£‚æ–¹å¼
 		if(original_peek > original_pop) _FlatNode2splitStyle.insert(make_pair(iter->first, S_Duplicate));
 		else  _FlatNode2splitStyle.insert(make_pair(iter->first, S_RoundRobin));
-		//¸ù¾İÌõ¼ş²»Í¬È·¶¨_FlatNode2makeUpNodeTagºÍ_FlatNode2makeDownNodeTag
+		//æ ¹æ®æ¡ä»¶ä¸åŒç¡®å®š_FlatNode2makeUpNodeTagå’Œ_FlatNode2makeDownNodeTag
 		vector<FlatNode *>upflatNodes = iter->first->inFlatNodes;
 		assert(upflatNodes.size() == 1);
 		if(upflatNodes[0]->contents->ot == Common_ || upflatNodes[0]->contents->ot == Join_) _FlatNode2makeUpNodeTag.insert(make_pair(iter->first, TRUE));
 		else if(upflatNodes[0]->contents->ot == Duplicate_)
 		{
 			map<FlatNode *,int>::iterator tmpIter = _flatNode2partitionNum.find(iter->first);
-			if(tmpIter != _flatNode2partitionNum.end())_FlatNode2makeUpNodeTag.insert(make_pair(iter->first, FALSE));//ÉÏ¶Ë½ÚµãÔÚ¸Ã»®·ÖÖĞ
-			else _FlatNode2makeUpNodeTag.insert(make_pair(iter->first, TRUE));//ÉÏ¶Ë½Úµã²»ÔÚ¸Ã»®·ÖÖĞ£¨ÔìÊ²Ã´ÑùµÄsplit´ı¶¨£©
+			if(tmpIter != _flatNode2partitionNum.end())_FlatNode2makeUpNodeTag.insert(make_pair(iter->first, FALSE));//ä¸Šç«¯èŠ‚ç‚¹åœ¨è¯¥åˆ’åˆ†ä¸­
+			else _FlatNode2makeUpNodeTag.insert(make_pair(iter->first, TRUE));//ä¸Šç«¯èŠ‚ç‚¹ä¸åœ¨è¯¥åˆ’åˆ†ä¸­ï¼ˆé€ ä»€ä¹ˆæ ·çš„splitå¾…å®šï¼‰
 		}
-		else //¶ÔÓÚÆÕÍ¨µÄÉÏ¶Ë½ÚµãÔòÎªS_RoundRobin
+		else //å¯¹äºæ™®é€šçš„ä¸Šç«¯èŠ‚ç‚¹åˆ™ä¸ºS_RoundRobin
 		{
 			map<FlatNode *,int>::iterator tmpIter = _flatNode2partitionNum.find(iter->first);
-			if(tmpIter != _flatNode2partitionNum.end() && original_peek == original_pop)_FlatNode2makeUpNodeTag.insert(make_pair(iter->first, FALSE));//ÉÏ¶Ë½ÚµãÔÚ¸Ã»®·ÖÖĞ£¬ÇÒpeek==pop£¬²»Ôì
-			else _FlatNode2makeUpNodeTag.insert(make_pair(iter->first, TRUE));//ÉÏ¶Ë½Úµã²»ÔÚ¸Ã»®·ÖÖĞ£¬ÒªÔìÒ»¸öduplicateµÄ½Úµã
+			if(tmpIter != _flatNode2partitionNum.end() && original_peek == original_pop)_FlatNode2makeUpNodeTag.insert(make_pair(iter->first, FALSE));//ä¸Šç«¯èŠ‚ç‚¹åœ¨è¯¥åˆ’åˆ†ä¸­ï¼Œä¸”peek==popï¼Œä¸é€ 
+			else _FlatNode2makeUpNodeTag.insert(make_pair(iter->first, TRUE));//ä¸Šç«¯èŠ‚ç‚¹ä¸åœ¨è¯¥åˆ’åˆ†ä¸­ï¼Œè¦é€ ä¸€ä¸ªduplicateçš„èŠ‚ç‚¹
 		}
 		vector<FlatNode *>downflatNodes = iter->first->outFlatNodes;
 		assert(downflatNodes.size() == 1);
@@ -228,8 +228,8 @@ void ClusterHorizontialFission::modifyFissionNodeInfo()
 		else
 		{
 			map<FlatNode *,int>::iterator tmpIter = _flatNode2partitionNum.find(iter->first);
-			if(tmpIter != _flatNode2partitionNum.end())_FlatNode2makeDownNodeTag.insert(make_pair(iter->first, FALSE));//ÏÂ¶Ë½ÚµãÔÚ¸Ã»®·ÖÖĞ
-			else _FlatNode2makeDownNodeTag.insert(make_pair(iter->first, TRUE));//ÏÂ¶Ë½Úµã²»ÔÚ¸Ã»®·ÖÖĞ
+			if(tmpIter != _flatNode2partitionNum.end())_FlatNode2makeDownNodeTag.insert(make_pair(iter->first, FALSE));//ä¸‹ç«¯èŠ‚ç‚¹åœ¨è¯¥åˆ’åˆ†ä¸­
+			else _FlatNode2makeDownNodeTag.insert(make_pair(iter->first, TRUE));//ä¸‹ç«¯èŠ‚ç‚¹ä¸åœ¨è¯¥åˆ’åˆ†ä¸­
 		}
 	}
 	assert(_FlatNode2makeUpNodeTag.size() == FlatNode2FissionNode.size() && _FlatNode2makeDownNodeTag.size() == FlatNode2FissionNode.size() );
@@ -250,14 +250,14 @@ void ClusterHorizontialFission::MWISD_List(List *l,Node *old_inputDecl,Node *old
 }
 
 /*********************************************************************
-	*ĞŞ¸ÄworkÖĞÊäÈëÊä³öÁ÷µÄÏÂ±ê£¬²ÉÓÃµİ¹é±éÀúµÄ·½Ê½
-	*Ö÷ÒªµÄË¼Ïë£º1.±éÀúworkº¯ÊıµÄÄÚÈİ£¬µ±Óöµ½Êı×éÀàĞÍÊÇĞè´¦Àí
-				 2.¶ÔÓÚÊı×éÀàĞÍÏÈÅĞ¶ÏÊÇ²»ÊÇÊäÈëÁ÷»òÊä³öÁ÷£¬Õë¶Ô²»Í¬µÄÁ÷ÀàĞÍĞŞ¸ÄÏÂ±êĞÅÏ¢
-	 ²ÎÊıËµÃ÷£ºn£ºµ±Ç°´¦ÀíµÄ½Úµã¡£inputlist	£¬outputist ÊÇÊäÈëÊä³öÁ÷¡£
-			   inputDelt£¬outputDelt ÒıÓÃÊäÈëÊä³öÁ÷ÊÇÏÂ±êÖµµÄÔö¼ÓµÄÆ«ÒÆÖµ
+	*ä¿®æ”¹workä¸­è¾“å…¥è¾“å‡ºæµçš„ä¸‹æ ‡ï¼Œé‡‡ç”¨é€’å½’éå†çš„æ–¹å¼
+	*ä¸»è¦çš„æ€æƒ³ï¼š1.éå†workå‡½æ•°çš„å†…å®¹ï¼Œå½“é‡åˆ°æ•°ç»„ç±»å‹æ˜¯éœ€å¤„ç†
+				 2.å¯¹äºæ•°ç»„ç±»å‹å…ˆåˆ¤æ–­æ˜¯ä¸æ˜¯è¾“å…¥æµæˆ–è¾“å‡ºæµï¼Œé’ˆå¯¹ä¸åŒçš„æµç±»å‹ä¿®æ”¹ä¸‹æ ‡ä¿¡æ¯
+	 å‚æ•°è¯´æ˜ï¼šnï¼šå½“å‰å¤„ç†çš„èŠ‚ç‚¹ã€‚inputlist	ï¼Œoutputist æ˜¯è¾“å…¥è¾“å‡ºæµã€‚
+			   inputDeltï¼ŒoutputDelt å¼•ç”¨è¾“å…¥è¾“å‡ºæµæ˜¯ä¸‹æ ‡å€¼çš„å¢åŠ çš„åç§»å€¼
 **********************************************************************/
 void ClusterHorizontialFission::MWISD_astwalk(Node *n,Node *old_inputDecl,Node *old_outputDecl,Node *inputId,Node *outputId,Node *inputDelt,Node *outputDelt)
-{//ĞŞ¸ÄworkÖĞ´ÓÊäÈëÁ÷ÖĞÈ¡ÔªËØµÄÎ»ÖÃ
+{//ä¿®æ”¹workä¸­ä»è¾“å…¥æµä¸­å–å…ƒç´ çš„ä½ç½®
 	switch ((n)->typ) { 
 	 case Const:         break;
 	 case Id:            break;
@@ -269,8 +269,8 @@ void ClusterHorizontialFission::MWISD_astwalk(Node *n,Node *old_inputDecl,Node *
 	 case Array:        {
 						 if ((n)->u.array.name) {MWISD_astwalk((n)->u.array.name,old_inputDecl,old_outputDecl,inputId,outputId,inputDelt,outputDelt);}
 						 if ((n)->u.array.dims) {MWISD_List((n)->u.array.dims, old_inputDecl,old_outputDecl,inputId,outputId,inputDelt,outputDelt);} 
-						 //¾ßÌå´¦Àí
-						 if(n->u.array.name->u.id.decl->u.decl.type->typ == STRdcl)//±íÃ÷Êı×éµÄÃûÊÇÒ»¸östream
+						 //å…·ä½“å¤„ç†
+						 if(n->u.array.name->u.id.decl->u.decl.type->typ == STRdcl)//è¡¨æ˜æ•°ç»„çš„åæ˜¯ä¸€ä¸ªstream
 						 {
 							 Node *tmpDecl = n->u.array.name->u.id.decl;
 							 if(tmpDecl->u.decl.name == old_inputDecl->u.decl.name)
@@ -330,9 +330,9 @@ void ClusterHorizontialFission::MWISD_astwalk(Node *n,Node *old_inputDecl,Node *
 	}
 }
 
-/*ĞŞ¸ÄoperatorÖĞµÄwindow,Ö÷ÒªÊÇÊäÈëÁ÷µÄpeek£¬pop£¬Êä³öÁ÷µÄpush£¬ÕâÀï½ö´¦Àíµ¥ÊäÈëµ¥Êä³öµÄoperatorµÄ´°¿Ú*/
+/*ä¿®æ”¹operatorä¸­çš„window,ä¸»è¦æ˜¯è¾“å…¥æµçš„peekï¼Œpopï¼Œè¾“å‡ºæµçš„pushï¼Œè¿™é‡Œä»…å¤„ç†å•è¾“å…¥å•è¾“å‡ºçš„operatorçš„çª—å£*/
 List *ClusterHorizontialFission::ModifyWindow(List *inputList,List *outputList,int popValue,int peekValue,int pushValue)
-{//²»¹ÜÔ­À´µÄ´°¿ÚÓĞÃ»ÓĞ£¬ÏÖÔÚ°´ÕÕĞÂµÄÖµÖØĞÂ¹¹Ôì	 
+{//ä¸ç®¡åŸæ¥çš„çª—å£æœ‰æ²¡æœ‰ï¼Œç°åœ¨æŒ‰ç…§æ–°çš„å€¼é‡æ–°æ„é€ 	 
 	assert(inputList);
 	assert(outputList);
 	assert(ListLength(inputList) == ListLength(outputList) == 1);
@@ -347,32 +347,32 @@ List *ClusterHorizontialFission::ModifyWindow(List *inputList,List *outputList,i
 	else outputDecl = outputNode;
 	assert(inputDecl && inputDecl->typ == Decl);
 	assert(outputDecl &&outputDecl->typ == Decl);
-	List *finalWinList = NULL;//ÓÃÓÚ·µ»Ø×îºóĞŞ¸ÄºóµÄwindow
-	//ÊäÈë´°¿ÚÎª¿Õ£¬½¨Ò»¸öÊäÈëwindow
+	List *finalWinList = NULL;//ç”¨äºè¿”å›æœ€åä¿®æ”¹åçš„window
+	//è¾“å…¥çª—å£ä¸ºç©ºï¼Œå»ºä¸€ä¸ªè¾“å…¥window
 	List *slidings = NULL;
 	slidings = AppendItem(AppendItem(slidings,MakeConstSint(peekValue)),MakeConstSint(popValue));
 	Node *sliding_value = MakeCommaCoord(slidings,UnknownCoord);
 	Node *sliding = MakeWindowSlidingCoord(EMPTY_TQ,sliding_value,UnknownCoord);
 	Node *input_winIdNode = MakeNewStreamId(inputDecl->u.decl.name,inputDecl);
-	Node *input_Window = MakeWindowCoord(input_winIdNode,sliding,UnknownCoord); //ÊäÈë´°¿Ú
+	Node *input_Window = MakeWindowCoord(input_winIdNode,sliding,UnknownCoord); //è¾“å…¥çª—å£
 
 	Node *tumbling = MakeWindowTumbingCoord(EMPTY_TQ, MakeConstSint(pushValue), UnknownCoord);  //push
 	Node *output_winIdNode = MakeNewStreamId(outputDecl->u.decl.name,outputDecl);
-	Node *output_Window = MakeWindowCoord(output_winIdNode,tumbling,UnknownCoord);//Êä³ö±ßµÄ´°¿Ú
+	Node *output_Window = MakeWindowCoord(output_winIdNode,tumbling,UnknownCoord);//è¾“å‡ºè¾¹çš„çª—å£
 	finalWinList = AppendItem(finalWinList,input_Window);
 	finalWinList = AppendItem(finalWinList,output_Window);
 	return finalWinList;
 }
 
 Node *ClusterHorizontialFission::MakeCopyOperatorNode_Duplicate(FissionNodeInfo *copyNodeInfo, Node *inputNode,Node *outputNode,int oldpopValue, int oldpeekValue,int oldpushValue,int deltpeek)
-{//ÖÆÔìÒÔduplicate·½Ê½·ÖÁÑµÄ¸±±¾operator½Úµã£¬Í¬Ê±Ìæ»»ÍêÊäÈëÊä³ö±ß£¬ÒÔ¼°peekµÄÆ«ÒÆ
+{//åˆ¶é€ ä»¥duplicateæ–¹å¼åˆ†è£‚çš„å‰¯æœ¬operatorèŠ‚ç‚¹ï¼ŒåŒæ—¶æ›¿æ¢å®Œè¾“å…¥è¾“å‡ºè¾¹ï¼Œä»¥åŠpeekçš„åç§»
 	assert(copyNodeInfo && copyNodeInfo->fiss_state==FALSE);
 	assert(inputNode->typ == Decl && outputNode->typ == Decl);
 	Node *form = MakeOperator(copyNodeInfo->fissingFlatNode->contents->decl,copyNodeInfo->fissingFlatNode->contents->body);
 	Node *copyNode = NodeCopy(form,Subtree);
-	//ĞŞ¸ÄcopyNodeµÄÊä³öÊä³öÒÔ¼°ÒÔ¼°Æ«ÒÆ
-	Node *inputId = MakeNewStreamId(inputNode->u.decl.name,inputNode);//¹¹ÔìÊäÈëÁ÷¶ÔÓ¦µÄidNode
-	Node *outputId = MakeNewStreamId(outputNode->u.decl.name,outputNode);//¹¹ÔìÊä³öÁ÷¶ÔÓ¦µÄidNode
+	//ä¿®æ”¹copyNodeçš„è¾“å‡ºè¾“å‡ºä»¥åŠä»¥åŠåç§»
+	Node *inputId = MakeNewStreamId(inputNode->u.decl.name,inputNode);//æ„é€ è¾“å…¥æµå¯¹åº”çš„idNode
+	Node *outputId = MakeNewStreamId(outputNode->u.decl.name,outputNode);//æ„é€ è¾“å‡ºæµå¯¹åº”çš„idNode
 	Node *old_inputNode =(Node *)FirstItem(copyNode->u.operator_.decl->u.decl.type->u.operdcl.inputs);
 	Node *old_outputNode = (Node *)FirstItem(copyNode->u.operator_.decl->u.decl.type->u.operdcl.outputs);
 	Node *old_inputDecl = NULL;
@@ -386,25 +386,25 @@ Node *ClusterHorizontialFission::MakeCopyOperatorNode_Duplicate(FissionNodeInfo 
 	List *outputList = NULL;
 	inputList = AppendItem(inputList, inputId);
 	outputList = AppendItem(outputList,outputId);
-	//ĞŞ¸Ä¸±±¾µÄÍ·µÄÊäÈëÊä³ö¡ª¡ªĞÂµÄÊäÈëÊä³ö
+	//ä¿®æ”¹å‰¯æœ¬çš„å¤´çš„è¾“å…¥è¾“å‡ºâ€”â€”æ–°çš„è¾“å…¥è¾“å‡º
 	copyNode->u.operator_.decl->u.decl.type->u.operdcl.inputs = inputList;
 	copyNode->u.operator_.decl->u.decl.type->u.operdcl.outputs = outputList;
-	//ĞŞ¸ÄworkµÄÌå
+	//ä¿®æ”¹workçš„ä½“
 
-	/*¹¹Ôì¿ØÖÆworkÑ­»·±äÁ¿µÄid½Úµã*/
-	Node *workVarDecl = MakeDeclCoord("__operator_work",T_BLOCK_DECL,MakePrimCoord(EMPTY_TQ,Sint,UnknownCoord),MakeConstSint(0),NULL,UnknownCoord);//ÓÃwork×÷Îª´ÎÊı¹Ø¼ü×Ö 
+	/*æ„é€ æ§åˆ¶workå¾ªç¯å˜é‡çš„idèŠ‚ç‚¹*/
+	Node *workVarDecl = MakeDeclCoord("__operator_work",T_BLOCK_DECL,MakePrimCoord(EMPTY_TQ,Sint,UnknownCoord),MakeConstSint(0),NULL,UnknownCoord);//ç”¨workä½œä¸ºæ¬¡æ•°å…³é”®å­— 
 	Node *workVarId  = MakeIdCoord("__operator_work", UnknownCoord);
 	workVarId->u.id.decl = workVarDecl;
 	REFERENCE(workVarDecl);
 
 	Node *inputDelt = NULL;
 	inputDelt = MakeBinopCoord('*',workVarId,MakeConstSint(oldpopValue),UnknownCoord);
-	if(deltpeek) inputDelt = MakeBinopCoord('+',inputDelt,MakeConstSint(deltpeek),UnknownCoord); //duplicate·½Ê½deltpeekÒ»°ã²»Îª0£¬RoundRobin·½Ê½deltpeek=0
+	if(deltpeek) inputDelt = MakeBinopCoord('+',inputDelt,MakeConstSint(deltpeek),UnknownCoord); //duplicateæ–¹å¼deltpeekä¸€èˆ¬ä¸ä¸º0ï¼ŒRoundRobinæ–¹å¼deltpeek=0
 	Node *outputDelt = MakeBinopCoord('*',workVarId,MakeConstSint(oldpushValue),UnknownCoord);
 	Node *workNode = copyNode->u.operator_.body->u.operBody.work;
 	assert(workNode);
 	MWISD_astwalk(workNode,old_inputDecl,old_outputDecl,inputId,outputId,inputDelt,outputDelt);
-	//ÔÚworkÍâÃæ¹¹ÔìÒ»¸öÑ­»·
+	//åœ¨workå¤–é¢æ„é€ ä¸€ä¸ªå¾ªç¯
 	Node *forNode = NULL;
 	Node *forInit = MakeBinopCoord('=',workVarId,MakeConstSint(0),UnknownCoord);
 	Node *forCond = MakeBinopCoord('<',workVarId,MakeConstSint(copyNodeInfo->fissedSteadycount),UnknownCoord);
@@ -417,13 +417,13 @@ Node *ClusterHorizontialFission::MakeCopyOperatorNode_Duplicate(FissionNodeInfo 
 	newWorkStmtsList = AppendItem(newWorkStmtsList,forNode);
 	Node *newWorkBlock = MakeBlockCoord(PrimVoid,newWorkDeclList,newWorkStmtsList,UnknownCoord,UnknownCoord);
 	
-	//¹¹½¨ĞÂµÄwindow
+	//æ„å»ºæ–°çš„window
 	List *tmpwinList = ModifyWindow(inputList,outputList,copyNodeInfo->fissed_pop[0],copyNodeInfo->fissed_peek[0],copyNodeInfo->fissed_push[0]);
-	//×é³ÉĞÂµÄoperator
+	//ç»„æˆæ–°çš„operator
 	copyNode->u.operator_.body->u.operBody.work = newWorkBlock;
 	copyNode->u.operator_.body->u.operBody.window = tmpwinList;
 
-	//ĞŞ¸ÄcompositeµÄÃû×Ö
+	//ä¿®æ”¹compositeçš„åå­—
 	char *operatorName = (char *)malloc(60);
 	sprintf(operatorName,"%s_%s_%d","HFission",copyNode->u.operator_.decl->u.decl.name,HFOperatorNum++);
 	copyNode->u.operator_.decl->u.decl.name = operatorName;
@@ -432,7 +432,7 @@ Node *ClusterHorizontialFission::MakeCopyOperatorNode_Duplicate(FissionNodeInfo 
 }
 
 Node *ClusterHorizontialFission::MakeCopyOperatorNode_RoundRobin(FissionNodeInfo *copyNodeInfo, Node *inputNode,Node *outputNode,int oldpopValue, int oldpeekValue,int oldpushValue,int deltpeek)
-{//ÖÆÔìÒÔduplicate·½Ê½·ÖÁÑµÄ¸±±¾operator½Úµã£¬Í¬Ê±Ìæ»»ÍêÊäÈëÊä³ö±ß£¬ÒÔ¼°peekµÄÆ«ÒÆ
+{//åˆ¶é€ ä»¥duplicateæ–¹å¼åˆ†è£‚çš„å‰¯æœ¬operatorèŠ‚ç‚¹ï¼ŒåŒæ—¶æ›¿æ¢å®Œè¾“å…¥è¾“å‡ºè¾¹ï¼Œä»¥åŠpeekçš„åç§»
 	assert(copyNodeInfo && copyNodeInfo->fiss_state==TRUE);
 	assert(inputNode->typ == Decl && outputNode->typ == Decl);
 	Node *form = MakeOperator(copyNodeInfo->fissingFlatNode->contents->decl,copyNodeInfo->fissingFlatNode->contents->body);
@@ -440,9 +440,9 @@ Node *ClusterHorizontialFission::MakeCopyOperatorNode_RoundRobin(FissionNodeInfo
 	//PrintNode(stdout,form,0);
 	//printf("++++++++++++++++++++++++++++++++++++++++++\n");
 	//PrintNode(stdout,copyNode,0);
-	//ĞŞ¸ÄcopyNodeµÄÊä³öÊä³öÒÔ¼°ÒÔ¼°Æ«ÒÆ
-	Node *inputId = MakeNewStreamId(inputNode->u.decl.name,inputNode);//¹¹ÔìÊäÈëÁ÷¶ÔÓ¦µÄidNode
-	Node *outputId = MakeNewStreamId(outputNode->u.decl.name,outputNode);//¹¹ÔìÊä³öÁ÷¶ÔÓ¦µÄidNode
+	//ä¿®æ”¹copyNodeçš„è¾“å‡ºè¾“å‡ºä»¥åŠä»¥åŠåç§»
+	Node *inputId = MakeNewStreamId(inputNode->u.decl.name,inputNode);//æ„é€ è¾“å…¥æµå¯¹åº”çš„idNode
+	Node *outputId = MakeNewStreamId(outputNode->u.decl.name,outputNode);//æ„é€ è¾“å‡ºæµå¯¹åº”çš„idNode
 	assert(ListLength(copyNode->u.operator_.decl->u.decl.type->u.operdcl.inputs)==1 && ListLength(copyNode->u.operator_.decl->u.decl.type->u.operdcl.outputs) == 1);
 	Node *old_inputNode =(Node *)FirstItem(copyNode->u.operator_.decl->u.decl.type->u.operdcl.inputs);
 	Node *old_outputNode = (Node *)FirstItem(copyNode->u.operator_.decl->u.decl.type->u.operdcl.outputs);
@@ -457,22 +457,22 @@ Node *ClusterHorizontialFission::MakeCopyOperatorNode_RoundRobin(FissionNodeInfo
 	List *outputList = NULL;
 	inputList = AppendItem(inputList, inputId);
 	outputList = AppendItem(outputList,outputId);
-	//ĞŞ¸Ä¸±±¾µÄÍ·µÄÊäÈëÊä³ö
+	//ä¿®æ”¹å‰¯æœ¬çš„å¤´çš„è¾“å…¥è¾“å‡º
 	copyNode->u.operator_.decl->u.decl.type->u.operdcl.inputs = inputList;
 	copyNode->u.operator_.decl->u.decl.type->u.operdcl.outputs = outputList;
-	//ĞŞ¸ÄworkµÄÌå
+	//ä¿®æ”¹workçš„ä½“
 	Node *workNode = copyNode->u.operator_.body->u.operBody.work;
 	assert(workNode);
 
 	MWISD_astwalk(workNode,old_inputDecl,old_outputDecl,inputId,outputId,MakeConstSint(0),MakeConstSint(0));
 
-	//¹¹½¨ĞÂµÄwindow
+	//æ„å»ºæ–°çš„window
 	List *tmpwinList = ModifyWindow(inputList,outputList,copyNodeInfo->fissed_pop[0],copyNodeInfo->fissed_peek[0],copyNodeInfo->fissed_push[0]);
-	//×é³ÉĞÂµÄoperator
+	//ç»„æˆæ–°çš„operator
 	copyNode->u.operator_.body->u.operBody.work = workNode;
 	copyNode->u.operator_.body->u.operBody.window = tmpwinList;
 
-	//ĞŞ¸ÄcompositeµÄÃû×Ö
+	//ä¿®æ”¹compositeçš„åå­—
 	char *operatorName = (char *)malloc(60);
 	sprintf(operatorName,"%s_%s_%d","HFission",copyNode->u.operator_.decl->u.decl.name,HFOperatorNum++);
 	copyNode->u.operator_.decl->u.decl.name = operatorName;
@@ -519,7 +519,7 @@ List *ClusterHorizontialFission::makeHFissionJoinWindow(List *inputList,List *ou
 	Node *inputNode = NULL;
 	Node *inputDecl = NULL;
 	Node *pop_value = NULL;
-	/*ÊäÈë´°¿Ú*/
+	/*è¾“å…¥çª—å£*/
 	IterateList(&input_maker,inputList);
 	IterateList(&pop_maker,pop_arg);
 	while (NextOnList(&input_maker,(GenericREF)&inputNode) && NextOnList(&pop_maker,(GenericREF)&pop_value))
@@ -537,10 +537,10 @@ List *ClusterHorizontialFission::makeHFissionJoinWindow(List *inputList,List *ou
 			inputId = MakeNewStreamId(inputNode->u.decl.name,inputNode);
 			inputDecl = inputNode;
 		}
-		windowList = AppendItem(windowList,MakeWindowNode(inputId,inputDecl,pop_value,0));	//ÊäÈë±ßµÄ´°¿Ú
+		windowList = AppendItem(windowList,MakeWindowNode(inputId,inputDecl,pop_value,0));	//è¾“å…¥è¾¹çš„çª—å£
 	}
 
-	/*Êä³ö´°¿Ú*/
+	/*è¾“å‡ºçª—å£*/
 	Node *outputNode = (Node *)FirstItem(outputList);
 	assert(outputNode->typ == Id || outputNode->typ == Decl);
 	Node *outputId = NULL;
@@ -556,7 +556,7 @@ List *ClusterHorizontialFission::makeHFissionJoinWindow(List *inputList,List *ou
 		outputId = MakeNewStreamId(outputNode->u.decl.name,inputNode);
 		outputDecl = inputNode;
 	}
-	windowList =AppendItem(windowList,MakeWindowNode(outputId,outputDecl,pushArg,1));   //Êä³ö
+	windowList =AppendItem(windowList,MakeWindowNode(outputId,outputDecl,pushArg,1));   //è¾“å‡º
 	return windowList;
 }
 
@@ -569,7 +569,7 @@ List *ClusterHorizontialFission::makeHFissionRoundRobinWindow(List *inputList,Li
 	Node *outputNode = NULL;
 	Node *outputDecl = NULL;
 	Node *push_value = NULL;
-	/*Êä³ö´°¿Ú*/
+	/*è¾“å‡ºçª—å£*/
 	IterateList(&output_maker,outputList);
 	IterateList(&push_maker,push_arg);
 	while (NextOnList(&output_maker,(GenericREF)&outputNode) && NextOnList(&push_maker,(GenericREF)&push_value))
@@ -587,9 +587,9 @@ List *ClusterHorizontialFission::makeHFissionRoundRobinWindow(List *inputList,Li
 			outputId = MakeNewStreamId(outputNode->u.decl.name,outputNode);
 			outputDecl = outputNode;
 		}
-		windowList = AppendItem(windowList,MakeWindowNode(outputId,outputDecl,push_value,1));	//Êä³ö±ßµÄ´°¿Ú
+		windowList = AppendItem(windowList,MakeWindowNode(outputId,outputDecl,push_value,1));	//è¾“å‡ºè¾¹çš„çª—å£
 	}
-	/*ÊäÈë´°¿Ú*/
+	/*è¾“å…¥çª—å£*/
 	Node *inputNode = (Node *)FirstItem(inputList);
 	assert(inputNode->typ == Id || inputNode->typ == Decl);
 	Node *inputId = NULL;
@@ -616,7 +616,7 @@ List *ClusterHorizontialFission::makeHFissionDuplicateWindow(List *inputList,Lis
 	ListMarker push_maker;
 	Node *outputNode = NULL;
 	Node *outputDecl = NULL;
-	/*Êä³ö´°¿Ú*/
+	/*è¾“å‡ºçª—å£*/
 	IterateList(&output_maker,outputList);
 	while (NextOnList(&output_maker,(GenericREF)&outputNode))
 	{
@@ -632,10 +632,10 @@ List *ClusterHorizontialFission::makeHFissionDuplicateWindow(List *inputList,Lis
 			outputId = MakeNewStreamId(outputNode->u.decl.name,outputNode);
 			outputDecl = outputNode;
 		}
-		windowList = AppendItem(windowList,MakeWindowNode(outputId,outputDecl,pop_value,1));	//Êä³ö±ßµÄ´°¿Ú
+		windowList = AppendItem(windowList,MakeWindowNode(outputId,outputDecl,pop_value,1));	//è¾“å‡ºè¾¹çš„çª—å£
 	}
 
-	/*ÊäÈë´°¿Ú*/
+	/*è¾“å…¥çª—å£*/
 	Node *inputNode = (Node *)FirstItem(inputList);
 	assert(inputNode->typ == Id || inputNode->typ == Decl);
 	Node *inputId = NULL;
@@ -659,17 +659,17 @@ void ClusterHorizontialFission::horizontalFissOperator(FlatNode* flatNode,set<Fi
 { 
 	assert(splitedNodeSet.size()>=2);
 	assert(flatNode);
-	operatorNode *operNode =flatNode->contents; //½«Òª±»·ÖÁÑµÄoperator
-	int steadyCount = sssg->GetSteadyCount(flatNode);  //È¡¸Ã½ÚµãµÄÔÚÎÈÌ¬µ÷¶ÈÖĞµÄÖ´ĞĞ´ÎÊı
+	operatorNode *operNode =flatNode->contents; //å°†è¦è¢«åˆ†è£‚çš„operator
+	int steadyCount = sssg->GetSteadyCount(flatNode);  //å–è¯¥èŠ‚ç‚¹çš„åœ¨ç¨³æ€è°ƒåº¦ä¸­çš„æ‰§è¡Œæ¬¡æ•°
 
-	List *inputList=operNode->decl->u.decl.type->u.operdcl.inputs;  //´ı·ÖÁÑoperatorµÄÊäÈë
-	List *outputList = operNode->decl->u.decl.type->u.operdcl.outputs; //´ı·ÖÁÑoperatorµÄÊä³ö
+	List *inputList=operNode->decl->u.decl.type->u.operdcl.inputs;  //å¾…åˆ†è£‚operatorçš„è¾“å…¥
+	List *outputList = operNode->decl->u.decl.type->u.operdcl.outputs; //å¾…åˆ†è£‚operatorçš„è¾“å‡º
 
-	assert(ListLength(inputList)==1 && ListLength(outputList)==1);	//ÔİÊ±Ö»¶Ôµ¥ÊäÈëµ¥Êä³öµÄ½Úµã½øĞĞ¸´ÖÆ·ÖÁÑ
+	assert(ListLength(inputList)==1 && ListLength(outputList)==1);	//æš‚æ—¶åªå¯¹å•è¾“å…¥å•è¾“å‡ºçš„èŠ‚ç‚¹è¿›è¡Œå¤åˆ¶åˆ†è£‚
 
-	Node *splitNode = NULL;//ĞÂ²úÉúµÄsplit½Úµã
-	Node *joinNode = NULL;	//ĞÂ²úÉúµÄjoin½Úµã
-	SplitStyle style = _FlatNode2splitStyle.find(flatNode)->second; //È¡½ÚµãµÄ·ÖÁÑ·½Ê½
+	Node *splitNode = NULL;//æ–°äº§ç”Ÿçš„splitèŠ‚ç‚¹
+	Node *joinNode = NULL;	//æ–°äº§ç”Ÿçš„joinèŠ‚ç‚¹
+	SplitStyle style = _FlatNode2splitStyle.find(flatNode)->second; //å–èŠ‚ç‚¹çš„åˆ†è£‚æ–¹å¼
 
 	Node *inputNode =(Node *)FirstItem(inputList);
 	Node *outputNode = (Node *)FirstItem(outputList);
@@ -684,24 +684,24 @@ void ClusterHorizontialFission::horizontalFissOperator(FlatNode* flatNode,set<Fi
 	Node *output_streamType = output_Decl->u.decl.type;
 	Node *input_streamType = input_Decl->u.decl.type;
 
-	int popweight = flatNode->inPopWeights[0];//È¡µ±Ç°opertorµÄpopÖµ
-	int pushweight = flatNode->outPushWeights[0];//È¡µ±Ç°opertorµÄpushÖµ
-	int peekweight = flatNode->inPeekWeights[0];//È¡µ±Ç°opertorµÄpeekÖµ
+	int popweight = flatNode->inPopWeights[0];//å–å½“å‰opertorçš„popå€¼
+	int pushweight = flatNode->outPushWeights[0];//å–å½“å‰opertorçš„pushå€¼
+	int peekweight = flatNode->inPeekWeights[0];//å–å½“å‰opertorçš„peekå€¼
 
 	int deltpeek = 0;
-	//vector<Node *>_copy_flatNode;//¸ù¾İ´ı·ÖÁÑ½ÚµãµÄĞÅÏ¢½«¸´ÖÆºÃµÄ¸±±¾´æ·ÅÔÚ¸ÃvectorÖĞ
+	//vector<Node *>_copy_flatNode;//æ ¹æ®å¾…åˆ†è£‚èŠ‚ç‚¹çš„ä¿¡æ¯å°†å¤åˆ¶å¥½çš„å‰¯æœ¬å­˜æ”¾åœ¨è¯¥vectorä¸­
 	if(style == S_Duplicate)
 		for(set<FissionNodeInfo *>::iterator iter = splitedNodeSet.begin(); iter != splitedNodeSet.end(); iter++)
 		{
 			char *output_newName = NULL;
 			output_newName = (char *) malloc(strlen(output_Decl->u.decl.name)+20);
-			sprintf(output_newName, "%s_%d", output_Decl->u.decl.name, gCurrentFissionStreamNum++);//ĞÂµÄÊä³öÁ÷Ãû³Æ
+			sprintf(output_newName, "%s_%d", output_Decl->u.decl.name, gCurrentFissionStreamNum++);//æ–°çš„è¾“å‡ºæµåç§°
 			Node *output_newStream = MakeNewStream(output_newName,output_streamType);
 			assert(output_newStream && output_newStream->typ == Decl);
 
 			char *input_newName = NULL;
 			input_newName = (char *) malloc(strlen(input_Decl->u.decl.name)+20);
-			sprintf(input_newName, "%s_%d", input_Decl->u.decl.name, gCurrentFissionStreamNum++);//ĞÂµÄÊäÈëÁ÷
+			sprintf(input_newName, "%s_%d", input_Decl->u.decl.name, gCurrentFissionStreamNum++);//æ–°çš„è¾“å…¥æµ
 			Node *input_newStream = MakeNewStream(input_newName,input_streamType);
 			assert(input_newStream && input_newStream->typ == Decl);
 
@@ -735,7 +735,7 @@ void ClusterHorizontialFission::horizontalFissOperator(FlatNode* flatNode,set<Fi
 }
 
 Node *ClusterHorizontialFission::makeHFissionSplit(Node *splitInputNode,Node *splitPopArg,List *splitOutputList, List *splitPushArg, SplitStyle style)
-{//¹¹Ôìsplit½Úµã(ÒªÈ·¶¨²ÉÓÃµÄÊÇÄÄÖÖsplitµÄ·½Ê½¡ª¡ªduplicate£¬roundrobin)
+{//æ„é€ splitèŠ‚ç‚¹(è¦ç¡®å®šé‡‡ç”¨çš„æ˜¯å“ªç§splitçš„æ–¹å¼â€”â€”duplicateï¼Œroundrobin)
 	assert(splitInputNode->typ== Decl || splitInputNode->typ== Id);
 	Node *tmp_inputNode = NULL;
 
@@ -752,35 +752,35 @@ Node *ClusterHorizontialFission::makeHFissionSplit(Node *splitInputNode,Node *sp
 		assert(operatorName);
 		assert(splitOutputList);
 		assert(tmp_inputList);
-		Node *rouOperHead = MakeOperatorHead(operatorName,splitOutputList,tmp_inputList); //operatorµÄÍ·
+		Node *rouOperHead = MakeOperatorHead(operatorName,splitOutputList,tmp_inputList); //operatorçš„å¤´
 		newOperator = DefineOperator(rouOperHead);
 		newOperator->u.operator_.ot = Roundrobin_;
-		Node *rouWorkNode = MakeRoundrobinWork(splitOutputList,tmp_inputNode,splitPushArg);//¹¹ÔìoperatorµÄworkº¯Êı
+		Node *rouWorkNode = MakeRoundrobinWork(splitOutputList,tmp_inputNode,splitPushArg);//æ„é€ operatorçš„workå‡½æ•°
 		List *rouWindowList = makeHFissionRoundRobinWindow(tmp_inputList,splitOutputList,splitPushArg,splitPopArg);
-		Node *rouOperBodyNode = MakeOperatorBody(rouWorkNode,rouWindowList);//operatorµÄbody
-		newOperator = SetOperatorBody(newOperator,rouOperBodyNode);//¹¹Ôìoperator
+		Node *rouOperBodyNode = MakeOperatorBody(rouWorkNode,rouWindowList);//operatorçš„body
+		newOperator = SetOperatorBody(newOperator,rouOperBodyNode);//æ„é€ operator
 
 	}
 	else 
 	{//style == S_Duplicate
 		sprintf(operatorName,"%s_%s_%d","HFission","Duplicate",HFOperatorNum++);
-		Node *rouOperHead = MakeOperatorHead(operatorName,splitOutputList,tmp_inputList); //operatorµÄÍ·
+		Node *rouOperHead = MakeOperatorHead(operatorName,splitOutputList,tmp_inputList); //operatorçš„å¤´
 		newOperator = DefineOperator(rouOperHead);
 		newOperator->u.operator_.ot = Duplicate_;
-		Node *rouWorkNode = MakeDuplicateWork(splitOutputList,splitInputNode,splitPopArg);//¹¹ÔìoperatorµÄworkº¯Êı
+		Node *rouWorkNode = MakeDuplicateWork(splitOutputList,splitInputNode,splitPopArg);//æ„é€ operatorçš„workå‡½æ•°
 		List *rouWindowList = makeHFissionDuplicateWindow(tmp_inputList,splitOutputList,splitPopArg);
-		Node *rouOperBodyNode = MakeOperatorBody(rouWorkNode,rouWindowList);//operatorµÄbody
-		newOperator = SetOperatorBody(newOperator,rouOperBodyNode);//¹¹Ôìoperator
+		Node *rouOperBodyNode = MakeOperatorBody(rouWorkNode,rouWindowList);//operatorçš„body
+		newOperator = SetOperatorBody(newOperator,rouOperBodyNode);//æ„é€ operator
 	}
 	gIsUnfold=FALSE;
 	return newOperator;
 }
 
 Node *ClusterHorizontialFission::makeHFissionJoin(List *joinInputList, List *joinPopArg, Node *joinOutputNode, Node *joinPushArg)
-{//¹¹Ôìjoin½Úµã
+{//æ„é€ joinèŠ‚ç‚¹
 	char *operatorName = (char *)malloc(60);
 	sprintf(operatorName,"%s_%s_%d","HFission","join",HFOperatorNum++);
-	//ĞÂµÄfilterµÄÊä³ö±ßList
+	//æ–°çš„filterçš„è¾“å‡ºè¾¹List
 	Node *joinOutputDecl = NULL;
 	if(joinOutputNode->typ == Id) joinOutputDecl = joinOutputNode->u.id.decl;
 	else joinOutputDecl = joinOutputNode;
@@ -789,27 +789,27 @@ Node *ClusterHorizontialFission::makeHFissionJoin(List *joinInputList, List *joi
 	tmp_outputList = AppendItem(tmp_outputList,tmp_outputNode); 
 
 	gIsUnfold=TRUE;
-	Node *newOperatorHead = MakeOperatorHead(operatorName,tmp_outputList,joinInputList);//ĞÂ½ÚµãµÄÍ·
+	Node *newOperatorHead = MakeOperatorHead(operatorName,tmp_outputList,joinInputList);//æ–°èŠ‚ç‚¹çš„å¤´
 	Node *newOperator = DefineOperator(newOperatorHead);
 	newOperator->u.operator_.ot = Join_;
 	Node *newOperatorWork = MakeJoinWork(tmp_outputNode,joinInputList,joinPopArg);
-	//ĞÂµÄfilter¹¹Ôìwindow
+	//æ–°çš„filteræ„é€ window
 	List *newOperatorWindow = makeHFissionJoinWindow(joinInputList,tmp_outputList,joinPopArg,joinPushArg);
 	Node *newOperatorBody = MakeOperatorBody(newOperatorWork,newOperatorWindow);
-	newOperator = SetOperatorBody(newOperator,newOperatorBody);//newoperator¹¹ÔìÍê³É
+	newOperator = SetOperatorBody(newOperator,newOperatorBody);//newoperatoræ„é€ å®Œæˆ
 	gIsUnfold=FALSE;
 	return newOperator;
 }
 
 map<FlatNode *,vector<Node *> > ClusterHorizontialFission::makeSplitJoinExtractOperators()
-{//¶ÔÒª·ÖÁÑµÄ½áµã¹¹ÔìÉÏÏÂ¶Ë½Úµã
+{//å¯¹è¦åˆ†è£‚çš„ç»“ç‚¹æ„é€ ä¸Šä¸‹ç«¯èŠ‚ç‚¹
 
 	map<FlatNode *,vector<Node *> > flatNode2_copyNodes;
 
 	for (map<FlatNode *,set<FissionNodeInfo *> >::iterator iter = FlatNode2FissionNode.begin(); iter != FlatNode2FissionNode.end(); iter++)
 	{
 		vector<Node *>_copyNodes;
-		//¹¹ÔìÉÏ¶Ë½Úµã
+		//æ„é€ ä¸Šç«¯èŠ‚ç‚¹
 		Node *inSplitStream = (Node *)FirstItem(iter->first->contents->decl->u.decl.type->u.operdcl.inputs);
 		Node *inSplitStreamPopvalue = MakeConstSint(iter->first->inPopWeights[0] * _flatNode2steadycount.find(iter->first)->second);
 		List *outSplitStreamList = NULL;
@@ -820,7 +820,7 @@ map<FlatNode *,vector<Node *> > ClusterHorizontialFission::makeSplitJoinExtractO
 
 			cout<<"   pop: "<<(*_copy_iter)->fissed_pop[0]<<"   peek: "<<(*_copy_iter)->fissed_peek[0]<<"   push:" <<(*_copy_iter)->fissed_push[0]<<"   steady:"<< (*_copy_iter)->fissedSteadycount<<endl;
 			assert((*_copy_iter)->actualOperatorNode);
-			//ĞÂ½¨Êä³ö½Úµã++++++++++++++++++++++++++
+			//æ–°å»ºè¾“å‡ºèŠ‚ç‚¹++++++++++++++++++++++++++
 			Node *S_outputNode = (Node *)FirstItem((*_copy_iter)->actualOperatorNode->u.operator_.decl->u.decl.type->u.operdcl.inputs);
 			Node *S_outputDecl = NULL;
 			if(S_outputNode->typ == Id) S_outputDecl = S_outputNode->u.id.decl;
@@ -836,7 +836,7 @@ map<FlatNode *,vector<Node *> > ClusterHorizontialFission::makeSplitJoinExtractO
 		newOperNode2partitionNum.insert(make_pair(newSplitNode,_flatNode2partitionNum.find(iter->first)->second));
 		newOperNode2steadycount.insert(make_pair(newSplitNode,1));
 		_copyNodes.push_back(newSplitNode);
-		//¹¹ÔìÏÂ¶Ë½Úµã
+		//æ„é€ ä¸‹ç«¯èŠ‚ç‚¹
 
 		List *inJoinStreamList = NULL;
 		List *inJoinStreamPopvalueList = NULL;
@@ -871,10 +871,10 @@ map<FlatNode *,vector<Node *> > ClusterHorizontialFission::makeSplitJoinExtractO
 map<FlatNode *,vector<FlatNode *> > ClusterHorizontialFission::transOperatorNodetoFlatNode(map<FlatNode *,vector<Node *> > flatNode2FissionOperatorNode)
 {
 	map<FlatNode *,vector<FlatNode *> > flatNode2_copyFlatNodes;
-	//É¾³ı¾É½áµãÔÚsssgÖĞµÄĞÅÏ¢
+	//åˆ é™¤æ—§ç»“ç‚¹åœ¨sssgä¸­çš„ä¿¡æ¯
 	for(map<FlatNode *,vector<Node *> >::iterator tran_iter = flatNode2FissionOperatorNode.begin(); tran_iter != flatNode2FissionOperatorNode.end(); tran_iter++)
 	{
-		//É¾³ıflatNodesÖĞµÄÄÚÈİ
+		//åˆ é™¤flatNodesä¸­çš„å†…å®¹
 		vector<FlatNode *>::iterator erase_iter = sssg->flatNodes.end();
 		for(vector<FlatNode *>::iterator iter = sssg->flatNodes.begin(); iter != sssg->flatNodes.end(); iter++)
 		{
@@ -882,7 +882,7 @@ map<FlatNode *,vector<FlatNode *> > ClusterHorizontialFission::transOperatorNode
 		}
 		assert(erase_iter != sssg->flatNodes.end());
 		sssg->flatNodes.erase(erase_iter);
-		//É¾³ımapEdge2UpFlatNodeÖĞµÄÄÚÈİ
+		//åˆ é™¤mapEdge2UpFlatNodeä¸­çš„å†…å®¹
 		map<Node *, FlatNode *>::iterator mapEdge2UpFlatNode_iter = sssg->mapEdge2UpFlatNode.begin();
 		while (mapEdge2UpFlatNode_iter != sssg->mapEdge2UpFlatNode.end())
 		{
@@ -894,7 +894,7 @@ map<FlatNode *,vector<FlatNode *> > ClusterHorizontialFission::transOperatorNode
 			}
 			else mapEdge2UpFlatNode_iter++;
 		}
-		//É¾³ımapEdge2DownFlatNodeÖĞµÄÔªËØ
+		//åˆ é™¤mapEdge2DownFlatNodeä¸­çš„å…ƒç´ 
 		multimap<Node *, FlatNode *>::iterator mapEdge2DownFlatNode_iter = sssg->mapEdge2DownFlatNode.begin();
 		while (mapEdge2DownFlatNode_iter != sssg->mapEdge2DownFlatNode.end())
 		{
@@ -906,24 +906,24 @@ map<FlatNode *,vector<FlatNode *> > ClusterHorizontialFission::transOperatorNode
 			}
 			else mapEdge2DownFlatNode_iter++;
 		}
-		//É¾³ıÔÚ¹¤×÷Á¿¹À¼ÆÖĞµÄÖµ
+		//åˆ é™¤åœ¨å·¥ä½œé‡ä¼°è®¡ä¸­çš„å€¼
 		sssg->mapInitWork2FlatNode.erase(tran_iter->first );
 		sssg->mapSteadyWork2FlatNode.erase(tran_iter->first);
 
-		//É¾³ı_flatNode2partitionNumºÍ_flatNode2steadycount ÖĞ¾É½áµã
+		//åˆ é™¤_flatNode2partitionNumå’Œ_flatNode2steadycount ä¸­æ—§ç»“ç‚¹
 		_flatNode2partitionNum.erase(tran_iter->first);
 		_flatNode2steadycount.erase(tran_iter->first);
 
 		set<FlatNode *> oldFlatNodeSet;
 		oldFlatNodeSet.insert(tran_iter->first);
-		//²åÈëĞÂ½Úµã
+		//æ’å…¥æ–°èŠ‚ç‚¹
 		vector<FlatNode *> newFlatNodes;
 		vector<Node *> __tmpFlatNodes = tran_iter->second;
 		for(vector<Node *>::iterator new_iter  = (tran_iter->second).begin(); new_iter != (tran_iter->second).end(); new_iter++)
 		{
 			FlatNode *nflatNode = sssg->InsertFlatNodes(&((*new_iter)->u.operator_),NULL,NULL,oldFlatNodeSet); 
 			newFlatNodes.push_back(nflatNode);
-			//²åÈë_flatNode2partitionNumºÍ_flatNode2steadycount ÖĞ
+			//æ’å…¥_flatNode2partitionNumå’Œ_flatNode2steadycount ä¸­
 			_flatNode2partitionNum.insert(make_pair(nflatNode,newOperNode2partitionNum.find(*new_iter)->second));
 			_flatNode2steadycount.insert(make_pair(nflatNode,newOperNode2steadycount.find(*new_iter)->second));
 		}
@@ -946,18 +946,18 @@ void ClusterHorizontialFission::modifySplitFlatNode(map<FlatNode*,set<FlatNode *
 		assert(mod_iter->first->contents->ot == Duplicate_ || mod_iter->first->contents->ot == Roundrobin_);
 		FlatNode *curSplitNode = mod_iter->first;
 		map<FlatNode *,int>::iterator _split_iter = _flatNode2steadycount.find(curSplitNode);
-		if(_split_iter == _flatNode2steadycount.end())continue;//ÉÏ¶Ë½Úµã²»ÔÚ¸Ã»®·ÖÖĞ
+		if(_split_iter == _flatNode2steadycount.end())continue;//ä¸Šç«¯èŠ‚ç‚¹ä¸åœ¨è¯¥åˆ’åˆ†ä¸­
 		int split_steadycount = _split_iter->second;
-		List *outputList = NULL;//Êä³ö±ß
-		List *output_pushvaluse = NULL;//pushµÄÖµ
+		List *outputList = NULL;//è¾“å‡ºè¾¹
+		List *output_pushvaluse = NULL;//pushçš„å€¼
 		Node *inputNode = (Node *)FirstItem(curSplitNode->contents->decl->u.decl.type->u.operdcl.inputs);
 		Node *pop_value = MakeConstSint(curSplitNode->inPopWeights[0] * split_steadycount);
 		vector<int>_newpeek(1,curSplitNode->inPopWeights[0] * split_steadycount);
 		vector<int>_newpop(1,curSplitNode->inPopWeights[0] * split_steadycount);
 		vector<int>_newpush;
 		int nOut = 0; 
-		vector<FlatNode *> new_outFlatNodes; // Êä ³ö ±ß¸÷operator
-			//È¡split½ÚµãµÄËùÓĞµÄÏÂ¶Ë½Úµã
+		vector<FlatNode *> new_outFlatNodes; // è¾“ å‡º è¾¹å„operator
+			//å–splitèŠ‚ç‚¹çš„æ‰€æœ‰çš„ä¸‹ç«¯èŠ‚ç‚¹
 		vector<FlatNode *> outFlatNodes = curSplitNode->outFlatNodes;
 		List *oldoutputList = curSplitNode->contents->decl->u.decl.type->u.operdcl.outputs;
 		assert(ListLength(oldoutputList) == outFlatNodes.size());
@@ -972,9 +972,9 @@ void ClusterHorizontialFission::modifySplitFlatNode(map<FlatNode*,set<FlatNode *
 			oldoutputList = GetNextList(oldoutputList);
 			if((mod_iter->second).count(outFlatNodes[down_iter]))
 			{
-				vector<FlatNode *> _copyFlatNode = flatNode2copyFlatNodes.find(outFlatNodes[down_iter])->second;//È¡³öËùÓĞ¸±±¾
+				vector<FlatNode *> _copyFlatNode = flatNode2copyFlatNodes.find(outFlatNodes[down_iter])->second;//å–å‡ºæ‰€æœ‰å‰¯æœ¬
 				assert(_copyFlatNode[0]->contents->ot == Duplicate_ || _copyFlatNode[0]->contents->ot ==Roundrobin_);
-				//É¾³ıÔÚÖĞµÄĞÅÏ¢
+				//åˆ é™¤åœ¨ä¸­çš„ä¿¡æ¯
 				_flatNode2partitionNum.erase(_copyFlatNode[0]);
 				_flatNode2steadycount.erase(_copyFlatNode[0]);
 				
@@ -1005,7 +1005,7 @@ void ClusterHorizontialFission::modifySplitFlatNode(map<FlatNode*,set<FlatNode *
 		if(curSplitNode->contents->ot == Duplicate_) style = S_Duplicate;
 		else style = S_RoundRobin;
 		Node *newSplit = makeHFissionSplit(inputNode,pop_value,outputList,output_pushvaluse,style);
-		//ÓÃĞÂµÄsplitµÄflatNodeÌæ»»¾ÉµÄflatNode½Úµã
+		//ç”¨æ–°çš„splitçš„flatNodeæ›¿æ¢æ—§çš„flatNodeèŠ‚ç‚¹
 		replaceHfisionFlatNodes(curSplitNode,&(newSplit->u.operator_));
 	}
 }
@@ -1017,18 +1017,18 @@ void ClusterHorizontialFission::modifyJoinFlatNode(map<FlatNode*,set<FlatNode *>
 		assert(mod_iter->first->contents->ot == Join_);
 		FlatNode *curJoinNode = mod_iter->first;
 		map<FlatNode *,int>::iterator _join_iter = _flatNode2steadycount.find(curJoinNode);
-		if(_join_iter == _flatNode2steadycount.end())continue;//join½Úµã²»ÔÚ¸Ã»®·ÖÖĞ
+		if(_join_iter == _flatNode2steadycount.end())continue;//joinèŠ‚ç‚¹ä¸åœ¨è¯¥åˆ’åˆ†ä¸­
 		int join_steadycount = _join_iter->second;
-		List *inputList = NULL;//ÊäÈë±ß
-		List *input_popvaluse = NULL;//popµÄÖµ
+		List *inputList = NULL;//è¾“å…¥è¾¹
+		List *input_popvaluse = NULL;//popçš„å€¼
 		Node *outputNode = (Node *)FirstItem(curJoinNode->contents->decl->u.decl.type->u.operdcl.outputs);
 		Node *push_value = MakeConstSint(curJoinNode->outPushWeights[0] * join_steadycount);
 		vector<int>_newpeek;
 		vector<int>_newpop;
 		vector<int>_newpush(1,curJoinNode->outPushWeights[0] * join_steadycount);
 		int nIn = 0; 
-		vector<FlatNode *> new_inFlatNodes; // Êä Èë ±ß¸÷operator
-		//È¡join½ÚµãµÄËùÓĞµÄÏÂ¶Ë½Úµã
+		vector<FlatNode *> new_inFlatNodes; // è¾“ å…¥ è¾¹å„operator
+		//å–joinèŠ‚ç‚¹çš„æ‰€æœ‰çš„ä¸‹ç«¯èŠ‚ç‚¹
 		vector<FlatNode *> inFlatNodes = curJoinNode->inFlatNodes;
 		List *oldinputList = curJoinNode->contents->decl->u.decl.type->u.operdcl.inputs;
 		assert(ListLength(oldinputList) == inFlatNodes.size());
@@ -1038,7 +1038,7 @@ void ClusterHorizontialFission::modifyJoinFlatNode(map<FlatNode*,set<FlatNode *>
 			oldinputList = GetNextList(oldinputList);
 			if((mod_iter->second).count(inFlatNodes[up_iter]))
 			{
-				vector<FlatNode *> _copyFlatNode = flatNode2copyFlatNodes.find(inFlatNodes[up_iter])->second;//È¡³öËùÓĞ¸±±¾
+				vector<FlatNode *> _copyFlatNode = flatNode2copyFlatNodes.find(inFlatNodes[up_iter])->second;//å–å‡ºæ‰€æœ‰å‰¯æœ¬
 				assert(_copyFlatNode[0]->contents->ot == Duplicate_ || _copyFlatNode[0]->contents->ot ==Roundrobin_);
 				assert( _copyFlatNode[_copyFlatNode.size()-1]->contents->ot ==Join_);
 				_flatNode2partitionNum.erase(_copyFlatNode[_copyFlatNode.size()-1]);
@@ -1078,8 +1078,8 @@ FlatNode * ClusterHorizontialFission::replaceHfisionFlatNodes(FlatNode *oldFlatN
 {
 	assert(newNodes);
 	vector<FlatNode *>fusedResult;
-	//É¾³ı¾ÉµÄĞÅÏ¢
-	//É¾³ıflatNodesÖĞµÄÄÚÈİ
+	//åˆ é™¤æ—§çš„ä¿¡æ¯
+	//åˆ é™¤flatNodesä¸­çš„å†…å®¹
 	vector<FlatNode *>::iterator erase_iter = sssg->flatNodes.end();
 	for(vector<FlatNode *>::iterator iter = sssg->flatNodes.begin(); iter != sssg->flatNodes.end(); iter++)
 	{
@@ -1087,7 +1087,7 @@ FlatNode * ClusterHorizontialFission::replaceHfisionFlatNodes(FlatNode *oldFlatN
 	}
 	assert(erase_iter != sssg->flatNodes.end());
 	sssg->flatNodes.erase(erase_iter);
-	//É¾³ımapEdge2UpFlatNodeÖĞµÄÄÚÈİ
+	//åˆ é™¤mapEdge2UpFlatNodeä¸­çš„å†…å®¹
 	map<Node *, FlatNode *>::iterator mapEdge2UpFlatNode_iter = sssg->mapEdge2UpFlatNode.begin();
 	while (mapEdge2UpFlatNode_iter != sssg->mapEdge2UpFlatNode.end())
 	{
@@ -1099,7 +1099,7 @@ FlatNode * ClusterHorizontialFission::replaceHfisionFlatNodes(FlatNode *oldFlatN
 		}
 		else mapEdge2UpFlatNode_iter++;
 	}
-	//É¾³ımapEdge2DownFlatNodeÖĞµÄÔªËØ
+	//åˆ é™¤mapEdge2DownFlatNodeä¸­çš„å…ƒç´ 
 	multimap<Node *, FlatNode *>::iterator mapEdge2DownFlatNode_iter = sssg->mapEdge2DownFlatNode.begin();
 	while (mapEdge2DownFlatNode_iter != sssg->mapEdge2DownFlatNode.end())
 	{
@@ -1111,15 +1111,15 @@ FlatNode * ClusterHorizontialFission::replaceHfisionFlatNodes(FlatNode *oldFlatN
 		}
 		else mapEdge2DownFlatNode_iter++;
 	}
-	//É¾³ıÔÚ¹¤×÷Á¿¹À¼ÆÖĞµÄÖµ
+	//åˆ é™¤åœ¨å·¥ä½œé‡ä¼°è®¡ä¸­çš„å€¼
 	sssg->mapInitWork2FlatNode.erase(oldFlatNodes);
 	sssg->mapSteadyWork2FlatNode.erase(oldFlatNodes);
-	//Ìí¼ÓĞÂµÄĞÅÏ¢
+	//æ·»åŠ æ–°çš„ä¿¡æ¯
 	set<FlatNode *> oldFlatNodeSet;
 	oldFlatNodeSet.insert(oldFlatNodes);
 	FlatNode *firstFlatNode = sssg->InsertFlatNodes(newNodes,NULL,NULL,oldFlatNodeSet);
 	sssg->SetFlatNodesWeights(firstFlatNode);	
-	//¶ÔĞÂµÄ½Ú×ö¹¤×÷Á¿¹À¼Æ
+	//å¯¹æ–°çš„èŠ‚åšå·¥ä½œé‡ä¼°è®¡
 	sssg->AddSteadyWork(firstFlatNode, workEstimate(firstFlatNode->contents->body, 0));
 	sssg->AddInitWork(firstFlatNode, workEstimate_init(firstFlatNode->contents->body, 0));
 	_flatNode2steadycount.insert(make_pair(firstFlatNode,1));
@@ -1130,24 +1130,24 @@ FlatNode * ClusterHorizontialFission::replaceHfisionFlatNodes(FlatNode *oldFlatN
 }
 
 
-//¸ù¾İFlatNode2FissionNodeÖĞµÄĞÅÏ¢½øĞĞÊµ¼ÊµÄ·ÖÁÑ
+//æ ¹æ®FlatNode2FissionNodeä¸­çš„ä¿¡æ¯è¿›è¡Œå®é™…çš„åˆ†è£‚
 void ClusterHorizontialFission::ReplicationFissing()
 {
-	map<FlatNode*,set<FlatNode *> >upflatNode2flatNodes;//ÉÏ¶Ë½ÚµãÓëÆä´ı·ÖÁÑ½ÚµãµÄmap¡ª¡ª·ÖÁÑflatNodeµÄÉÏ¶Ësplit½ÚµãÊÇ±»ĞŞ¸ÄµÄ¶ø²»ÊÇĞÂÌí¼ÓµÄsplit
-	map<FlatNode*,set<FlatNode *> >downflatNode2flatNodes;//ÏÂ¶Ë½ÚµãÓëÆä´ı·ÖÁÑ½ÚµãµÄmap¡ª¡ª·ÖÁÑflatNodeµÄÏÂ¶Ëjoin½ÚµãÊÇ±»ĞŞ¸ÄµÄ¶ø²»ÊÇĞÂÌí¼ÓµÄjoin
+	map<FlatNode*,set<FlatNode *> >upflatNode2flatNodes;//ä¸Šç«¯èŠ‚ç‚¹ä¸å…¶å¾…åˆ†è£‚èŠ‚ç‚¹çš„mapâ€”â€”åˆ†è£‚flatNodeçš„ä¸Šç«¯splitèŠ‚ç‚¹æ˜¯è¢«ä¿®æ”¹çš„è€Œä¸æ˜¯æ–°æ·»åŠ çš„split
+	map<FlatNode*,set<FlatNode *> >downflatNode2flatNodes;//ä¸‹ç«¯èŠ‚ç‚¹ä¸å…¶å¾…åˆ†è£‚èŠ‚ç‚¹çš„mapâ€”â€”åˆ†è£‚flatNodeçš„ä¸‹ç«¯joinèŠ‚ç‚¹æ˜¯è¢«ä¿®æ”¹çš„è€Œä¸æ˜¯æ–°æ·»åŠ çš„join
 
-	//ÏÂÃæÔì½ÚµãÒª¸ù¾İ¸±±¾µÄĞÅÏ¢£¬ÒªÀûÓÃµ½Ç°ÃæÈ·¶¨µÄËùÓĞĞÅÏ¢
-	/******È¡³öFlatNode2FissionNodeÖĞ¸÷¸öflatNode¶ÔÓ¦µÄ¸÷¸ö¸±±¾µÄĞÅÏ¢×é³ÉÒ»¸öVector£¬´«µİ¸øhorizontalFissOperatorº¯Êı½øĞĞ·ÖÁÑ£¬×é³ÉÒ»¸öList£¬
-	È»ºóÔÙ½«List´«µİ¸øOperator2FlatNodeModifyInfo£¬ĞŞ¸ÄsssgÍ¼µÄĞÅÏ¢*************/
+	//ä¸‹é¢é€ èŠ‚ç‚¹è¦æ ¹æ®å‰¯æœ¬çš„ä¿¡æ¯ï¼Œè¦åˆ©ç”¨åˆ°å‰é¢ç¡®å®šçš„æ‰€æœ‰ä¿¡æ¯
+	/******å–å‡ºFlatNode2FissionNodeä¸­å„ä¸ªflatNodeå¯¹åº”çš„å„ä¸ªå‰¯æœ¬çš„ä¿¡æ¯ç»„æˆä¸€ä¸ªVectorï¼Œä¼ é€’ç»™horizontalFissOperatorå‡½æ•°è¿›è¡Œåˆ†è£‚ï¼Œç»„æˆä¸€ä¸ªListï¼Œ
+	ç„¶åå†å°†Listä¼ é€’ç»™Operator2FlatNodeModifyInfoï¼Œä¿®æ”¹sssgå›¾çš„ä¿¡æ¯*************/
 	
 	//map<FlatNode *,vector<Node *> > flatNode2FissionOperatorNode;
 	map<FlatNode* ,set<FissionNodeInfo *> >::iterator fissing_iter;
 	for(fissing_iter = FlatNode2FissionNode.begin();fissing_iter != FlatNode2FissionNode.end();fissing_iter++)
 	{
 		horizontalFissOperator(fissing_iter->first,fissing_iter->second,sssg);
-		//ÓëflatNodeµÄÉÏ¶Ë½ÚµãºÍÏÂ¶Ë½ÚµãÏà½áºÏ£¬ÅĞ¶ÏÊÇ¹¹ÔìĞÂµÄÉÏÏÂ¶Ë£¬»¹ÊÇĞŞ¸ÄÉÏÏÂ¶Ë
+		//ä¸flatNodeçš„ä¸Šç«¯èŠ‚ç‚¹å’Œä¸‹ç«¯èŠ‚ç‚¹ç›¸ç»“åˆï¼Œåˆ¤æ–­æ˜¯æ„é€ æ–°çš„ä¸Šä¸‹ç«¯ï¼Œè¿˜æ˜¯ä¿®æ”¹ä¸Šä¸‹ç«¯
 		if(!_FlatNode2makeUpNodeTag.find(fissing_iter->first)->second)
-		{//²»ĞèÒª×öÉÏ¶Ë½Úµã¡ª¡ªĞŞ¸ÄÉÏ¶ËµÄsplit½Úµã£¬Òª½«splitµÄÎÈÌ¬¿¼ÂÇ½øÈ¥£¬ĞŞ¸ÄÍê³Éºó½ÚµãÔÚÎÈÌ¬Ö»×öÒ»´Î
+		{//ä¸éœ€è¦åšä¸Šç«¯èŠ‚ç‚¹â€”â€”ä¿®æ”¹ä¸Šç«¯çš„splitèŠ‚ç‚¹ï¼Œè¦å°†splitçš„ç¨³æ€è€ƒè™‘è¿›å»ï¼Œä¿®æ”¹å®ŒæˆåèŠ‚ç‚¹åœ¨ç¨³æ€åªåšä¸€æ¬¡
 			FlatNode *upFlatNode = fissing_iter->first->inFlatNodes[0];
 			assert(upFlatNode->contents->ot == Duplicate_ || upFlatNode->contents->ot == Roundrobin_);
 			set<FlatNode *>tmpVec;
@@ -1156,7 +1156,7 @@ void ClusterHorizontialFission::ReplicationFissing()
 			if (!ret.second) (ret.first->second).insert(fissing_iter->first);
 		}
 		if(!_FlatNode2makeDownNodeTag.find(fissing_iter->first)->second)
-		{//²»ĞèÒª×öÏÂ¶Ë½Úµã¡ª¡ªĞŞ¸ÄÏÂ¶ËµÄjoin½Úµã£¬Òª½«joinµÄÎÈÌ¬¿¼ÂÇ½øÈ¥£¬ĞŞ¸ÄÍê³Éºó½ÚµãÔÚÎÈÌ¬Ö»×öÒ»´Î
+		{//ä¸éœ€è¦åšä¸‹ç«¯èŠ‚ç‚¹â€”â€”ä¿®æ”¹ä¸‹ç«¯çš„joinèŠ‚ç‚¹ï¼Œè¦å°†joinçš„ç¨³æ€è€ƒè™‘è¿›å»ï¼Œä¿®æ”¹å®ŒæˆåèŠ‚ç‚¹åœ¨ç¨³æ€åªåšä¸€æ¬¡
 			FlatNode *downFlatNode = fissing_iter->first->outFlatNodes[0];
 			assert(downFlatNode->contents->ot == Join_);
 			set<FlatNode *>tmpVec;
@@ -1165,46 +1165,46 @@ void ClusterHorizontialFission::ReplicationFissing()
 			if (!ret.second) (ret.first->second).insert(fissing_iter->first);
 		}
 	}
-	map<FlatNode *,vector<Node *> > flatNode2FissionOperatorNode = makeSplitJoinExtractOperators();//¶ÔÓÚ¹¹ÔìÉÏ¶ËÒÔ¼°ÏÂ¶Ë½Úµã¼´splitºÍjoin½Úµã
-	map<FlatNode *,vector<FlatNode *> > flatNode2copyFlatNodes = transOperatorNodetoFlatNode(flatNode2FissionOperatorNode);//½«·ÖÁÑºóµÄ½Úµã×°»»³ÉFlatNode²¢²åÈëµ½ssgÖĞ£¬Í¬Ê±ĞŞ¸ÄÏàÓ¦µÄĞÅÏ¢
-	//20130114È¡ÏûÏÂÃæµÄ´úÂë¡ª¡ªÔ­´úÂëµÄ¹¦ÄÜÊÇ¾¡¿ÉÄÜµÄÏû³ı¶àÓàµÄsplitºÍjoin½Úµã£¬µ«ÔÚÊµ¼Ê×öµÄÊ±ºòÆÆ»µÁËsplitºÍjoinµÄÂß¼­£¬³öÏÖ´íÎó
-	//if(upflatNode2flatNodes.size() > 1)modifySplitFlatNode(upflatNode2flatNodes,flatNode2copyFlatNodes);//´¦Àí¾ßÓĞÏàÍ¬µÄÉÏ¶Ë½ÚµãµÄ´ı·ÖÁÑ¡ª¡ªĞŞ¸ÄÉÏ¶ËflatNodeµÄwork£¬windowµÈĞÅÏ¢£¬Ö÷ÒªÊÇĞŞ¸Äsplit¶ÔÓ¦µÄflatNodeµÄĞÅÏ¢£¬²¢ÇÒÉ¾³ıĞÂ¹¹ÔìµÄsplit¶ÔÓ¦µÄflatNode½Úµã
-	//if(downflatNode2flatNodes.size() > 1)modifyJoinFlatNode(downflatNode2flatNodes,flatNode2copyFlatNodes);//´¦Àí¾ßÓĞÏàÍ¬µÄÏÂ¶Ë½ÚµãµÄ´ı·ÖÁÑ¡ª¡ªĞŞ¸ÄÉÏ¶ËflatNodeµÄwork£¬windowµÈĞÅÏ¢£¬ Ö÷ÒªÊÇĞŞ¸Äjoin¶ÔÓ¦µÄflatNodeµÄĞÅÏ¢£¬²¢ÇÒÉ¾³ıĞÂ¹¹ÔìµÄjoin¶ÔÓ¦µÄflatNode½Úµã
+	map<FlatNode *,vector<Node *> > flatNode2FissionOperatorNode = makeSplitJoinExtractOperators();//å¯¹äºæ„é€ ä¸Šç«¯ä»¥åŠä¸‹ç«¯èŠ‚ç‚¹å³splitå’ŒjoinèŠ‚ç‚¹
+	map<FlatNode *,vector<FlatNode *> > flatNode2copyFlatNodes = transOperatorNodetoFlatNode(flatNode2FissionOperatorNode);//å°†åˆ†è£‚åçš„èŠ‚ç‚¹è£…æ¢æˆFlatNodeå¹¶æ’å…¥åˆ°ssgä¸­ï¼ŒåŒæ—¶ä¿®æ”¹ç›¸åº”çš„ä¿¡æ¯
+	//20130114å–æ¶ˆä¸‹é¢çš„ä»£ç â€”â€”åŸä»£ç çš„åŠŸèƒ½æ˜¯å°½å¯èƒ½çš„æ¶ˆé™¤å¤šä½™çš„splitå’ŒjoinèŠ‚ç‚¹ï¼Œä½†åœ¨å®é™…åšçš„æ—¶å€™ç ´åäº†splitå’Œjoinçš„é€»è¾‘ï¼Œå‡ºç°é”™è¯¯
+	//if(upflatNode2flatNodes.size() > 1)modifySplitFlatNode(upflatNode2flatNodes,flatNode2copyFlatNodes);//å¤„ç†å…·æœ‰ç›¸åŒçš„ä¸Šç«¯èŠ‚ç‚¹çš„å¾…åˆ†è£‚â€”â€”ä¿®æ”¹ä¸Šç«¯flatNodeçš„workï¼Œwindowç­‰ä¿¡æ¯ï¼Œä¸»è¦æ˜¯ä¿®æ”¹splitå¯¹åº”çš„flatNodeçš„ä¿¡æ¯ï¼Œå¹¶ä¸”åˆ é™¤æ–°æ„é€ çš„splitå¯¹åº”çš„flatNodeèŠ‚ç‚¹
+	//if(downflatNode2flatNodes.size() > 1)modifyJoinFlatNode(downflatNode2flatNodes,flatNode2copyFlatNodes);//å¤„ç†å…·æœ‰ç›¸åŒçš„ä¸‹ç«¯èŠ‚ç‚¹çš„å¾…åˆ†è£‚â€”â€”ä¿®æ”¹ä¸Šç«¯flatNodeçš„workï¼Œwindowç­‰ä¿¡æ¯ï¼Œ ä¸»è¦æ˜¯ä¿®æ”¹joinå¯¹åº”çš„flatNodeçš„ä¿¡æ¯ï¼Œå¹¶ä¸”åˆ é™¤æ–°æ„é€ çš„joinå¯¹åº”çš„flatNodeèŠ‚ç‚¹
 }
 
 
 float ClusterHorizontialFission::fakementHorizontalFission()
 {
 	float bf = 0;
-	initFissionNodeMap();//³õÊ¼»¯ÀàÖĞµÄÁ½¸ömap
+	initFissionNodeMap();//åˆå§‹åŒ–ç±»ä¸­çš„ä¸¤ä¸ªmap
 	while(TRUE)
 	{
-		map<int,int > Partiotion2Weight = computeMapPlace2Weight();//¸ù¾İ³ÉÔ±PartitonNum2FissionNode¼ÆËã¸÷¸ö»®·ÖµÄ³õÊ¼¹¤×÷Á¿
-		vector<int> partitionSort = SortPartitionbyWeight(Partiotion2Weight);//¶Ô»®·Ö°´¹¤×÷Á¿´Ó´óµ½Ğ¡ÅÅĞò
-		int cur_max_partition; //µ±Ç°È¨ÖØ×î´óµÄ»®·ÖµÄµü´úÆ÷
-		int cur_min_partition; //µ±Ç°È¨ÖØ×îĞ¡µÄ»®·ÖµÄµü´úÆ÷
-		FissionNodeInfo *curFissionFlatNode = NULL;//´æ·ÅÒª±»·ÖÁÑµÄ½Úµã
+		map<int,int > Partiotion2Weight = computeMapPlace2Weight();//æ ¹æ®æˆå‘˜PartitonNum2FissionNodeè®¡ç®—å„ä¸ªåˆ’åˆ†çš„åˆå§‹å·¥ä½œé‡
+		vector<int> partitionSort = SortPartitionbyWeight(Partiotion2Weight);//å¯¹åˆ’åˆ†æŒ‰å·¥ä½œé‡ä»å¤§åˆ°å°æ’åº
+		int cur_max_partition; //å½“å‰æƒé‡æœ€å¤§çš„åˆ’åˆ†çš„è¿­ä»£å™¨
+		int cur_min_partition; //å½“å‰æƒé‡æœ€å°çš„åˆ’åˆ†çš„è¿­ä»£å™¨
+		FissionNodeInfo *curFissionFlatNode = NULL;//å­˜æ”¾è¦è¢«åˆ†è£‚çš„èŠ‚ç‚¹
 		int maxWork = 0;
 		Bool partiotion_flag = FALSE;
 
-		vector<Bool> PartiotionFlag(npartition,TRUE);//±íÊ¾Ã¿Ò»¸ö»®·ÖÖĞÊÇ·ñÓĞ¿É·ÖÁÑµÄ½Úµã 
+		vector<Bool> PartiotionFlag(npartition,TRUE);//è¡¨ç¤ºæ¯ä¸€ä¸ªåˆ’åˆ†ä¸­æ˜¯å¦æœ‰å¯åˆ†è£‚çš„èŠ‚ç‚¹ 
 
 		for (int i = 0 ;i< npartition; i++)
-		{//ÕÒµ±Ç°ÄÜ¹»·ÖÁÑµÄºË
+		{//æ‰¾å½“å‰èƒ½å¤Ÿåˆ†è£‚çš„æ ¸
 			partiotion_flag = TRUE;
-			cur_max_partition = partitionSort.back();//ÕÒµ½µ±Ç°È¨Öµ×î´óµÄ»®·Ö 
-			/*È¡µ±Ç°È¨Öµ×î´óµÄ»®·ÖÖĞµÄËùÓĞµÄ¿É±»·ÖÁÑµÄflatNode*/
+			cur_max_partition = partitionSort.back();//æ‰¾åˆ°å½“å‰æƒå€¼æœ€å¤§çš„åˆ’åˆ† 
+			/*å–å½“å‰æƒå€¼æœ€å¤§çš„åˆ’åˆ†ä¸­çš„æ‰€æœ‰çš„å¯è¢«åˆ†è£‚çš„flatNode*/
 			vector<FissionNodeInfo *> fissionFlatNodes = findFissionflatNodesInPartition(cur_max_partition);
 			if(fissionFlatNodes.size()==0)
 			{
-				partitionSort.pop_back();//´ÓÅÅºÃĞòµÄvectorÉ¾³ı¸Õ¸ÕÈ¡³öµÄÔªËØ
+				partitionSort.pop_back();//ä»æ’å¥½åºçš„vectoråˆ é™¤åˆšåˆšå–å‡ºçš„å…ƒç´ 
 				partiotion_flag = FALSE;continue;
-			}//¸Ã»®·ÖÖĞÃ»ÓĞ¿É·ÖÁÑµÄÔªËØ
-			if(partitionSort.empty()) break;//Èç¹ûËùÓĞµÄ»®·ÖÈ«±»·ÃÎÊÔòÍË³ö
-			/*×î´ó»¯·ÖÖĞ¹¤×÷Á¿×î´óµÄoperator*/
+			}//è¯¥åˆ’åˆ†ä¸­æ²¡æœ‰å¯åˆ†è£‚çš„å…ƒç´ 
+			if(partitionSort.empty()) break;//å¦‚æœæ‰€æœ‰çš„åˆ’åˆ†å…¨è¢«è®¿é—®åˆ™é€€å‡º
+			/*æœ€å¤§åŒ–åˆ†ä¸­å·¥ä½œé‡æœ€å¤§çš„operator*/
 			curFissionFlatNode = NULL;
 			maxWork = 0;
-			//ÕÒÈ¨Öµ×î´óµÄflatNode×÷Îª½«Òª±»·ÖÁÑµÄ½Úµã
+			//æ‰¾æƒå€¼æœ€å¤§çš„flatNodeä½œä¸ºå°†è¦è¢«åˆ†è£‚çš„èŠ‚ç‚¹
 			for(int j = 0; j != fissionFlatNodes.size(); j++)
 			{
 				if(fissionFlatNodes[j]->fissedSteadycount * fissionFlatNodes[j]->operatorWeight > maxWork)
@@ -1213,41 +1213,41 @@ float ClusterHorizontialFission::fakementHorizontalFission()
 					maxWork = fissionFlatNodes[j]->fissedSteadycount * fissionFlatNodes[j]->operatorWeight;
 				}
 			}
-			if(partiotion_flag)break;//ÕÒµ½¿É·ÖÁÑÔªËØÌø³öÑ­»·
+			if(partiotion_flag)break;//æ‰¾åˆ°å¯åˆ†è£‚å…ƒç´ è·³å‡ºå¾ªç¯
 		}
-		/*Ã»ÓĞÂú×ãÌõ¼şµÄ·ÖÁÑ½Úµã*/
+		/*æ²¡æœ‰æ»¡è¶³æ¡ä»¶çš„åˆ†è£‚èŠ‚ç‚¹*/
 		if(!partiotion_flag || curFissionFlatNode == NULL)
 			break;
 		assert(curFissionFlatNode && partiotion_flag);
-		/*ÕÒ¹¤×÷Á¿×îĞ¡µÄ»®·Ö*/
-		cur_min_partition = partitionSort.front();//È¡¹¤×÷Á¿×îĞ¡µÄ»®·Ö
-		/*ÈÎÎñ¾ùºâÍË³ö»®·Ö*/
+		/*æ‰¾å·¥ä½œé‡æœ€å°çš„åˆ’åˆ†*/
+		cur_min_partition = partitionSort.front();//å–å·¥ä½œé‡æœ€å°çš„åˆ’åˆ†
+		/*ä»»åŠ¡å‡è¡¡é€€å‡ºåˆ’åˆ†*/
 		if(Partiotion2Weight.find(cur_max_partition)->second < Partiotion2Weight.find(cur_min_partition)->second * balanceFactor)
 			break;
-		/*¼ÆËã·ÖÁÑ´ÎÊı*/
+		/*è®¡ç®—åˆ†è£‚æ¬¡æ•°*/
 		int delt_weight = ((Partiotion2Weight.find(cur_max_partition)->second) - (Partiotion2Weight.find(cur_min_partition)->second));
-		if(!delt_weight) break;//Õû¸öÍ¼Ïà¶Ô±È½ÏÆ½ºâ²»ÓÃÔÙ·Ö
+		if(!delt_weight) break;//æ•´ä¸ªå›¾ç›¸å¯¹æ¯”è¾ƒå¹³è¡¡ä¸ç”¨å†åˆ†
 		int replicationFactor = maxWork / delt_weight;
 		replicationFactor = replicationFactor>2 ? replicationFactor:2;
-		/*ÏÂÃæÖ÷ÒªÊÇÔÚÁ½¸ö³ÉÔ±mapĞŞ¸ÄĞÅÏ¢£¬É¾³ı½«Òª·ÖÁÑ½ÚµãµÄĞÅÏ¢£¬Ìí¼Ó·ÖÁÑºóµÄ¸±±¾µÄĞÅÏ¢¡ª¡ªÎ±·ÖÁÑ*/
+		/*ä¸‹é¢ä¸»è¦æ˜¯åœ¨ä¸¤ä¸ªæˆå‘˜mapä¿®æ”¹ä¿¡æ¯ï¼Œåˆ é™¤å°†è¦åˆ†è£‚èŠ‚ç‚¹çš„ä¿¡æ¯ï¼Œæ·»åŠ åˆ†è£‚åçš„å‰¯æœ¬çš„ä¿¡æ¯â€”â€”ä¼ªåˆ†è£‚*/
 		SplitFissionNode(curFissionFlatNode,replicationFactor,cur_max_partition,cur_min_partition);
 	}
-	//¼ÆËãµ±Ç°Í¼µÄÆ½ºâÇé¿ö
-	map<int,int > _partiotion2Weight = computeMapPlace2Weight();//¸ù¾İ³ÉÔ±PartitonNum2FissionNode¼ÆËã¸÷¸ö»®·ÖµÄ³õÊ¼¹¤×÷Á¿
-	vector<int> _partitionSort = SortPartitionbyWeight(_partiotion2Weight);//¶Ô»®·Ö°´¹¤×÷Á¿´Ó´óµ½Ğ¡ÅÅĞò
-	int max_partition = _partitionSort.back(); //È¨ÖØ×î´óµÄ»®·ÖµÄµü´úÆ÷
-	int min_partition = _partitionSort.front(); //È¨ÖØ×îĞ¡µÄ»®·ÖµÄµü´úÆ÷
+	//è®¡ç®—å½“å‰å›¾çš„å¹³è¡¡æƒ…å†µ
+	map<int,int > _partiotion2Weight = computeMapPlace2Weight();//æ ¹æ®æˆå‘˜PartitonNum2FissionNodeè®¡ç®—å„ä¸ªåˆ’åˆ†çš„åˆå§‹å·¥ä½œé‡
+	vector<int> _partitionSort = SortPartitionbyWeight(_partiotion2Weight);//å¯¹åˆ’åˆ†æŒ‰å·¥ä½œé‡ä»å¤§åˆ°å°æ’åº
+	int max_partition = _partitionSort.back(); //æƒé‡æœ€å¤§çš„åˆ’åˆ†çš„è¿­ä»£å™¨
+	int min_partition = _partitionSort.front(); //æƒé‡æœ€å°çš„åˆ’åˆ†çš„è¿­ä»£å™¨
 	bf = ((float)(_partiotion2Weight.find(max_partition)->second))/(_partiotion2Weight.find(min_partition)->second);
 	return bf;
 }
 
- /*Í¼µÄË®Æ½·ÖÁÑ*/
+ /*å›¾çš„æ°´å¹³åˆ†è£‚*/
 void ClusterHorizontialFission::HorizontalFissionPartitions()
 {
-	fakementHorizontalFission();//ÏÈ×öÎ±·ÖÁÑ£¬È·¶¨Ïà¹Ø·ÖÁÑµÄĞÅÏ¢£¬È»ºó½øĞĞÕıÕæµÄ·ÖÁÑ
-	//¸ù¾İ·ÖÁÑµÄ½á¹ûÈ·¶¨¸±±¾µÄpeek£¬popÒÔ¼°pushµÄÖµ
+	fakementHorizontalFission();//å…ˆåšä¼ªåˆ†è£‚ï¼Œç¡®å®šç›¸å…³åˆ†è£‚çš„ä¿¡æ¯ï¼Œç„¶åè¿›è¡Œæ­£çœŸçš„åˆ†è£‚
+	//æ ¹æ®åˆ†è£‚çš„ç»“æœç¡®å®šå‰¯æœ¬çš„peekï¼Œpopä»¥åŠpushçš„å€¼
 	modifyFissionNodeInfo();
-	//¸ù¾İFlatNode2FissionNodeÖĞµÄĞÅÏ¢½øĞĞÊµ¼ÊµÄ·ÖÁÑ
+	//æ ¹æ®FlatNode2FissionNodeä¸­çš„ä¿¡æ¯è¿›è¡Œå®é™…çš„åˆ†è£‚
 	ReplicationFissing();
 }
 
@@ -1260,5 +1260,5 @@ GLOBAL map<FlatNode *,int> ClusterHFissing(map<FlatNode *,int>flatNode2partition
 	sssg->mapSteadyCount2FlatNode = chfp->GetFlatNode2steadycount();
 	sssg->mapInitCount2FlatNode.clear();
 	sssg->InitScheduling();
-	return chfp->GetFlatNode2partitionNum();//·µ»Ø·ÖÁÑºó½ÚµãÓëºËÖ®¼äµÄmap
+	return chfp->GetFlatNode2partitionNum();//è¿”å›åˆ†è£‚åèŠ‚ç‚¹ä¸æ ¸ä¹‹é—´çš„map
 }

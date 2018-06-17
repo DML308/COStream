@@ -15,81 +15,81 @@ GLOBAL extern SchedulerSSG *SSSG;
 class ClusterGroup
 {
 private:
-	std::vector<FlatNode *> srcFlatNode;//group µÄËùÓĞÆğÊ¼½Úµã£¨ÆäËûgroupÖ¸Ïò¸Ã½Úµã£¬Ò»¸ö½Úµã¿ÉÄÜ¼ÈÊÇÆğÊ¼µãÓÖÊÇÖÕÖ¹µã£©
-	std::vector<FlatNode *> snkFlatNode;//group µÄËùÓĞÖÕÖ¹½áµã£¨¸Ã½ÚµãÓĞÖ¸ÏòÆäËûgroupµÄ±ß£©
-	std::vector<FlatNode *> flatNodes;//group ÖĞËù°üº¬µÄËùÓĞµÄflatNode½Úµã
+	std::vector<FlatNode *> srcFlatNode;//group çš„æ‰€æœ‰èµ·å§‹èŠ‚ç‚¹ï¼ˆå…¶ä»–groupæŒ‡å‘è¯¥èŠ‚ç‚¹ï¼Œä¸€ä¸ªèŠ‚ç‚¹å¯èƒ½æ—¢æ˜¯èµ·å§‹ç‚¹åˆæ˜¯ç»ˆæ­¢ç‚¹ï¼‰
+	std::vector<FlatNode *> snkFlatNode;//group çš„æ‰€æœ‰ç»ˆæ­¢ç»“ç‚¹ï¼ˆè¯¥èŠ‚ç‚¹æœ‰æŒ‡å‘å…¶ä»–groupçš„è¾¹ï¼‰
+	std::vector<FlatNode *> flatNodes;//group ä¸­æ‰€åŒ…å«çš„æ‰€æœ‰çš„flatNodeèŠ‚ç‚¹
 
-	std::vector<ClusterGroup *> subClusterGroups;//µ±Ç°groupÄÚ²¿ËùÓĞµÄ×Ógroup£¨±íÃ÷ÕâĞ©groupÊÇÓĞÄÇĞ©¸üĞ¡µÄ×Ógroup×é³É£©
-	//ClusterGroup *parentClusterGroup;//Ö¸ÏòÁ½Á½ÈÚºÏºóĞÎ³ÉµÄĞÂ½Úµã
+	std::vector<ClusterGroup *> subClusterGroups;//å½“å‰groupå†…éƒ¨æ‰€æœ‰çš„å­groupï¼ˆè¡¨æ˜è¿™äº›groupæ˜¯æœ‰é‚£äº›æ›´å°çš„å­groupç»„æˆï¼‰
+	//ClusterGroup *parentClusterGroup;//æŒ‡å‘ä¸¤ä¸¤èåˆåå½¢æˆçš„æ–°èŠ‚ç‚¹
 
-	std::map<FlatNode *,int> flatNode2SteadyCount;//group ÖĞ¸÷¸öflatNodeµÄ¾Ö²¿ÎÈÌ¬´ÎÊı
-	std::vector<FlatNode *> precedenceFlatNode;//group µÄÇ°ÇıflatNode½Úµã
-	std::vector<FlatNode *> successorFlatNode;//group µÄºó¼ÌflatNode½Úµã
-	std::vector<ClusterGroup *> precedenceClusterGroup;//groupµÄÇ°Çıgroup(¼ÇÂ¼Óëµ±Ç°groupÍ¬Ò»¼¶±ğµÄ)
-	std::vector<ClusterGroup *> successorClusterGroup;//groupµÄºó¼Ìgroup(¼ÇÂ¼Óëµ±Ç°groupÍ¬Ò»¼¶±ğµÄ)
+	std::map<FlatNode *,int> flatNode2SteadyCount;//group ä¸­å„ä¸ªflatNodeçš„å±€éƒ¨ç¨³æ€æ¬¡æ•°
+	std::vector<FlatNode *> precedenceFlatNode;//group çš„å‰é©±flatNodeèŠ‚ç‚¹
+	std::vector<FlatNode *> successorFlatNode;//group çš„åç»§flatNodeèŠ‚ç‚¹
+	std::vector<ClusterGroup *> precedenceClusterGroup;//groupçš„å‰é©±group(è®°å½•ä¸å½“å‰groupåŒä¸€çº§åˆ«çš„)
+	std::vector<ClusterGroup *> successorClusterGroup;//groupçš„åç»§group(è®°å½•ä¸å½“å‰groupåŒä¸€çº§åˆ«çš„)
 
-	std::vector<ClusterGroup *> boundaryGroupSet;//ÓÃÓÚ¼ÇÂ¼Ò»¸ögroup±ß½çgroup
+	std::vector<ClusterGroup *> boundaryGroupSet;//ç”¨äºè®°å½•ä¸€ä¸ªgroupè¾¹ç•Œgroup
 
-	int groupSize;//¼ÇÂ¼½ÚµãÖĞflatNodeµÄÊıÄ¿
-	float commCost;//group¶ÔÍâµÄµÄ×ÜÍ¨ĞÅ¿ªÏú
-	int workload;//groupµÄ¹¤×÷Á¿
+	int groupSize;//è®°å½•èŠ‚ç‚¹ä¸­flatNodeçš„æ•°ç›®
+	float commCost;//groupå¯¹å¤–çš„çš„æ€»é€šä¿¡å¼€é”€
+	int workload;//groupçš„å·¥ä½œé‡
 
 public:
-	Bool lock;//ÔÙÏ¸»¯µ÷ÕûÊÇÊ¹ÓÃ£¨Èç¹ûÒ»¸ögroup±»ÒÆ¶¯Ò»´Î¾Í²»ÄÜÔÚ±»ÒÆ¶¯£©
+	Bool lock;//å†ç»†åŒ–è°ƒæ•´æ˜¯ä½¿ç”¨ï¼ˆå¦‚æœä¸€ä¸ªgroupè¢«ç§»åŠ¨ä¸€æ¬¡å°±ä¸èƒ½åœ¨è¢«ç§»åŠ¨ï¼‰
 
-	ClusterGroup(){};//Ä¬ÈÏ¹¹Ôìº¯Êı
-	ClusterGroup(ClusterGroup* group1,ClusterGroup* group2);//¸ù¾İÁ½¸ögroup¹¹ÔìÒ»¸öĞÂµÄgroup
-	ClusterGroup(FlatNode *);//¸ø¶¨Ò»¸öflatNode¹¹ÔìÒ»¸ögroup
+	ClusterGroup(){};//é»˜è®¤æ„é€ å‡½æ•°
+	ClusterGroup(ClusterGroup* group1,ClusterGroup* group2);//æ ¹æ®ä¸¤ä¸ªgroupæ„é€ ä¸€ä¸ªæ–°çš„group
+	ClusterGroup(FlatNode *);//ç»™å®šä¸€ä¸ªflatNodeæ„é€ ä¸€ä¸ªgroup
 	
-	/*¶ÔgroupµÄÔ´½ÚµãµÄ²Ù×÷*/
-	std::vector<FlatNode *> GetSrcFlatNode();//È¡src
+	/*å¯¹groupçš„æºèŠ‚ç‚¹çš„æ“ä½œ*/
+	std::vector<FlatNode *> GetSrcFlatNode();//å–src
 
-	/*¶ÔgroupµÄÔ´½ÚµãµÄ²Ù×÷*/
-	std::vector<FlatNode *> GetSnkFlatNode();//È¡src
+	/*å¯¹groupçš„æºèŠ‚ç‚¹çš„æ“ä½œ*/
+	std::vector<FlatNode *> GetSnkFlatNode();//å–src
 
-	/*È¡groupÖĞËùÓĞµÄ½Úµã*/
+	/*å–groupä¸­æ‰€æœ‰çš„èŠ‚ç‚¹*/
 	std::vector<FlatNode *> GetFlatNodes();
 
-	/*È¡Í¼µÄÇ°ÇıºÍºó¼ÌflatNode½Úµã*/
-	std::vector<FlatNode *> GetPrecedenceFlatNode();//Ç°Çı
+	/*å–å›¾çš„å‰é©±å’Œåç»§flatNodeèŠ‚ç‚¹*/
+	std::vector<FlatNode *> GetPrecedenceFlatNode();//å‰é©±
 	void AddPrecedenceFlatNode(FlatNode *);
 	void DeletePrecedenceFlatNode(FlatNode *);
-	std::vector<FlatNode *> GetSuccessorFlatNode();//ºó¼Ì
+	std::vector<FlatNode *> GetSuccessorFlatNode();//åç»§
 	void AddSuccessorFlatNode(FlatNode *);
 	void DeleteSuccessorFlatNode(FlatNode *);
 
 
-	/*È¡groupÄÚµÄ½ÚµãÎÈÌ¬µ÷¶ÈµÄ½á¹û*/
+	/*å–groupå†…çš„èŠ‚ç‚¹ç¨³æ€è°ƒåº¦çš„ç»“æœ*/
 	std::map<FlatNode *,int> GetSteadyCountMap();
 
-	/*È¡Í¼µÄÇ°ÇıºÍºó¼ÌClusterGroup½Úµã*/
-	std::vector<ClusterGroup *> GetClusterGroups();//È¡µ±Ç°groupÖĞµÄËùÓĞ×Ógroup
+	/*å–å›¾çš„å‰é©±å’Œåç»§ClusterGroupèŠ‚ç‚¹*/
+	std::vector<ClusterGroup *> GetClusterGroups();//å–å½“å‰groupä¸­çš„æ‰€æœ‰å­group
 	
-	std::vector<ClusterGroup *> GetPrecedenceClusterGroup();//Ç°Çı
+	std::vector<ClusterGroup *> GetPrecedenceClusterGroup();//å‰é©±
 	void AddPrecedenceClusterGroup(ClusterGroup *);
 	Bool DeletePrecedenceClusterGroup(ClusterGroup *);
 	void SetPrecedenceClusterGroup(std::vector<ClusterGroup *>);
 	
-	std::vector<ClusterGroup *> GetSuccessorClusterGroup();//ºó¼Ì
+	std::vector<ClusterGroup *> GetSuccessorClusterGroup();//åç»§
 	void AddSuccessorClusterGroup(ClusterGroup *);
 	Bool DeleteSuccessorClusterGroup(ClusterGroup *);
 	void SetSuccessorClusterGroup(std::vector<ClusterGroup *>);
 
-	std::vector<ClusterGroup *> GetBoundaryClusterGroup();//È¡±ß½çgroup
-	float GetCommunicationCost();//È¡groupµÄÍ¨ĞÅ¿ªÏú
+	std::vector<ClusterGroup *> GetBoundaryClusterGroup();//å–è¾¹ç•Œgroup
+	float GetCommunicationCost();//å–groupçš„é€šä¿¡å¼€é”€
 	void  SetCommunicationCost(float cost);
 
-	int GetWorkload();//È¡groupµÄ¹¤×÷Á¿
+	int GetWorkload();//å–groupçš„å·¥ä½œé‡
 	void SetWorkload(int weight);
 
-	float GetCompCommRadio();//»ñÈ¡¼ÆËãÍ¨ĞÅ±È
+	float GetCompCommRadio();//è·å–è®¡ç®—é€šä¿¡æ¯”
 	~ClusterGroup(){};
 
 };
-GLOBAL std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *> );//¶ÔvectorÖĞµÄµã¼¯½øĞĞ¾Ö²¿ÎÈÌ¬µ÷¶È
+GLOBAL std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *> );//å¯¹vectorä¸­çš„ç‚¹é›†è¿›è¡Œå±€éƒ¨ç¨³æ€è°ƒåº¦
 
-int lcm(int a, int b); // Çóa,bµÄ×îĞ¡¹«±¶Êı
-int gcd(int a, int b); // Çóa,bµÄ×î´ó¹«Ô¼Êı	
+int lcm(int a, int b); // æ±‚a,bçš„æœ€å°å…¬å€æ•°
+int gcd(int a, int b); // æ±‚a,bçš„æœ€å¤§å…¬çº¦æ•°	
 
 
 
