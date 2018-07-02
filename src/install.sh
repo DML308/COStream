@@ -1,6 +1,6 @@
 #!/bin/bash
 
-install_path=/usr/COStream
+install_path=/usr/bin
 
 if [ -d $install_path ]; then
 	echo
