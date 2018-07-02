@@ -268,7 +268,7 @@ GLOBAL Bool Linux = TRUE;
 /**********************************/
 GLOBAL Bool FileRW = FALSE;//filereader和filewriter的开关
 /************************************************************************/
-GLOBAL Bool CALRATIO = FALSE;//测试每个线程计算同步比
+GLOBAL Bool CALRATIO = TRUE;//测试每个线程计算同步比
 GLOBAL Bool TRACE = FALSE;//时间测试开关
 GLOBAL Bool CHECKBARRIERTIME = FALSE; //只测试各种不同barrier的时间
 GLOBAL Bool CHECKEACHACTORTIME =FALSE;//测试稳态后每个actor的steadywork所需要的时间
@@ -580,9 +580,6 @@ PRIVATE void handle_options(int argc, char *argv[])
             case '-':
                 QuietlyIgnore = !QuietlyIgnore;
                 break;
-			case 'd':
-			     CallModelEmbed=TRUE;
-				 break;
             case 'h':
                 usage(FALSE, 0);
                 break;

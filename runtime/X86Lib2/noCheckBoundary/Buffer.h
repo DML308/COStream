@@ -10,17 +10,17 @@ public:
 	int copySize;
 	int copyStartPos;
 	//T peek(int index);			//peak seems useless
-	T& operator[](const size_t);
-	//ææ„å‡½æ•°~Buffer();
+	T& operator[](const size_t); 
+	//Îö¹¹º¯Êı~Buffer();
 	~Buffer()
 	{
 		delete	[]buffer;
 	}
 	T* buffer;
 };
-//æš‚æ—¶æ”¾åœ¨å¤´æ–‡ä»¶ä¸­ï¼Œæ¨¡æ¿ç±»çš„ç¼–è¯‘æœ‰é—®é¢˜
+//ÔİÊ±·ÅÔÚÍ·ÎÄ¼şÖĞ£¬Ä£°åÀàµÄ±àÒëÓĞÎÊÌâ
 template<typename T>
-Buffer<T>::Buffer(int size,int copySize,int copyStartPos){//constructor    åˆ†é…ç¼“å†²åŒºåœ°å€
+Buffer<T>::Buffer(int size,int copySize,int copyStartPos){//constructor    ·ÖÅä»º³åÇøµØÖ·
 	bufferSize = size;
 	this->copySize = copySize;
 	this->copyStartPos = copyStartPos;
@@ -28,7 +28,7 @@ Buffer<T>::Buffer(int size,int copySize,int copyStartPos){//constructor    åˆ†é…
 }
 template<typename T>
 T& Buffer<T>::operator[](const size_t index){
-	return buffer[index];					//æ˜¯å¦éœ€è¦ä¿è¯ä¸‹æ ‡æ“ä½œè¯»çš„æ•°æ®ä¸ä¼šè¶…å‡ºtail?
+	return buffer[index];					//ÊÇ·ñĞèÒª±£Ö¤ÏÂ±ê²Ù×÷¶ÁµÄÊı¾İ²»»á³¬³ötail?
 }
 
 #endif
