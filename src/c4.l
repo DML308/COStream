@@ -335,7 +335,7 @@ hwhite ([ \011])
 
 <INITIAL,C>"\n"             {  Line++; WHITE_RETURN(' ');  }
 
-<INITIAL,C>__restrict	|									//Ìí¼Ó¶ÔgccÔ¤´¦ÀíÆ÷µÄÖ§³Ö
+<INITIAL,C>__restrict	|									//æ·»åŠ å¯¹gccé¢„å¤„ç†å™¨çš„æ”¯æŒ
 <INITIAL,C>__extension__    {  WHITE_RETURN(' ');  }
 <INITIAL,C>__word__  { yylval.n = int_constant("8", TRUE, FALSE);
                       RETURN_TOKEN(INTEGERconstant);}
@@ -353,7 +353,7 @@ hwhite ([ \011])
 <INITIAL,C>case                {PA_KEYWORD_RETURN(CASE);}
 <INITIAL,C>__builtin_va_list	|							//
 <INITIAL,C>char                {PA_KEYWORD_RETURN(CHAR);}
-<INITIAL,C>__const	|										//Ìí¼Ó¶ÔgccÔ¤´¦ÀíµÄÖ§³Ö
+<INITIAL,C>__const	|										//æ·»åŠ å¯¹gccé¢„å¤„ç†çš„æ”¯æŒ
 <INITIAL,C>const               {PA_KEYWORD_RETURN(CONST);}
 <INITIAL,C>continue            {PA_KEYWORD_RETURN(CONTINUE);}
 <INITIAL,C>default             {PA_KEYWORD_RETURN(DEFAULT);}
@@ -555,7 +555,7 @@ hwhite ([ \011])
 <INITIAL,C>"++"                 {NAMEDOP_RETURN(ICR);}
 <INITIAL,C>"--"                 {NAMEDOP_RETURN(DECR);}
 <INITIAL,C>"<<"                 {NAMEDOP_RETURN(LS);}
-<INITIAL,C>">>"                 {NAMEDOP_RETURN(RS);}//·¢Éú³åÍ»ÁËÔÝÊ±È¥µô SPL?WHY?lxx
+<INITIAL,C>">>"                 {NAMEDOP_RETURN(RS);}//å‘ç”Ÿå†²çªäº†æš‚æ—¶åŽ»æŽ‰ SPL?WHY?lxx
 <INITIAL,C>"<="                 {NAMEDOP_RETURN(LE);}
 <INITIAL,C>">="                 {NAMEDOP_RETURN(GE);}
 <INITIAL,C>"=="                 {NAMEDOP_RETURN(EQ);}
