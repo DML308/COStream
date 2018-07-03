@@ -2,16 +2,16 @@
 using namespace std;
 
 
-ClusterGroup::ClusterGroup(FlatNode *flatNode)//¹¹Ôìº¯Êı
-{//Ö»ÓĞÒ»¸ö½Úµã¹¹Ôìgroup£¬Ò»¸ögroupÖĞ¾Íº¬ÓĞÒ»¸öflatNode½Úµã¡£(¸ù¾İSDFÍ¼¹¹Ôì³õÊ¼flatNode)
-	srcFlatNode.push_back(flatNode);//Ô´
-	snkFlatNode.push_back(flatNode);//ÖÕ
-	flatNodes.push_back(flatNode);//½áµã¼¯ºÏ
-	flatNode2SteadyCount.insert(make_pair(flatNode,1));//ÎÈÌ¬
+ClusterGroup::ClusterGroup(FlatNode *flatNode)//æ„é€ å‡½æ•°
+{//åªæœ‰ä¸€ä¸ªèŠ‚ç‚¹æ„é€ groupï¼Œä¸€ä¸ªgroupä¸­å°±å«æœ‰ä¸€ä¸ªflatNodeèŠ‚ç‚¹ã€‚(æ ¹æ®SDFå›¾æ„é€ åˆå§‹flatNode)
+	srcFlatNode.push_back(flatNode);//æº
+	snkFlatNode.push_back(flatNode);//ç»ˆ
+	flatNodes.push_back(flatNode);//ç»“ç‚¹é›†åˆ
+	flatNode2SteadyCount.insert(make_pair(flatNode,1));//ç¨³æ€
 	for(int i=0;i<flatNode->inFlatNodes.size();i++)
-			if(flatNode->inPopWeights[i])precedenceFlatNode.push_back(flatNode->inFlatNodes[i]);//²åÇ°ÇıflatNode (ÓĞÊı¾İ´«Êä)
+			if(flatNode->inPopWeights[i])precedenceFlatNode.push_back(flatNode->inFlatNodes[i]);//æ’å‰é©±flatNode (æœ‰æ•°æ®ä¼ è¾“)
 	for(int i=0;i<flatNode->outFlatNodes.size();i++)
-			if(flatNode->outPushWeights[i])successorFlatNode.push_back(flatNode->outFlatNodes[i]);//²åºó¼ÌflatNode(ÓĞÊı¾İ´«Êä)
+			if(flatNode->outPushWeights[i])successorFlatNode.push_back(flatNode->outFlatNodes[i]);//æ’åç»§flatNode(æœ‰æ•°æ®ä¼ è¾“)
 	groupSize = 1;
 	workload = SSG->GetSteadyWork(flatNode);
 	float tmpCost=0;
@@ -27,9 +27,9 @@ ClusterGroup::ClusterGroup(FlatNode *flatNode)//¹¹Ôìº¯Êı
 	lock = FALSE;
 }
 
-ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
-{//½«Á½¸öÏàÁÚµÄgroup¾ÛºÏ³ÉÒ»¸ö
-	//flatNode ½ÚµãµÄ¼¯ºÏ
+ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//æ„é€ å‡½æ•°
+{//å°†ä¸¤ä¸ªç›¸é‚»çš„groupèšåˆæˆä¸€ä¸ª
+	//flatNode èŠ‚ç‚¹çš„é›†åˆ
 	lock = FALSE;
 	for(int i = 0; i!= group1->flatNodes.size(); i++)
 	{
@@ -39,19 +39,19 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 	{
 		flatNodes.push_back(group2->flatNodes[i]);
 	}
-	 // Ç°ÇıflatNode
+	 // å‰é©±flatNode
 	Bool flag = TRUE;
 	for (int i = 0;i != group1->precedenceFlatNode.size(); i++)
 	{
 		flag = TRUE;
 		for (int j = 0;j != group2->flatNodes.size();j++)
 		{
-			if(group1->precedenceFlatNode[i]== group2->flatNodes[j]){flag = FALSE;break;}//Èç¹ûgroup1µÄÇ°ÇıÔÚgroup2ÖĞ£¬Ôò¸ÃÇ°Çı²»ÄÜ×÷ÎªĞÂµÄgroupµÄÇ°Çı
+			if(group1->precedenceFlatNode[i]== group2->flatNodes[j]){flag = FALSE;break;}//å¦‚æœgroup1çš„å‰é©±åœ¨group2ä¸­ï¼Œåˆ™è¯¥å‰é©±ä¸èƒ½ä½œä¸ºæ–°çš„groupçš„å‰é©±
 		}
 		if(flag)  this->AddPrecedenceFlatNode(group1->precedenceFlatNode[i]);
 	}
 	for (int i = 0;i != group2->precedenceFlatNode.size(); i++)
-	{//ÒªÅÅ³ıÔÚgroup1ºÍgroup1µÄÇ°ÇıÖĞ
+	{//è¦æ’é™¤åœ¨group1å’Œgroup1çš„å‰é©±ä¸­
 		flag = TRUE;
 		for (int j = 0;j != group1->flatNodes.size();j++)
 		{
@@ -60,7 +60,7 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 		}
 		if(flag) this->AddPrecedenceFlatNode(group2->precedenceFlatNode[i]);
 	}
-	//ºó¼ÌflatNode
+	//åç»§flatNode
 	for (int i = 0;i != group1->successorFlatNode.size(); i++)
 	{
 		flag = TRUE;
@@ -79,7 +79,7 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 		}
 		if(flag) this->AddSuccessorFlatNode(group2->successorFlatNode[i]);
 	}
-	//Ïòsrc ºÍsnkÖĞÌí¼ÓÔªËØ(ÓĞ³öÈ¥µÄ±ß¾ÍÊÇÖÕµã£¬ÓĞ½øÀ´µÄ±ß¾ÍÊÇÆğµã)
+	//å‘src å’Œsnkä¸­æ·»åŠ å…ƒç´ (æœ‰å‡ºå»çš„è¾¹å°±æ˜¯ç»ˆç‚¹ï¼Œæœ‰è¿›æ¥çš„è¾¹å°±æ˜¯èµ·ç‚¹)
 	for (int i = 0; i != this->flatNodes.size(); i++)
 	{
 		int num = 0;
@@ -87,11 +87,11 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 		int zeroEdge = 0;
 		for (int j = 0; j != this->flatNodes[i]->inFlatNodes.size();j++)
 		{
-			if(this->flatNodes[i]->inPopWeights[j] == 0) {zeroEdge++;continue;}////20121204Ìí¼Ó£¨´¦ÀíÓĞ±ßÁ¬½Óµ«Ã»ÓĞÊı¾İ´«Êä£©
+			if(this->flatNodes[i]->inPopWeights[j] == 0) {zeroEdge++;continue;}////20121204æ·»åŠ ï¼ˆå¤„ç†æœ‰è¾¹è¿æ¥ä½†æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼‰
 
 			for (int kk = 0; kk!= this->srcFlatNode.size();kk++)
 			{
-				if(this->flatNodes[i]== this->srcFlatNode[kk] ){flag = FALSE; break;}//ÒÑ¾­ÔÚsrcÖĞ¾Í²»²åÈë
+				if(this->flatNodes[i]== this->srcFlatNode[kk] ){flag = FALSE; break;}//å·²ç»åœ¨srcä¸­å°±ä¸æ’å…¥
 			}
 			if (flag)
 			{
@@ -102,16 +102,16 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 			}					
 		}
 		if(num + zeroEdge !=this->flatNodes[i]->inFlatNodes.size()) this->srcFlatNode.push_back(this->flatNodes[i]);
-		if(this->flatNodes[i]->inFlatNodes.size() == 0) this->srcFlatNode.push_back(this->flatNodes[i]);//´¦Àísource½Úµã
+		if(this->flatNodes[i]->inFlatNodes.size() == 0) this->srcFlatNode.push_back(this->flatNodes[i]);//å¤„ç†sourceèŠ‚ç‚¹
 		num = 0;
 		flag = TRUE;
 		zeroEdge = 0;
 		for (int j = 0; j != this->flatNodes[i]->outFlatNodes.size();j++)
 		{
-			if(this->flatNodes[i]->outPushWeights[j] == 0){ zeroEdge++;continue;}////20121204Ìí¼Ó£¨´¦ÀíÓĞ±ßÁ¬½Óµ«Ã»ÓĞÊı¾İ´«Êä£©
+			if(this->flatNodes[i]->outPushWeights[j] == 0){ zeroEdge++;continue;}////20121204æ·»åŠ ï¼ˆå¤„ç†æœ‰è¾¹è¿æ¥ä½†æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼‰
 			for (int kk = 0; kk!= this->snkFlatNode.size();kk++)
 			{
-				if(this->flatNodes[i]== this->snkFlatNode[kk] ){flag = FALSE; break;}//ÒÑ¾­ÔÚsrcÖĞ¾Í²»²åÈë
+				if(this->flatNodes[i]== this->snkFlatNode[kk] ){flag = FALSE; break;}//å·²ç»åœ¨srcä¸­å°±ä¸æ’å…¥
 			}
 			if (flag)
 			{
@@ -124,14 +124,14 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 		if(num + zeroEdge !=this->flatNodes[i]->outFlatNodes.size()) this->snkFlatNode.push_back(this->flatNodes[i]);
 		if(this->flatNodes[i]->outFlatNodes.size() == 0) this->snkFlatNode.push_back(this->flatNodes[i]);
 	}
-	// group1£¬group2 ×÷Îª×ÓgroupÌí¼Óµ½ĞÂµÄgroupÖĞ
+	// group1ï¼Œgroup2 ä½œä¸ºå­groupæ·»åŠ åˆ°æ–°çš„groupä¸­
 	subClusterGroups.push_back(group1);
 	subClusterGroups.push_back(group2);
-	//µ÷¶È
+	//è°ƒåº¦
 	flatNode2SteadyCount = SteadySchedulingGroup(flatNodes);
-	//¼ÆËãÍ¨ĞÅ¿ªÏú
-	std::vector<int> sendDataSize;//¶ÔÓ¦µÄÊÇÖÕ
-	std::vector<int> recvDataSize;//¶ÔÓ¦µÄÊÇÔ´
+	//è®¡ç®—é€šä¿¡å¼€é”€
+	std::vector<int> sendDataSize;//å¯¹åº”çš„æ˜¯ç»ˆ
+	std::vector<int> recvDataSize;//å¯¹åº”çš„æ˜¯æº
 	float tmpCost = 0;
 	std::map<FlatNode *,int>::iterator pos;
 	for (int i = 0; i != srcFlatNode.size();i++)
@@ -171,7 +171,7 @@ ClusterGroup::ClusterGroup(ClusterGroup* group1,ClusterGroup* group2)//¹¹Ôìº¯Êı
 		}		
 	}
 	commCost = tmpCost;
-	//È·¶¨groupµÄ¹¤×÷Á¿
+	//ç¡®å®šgroupçš„å·¥ä½œé‡
 	int tmpWork = 0;
 	for(int i = 0 ;i != this->flatNodes.size(); i++)
 	{	
@@ -187,12 +187,12 @@ std::map<FlatNode *,int> ClusterGroup::GetSteadyCountMap()
 	return flatNode2SteadyCount;
 }
 std::vector<FlatNode *> ClusterGroup::GetSrcFlatNode()
-{//È¡Ô´
+{//å–æº
 	return srcFlatNode;
 }
 
 std::vector<FlatNode *> ClusterGroup::GetSnkFlatNode()
-{//È¡ÖÕ
+{//å–ç»ˆ
 	return snkFlatNode;
 }
 
@@ -269,7 +269,7 @@ std::vector<ClusterGroup *> ClusterGroup::GetPrecedenceClusterGroup()
 	return  precedenceClusterGroup;
 }
 void ClusterGroup::AddPrecedenceClusterGroup(ClusterGroup *group)
-{//ºó¼ÌÖĞgroup²»ÖØ¸´
+{//åç»§ä¸­groupä¸é‡å¤
 	Bool flag = TRUE;
 	for(int i=0; i != precedenceClusterGroup.size(); i++)
 	{
@@ -287,7 +287,7 @@ std::vector<ClusterGroup *> ClusterGroup::GetBoundaryClusterGroup()
 {
 	std::vector<ClusterGroup *> vecswap;
 	Bool flag = FALSE;
-	boundaryGroupSet.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	boundaryGroupSet.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	for(int i = 0; i != subClusterGroups.size(); i++)
 	{
 		flag = FALSE;
@@ -299,7 +299,7 @@ std::vector<ClusterGroup *> ClusterGroup::GetBoundaryClusterGroup()
 			{
 				if(tmpPreGroup[j] == subClusterGroups[k]) break;
 			}
-			if(k == subClusterGroups.size()) {flag = TRUE;break;}//ÓĞÇ°Çı²»ÔÚgroupÄÚ
+			if(k == subClusterGroups.size()) {flag = TRUE;break;}//æœ‰å‰é©±ä¸åœ¨groupå†…
 		}
 		boundaryGroupSet.push_back(successorClusterGroup[i]);
 		if(flag) continue;
@@ -312,7 +312,7 @@ std::vector<ClusterGroup *> ClusterGroup::GetBoundaryClusterGroup()
 			{
 				if(tmpPreGroup[j] == subClusterGroups[k]) break;
 			}
-			if(k == subClusterGroups.size()) {flag = TRUE;break;}//ÓĞÇ°Çı²»ÔÚgroupÄÚ
+			if(k == subClusterGroups.size()) {flag = TRUE;break;}//æœ‰å‰é©±ä¸åœ¨groupå†…
 		}
 		boundaryGroupSet.push_back(successorClusterGroup[i]);
 	}	
@@ -321,7 +321,7 @@ std::vector<ClusterGroup *> ClusterGroup::GetBoundaryClusterGroup()
 }
 
 void ClusterGroup::AddSuccessorClusterGroup(ClusterGroup *group)
-{//ºó¼ÌÖĞgroup²»ÖØ¸´
+{//åç»§ä¸­groupä¸é‡å¤
 	Bool flag = TRUE;
 	for(int i=0; i != successorClusterGroup.size(); i++)
 	{
@@ -331,7 +331,7 @@ void ClusterGroup::AddSuccessorClusterGroup(ClusterGroup *group)
 }
 
 Bool ClusterGroup::DeleteSuccessorClusterGroup(ClusterGroup *group)
-{//ºó¼ÌÖĞgroup²»ÖØ¸´
+{//åç»§ä¸­groupä¸é‡å¤
 	std::vector<ClusterGroup *>::iterator iter;
 	for(iter=successorClusterGroup.begin(); iter != successorClusterGroup.end(); iter++)
 	{
@@ -366,7 +366,7 @@ void ClusterGroup::SetPrecedenceClusterGroup(std::vector<ClusterGroup *> origina
 }
 
 Bool ClusterGroup::DeletePrecedenceClusterGroup(ClusterGroup *group)
-{//ºó¼ÌÖĞgroup²»ÖØ¸´
+{//åç»§ä¸­groupä¸é‡å¤
 	std::vector<ClusterGroup *>::iterator iter;
 	for(iter=precedenceClusterGroup.begin(); iter != precedenceClusterGroup.end(); iter++)
 	{
@@ -403,7 +403,7 @@ float ClusterGroup::GetCompCommRadio()
 	return ((float)workload) / commCost;
 }
 
-//Çóa,bµÄ×î´ó¹«Ô¼Êı
+//æ±‚a,bçš„æœ€å¤§å…¬çº¦æ•°
 int gcd(int a, int b)
 {
 	int r = 0;
@@ -426,7 +426,7 @@ int gcd(int a, int b)
 
 
 
-//Çóa,bµÄ×îĞ¡¹«±¶Êı
+//æ±‚a,bçš„æœ€å°å…¬å€æ•°
 int lcm(int a, int b)
 {
 	int product = a * b;
@@ -435,32 +435,32 @@ int lcm(int a, int b)
 }
 
 GLOBAL std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *>flatNodeVec)
-{//¹¹ÔìÒ»¸ö¾Ö²¿µÄÎÈÌ¬
+{//æ„é€ ä¸€ä¸ªå±€éƒ¨çš„ç¨³æ€
 	
 	list<FlatNode *> flatNodeList;
 	std::map<FlatNode *,int>::iterator pos;
 	std::map<FlatNode *, int> flatNode2SteadyCount;
 	assert(flatNodeVec.size() > 0);
-	map<FlatNode * ,Bool> flatNodesTag;//ÓÉÓÚ±êÊ¾flatNodeVecÖĞµÄ½ÚµãÊÇ·ñ±»µ÷¶È
+	map<FlatNode * ,Bool> flatNodesTag;//ç”±äºæ ‡ç¤ºflatNodeVecä¸­çš„èŠ‚ç‚¹æ˜¯å¦è¢«è°ƒåº¦
 	for (int indexNode = 0; indexNode != flatNodeVec.size(); indexNode++)
 	{
 		flatNodesTag.insert(make_pair(flatNodeVec[indexNode],FALSE));
 	}
-	// Ä¬ÈÏµÚÒ»¸ö½ÚµãÊÇÔ´£¬Ò²¾ÍÊÇËµpeekºÍpop¾ùÎª0,ÔÚÍ¼µÄ±íÊ¾ÉÏÔİ²»ÔÊĞíÓĞ¶à¸öÔ´£¬µ«¿ÉÒÔÓĞ¶à¸öpeek = pop = 0½Úµã
+	// é»˜è®¤ç¬¬ä¸€ä¸ªèŠ‚ç‚¹æ˜¯æºï¼Œä¹Ÿå°±æ˜¯è¯´peekå’Œpopå‡ä¸º0,åœ¨å›¾çš„è¡¨ç¤ºä¸Šæš‚ä¸å…è®¸æœ‰å¤šä¸ªæºï¼Œä½†å¯ä»¥æœ‰å¤šä¸ªpeek = pop = 0èŠ‚ç‚¹
 	FlatNode *up = flatNodeVec[0], *down = NULL, *parent = NULL;
 	int nPush = 0, nPop = 0, nLcm = 0;
 	int x, y, i, j;
-	Bool flag = FALSE;//Ö»ÓĞµ±flatNodeÔÚflatNodeVecÖĞ²Å½øĞĞµ÷¶È
+	Bool flag = FALSE;//åªæœ‰å½“flatNodeåœ¨flatNodeVecä¸­æ‰è¿›è¡Œè°ƒåº¦
 	while (!flatNodesTag.empty())
 	{	
 		up = flatNodesTag.begin()->first;
 		while(1)
 		{		
-			// ÎÈÌ¬µ÷¶ÈÏµÁĞ³õÊ¼ÏµÊıÎª1
+			// ç¨³æ€è°ƒåº¦ç³»åˆ—åˆå§‹ç³»æ•°ä¸º1
 			flatNode2SteadyCount.insert(make_pair(up, 1));
 			flatNodesTag.erase(up);
-			// ±éÀú¸Ã½ÚµãµÄËùÓĞÊä³ö½Úµãup¶Ôchild½Úµã½øĞĞµÄµ÷¶È£¬¸ÃÑ­»·Ö´ĞĞÍê£¬¶ÔupµÄparent½Úµã½øĞĞµ÷¶È
-			/*µ÷¶ÈupµÄchild½Úµã*/
+			// éå†è¯¥èŠ‚ç‚¹çš„æ‰€æœ‰è¾“å‡ºèŠ‚ç‚¹upå¯¹childèŠ‚ç‚¹è¿›è¡Œçš„è°ƒåº¦ï¼Œè¯¥å¾ªç¯æ‰§è¡Œå®Œï¼Œå¯¹upçš„parentèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
+			/*è°ƒåº¦upçš„childèŠ‚ç‚¹*/
 			for (i = 0; i < up->nOut; ++i)
 			{
 				flag = FALSE;
@@ -473,61 +473,61 @@ GLOBAL std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *>fl
 				}
 				if(flag)
 				{
-					nPush = up->outPushWeights[i]; // ÉÏ¶Ë½ÚµãµÄpushÖµ
-					down = up->outFlatNodes[i]; // ÕÒµ½ÏÂ¶Ë½Úµã
+					nPush = up->outPushWeights[i]; // ä¸Šç«¯èŠ‚ç‚¹çš„pushå€¼
+					down = up->outFlatNodes[i]; // æ‰¾åˆ°ä¸‹ç«¯èŠ‚ç‚¹
 
-					for (j = 0; down->inFlatNodes[j] != up; j++); // ÏÂ¶Ë½ÚµãÕÒµ½ÓëÉÏ¶Ë½Úµã¶ÔÓ¦µÄ±êºÅ
-					nPop = down->inPopWeights[j]; // ÏÂ¶Ë½ÚµãÈ¡³ö¶ÔÓ¦µÄpopÖµ
+					for (j = 0; down->inFlatNodes[j] != up; j++); // ä¸‹ç«¯èŠ‚ç‚¹æ‰¾åˆ°ä¸ä¸Šç«¯èŠ‚ç‚¹å¯¹åº”çš„æ ‡å·
+					nPop = down->inPopWeights[j]; // ä¸‹ç«¯èŠ‚ç‚¹å–å‡ºå¯¹åº”çš„popå€¼
 
-					// ¼ì²é¸Ã½ÚµãÊÇ·ñÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬Ã¿ÌõÖ»½øĞĞÒ»´ÎÎÈÌ¬µ÷¶È
+					// æ£€æŸ¥è¯¥èŠ‚ç‚¹æ˜¯å¦å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ¯æ¡åªè¿›è¡Œä¸€æ¬¡ç¨³æ€è°ƒåº¦
 					pos = flatNode2SteadyCount.find(down);
-					// ¸Ã½ÚµãÎ´½øĞĞÎÈÌ¬µ÷¶È
+					// è¯¥èŠ‚ç‚¹æœªè¿›è¡Œç¨³æ€è°ƒåº¦
 					if (pos == flatNode2SteadyCount.end())
 					{
-						// µÃµ½ÉÏ¶Ë½ÚµãµÄÎÈÌ¬µ÷¶ÈÏµÊı
+						// å¾—åˆ°ä¸Šç«¯èŠ‚ç‚¹çš„ç¨³æ€è°ƒåº¦ç³»æ•°
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
-						nPush *= x; // ÎªÊ²Ã´ÊÇx*nPushÄØ£¿Àí½âÎÈÌ¬µ÷¶ÈµÄ¸ÅÄî--½ÚµãÔÚÁ÷Ë®ÏßÎÈ¶¨ÔËĞĞÖĞÖ´ĞĞµÄ×îÉÙ´ÎÊı
+						nPush *= x; // ä¸ºä»€ä¹ˆæ˜¯x*nPushå‘¢ï¼Ÿç†è§£ç¨³æ€è°ƒåº¦çš„æ¦‚å¿µ--èŠ‚ç‚¹åœ¨æµæ°´çº¿ç¨³å®šè¿è¡Œä¸­æ‰§è¡Œçš„æœ€å°‘æ¬¡æ•°
 						if(nPush != 0)
 						{
-							// nPush, nPopµÄ×îĞ¡¹«±¶Êı;
+							// nPush, nPopçš„æœ€å°å…¬å€æ•°;
 							nLcm = lcm(nPush, nPop);
 							int temp = nLcm/nPush;
-							if( temp != 1) // ¼ÓÒ»¸öÅĞ¶Ï£¬Ìá¸ßĞ§ÂÊ£¬³Ë1ÊÇ²»±ØÒªµÄ
+							if( temp != 1) // åŠ ä¸€ä¸ªåˆ¤æ–­ï¼Œæé«˜æ•ˆç‡ï¼Œä¹˜1æ˜¯ä¸å¿…è¦çš„
 							{
-								// ¸ù¾İ¼ÆËã¹æÔòµÃÀ´µÄ
+								// æ ¹æ®è®¡ç®—è§„åˆ™å¾—æ¥çš„
 								for (pos = flatNode2SteadyCount.begin(); pos != flatNode2SteadyCount.end(); ++pos)
 									pos->second *= temp;
 							}
 
 							flatNode2SteadyCount.insert(make_pair(down, nLcm/nPop));
 							flatNodesTag.erase(down);
-							// ½«down¼ÓÈëlistNodeÊÇÎªÁË¶ÔdownµÄÊä³ö½Úµã½øĞĞµ÷¶È
+							// å°†downåŠ å…¥listNodeæ˜¯ä¸ºäº†å¯¹downçš„è¾“å‡ºèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 							flatNodeList.push_back(down);
 						}
 					}
-					else //¸Ã½ÚµãÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬¼ì²éSDFÍ¼ÊÇ·ñ´æÔÚÎÈÌ¬µ÷¶ÈÏµÁĞ£¬Ò»°ã²»´æÔÚµÄ»°±íÃ÷³ÌĞòÓĞÎó
+					else //è¯¥èŠ‚ç‚¹å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ£€æŸ¥SDFå›¾æ˜¯å¦å­˜åœ¨ç¨³æ€è°ƒåº¦ç³»åˆ—ï¼Œä¸€èˆ¬ä¸å­˜åœ¨çš„è¯è¡¨æ˜ç¨‹åºæœ‰è¯¯
 					{
 						y = pos->second;
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
 
-						//nPop == 0 ËµÃ÷ÔÚ½øĞĞjoin 0 ²Ù×÷
+						//nPop == 0 è¯´æ˜åœ¨è¿›è¡Œjoin 0 æ“ä½œ
 						if((nPop != 0 ) && (nPush * x) != (nPop * y)) 
 						{
-							cout<<"²»´æÔÚÎÈÌ¬µ÷¶È1"<<endl;
+							cout<<"ä¸å­˜åœ¨ç¨³æ€è°ƒåº¦1"<<endl;
 							system("pause");
-							exit(1); // ±íÊ¾²»´æÔÚÎÈÌ¬µ÷¶È
+							exit(1); // è¡¨ç¤ºä¸å­˜åœ¨ç¨³æ€è°ƒåº¦
 						}
 					}
 				}
 			}
-			/*µ÷¶ÈupµÄparent½Úµã*/
+			/*è°ƒåº¦upçš„parentèŠ‚ç‚¹*/
 			for (i = 0; i < up->nIn; ++i)
 			{
 				flag = FALSE;
 				for (int k = 0; k != flatNodeVec.size(); ++k)
-				{//ÅĞ¶Ïparent½ÚµãÔÚ²»ÔÚflatNodeVecÖĞ
+				{//åˆ¤æ–­parentèŠ‚ç‚¹åœ¨ä¸åœ¨flatNodeVecä¸­
 					if(up->inFlatNodes[i] == flatNodeVec[k]) 
 					{
 						flag = TRUE;break;
@@ -536,57 +536,57 @@ GLOBAL std::map<FlatNode *, int> SteadySchedulingGroup(std::vector<FlatNode *>fl
 
 				if(flag)
 				{
-					nPop = up->inPopWeights[i]; // µ±Ç°½ÚµãµÄpopÖµ
-					parent = up->inFlatNodes[i]; // ÕÒµ½µ±Ç°½ÚµãµÄ¸¸½Úµã
+					nPop = up->inPopWeights[i]; // å½“å‰èŠ‚ç‚¹çš„popå€¼
+					parent = up->inFlatNodes[i]; // æ‰¾åˆ°å½“å‰èŠ‚ç‚¹çš„çˆ¶èŠ‚ç‚¹
 
-					for (j = 0; parent->outFlatNodes[j] != up; j++); // up½ÚµãÔÚparentµÄÊä³ö½ÚµãÖĞ¶ÔÓ¦µÄ±êºÅ
-					nPush = parent->outPushWeights[j]; // parent½ÚµãÈ¡³ö¶ÔÓ¦µÄpushÖµ
+					for (j = 0; parent->outFlatNodes[j] != up; j++); // upèŠ‚ç‚¹åœ¨parentçš„è¾“å‡ºèŠ‚ç‚¹ä¸­å¯¹åº”çš„æ ‡å·
+					nPush = parent->outPushWeights[j]; // parentèŠ‚ç‚¹å–å‡ºå¯¹åº”çš„pushå€¼
 
-					// ¼ì²é¸Ã½ÚµãÊÇ·ñÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬Ã¿ÌõÖ»½øĞĞÒ»´ÎÎÈÌ¬µ÷¶È
+					// æ£€æŸ¥è¯¥èŠ‚ç‚¹æ˜¯å¦å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ¯æ¡åªè¿›è¡Œä¸€æ¬¡ç¨³æ€è°ƒåº¦
 					pos = flatNode2SteadyCount.find(parent);
-					// ¸Ã½ÚµãÎ´½øĞĞÎÈÌ¬µ÷¶È
+					// è¯¥èŠ‚ç‚¹æœªè¿›è¡Œç¨³æ€è°ƒåº¦
 					if (pos == flatNode2SteadyCount.end())
 					{
-						// µÃµ½ÉÏ¶Ë½ÚµãµÄÎÈÌ¬µ÷¶ÈÏµÊı
+						// å¾—åˆ°ä¸Šç«¯èŠ‚ç‚¹çš„ç¨³æ€è°ƒåº¦ç³»æ•°
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
-						nPop *= x; // ÎªÊ²Ã´ÊÇx*nPushÄØ£¿Àí½âÎÈÌ¬µ÷¶ÈµÄ¸ÅÄî--½ÚµãÔÚÁ÷Ë®ÏßÎÈ¶¨ÔËĞĞÖĞÖ´ĞĞµÄ×îÉÙ´ÎÊı
+						nPop *= x; // ä¸ºä»€ä¹ˆæ˜¯x*nPushå‘¢ï¼Ÿç†è§£ç¨³æ€è°ƒåº¦çš„æ¦‚å¿µ--èŠ‚ç‚¹åœ¨æµæ°´çº¿ç¨³å®šè¿è¡Œä¸­æ‰§è¡Œçš„æœ€å°‘æ¬¡æ•°
 						if(nPop != 0)
 						{
-							// nPush, nPopµÄ×îĞ¡¹«±¶Êı;
+							// nPush, nPopçš„æœ€å°å…¬å€æ•°;
 							nLcm = lcm(nPush, nPop);
 							int temp = nLcm/nPop;
-							if( temp != 1) // ¼ÓÒ»¸öÅĞ¶Ï£¬Ìá¸ßĞ§ÂÊ£¬³Ë1ÊÇ²»±ØÒªµÄ
+							if( temp != 1) // åŠ ä¸€ä¸ªåˆ¤æ–­ï¼Œæé«˜æ•ˆç‡ï¼Œä¹˜1æ˜¯ä¸å¿…è¦çš„
 							{
-								// ¸ù¾İ¼ÆËã¹æÔòµÃÀ´µÄ
+								// æ ¹æ®è®¡ç®—è§„åˆ™å¾—æ¥çš„
 								for (pos = flatNode2SteadyCount.begin(); pos != flatNode2SteadyCount.end(); ++pos)
 									pos->second *= temp;
 							}
 
 							flatNode2SteadyCount.insert(make_pair(parent, nLcm/nPush));
 							flatNodesTag.erase(parent);
-							// ½«down,parent¼ÓÈëlistNodeÊÇÎªÁË¶ÔdownµÄÊä³ö½Úµã½øĞĞµ÷¶È
+							// å°†down,parentåŠ å…¥listNodeæ˜¯ä¸ºäº†å¯¹downçš„è¾“å‡ºèŠ‚ç‚¹è¿›è¡Œè°ƒåº¦
 							flatNodeList.push_back(parent);
 						}					
 					}
-					else //¸Ã½ÚµãÒÑ½øĞĞÎÈÌ¬µ÷¶È£¬¼ì²éSDFÍ¼ÊÇ·ñ´æÔÚÎÈÌ¬µ÷¶ÈÏµÁĞ£¬Ò»°ã²»´æÔÚµÄ»°±íÃ÷³ÌĞòÓĞÎó
+					else //è¯¥èŠ‚ç‚¹å·²è¿›è¡Œç¨³æ€è°ƒåº¦ï¼Œæ£€æŸ¥SDFå›¾æ˜¯å¦å­˜åœ¨ç¨³æ€è°ƒåº¦ç³»åˆ—ï¼Œä¸€èˆ¬ä¸å­˜åœ¨çš„è¯è¡¨æ˜ç¨‹åºæœ‰è¯¯
 					{
 						y = pos->second;
 						pos = flatNode2SteadyCount.find(up);
 						x = pos->second;
 
-						//nPop == 0 ËµÃ÷ÔÚ½øĞĞjoin 0 ²Ù×÷
+						//nPop == 0 è¯´æ˜åœ¨è¿›è¡Œjoin 0 æ“ä½œ
 						if((nPop != 0 ) && (nPop * x) != (nPush * y))
 						{
-							cout<<"²»´æÔÚÎÈÌ¬µ÷¶È2"<<endl;
+							cout<<"ä¸å­˜åœ¨ç¨³æ€è°ƒåº¦2"<<endl;
 							system("pause");
-							exit(1); // ±íÊ¾²»´æÔÚÎÈÌ¬µ÷¶È
+							exit(1); // è¡¨ç¤ºä¸å­˜åœ¨ç¨³æ€è°ƒåº¦
 						}
 					}
 				}
 
 			}
-			if(flatNodeList.size() == 0) break; // Á´±íÎª¿Õ£¬ËµÃ÷ËùÓĞ½ÚµãÒÑµ÷¶ÈÍê±Ï
+			if(flatNodeList.size() == 0) break; // é“¾è¡¨ä¸ºç©ºï¼Œè¯´æ˜æ‰€æœ‰èŠ‚ç‚¹å·²è°ƒåº¦å®Œæ¯•
 			up = flatNodeList.front();
 			flatNodeList.pop_front();
 			

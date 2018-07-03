@@ -14,16 +14,16 @@ GLOBAL SchedulerSSG *SchedulingSSG(StaticStreamGraph *ssg)
 		sssg->total_work = 0;
 		for (pos = sssg->mapSteadyCount2FlatNode.begin(); pos != sssg->mapSteadyCount2FlatNode.end(); ++pos)
 		{
-			pos->first->work_estimate *= pos->second;//¸üÐÂ½ÚµãµÄ¾²Ì¬¹¤×÷Á¿
+			pos->first->work_estimate *= pos->second;//æ›´æ–°èŠ‚ç‚¹çš„é™æ€å·¥ä½œé‡
 			sssg->total_work += pos->first->work_estimate;
 		}
 		*/
 #if 0
 		std::map<FlatNode *,int>::iterator pos;
-		cout<<"ÎÈÌ¬µ÷¶ÈÐòÁÐ:"<<endl;
+		cout<<"ç¨³æ€è°ƒåº¦åºåˆ—:"<<endl;
 		for (pos = sssg->mapSteadyCount2FlatNode.begin(); pos != sssg->mapSteadyCount2FlatNode.end(); ++pos)
 			cout<<pos->first->name<<"\t"<<pos->second<<endl;
-		cout<<"³õÊ¼»¯µ÷¶ÈÐòÁÐ:"<<endl;
+		cout<<"åˆå§‹åŒ–è°ƒåº¦åºåˆ—:"<<endl;
 		for (pos = sssg->mapInitCount2FlatNode.begin(); pos != sssg->mapInitCount2FlatNode.end(); ++pos)
 			cout<<pos->first->name<<"\t"<<pos->second<<endl;
 
@@ -31,7 +31,7 @@ GLOBAL SchedulerSSG *SchedulingSSG(StaticStreamGraph *ssg)
 	}
 	else
 	{
-		fprintf(stdout, "³ÌÐò²»´æÔÚÎÈÌ¬µ÷¶È£¬ÎÞ·¨½øÐÐ´úÂëÉú³É£¡\n");
+		fprintf(stdout, "ç¨‹åºä¸å­˜åœ¨ç¨³æ€è°ƒåº¦ï¼Œæ— æ³•è¿›è¡Œä»£ç ç”Ÿæˆï¼\n");
 		system("pause");
 		exit(1);
 	}

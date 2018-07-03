@@ -3,7 +3,7 @@
 using namespace std;
 
 void ActorStateDetector::hasMutableState()
-{  //ÊÇstateÔò·µ»ØTrue
+{  //æ˜¯stateåˆ™è¿”å›True
 	assert(opNode->body!=NULL);
 	List *stateList = opNode->body->u.operBody.state;
 	Node *workNode = opNode->body->u.operBody.work;
@@ -17,7 +17,7 @@ void ActorStateDetector::hasMutableState()
 }
 
 void ActorStateDetector::IsMutableVar(List *list,Node *node)
-{  //Èç¹û±äÁ¿ÊÇstateÔò·µ»ØTrue
+{  //å¦‚æœå˜é‡æ˜¯stateåˆ™è¿”å›True
 	assert(list);
 	assert(node);
 	ListMarker m;
@@ -45,7 +45,7 @@ void ActorStateDetector::IsMutableVar(List *list,Node *node)
 			}
 		}
 		else if(node->typ==Binop&&node->u.binop.op == '.')
-		{  // ´¦Àí½á¹¹ÌåÀàĞÍ
+		{  // å¤„ç†ç»“æ„ä½“ç±»å‹
 			Node *tmpNode = node->u.binop.left;
 			assert(tmpNode);
 			while (tmpNode->typ==Binop)
@@ -84,7 +84,7 @@ void ActorStateDetector::FSD_astwalk(Node *n,List *list)
 			if ((n)->u.binop.left) 
 			{
 				if(IsAssignmentOp(n->u.binop.op))
-				{//¶Ô¸³Öµ²Ù×÷µÄ×óÖµ½øĞĞ´¦Àí
+				{//å¯¹èµ‹å€¼æ“ä½œçš„å·¦å€¼è¿›è¡Œå¤„ç†
 					IsMutableVar(list,n->u.binop.left);
 				}
 				FSD_astwalk((n)->u.binop.left,list);
@@ -144,7 +144,7 @@ void ActorStateDetector::FSD_astwalk(Node *n,List *list)
 // FullName:  DetectiveFilterState
 // Access:    public 
 // Returns:   GLOBAL Bool
-// Qualifier: ¼ì²âflatNodeÖĞµÄoperatorµÄ×´Ì¬,TRUE±íÊ¾ÊÇstatefulÀàĞÍ
+// Qualifier: æ£€æµ‹flatNodeä¸­çš„operatorçš„çŠ¶æ€,TRUEè¡¨ç¤ºæ˜¯statefulç±»å‹
 // Parameter: FlatNode * flatNode
 //************************************
 GLOBAL Bool DetectiveActorState(FlatNode *flatNode)
