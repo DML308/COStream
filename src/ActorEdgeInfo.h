@@ -1,4 +1,4 @@
-//ÌáÈ¡SDFÖĞactor¼äÏûÏ¢µÄÀàĞÍ¼°´óĞ¡
+//æå–SDFä¸­actoré—´æ¶ˆæ¯çš„ç±»å‹åŠå¤§å°
 #ifndef _ACTOREDGEINFO_H_
 #define _ACTOREDGEINFO_H_
 #include "flatNode.h"
@@ -8,8 +8,8 @@ using namespace std;
 struct StreamEdgeInfo	
 {
 	string typedefine;
-	int size;//´óĞ¡
-	string typeName;//ÀàĞÍÃû³Æ
+	int size;//å¤§å°
+	string typeName;//ç±»å‹åç§°
 	StreamEdgeInfo(int size,string typeName,string typedefine):size(size),typeName(typeName),typedefine(typedefine){}
 	StreamEdgeInfo(){}
 };
@@ -21,8 +21,8 @@ public:
 	void DeclEdgeType(stringstream &buf);
 private:	
 	vector<FlatNode *> flatNodes_;
-	map<pair<FlatNode*,FlatNode*>,StreamEdgeInfo> mapEdge2TypeInfo;//´æ´¢Ã¿Ìõ±ßµ½ÆäÀàĞÍĞÅÏ¢µÄÓ³Éä
-	vector<StreamEdgeInfo> vStreamTypeInfo;	//´æ·Å¸÷ÖÖÀàĞÍ±ßµÄĞÅÏ¢
+	map<pair<FlatNode*,FlatNode*>,StreamEdgeInfo> mapEdge2TypeInfo;//å­˜å‚¨æ¯æ¡è¾¹åˆ°å…¶ç±»å‹ä¿¡æ¯çš„æ˜ å°„
+	vector<StreamEdgeInfo> vStreamTypeInfo;	//å­˜æ”¾å„ç§ç±»å‹è¾¹çš„ä¿¡æ¯
 	string GetPrimDataType(Node *from,int *);
 
 };

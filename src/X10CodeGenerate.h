@@ -4,13 +4,13 @@
 #include "schedulerSSG.h"
 #include "X10LibCopy.h"
 
-//Éú³É¶à¸öÎÄ¼ş£¬°üÀ¨½Ó¿Ú£¬actorÀà£¬Ö÷¿Ø³ÌĞò
+//ç”Ÿæˆå¤šä¸ªæ–‡ä»¶ï¼ŒåŒ…æ‹¬æ¥å£ï¼Œactorç±»ï¼Œä¸»æ§ç¨‹åº
 class X10CodeGenerate
 {
 private:
 	SchedulerSSG *sssg_;	
 	std::vector<FlatNode *> flatNodes_;
-	std::string comName_;//x10µÄclassÃû
+	std::string comName_;//x10çš„classå
 	int nCpucore_;
 	int nRepeatCount_;
 	int nActors_;
@@ -18,13 +18,13 @@ private:
 	std::string dir_;
 	int buffer_size_;
 	int currentNum_;
-	std::map<operatorNode *, std::string> mapOperator2ClassName; // ´æ·Å¸÷ class ¶ÔÓ¦µÄ composite
+	std::map<operatorNode *, std::string> mapOperator2ClassName; // å­˜æ”¾å„ class å¯¹åº”çš„ composite
 	stringstream strScheduler, parameterBuf, thisBuf;
 	bool extractDecl, isInParam;
 	stringstream declList, declInitList, stateInit;
 	std::vector<string> classInstances;
 	stringstream runBuf, edgeBuf;
-	std::map<FlatNode *, int> mapFlatNode2Place; // ´æ·Å¸÷ FlatNode ¶ÔÓ¦µÄ placeĞòºÅ
+	std::map<FlatNode *, int> mapFlatNode2Place; // å­˜æ”¾å„ FlatNode å¯¹åº”çš„ placeåºå·
 public:
 	X10CodeGenerate(SchedulerSSG *, int, int, const char *);
 
@@ -32,15 +32,15 @@ public:
 	void SimpleScheduler();
 
 public:
-	void CGinterface(); // Éú³ÉÖ÷½Ó¿Ú³ÌĞò
-	void CGclassMembers(Node *strdcl, stringstream &buf); // Éú³É stream µÄÊı¾İ³ÉÔ±
+	void CGinterface(); // ç”Ÿæˆä¸»æ¥å£ç¨‹åº
+	void CGclassMembers(Node *strdcl, stringstream &buf); // ç”Ÿæˆ stream çš„æ•°æ®æˆå‘˜
 
-	void CGactors(); // Éú³É¸÷¸öactor³ÌĞò
-	void CGactor(FlatNode *actor, OperatorType ot);//Éú³ÉÖ¸¶¨actor³ÌĞò
-	void CGrun(stringstream &buf, string initFun); // Éú³Érun·½·¨
+	void CGactors(); // ç”Ÿæˆå„ä¸ªactorç¨‹åº
+	void CGactor(FlatNode *actor, OperatorType ot);//ç”ŸæˆæŒ‡å®šactorç¨‹åº
+	void CGrun(stringstream &buf, string initFun); // ç”Ÿæˆrunæ–¹æ³•
 	void CGrecv(FlatNode *, OperatorType , string, stringstream & ,stringstream & ,stringstream & ,stringstream &); 
 	void CGsend(FlatNode *, OperatorType , string, stringstream & ,stringstream & ,stringstream & ,stringstream & ,stringstream &); 
-	void CGflush(stringstream &, string);// Éú³Éflush·½·¨
+	void CGflush(stringstream &, string);// ç”Ÿæˆflushæ–¹æ³•
 	void CGinitWork(stringstream &, string);
 	void CGinitPeek(stringstream &, string);
 	void CGinitPush(stringstream &, string);
@@ -52,13 +52,13 @@ public:
 	void CGlogicInit(FlatNode *actor, OperatorType ot, stringstream &, stringstream &);
 	void CGthis(FlatNode *actor, OperatorType ot, stringstream &);
 
-	void CGmain(); // Éú³ÉÖ÷¿Ø³ÌĞò
+	void CGmain(); // ç”Ÿæˆä¸»æ§ç¨‹åº
 	void CGmainRun();
 	void CGmainScheduleData(stringstream &buf);
-	void CGmainActor(FlatNode *, OperatorType , int);//Éú³ÉÖ¸¶¨actorÊµÀıµ÷ÓÃ
+	void CGmainActor(FlatNode *, OperatorType , int);//ç”ŸæˆæŒ‡å®šactorå®ä¾‹è°ƒç”¨
 
 public:
-	void OutputToFile(std::string, std::string);//Êä³öµ½ÎÄ¼ş
+	void OutputToFile(std::string, std::string);//è¾“å‡ºåˆ°æ–‡ä»¶
 	string GetPrimDataType(Node *);
 	string GetNodeDataType(Node *);
 	string GetArrayDataType(Node *);

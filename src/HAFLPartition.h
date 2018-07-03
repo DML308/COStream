@@ -7,17 +7,17 @@
 class HAFLPartition:public Partition
 {
 public:
-	int UporDownStatelessNode(FlatNode *node);   //¸¸½Úµã£¬×Ó½ÚµãÊÇ·ñÈ«Îªstateful½Úµã
+	int UporDownStatelessNode(FlatNode *node);   //çˆ¶èŠ‚ç‚¹ï¼Œå­èŠ‚ç‚¹æ˜¯å¦å…¨ä¸ºstatefulèŠ‚ç‚¹
 	void SssgPartition(SchedulerSSG *sssg,int level);
 	std::vector<FlatNode *> FindNodeInOneDevice(int);
-	int Index2Device(int); //indexµ½GPUÉè±¸µÄÓ³Éä
-	void SetGpuNum(SchedulerSSG *sssg);  //×ÔÊÊÓ¦ÉèÖÃĞèÒª·ÖÅäµÄGPUÊıÁ¿
+	int Index2Device(int); //indexåˆ°GPUè®¾å¤‡çš„æ˜ å°„
+	void SetGpuNum(SchedulerSSG *sssg);  //è‡ªé€‚åº”è®¾ç½®éœ€è¦åˆ†é…çš„GPUæ•°é‡
 	void SetMultiNum2FlatNode();
 public:
 	std::vector<FlatNode *> GPUNodes;
 	std::vector<FlatNode *> CPUNodes;
 	std::map<FlatNode *, int> MultiNum2FlatNode;
-	int nvtxs;    //¶¨Òå¶¥µã¸öÊı
+	int nvtxs;    //å®šä¹‰é¡¶ç‚¹ä¸ªæ•°
 	std::vector<FlatNode *> flatNodes_;
 	
 	

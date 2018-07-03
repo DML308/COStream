@@ -14,21 +14,21 @@ extern "C"
 class TemplateClass{
 public:
 	SchedulerSSG *Sssg;
-	vector<FlatNode *> vTemplateNode; //chenwenbin 20140724 ´æ´¢ËùÓĞÄ£°å½áµã
-	vector<std::string> vTemplateName; //chenwenbin ¼ÇÂ¼Ã¿¸öÄ£°åÀàµÄÃû×Ö
-	map<FlatNode *,std::string> mapFlatnode2Template; //chenwenbin ´æ·Åflatnode¶ÔÓ¦µÄÄ£°åÀà
-	ActorEdgeInfo* pEdgeInfo;//´æ·Å¸÷¸ö±ßµÄÀàĞÍĞÅÏ¢
+	vector<FlatNode *> vTemplateNode; //chenwenbin 20140724 å­˜å‚¨æ‰€æœ‰æ¨¡æ¿ç»“ç‚¹
+	vector<std::string> vTemplateName; //chenwenbin è®°å½•æ¯ä¸ªæ¨¡æ¿ç±»çš„åå­—
+	map<FlatNode *,std::string> mapFlatnode2Template; //chenwenbin å­˜æ”¾flatnodeå¯¹åº”çš„æ¨¡æ¿ç±»
+	ActorEdgeInfo* pEdgeInfo;//å­˜æ”¾å„ä¸ªè¾¹çš„ç±»å‹ä¿¡æ¯
 
 	TemplateClass(SchedulerSSG *sssg);
-	void ResetTemplateName(); //chenwenbin ÖØÖÃÄ£°åÃû×Ö
-	void SetTemplateNode(); //chenwenbin 20140724 »ñÈ¡ËùÓĞÄ£°å½áµã
-	bool InTemplate(FlatNode *); //chenwenbin ÅĞ¶ÏflatnodeÊÇ·ñÒÑ¾­ÔÚÄ£°åÀàÖĞ
-	bool IsSplitJoinNode(FlatNode *); //chenwenbinÅĞ¶ÏflatnodeÊÇ·ñÎªSplitJoin½áµã
-	bool DimValueSame(FlatNode *,FlatNode *); //chenwenbin ÅĞ¶ÏÁ½¸öflatnodeµÄ±íÊ¾Êı×éÎ¬¶ÈµÄ±äÁ¿ÊÇ·ñÏàµÈ
-	bool DataTypeSame(FlatNode*,FlatNode*);//cwbÅĞ¶ÏÁ¬½ÓÁ½¸öactorµÄ±ßµÄÊı¾İÀàĞÍÊÇ·ñÏàÍ¬
-	bool StorageValueSame(FlatNode*,FlatNode*);//cwbÅĞ¶ÏÁ¬½ÓÁ½¸öactorµÄ´æ´¢±ßµÄ¿Õ¼ä´óĞ¡ÊÇ·ñÏàµÈ
+	void ResetTemplateName(); //chenwenbin é‡ç½®æ¨¡æ¿åå­—
+	void SetTemplateNode(); //chenwenbin 20140724 è·å–æ‰€æœ‰æ¨¡æ¿ç»“ç‚¹
+	bool InTemplate(FlatNode *); //chenwenbin åˆ¤æ–­flatnodeæ˜¯å¦å·²ç»åœ¨æ¨¡æ¿ç±»ä¸­
+	bool IsSplitJoinNode(FlatNode *); //chenwenbinåˆ¤æ–­flatnodeæ˜¯å¦ä¸ºSplitJoinç»“ç‚¹
+	bool DimValueSame(FlatNode *,FlatNode *); //chenwenbin åˆ¤æ–­ä¸¤ä¸ªflatnodeçš„è¡¨ç¤ºæ•°ç»„ç»´åº¦çš„å˜é‡æ˜¯å¦ç›¸ç­‰
+	bool DataTypeSame(FlatNode*,FlatNode*);//cwbåˆ¤æ–­è¿æ¥ä¸¤ä¸ªactorçš„è¾¹çš„æ•°æ®ç±»å‹æ˜¯å¦ç›¸åŒ
+	bool StorageValueSame(FlatNode*,FlatNode*);//cwbåˆ¤æ–­è¿æ¥ä¸¤ä¸ªactorçš„å­˜å‚¨è¾¹çš„ç©ºé—´å¤§å°æ˜¯å¦ç›¸ç­‰
 	int GetTemplateIndex(FlatNode *);
-	bool SameofSplitjoinNode(FlatNode*,FlatNode*); //ÏàÍ¬µÄsplitjoin½áµã
+	bool SameofSplitjoinNode(FlatNode*,FlatNode*); //ç›¸åŒçš„splitjoinç»“ç‚¹
 	inline std::vector<FlatNode *> GetTemplateNode(void)
 	{
 		return vTemplateNode;

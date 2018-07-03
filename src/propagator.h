@@ -5,49 +5,49 @@
 #include "ast.h"
 #include "math.h"
 
-//´¦ÀíÊı×é
+//å¤„ç†æ•°ç»„
 typedef struct{
-	char *name;//¼ÇÂ¼Êı×éÃû
-	Node *decl;//¼ÇÂ¼Êı×éµÄ¶¨Òå£¬ÓëidNodeÖĞµÄÀàËÆ
-	int dim;//Î¬Êı
-	int *dimLen;//Ã¿Ò»Î¬µÄ³¤¶È
-	int num;//ÔªËØµÄ¸öÊı
-	Node **element;//¼ÇÂ¼Ã¿¸öÔªËØÖµ: Ä¿Ç°Ö»Ö§³Ö¶şÎ¬Êı×é
-	Bool *nac;//false_ ±íÊ¾ÖµÊÇÈ·¶¨µÄ£»ture±íÊ¾Öµ²»¶¨£»
-	Bool *undefine;//²»È·¶¨Öµ£»
-	//Bool extern_static;//ÓÃÓÚ±êÊ¶½ÚµãÊÇ·ñÊÇÈ«¾Ö±äÁ¿ºÍ¾²Ì¬±äÁ¿
+	char *name;//è®°å½•æ•°ç»„å
+	Node *decl;//è®°å½•æ•°ç»„çš„å®šä¹‰ï¼Œä¸idNodeä¸­çš„ç±»ä¼¼
+	int dim;//ç»´æ•°
+	int *dimLen;//æ¯ä¸€ç»´çš„é•¿åº¦
+	int num;//å…ƒç´ çš„ä¸ªæ•°
+	Node **element;//è®°å½•æ¯ä¸ªå…ƒç´ å€¼: ç›®å‰åªæ”¯æŒäºŒç»´æ•°ç»„
+	Bool *nac;//false_ è¡¨ç¤ºå€¼æ˜¯ç¡®å®šçš„ï¼›tureè¡¨ç¤ºå€¼ä¸å®šï¼›
+	Bool *undefine;//ä¸ç¡®å®šå€¼ï¼›
+	//Bool extern_static;//ç”¨äºæ ‡è¯†èŠ‚ç‚¹æ˜¯å¦æ˜¯å…¨å±€å˜é‡å’Œé™æ€å˜é‡
 }constArrayNode;
 
-//´¦Àí¼òµ¥±äÁ¿
+//å¤„ç†ç®€å•å˜é‡
 typedef struct{
-	Bool undefine;//²»È·¶¨Öµ£»
-	Bool nac;//false_ ±íÊ¾ÖµÊÇÈ·¶¨µÄ£»ture±íÊ¾Öµ²»¶¨£»
-	Node *n;//½áµãµÄÄÚÈİ£»½«±äÁ¿µÄdecl½áµã×ª»¯³Éid½áµã±£´æ,²¢½«Öµ±£´æÔÚid½ÚµãµÄvalueÖĞ
-	//Bool extern_static;//ÓÃÓÚ±êÊ¶½ÚµãÊÇ·ñÊÇÈ«¾Ö±äÁ¿ºÍ¾²Ì¬±äÁ¿
+	Bool undefine;//ä¸ç¡®å®šå€¼ï¼›
+	Bool nac;//false_ è¡¨ç¤ºå€¼æ˜¯ç¡®å®šçš„ï¼›tureè¡¨ç¤ºå€¼ä¸å®šï¼›
+	Node *n;//ç»“ç‚¹çš„å†…å®¹ï¼›å°†å˜é‡çš„declç»“ç‚¹è½¬åŒ–æˆidç»“ç‚¹ä¿å­˜,å¹¶å°†å€¼ä¿å­˜åœ¨idèŠ‚ç‚¹çš„valueä¸­
+	//Bool extern_static;//ç”¨äºæ ‡è¯†èŠ‚ç‚¹æ˜¯å¦æ˜¯å…¨å±€å˜é‡å’Œé™æ€å˜é‡
 }constIdNode;
 
 
-//ÏÂÃæµÄ½á¹¹ÊÇÎª´¦Àí½á¹¹Ìå£¬¹²ÓÃÌå¡¢ÁªºÏÌåµÈ¸´ºÏ½á¹¹µÄ³£Á¿´«²¥¶øÉè¼ÆµÄ   12.2.13
+//ä¸‹é¢çš„ç»“æ„æ˜¯ä¸ºå¤„ç†ç»“æ„ä½“ï¼Œå…±ç”¨ä½“ã€è”åˆä½“ç­‰å¤åˆç»“æ„çš„å¸¸é‡ä¼ æ’­è€Œè®¾è®¡çš„   12.2.13
 
 typedef enum{Prim_Id,Prim_Array,SUE_Id,SUE_Array}SUFieldType ;
 
 typedef struct{
 	Node *decl;
-	List *SUEfields;  // constSUEFieldNodeÁ´£¬ÓÉÓÚ½á¹¹ÌåµÄ³ÉÔ±ÀàĞÍ²»Çå£¬¹ÊListµÄelementÖµÍ³Ò»ÓÃconstSUEFieldNode£¬²»½øĞĞ·ÖÀà´¦Àí£¬ÔÚ²éÕÒÊ±Ğè±éÀú
-}constSUEid; //½á¹¹Ìå±äÁ¿
+	List *SUEfields;  // constSUEFieldNodeé“¾ï¼Œç”±äºç»“æ„ä½“çš„æˆå‘˜ç±»å‹ä¸æ¸…ï¼Œæ•…Listçš„elementå€¼ç»Ÿä¸€ç”¨constSUEFieldNodeï¼Œä¸è¿›è¡Œåˆ†ç±»å¤„ç†ï¼Œåœ¨æŸ¥æ‰¾æ—¶éœ€éå†
+}constSUEid; //ç»“æ„ä½“å˜é‡
 
 typedef struct{
-	char *SUEname;//¼ÇÂ¼Êı×éÃû
-	Node *SUEdecl;//¼ÇÂ¼Êı×éµÄ¶¨Òå£¬ÓëidNodeÖĞµÄÀàËÆ
-	int SUEdim;//Î¬Êı
-	int *SUEdimLen;//Ã¿Ò»Î¬µÄ³¤¶È
-	int SUEnum;//½á¹¹ÌåÔªËØµÄ¸öÊı
-	List **SUEelement;//¼ÇÂ¼½á¹¹ÌåÊı×éÖĞÃ¿¸öÔªËØµÄÃ¿¸ö³ÉÔ±ÖµµÄÇé¿ö£¬constSUEFieldNodeÁ´
-}constSUEarray;//½á¹¹ÌåÊı×é
+	char *SUEname;//è®°å½•æ•°ç»„å
+	Node *SUEdecl;//è®°å½•æ•°ç»„çš„å®šä¹‰ï¼Œä¸idNodeä¸­çš„ç±»ä¼¼
+	int SUEdim;//ç»´æ•°
+	int *SUEdimLen;//æ¯ä¸€ç»´çš„é•¿åº¦
+	int SUEnum;//ç»“æ„ä½“å…ƒç´ çš„ä¸ªæ•°
+	List **SUEelement;//è®°å½•ç»“æ„ä½“æ•°ç»„ä¸­æ¯ä¸ªå…ƒç´ çš„æ¯ä¸ªæˆå‘˜å€¼çš„æƒ…å†µï¼ŒconstSUEFieldNodeé“¾
+}constSUEarray;//ç»“æ„ä½“æ•°ç»„
 
 typedef struct{
-	List* SUEid;//½á¹¹Ìå±äÁ¿Á´   £¬constSUEidÁ´
-	List* SUEarray;//½á¹¹ÌåÊı×éÁ´ £¬constSUEarrayÁ´
+	List* SUEid;//ç»“æ„ä½“å˜é‡é“¾   ï¼ŒconstSUEidé“¾
+	List* SUEarray;//ç»“æ„ä½“æ•°ç»„é“¾ ï¼ŒconstSUEarrayé“¾
 }constSUENode;
 
 typedef struct{
@@ -61,21 +61,21 @@ typedef struct{
 }constSUEFieldNode;
 
 typedef struct{
-	SUEtype *type;	//½á¹¹ÌåÀàĞÍ
-	constSUENode *SUEnode;	//½á¹¹ÌåÀàĞÍµÄÊµÀı
+	SUEtype *type;	//ç»“æ„ä½“ç±»å‹
+	constSUENode *SUEnode;	//ç»“æ„ä½“ç±»å‹çš„å®ä¾‹
 }constSUE;
 
 typedef struct{
 	List *idFlowList;
 	List *arrayFlowList;
-	List *SUEFlowList;//constSUEÁ´
+	List *SUEFlowList;//constSUEé“¾
 }propagatorNode;
 
-PRIVATE List *SUEList=NULL;//ÓÃÓÚÊÕ¼¯ËùÓĞµÄ½á¹¹ÌåÀàĞÍ£¬²¢´¦Àí
-/*´¦Àí½á¹¹ÌåËùÉè¼ÆµÄ½á¹¹µ½´ËÎªÖ¹*/
+PRIVATE List *SUEList=NULL;//ç”¨äºæ”¶é›†æ‰€æœ‰çš„ç»“æ„ä½“ç±»å‹ï¼Œå¹¶å¤„ç†
+/*å¤„ç†ç»“æ„ä½“æ‰€è®¾è®¡çš„ç»“æ„åˆ°æ­¤ä¸ºæ­¢*/
 PRIVATE List *gProgram = NULL;
-PRIVATE List *idList = NULL;//ÓÃÓÚÊÕ¼¯ËùÓĞµÄid½Úµã£¬×îÖÕidListÖĞµÄÄÚÈİ¾ÍÊÇËùÓĞµÄ³£Á¿½Úµã£»
-PRIVATE List *arrayList = NULL;//ÓÃÓÚ´¦ÀíÊı×é½áµã£»
+PRIVATE List *idList = NULL;//ç”¨äºæ”¶é›†æ‰€æœ‰çš„idèŠ‚ç‚¹ï¼Œæœ€ç»ˆidListä¸­çš„å†…å®¹å°±æ˜¯æ‰€æœ‰çš„å¸¸é‡èŠ‚ç‚¹ï¼›
+PRIVATE List *arrayList = NULL;//ç”¨äºå¤„ç†æ•°ç»„ç»“ç‚¹ï¼›
 
 PRIVATE FlowValue initflow;
 
@@ -103,7 +103,7 @@ GLOBAL FlowValue InitSUENode(Node *node);
 GLOBAL FlowValue InsertSUEdecltoFlow(Node *decl,FlowValue v);
 GLOBAL  FlowValue TransfromDot(Node *node , FlowValue v);
 GLOBAL FlowValue AlterDot(Node *node, Node *value, FlowValue v);
-//º¯ÊıÉùÃ÷
+//å‡½æ•°å£°æ˜
 GLOBAL void RWV_listwalk(List *l,FlowValue v);
 GLOBAL void ReplaceWorkVar(Node *node,FlowValue v);
 GLOBAL  Node *GetValue(Node *node);

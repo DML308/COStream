@@ -6,40 +6,40 @@
 
 extern "C"
 {
-	extern Bool X10DistributedBackEnd;/*´úÂëÉú³ÉÑ¡Ôñ¡°ÍÆÊı¾İ¡±Í¨ĞÅÄ£ĞÍx10µÄºó¶Ë*/
+	extern Bool X10DistributedBackEnd;/*ä»£ç ç”Ÿæˆé€‰æ‹©â€œæ¨æ•°æ®â€é€šä¿¡æ¨¡å‹x10çš„åç«¯*/
 	extern int CpuCoreNum;
-	extern int NThreads;/*±íÊ¾Ñ¡ÔñµÄthreads¸öÊı*/
+	extern int NThreads;/*è¡¨ç¤ºé€‰æ‹©çš„threadsä¸ªæ•°*/
 };
 
 class Partition
 {
 public:
-	//ËùÓĞµ÷¶È·½·¨¾ù»áÊ¹ÓÃµ½µÄ³ÉÔ±±äÁ¿
-	std::map<FlatNode *,int>FlatNode2PartitionNum;//½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
-	std::multimap<int,FlatNode *>PartitonNum2FlatNode;//»®·Ö±àºÅµ½½ÚµãµÄÓ³Éä
-	std::vector<FlatNode*>PartitonNumSet;//ÓÃÓÚ¼ÇÂ¼·µ»ØµÄ½Úµã¼¯ºÏ 
-	int mnparts;//»®·ÖµÄ·İÊı£¬ÒÀÀµÓÚÖ¸¶¨µÄplaces¸öÊı
+	//æ‰€æœ‰è°ƒåº¦æ–¹æ³•å‡ä¼šä½¿ç”¨åˆ°çš„æˆå‘˜å˜é‡
+	std::map<FlatNode *,int>FlatNode2PartitionNum;//èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
+	std::multimap<int,FlatNode *>PartitonNum2FlatNode;//åˆ’åˆ†ç¼–å·åˆ°èŠ‚ç‚¹çš„æ˜ å°„
+	std::vector<FlatNode*>PartitonNumSet;//ç”¨äºè®°å½•è¿”å›çš„èŠ‚ç‚¹é›†åˆ 
+	int mnparts;//åˆ’åˆ†çš„ä»½æ•°ï¼Œä¾èµ–äºæŒ‡å®šçš„placesä¸ªæ•°
 
 
 public:
 	Partition();
-	int getParts();//·µ»Ø»®·Ö¸öÊımnparts
-	void setCpuCoreNum(int,SchedulerSSG*);//ÉèÖÃplaceÊıÄ¿£¨¼´½ø³ÌÊıÄ¿£©
-	int findID(SchedulerSSG *sssg,FlatNode *flatnode);//¸ù¾İflatnodeÕÒµ½ÆäÏÂ±êºÅ Èçsource_0ÖĞµÄ0
-	std::vector<FlatNode *>findNodeSetInPartition(int partitionNum);//¸ù¾İ±àºÅnum²éÕÒÆäÖĞµÄ½Úµã£¬½«½Úµã¼¯ºÏ·µ»Ø¸øPartitonNumSet(±àºÅ->½Úµã)
-	int findPartitionNumForFlatNode(FlatNode *flatnode);//¸ù¾İ½Úµã·µ»ØÆäËùÔÚ»®·ÖÇøµÄ±àºÅ(½Úµã->±àºÅ)
-	int Adjust(SchedulerSSG *sssg, int mode);//µ÷Õû»®·Ö½á¹û±ÜÃâËÀËø
-	void FinalAdjust(SchedulerSSG *sssg);//Ã¿¸öasyncÖ»ÄÜÔÊĞíÓĞÒ»¸öÁ¬Í¨×ÓÍ¼
-	bool IsDeadLock(const std::vector<FlatNode *> &,const std::vector<FlatNode *> &, const int);//¼ì²éÁ½½Úµã¼¯ºÏÊÇ·ñ´æÔÚÏà»¥µÈ´ı
-	void AddDownFlatnodes(std::vector<FlatNode *> &,const std::vector<FlatNode *> &);//ÕÒµ½Í¬Ò»¼¯ºÏÖĞ½ÚµãµÄËùÓĞÏÂÓÎ½Úµã
-	void AddUpFlatnodes(std::vector<FlatNode *> &,const std::vector<FlatNode *> &);//ÕÒµ½Í¬Ò»¼¯ºÏÖĞ½ÚµãµÄËùÓĞÉÏÓÎ½Úµã
-	FlatNode *FindTopFlatnode(const std::vector<FlatNode *> &);//ÕÒµ½¼¯ºÏÖĞÍØÆËÅÅĞòµÄ¶¥¶Ë½Úµã
-	void AddFlatnodes(std::vector<FlatNode *> &,const std::vector<FlatNode *> &);//ÔÚvector½áÎ²Ìí¼Óflatnodes
+	int getParts();//è¿”å›åˆ’åˆ†ä¸ªæ•°mnparts
+	void setCpuCoreNum(int,SchedulerSSG*);//è®¾ç½®placeæ•°ç›®ï¼ˆå³è¿›ç¨‹æ•°ç›®ï¼‰
+	int findID(SchedulerSSG *sssg,FlatNode *flatnode);//æ ¹æ®flatnodeæ‰¾åˆ°å…¶ä¸‹æ ‡å· å¦‚source_0ä¸­çš„0
+	std::vector<FlatNode *>findNodeSetInPartition(int partitionNum);//æ ¹æ®ç¼–å·numæŸ¥æ‰¾å…¶ä¸­çš„èŠ‚ç‚¹ï¼Œå°†èŠ‚ç‚¹é›†åˆè¿”å›ç»™PartitonNumSet(ç¼–å·->èŠ‚ç‚¹)
+	int findPartitionNumForFlatNode(FlatNode *flatnode);//æ ¹æ®èŠ‚ç‚¹è¿”å›å…¶æ‰€åœ¨åˆ’åˆ†åŒºçš„ç¼–å·(èŠ‚ç‚¹->ç¼–å·)
+	int Adjust(SchedulerSSG *sssg, int mode);//è°ƒæ•´åˆ’åˆ†ç»“æœé¿å…æ­»é”
+	void FinalAdjust(SchedulerSSG *sssg);//æ¯ä¸ªasyncåªèƒ½å…è®¸æœ‰ä¸€ä¸ªè¿é€šå­å›¾
+	bool IsDeadLock(const std::vector<FlatNode *> &,const std::vector<FlatNode *> &, const int);//æ£€æŸ¥ä¸¤èŠ‚ç‚¹é›†åˆæ˜¯å¦å­˜åœ¨ç›¸äº’ç­‰å¾…
+	void AddDownFlatnodes(std::vector<FlatNode *> &,const std::vector<FlatNode *> &);//æ‰¾åˆ°åŒä¸€é›†åˆä¸­èŠ‚ç‚¹çš„æ‰€æœ‰ä¸‹æ¸¸èŠ‚ç‚¹
+	void AddUpFlatnodes(std::vector<FlatNode *> &,const std::vector<FlatNode *> &);//æ‰¾åˆ°åŒä¸€é›†åˆä¸­èŠ‚ç‚¹çš„æ‰€æœ‰ä¸Šæ¸¸èŠ‚ç‚¹
+	FlatNode *FindTopFlatnode(const std::vector<FlatNode *> &);//æ‰¾åˆ°é›†åˆä¸­æ‹“æ‰‘æ’åºçš„é¡¶ç«¯èŠ‚ç‚¹
+	void AddFlatnodes(std::vector<FlatNode *> &,const std::vector<FlatNode *> &);//åœ¨vectorç»“å°¾æ·»åŠ flatnodes
 	int FindFlatnode(const std::vector<FlatNode *> &, const FlatNode *);
-	double SumOfWork(const std::vector<FlatNode *> &);//¼ÆËã½ÚµãµÄ¹¤×÷Á¿Ö®ºÍ
-	int UnLock(const std::vector<FlatNode *> &, const std::vector<FlatNode *> &, const int);//½âËø£¬Ö±½ÓËÀËø
-	//ÒÔÏÂÊÇ»®·Ö³ÉÔ±·½·¨£¬¾ßÌåÊµÏÖÓÉ×ÓÀàÊµÏÖ
-	virtual void SssgPartition(SchedulerSSG *sssg ,int level)=0;//»®·Ö³ÉÔ±·½·¨£¬¾ßÌåÊµÏÖÓÉ×ÓÀàÊµÏÖ
+	double SumOfWork(const std::vector<FlatNode *> &);//è®¡ç®—èŠ‚ç‚¹çš„å·¥ä½œé‡ä¹‹å’Œ
+	int UnLock(const std::vector<FlatNode *> &, const std::vector<FlatNode *> &, const int);//è§£é”ï¼Œç›´æ¥æ­»é”
+	//ä»¥ä¸‹æ˜¯åˆ’åˆ†æˆå‘˜æ–¹æ³•ï¼Œå…·ä½“å®ç°ç”±å­ç±»å®ç°
+	virtual void SssgPartition(SchedulerSSG *sssg ,int level)=0;//åˆ’åˆ†æˆå‘˜æ–¹æ³•ï¼Œå…·ä½“å®ç°ç”±å­ç±»å®ç°
 	virtual ~Partition(){}
 	inline std::map<FlatNode *,int>GetFlatNode2PartitionNum(void)
 	{
