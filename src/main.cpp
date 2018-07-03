@@ -1028,7 +1028,7 @@ GLOBAL int main(int argc, char *argv[])
             output_dir += '\\';
         }
         string tmpbuf=output_dir;
-        posbuf=tmpbuf.find_last_of('\');
+        posbuf=tmpbuf.find_last_of('\\');
         if(posbuf==-1)//只是指定了目标文件的名称
         {
         }
