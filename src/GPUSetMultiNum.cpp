@@ -2,7 +2,7 @@
 using namespace std;
 GPUSetMultiNum::GPUSetMultiNum(SchedulerSSG *sssg,StageAssignment *PSA)
 {
-	CpuTotalBufferSize = 23866253312-500*1024*1024; //µ¥Î»×Ö½Ú
+	CpuTotalBufferSize = 23866253312-500*1024*1024; //å•ä½å­—èŠ‚
 	GpuTotalBufferSize = 3145728000-500*1024*1024;  //3071M
 	CpuNeededBuffer = 0;
 	GpuNeededBuffer = 0;
@@ -19,7 +19,7 @@ void GPUSetMultiNum::GetCpuAndGpuNeededBuffer(SchedulerSSG *sssg,HAFLPartition *
 {
 	vector<int>::iterator iter;
 	vector<FlatNode *>::iterator iter_1,iter_2;
-	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//±éÀúËùÓĞ½áµã
+	for (iter_1=flatNodes_.begin();iter_1!=flatNodes_.end();++iter_1)//éå†æ‰€æœ‰ç»“ç‚¹
 	{
 		iter=(*iter_1)->outPushWeights.begin();
 		for (iter_2=(*iter_1)->outFlatNodes.begin();iter_2!=(*iter_1)->outFlatNodes.end();iter_2++)
@@ -60,7 +60,7 @@ void GPUSetMultiNum::GetCpuAndGpuNeededBuffer(SchedulerSSG *sssg,HAFLPartition *
 void GPUSetMultiNum::SetMultiNum(SchedulerSSG *sssg,HAFLPartition *haflp)
 {
 	GetCpuAndGpuNeededBuffer(sssg,haflp);
-	double MaxMultiNum;  //À©´ó±¶ÊıÉÏÏŞ
+	double MaxMultiNum;  //æ‰©å¤§å€æ•°ä¸Šé™
 	if (CpuNeededBuffer != 0)
 	{
 		MaxMultiNum = CpuTotalBufferSize / CpuNeededBuffer;

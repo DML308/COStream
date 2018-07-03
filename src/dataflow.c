@@ -53,7 +53,7 @@
 #pragma ident "dataflow.c,v 1.4 1995/05/11 18:54:19 rcm Exp Copyright 1994 Massachusetts Institute of Technology"
 
 #include "ast.h"
-//zww¸ºÔğÊı¾İÁ÷²¿·Ö
+//zwwè´Ÿè´£æ•°æ®æµéƒ¨åˆ†
 
 
 /*************************************************************************
@@ -444,7 +444,7 @@ PRIVATE inline FlowValue DataFlowCase(Node *node, CaseNode *u, FlowValue v)
 	  value=GetValue(u->container->u.Switch.expr);
 	  casevalue=GetValue(node->u.Case.expr);
 	  if(value!=NULL&&(!CompareConstValue(value->u.Const,casevalue->u.Const))&& v.undefined==TRUE)
-	  {//ÖµÏàµÈ
+	  {//å€¼ç›¸ç­‰
 		  //v1=Meet(v,u->container->u.Switch.switch_values);
 		  u->container->u.Switch.break_values.undefined=TRUE;
 		  e.undefined=TRUE;
@@ -472,7 +472,7 @@ PRIVATE inline FlowValue DataFlowCase(Node *node, CaseNode *u, FlowValue v)
 
 	  }
 	  else if(value!=NULL&&(!CompareConstValue(value->u.Const,casevalue->u.Const))&& v.undefined==FALSE )
-	  {//ÖµÏàµÈ
+	  {//å€¼ç›¸ç­‰
 		  //v1=Meet(v,u->container->u.Switch.switch_values);
 		  u->container->u.Switch.break_values.undefined=TRUE;
 		  e.undefined=TRUE;
@@ -498,7 +498,7 @@ PRIVATE inline FlowValue DataFlowCase(Node *node, CaseNode *u, FlowValue v)
 
 	  }
 	  else if(value!=NULL&&(CompareConstValue(value->u.Const,casevalue->u.Const))&& v.undefined==FALSE && break_flag==TRUE)
-	  {//Öµ²»ÏàµÈ£¬ÉÏÒ»¸öcaseºóÃ»ÓĞbreak
+	  {//å€¼ä¸ç›¸ç­‰ï¼Œä¸Šä¸€ä¸ªcaseåæ²¡æœ‰break
 		  e.undefined=TRUE;
 		  FlowInto(&e,Entry(node,u->container->u.Switch.switch_values));
 		  e.undefined=FALSE;
@@ -521,7 +521,7 @@ PRIVATE inline FlowValue DataFlowCase(Node *node, CaseNode *u, FlowValue v)
 		  }
 	  }
 	  else if(value!=NULL&&(CompareConstValue(value->u.Const,casevalue->u.Const))) 
-	  {	//Öµ²»ÏàµÈ,µ«ÉÏÒ»¸öcaseºóÓĞbreak
+	  {	//å€¼ä¸ç›¸ç­‰,ä½†ä¸Šä¸€ä¸ªcaseåæœ‰break
 		  break_flag=FALSE;
 		  e.undefined=TRUE;
 		  v.undefined=FALSE;
@@ -726,7 +726,7 @@ PRIVATE inline FlowValue DataFlowFor(Node *node, ForNode *u, FlowValue v)
 	{
 		FlowValue src, tmp;//zww
 
-		//Ä¿Ç°Ö»Õë¶ÔÑ­»·Ìõ¼ş±í´ïÊ½²»Îª¿ÕµÄÇé¿ö
+		//ç›®å‰åªé’ˆå¯¹å¾ªç¯æ¡ä»¶è¡¨è¾¾å¼ä¸ä¸ºç©ºçš„æƒ…å†µ
 		assert (u->cond != NULL);
 
 		src = DataFlow(u->init, Entry(node, v));
@@ -740,11 +740,11 @@ PRIVATE inline FlowValue DataFlowFor(Node *node, ForNode *u, FlowValue v)
 		{
 			u->break_values.undefined = TRUE;
 			u->continue_values.undefined = TRUE;
-			//forµÄÓï¾ä²¿·ÖÔÚ´ËÄ£ÄâÖ´ĞĞÁË
+			//forçš„è¯­å¥éƒ¨åˆ†åœ¨æ­¤æ¨¡æ‹Ÿæ‰§è¡Œäº†
 			ConstFlowInto(&u->loop_values, DataFlow(u->stmt, src));
-			//forÀïÃæµÄbreakÓï¾äÃüÖĞ
+			//foré‡Œé¢çš„breakè¯­å¥å‘½ä¸­
 			if(u->break_values.undefined == FALSE) break;
-			//forÀïÃæµÄcontinueÓï¾äÃüÖĞ
+			//foré‡Œé¢çš„continueè¯­å¥å‘½ä¸­
  			if(u->continue_values.undefined == FALSE && src.undefined == FALSE) 
  			{
  				ConstFlowInto(&u->loop_values, u->continue_values);
@@ -752,7 +752,7 @@ PRIVATE inline FlowValue DataFlowFor(Node *node, ForNode *u, FlowValue v)
  			}
 
 			ConstFlowInto(&u->break_values, u->loop_values);
-			//forµÄnext±í´ïÊ½²¿·ÖÔÚ´ËÄ£ÄâÖ´ĞĞÁË
+			//forçš„nextè¡¨è¾¾å¼éƒ¨åˆ†åœ¨æ­¤æ¨¡æ‹Ÿæ‰§è¡Œäº†
 			tmp = DataFlow(u->next, u->break_values);
 			src = DataFlow(u->cond, tmp);
 		}
@@ -994,7 +994,7 @@ PRIVATE inline FlowValue DataFlowComposite(Node *node, compositeNode *u, FlowVal
 		printf("DataFlowComposite: %s ENTER!\n", u->decl->u.decl.name);
 #endif
 		u->composite_values.undefined = TRUE;
-		// Êı¾İÁ÷½øÈëĞÂ½Úµã
+		// æ•°æ®æµè¿›å…¥æ–°èŠ‚ç‚¹
 		FlowInto(&u->composite_values, v); 
 		u->composite_values.undefined = FALSE;
 		DataFlow(u->body, u->composite_values);
@@ -1046,7 +1046,7 @@ PRIVATE inline FlowValue DataFlowParam(Node *node, paramNode *u, FlowValue v)
 
 		//PrintList(stdout, u->parameters, -1);
 
-		src = DataFlowSerialList(u->parameters, v); // ¸ÃÓï¾äµÄÖ÷Òª×÷ÓÃ¾ÍÊÇ½«ĞÎ²Î¼ÓÈëµ½³£Á¿±íÖĞ, ²»ÄÜÉ¾£¬ModifyParam¿ÉÄÜÒªĞŞ¸Ä, 12.06
+		src = DataFlowSerialList(u->parameters, v); // è¯¥è¯­å¥çš„ä¸»è¦ä½œç”¨å°±æ˜¯å°†å½¢å‚åŠ å…¥åˆ°å¸¸é‡è¡¨ä¸­, ä¸èƒ½åˆ ï¼ŒModifyParamå¯èƒ½è¦ä¿®æ”¹, 12.06
 
 		src = Exit(node, src);
 
@@ -1059,7 +1059,7 @@ PRIVATE inline FlowValue DataFlowParam(Node *node, paramNode *u, FlowValue v)
 				Exit(node,v)));
 }
 
-//cwbÊı¾İÁ÷½øÈë×Ô¶¨ÒåµÄOperator
+//cwbæ•°æ®æµè¿›å…¥è‡ªå®šä¹‰çš„Operator
 operatorNode *tempoperatornode;
 PRIVATE inline FlowValue DataFlowOperator_(Node *node, operatorNode *u, FlowValue v)
 {
@@ -1096,7 +1096,7 @@ PRIVATE inline FlowValue DataFlowOperBody(Node *node, operBodyNode *u, FlowValue
 		tmp= Entry(node,v);
 		if(u->state) RWV_listwalk(u->state,tmp);
 		if(u->init)ReplaceWorkVar(u->init,tmp);
-		ReplaceWorkVar(u->work,tmp);//½«workÖĞËùÓĞµÄ±äÁ¿µÄÖµÈ¡³ö
+		ReplaceWorkVar(u->work,tmp);//å°†workä¸­æ‰€æœ‰çš„å˜é‡çš„å€¼å–å‡º
 		return Exit(node,
 				DataFlowSerialList(u->window,tmp));
 	}
@@ -1125,7 +1125,7 @@ PRIVATE inline FlowValue DataFlowWindow(Node *node, windowNode *u, FlowValue v)
 				DataFlow(u->wtype,
 					Entry(node,v))));
 }
-//ÔÚslidingNodeºÍtumblingNodeÖĞ¼Ó¸öÌæ»»º¯ÊıÊÇÔ­countºóÃæµÄcountÖµÈ«²¿Îª³£Êı
+//åœ¨slidingNodeå’ŒtumblingNodeä¸­åŠ ä¸ªæ›¿æ¢å‡½æ•°æ˜¯åŸcountåé¢çš„countå€¼å…¨éƒ¨ä¸ºå¸¸æ•°
 PRIVATE inline FlowValue DataFlowSliding(Node *node, slidingNode *u, FlowValue v)
 {
 	if(Forw){
@@ -1182,32 +1182,32 @@ PRIVATE inline FlowValue DataFlowCompositeCall(Node *node, comCallNode *u, FlowV
 	
 	
 	
-	if(Forw) //ÒªÕ¹¿ª		
+	if(Forw) //è¦å±•å¼€		
 	{	FlowValue src;
-		/* ´¦ÓÚÕ¹¿ª½Úµã×´Ì¬, ²»ÄÜ¶Ôactual_composite½øĞĞ³£Á¿´«²¥£¬Ó¦Ö±½Ó·µ»Ø, ÔÙ¶Ôreplace_composite×ö³£Á¿´«²¥,
-		×¢Òâ£ºÃ»ÓĞ±ØÒª¶Ôu->call½øĞĞ¿½±´µÈ²Ù×÷£¬ÒòÎªÔÚ¶Ôreplace_composite½øĞĞ³£Á¿´«²¥Ê±»á×Ô¶¯¿½±´ */
+		/* å¤„äºå±•å¼€èŠ‚ç‚¹çŠ¶æ€, ä¸èƒ½å¯¹actual_compositeè¿›è¡Œå¸¸é‡ä¼ æ’­ï¼Œåº”ç›´æ¥è¿”å›, å†å¯¹replace_compositeåšå¸¸é‡ä¼ æ’­,
+		æ³¨æ„ï¼šæ²¡æœ‰å¿…è¦å¯¹u->callè¿›è¡Œæ‹·è´ç­‰æ“ä½œï¼Œå› ä¸ºåœ¨å¯¹replace_compositeè¿›è¡Œå¸¸é‡ä¼ æ’­æ—¶ä¼šè‡ªåŠ¨æ‹·è´ */
 		if (gIsInPipeline || gIsInSplitJoin)
 		{
 			Node *newNode = NodeCopy(node, Subtree);
 			//PrintList(stdout, u->operdcl->u.operdcl.arguments, 0);
-			// ¶ÔÊµ²Î½øĞĞ³£Á¿´«²¥
+			// å¯¹å®å‚è¿›è¡Œå¸¸é‡ä¼ æ’­
 			src = DataFlow(newNode->u.comCall.operdcl, v);
 			gCurrentCompositeCallList = AppendItem(gCurrentCompositeCallList, newNode);
 			return src;
 		}
-		// ¶ÔÊµ²Î½øĞĞ³£Á¿´«²¥
-		if (u->style == TRUE) // SPL·½Ê½µÄcall£¬ËµÃ÷²»ÔÚpipeline,splitjoinÌåÄÚ£¬Òò´Ë¿ÉÒÔ½øĞĞ³£Á¿´«²¥
+		// å¯¹å®å‚è¿›è¡Œå¸¸é‡ä¼ æ’­
+		if (u->style == TRUE) // SPLæ–¹å¼çš„callï¼Œè¯´æ˜ä¸åœ¨pipeline,splitjoinä½“å†…ï¼Œå› æ­¤å¯ä»¥è¿›è¡Œå¸¸é‡ä¼ æ’­
 			src = DataFlow(u->operdcl, Entry(node, v));
 		else
-			src = v; // ²»ÓÃ½øĞĞ³£Á¿´«²¥ÁË£¬ÔÚÕ¹¿ªÊ±ÒÑ¾­½øĞĞ¹ıÁË
-		// ¶Ôu->callÖ¸ÏòµÄ½áµãÉî¿½±´
+			src = v; // ä¸ç”¨è¿›è¡Œå¸¸é‡ä¼ æ’­äº†ï¼Œåœ¨å±•å¼€æ—¶å·²ç»è¿›è¡Œè¿‡äº†
+		// å¯¹u->callæŒ‡å‘çš„ç»“ç‚¹æ·±æ‹·è´
 
 		//PrintNode(stdout, node, 0);
 	
 		node = TransformOperator(node);   
 
 		//PrintNode(stdout, node, 0);
-		// ĞŞ¸Ä¿½±´ºóµÄcompositeµÄparam
+		// ä¿®æ”¹æ‹·è´åçš„compositeçš„param
 		node = ModifyCompositeParam(node, &node->u.comCall, src);
 		//node = ModifyCompositeParam(node, src);
 		DataFlow(u->actual_composite, src);
@@ -1244,7 +1244,7 @@ PRIVATE inline FlowValue DataFlowPipeline(Node *node, PipelineNode *u, FlowValue
 				DataFlowSerialList(u->decl,
 					Entry(node, v)));
 
-		// ĞÅÏ¢ÊÕ¼¯Íê±Ï£¬¿ÉÒÔÕ¹¿ª½Úµã
+		// ä¿¡æ¯æ”¶é›†å®Œæ¯•ï¼Œå¯ä»¥å±•å¼€èŠ‚ç‚¹
 		u->replace_composite = UnfoldPipeline(node);
 
 		assert(gIsInPipeline == TRUE);
@@ -1293,7 +1293,7 @@ PRIVATE inline FlowValue DataFlowSplitJoin(Node *node, SplitJoinNode *u, FlowVal
 								DataFlowSerialList(u->decl, 
 									Entry(node, v))))));
 
-		// ĞÅÏ¢ÊÕ¼¯Íê±Ï£¬¿ÉÒÔÕ¹¿ª½Úµã
+		// ä¿¡æ¯æ”¶é›†å®Œæ¯•ï¼Œå¯ä»¥å±•å¼€èŠ‚ç‚¹
 		u->replace_composite = UnfoldSplitJoin(node);
 		assert(gLevelSplitjoin > 0);
 		gLevelSplitjoin--;
@@ -1320,13 +1320,13 @@ PRIVATE inline FlowValue DataFlowSplit(Node *node, splitNode *u, FlowValue v)
 		FlowValue tmp;
 		if (u->type->typ == RoundRobin)
 		{
-			tmp = DataFlow(u->type, Entry(node, v));//zww:20120801 ĞŞ¸Ä¶Ô²ÎÊıÊÇ±äÁ¿µÄÖ§³Ö
+			tmp = DataFlow(u->type, Entry(node, v));//zww:20120801 ä¿®æ”¹å¯¹å‚æ•°æ˜¯å˜é‡çš„æ”¯æŒ
 			gIsRoundrobin = TRUE;
 			gCurrentSplitList = u->type->u.roundrobin.arguments;
 		}
 		else
 		{
-			tmp = DataFlow(u->type, Entry(node, v));//zww:20120801 ĞŞ¸Ä¶Ô²ÎÊıÊÇ±äÁ¿µÄÖ§³Ö
+			tmp = DataFlow(u->type, Entry(node, v));//zww:20120801 ä¿®æ”¹å¯¹å‚æ•°æ˜¯å˜é‡çš„æ”¯æŒ
 			gIsDuplicate = TRUE;
 			if (u->type->u.duplicate.expr != NULL)
 				gCurrentSplitList = MakeNewList(u->type->u.duplicate.expr);
@@ -1344,7 +1344,7 @@ PRIVATE inline FlowValue DataFlowJoin(Node *node, joinNode *u, FlowValue v)
 { 
 	if (Forw)
 	{
-		FlowValue tmp = DataFlow(u->type, Entry(node, v));//zww:20120801 ĞŞ¸Ä¶Ô²ÎÊıÊÇ±äÁ¿µÄÖ§³Ö
+		FlowValue tmp = DataFlow(u->type, Entry(node, v));//zww:20120801 ä¿®æ”¹å¯¹å‚æ•°æ˜¯å˜é‡çš„æ”¯æŒ
 		gCurrentJoinList = u->type->u.roundrobin.arguments;
 		return Exit(node, tmp);
 	}
@@ -1433,7 +1433,7 @@ if (list == NULL|| v.undefined == TRUE)
 PRIVATE inline FlowValue DataFlowBranch(Node *cond, Node *true_, Node *false_, FlowValue v)
 {
 	FlowValue c, t, f;
-	if (Forw) {//³£Á¿´«²¥Ò»°ãÓÃ²»µ½, LXX: 12.05
+	if (Forw) {//å¸¸é‡ä¼ æ’­ä¸€èˆ¬ç”¨ä¸åˆ°, LXX: 12.05
 		c = DataFlow(cond, v);
 		t = DataFlow(true_, c);
 		f = DataFlow(false_, c);

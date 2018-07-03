@@ -7,11 +7,11 @@ class ActorStateDetector
 {
 public:
 	ActorStateDetector(operatorNode *op){ opNode = op;stateful = FALSE;};
-	/*判断actor是否是stateful*/
+	/*鍒ゆ柇actor鏄惁鏄痵tateful*/
 	void hasMutableState();	
-	/*判断一个变量是否是mutable变量*/
+	/*鍒ゆ柇涓�涓彉閲忔槸鍚︽槸mutable鍙橀噺*/
 	void IsMutableVar(List *list,Node *node);
-	/*用于遍历work函数内的信息*/
+	/*鐢ㄤ簬閬嶅巻work鍑芥暟鍐呯殑淇℃伅*/
 	void FSD_astwalk(Node *n,List *list);  
 	void FSD_listwalk(List *l,List *list);
 	Bool GetOperatorState(){return stateful;}

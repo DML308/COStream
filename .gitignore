@@ -1,7 +1,7 @@
 .DS_Store
 */.DS_Store
-src/3rdpart/parmetis-4.0.3/metis/build/*
-src/3rdpart/parmetis-4.0.3/build/*
+src/3rdpart/parmetis-4.0/metis/build/*
+src/3rdpart/parmetis-4.0/build/*
 src/3rdpart/include/libmetis.a
 src/3rdpart/lib/libmetis.a
 src/COStreamC
@@ -11,3 +11,4 @@ src/y.tab.h
 src/lex.c
 src/parser.c
 *~
+*.bak

@@ -9,17 +9,17 @@ string do_fraction(double v, int decplaces=3)
 {
 	ostringstream out;
 	int prec=numeric_limits<double>::digits10;// 18
-	out.precision(prec);//¸²¸ÇÄ¬ÈÏ¾«¶È
+	out.precision(prec);//è¦†ç›–é»˜è®¤ç²¾åº¦
 	out<<v;
-	string str= out.str(); //´ÓÁ÷ÖĞÈ¡³ö×Ö·û´®×Ö´®8
-	char DECIMAL_POINT='.'; // Å·ÖŞÓÃ·¨Îª','
+	string str= out.str(); //ä»æµä¸­å–å‡ºå­—ç¬¦ä¸²å­—ä¸²8
+	char DECIMAL_POINT='.'; // æ¬§æ´²ç”¨æ³•ä¸º','
 	size_t n=str.find(DECIMAL_POINT);
-	if ((n!=string::npos) && (str.size()> n+decplaces)) //ºóÃæÖÁÉÙ»¹ÓĞdecplacesÎ»Âğ£¿
+	if ((n!=string::npos) && (str.size()> n+decplaces)) //åé¢è‡³å°‘è¿˜æœ‰decplacesä½å—ï¼Ÿ
 	{
-		str[n+decplaces]='\0';//¸²¸ÇµÚÒ»¸ö¶àÓàµÄÊı
+		str[n+decplaces]='\0';//è¦†ç›–ç¬¬ä¸€ä¸ªå¤šä½™çš„æ•°
 	}
-	//str.swap(string(str.c_str()));//É¾³ınulÖ®ºóµÄ¶àÓà×Ö·û
-	str.swap(*(new string(str.c_str())));//É¾³ınulÖ®ºóµÄ¶àÓà×Ö·û
+	//str.swap(string(str.c_str()));//åˆ é™¤nulä¹‹åçš„å¤šä½™å­—ç¬¦
+	str.swap(*(new string(str.c_str())));//åˆ é™¤nulä¹‹åçš„å¤šä½™å­—ç¬¦
 	return str;
 } 
 
@@ -42,15 +42,15 @@ GLOBAL void ComputeSpeedup(SchedulerSSG *sssg,Partition *mp,string sourceFileNam
 	day=tim.tm_mday; 
 	mon=tim.tm_mon+1; 
 	year=tim.tm_year+1900; 
-	int min=tim.tm_min; /*·Ö,0-59*/ 
-	int hour=tim.tm_hour; /*Ê±,0-23*/ 
+	int min=tim.tm_min; /*åˆ†,0-59*/ 
+	int hour=tim.tm_hour; /*æ—¶,0-23*/ 
 
 	buf <<"----------------------"<<sourceFileName<<" - "<<pSelected<<"("<<mp->getParts() <<") "<<year<<"-"<<mon<<"-"<<day<<","<<hour<<"."<<min<<"---------------------\n";
 	buf<<"#######################  Partition info  ##########################\n";
 	buf<<"part\t\tworkload\t\tpercent\n";
 	buff<<"######################## Detail ############################\n";
 	buff<<"part\t\tactor\t\t\t\t\tworkload\t\t\tpercent\n";
-	for (int i=0;i<mp->getParts();i++)//±éÀúÃ¿¸öplace
+	for (int i=0;i<mp->getParts();i++)//éå†æ¯ä¸ªplace
 	{
 		vector<FlatNode *> tmp = mp->findNodeSetInPartition(i);
 		double total_inplace=0.0;

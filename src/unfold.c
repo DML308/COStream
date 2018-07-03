@@ -3,29 +3,29 @@
 
 #include "ast.h"
 /****************************************
-Ö÷ÒªÍ¨¹ı³£Á¿´«²¥Íê³ÉSplitJoin, StreamIf, 
-StreamFor, Pipeline½ÚµãµÄÕ¹¿ª¡£
+ä¸»è¦é€šè¿‡å¸¸é‡ä¼ æ’­å®ŒæˆSplitJoin, StreamIf, 
+StreamFor, PipelineèŠ‚ç‚¹çš„å±•å¼€ã€‚
 *****************************************/
 
-GLOBAL Node *gCurrentInputStreamNode = NULL; // µ±Ç°SplitJoin,PipeLine½ÚµãµÄ ÊäÈë ±ß
-GLOBAL Node *gCurrentOutputStreamNode = NULL; // µ±Ç°SplitJoin,PipeLine½ÚµãµÄ Êä³ö ±ß
-GLOBAL List *gCurrentCompositeCallList = NULL; // µ±Ç°SplitJoin,PipeLine½Úµãµ÷ÓÃµÄcompositeÁĞ±í
-GLOBAL List *gCurrentParamList[64] = {NULL}; // µ±Ç°Ë«²ãSP½á¹¹¿ÉÄÜ»áÓÃµ½µÄ²ÎÊıÁĞ±í
-GLOBAL List *gCurrentDeclList[64] = {NULL}; // µ±Ç°Ë«²ãSP½á¹¹¿ÉÄÜ»áÓÃµ½µÄ²ÎÊı¶¨ÒåÁĞ±í
-GLOBAL List *gCurrentSplitList = NULL; // µ±Ç°SplitJoin½ÚµãµÄSplit
-GLOBAL List *gCurrentJoinList = NULL; // µ±Ç°SplitJoin½ÚµãµÄJoin
-GLOBAL int gMultiSPFlag = 0; // µ±Ç°pipelineÉî¶È
-GLOBAL int gLevelPipeline = 0; // µ±Ç°pipelineÉî¶È
-GLOBAL int gLevelSplitjoin = 0; // µ±Ç°SplitJoinÉî¶È
-GLOBAL Bool gIsInSplitJoin = FALSE; // µ±Ç°Õ¹¿ªÊÇ·ñÔÚSplitJoin½Úµã
-GLOBAL Bool gIsInPipeline = FALSE; // µ±Ç°Õ¹¿ªÊÇ·ñÔÚPipeline½Úµã
-GLOBAL Bool gIsUnfold = FALSE; // ´¦ÓÚÕ¹¿ª½Úµã×´Ì¬£¬¸æÖªDefineComposite²»Òª½øĞĞÄ³Ğ©¶ÏÑÔ
-GLOBAL Bool gIsRoundrobin = FALSE; // µ±Ç°SplitJoin½ÚµãµÄSplitµÄ·ç¸ñÊÇ·ñÊÇRoundrobin
-GLOBAL Bool gIsDuplicate = FALSE; // µ±Ç°SplitJoin½ÚµãµÄSplitµÄ·ç¸ñÊÇ·ñÊÇDuplicate
-PRIVATE int  gCurrentCompositeNum = 0; // ÓÉÓÚÒª½«SplitJoin,PipeLine½Úµã×ö³É×ÓÍ¼Ä£Ê½£¬Òò´ËÒª¶Ô×ÓÍ¼È¡Ãû×Ö£¬¸Ã±äÁ¿ÓÃÀ´±êÊ¶ĞòºÅ£¬·ÀÖ¹ÖØÃû
-PRIVATE int  gMultiSPCompositeNum = 0; // ¶à²ãµü´úµÄsplitjoin£¬pipeline½á¹¹Òı½øµÄcomposite¹¹Ôì
-PRIVATE char  *gSplitJoinName = "splitjoin"; // ¶ÔSplitJoin×ÓÍ¼µÄÃüÃûÇ°×º£¬¼ÓÉÏĞòºÅ¾ÍÊÇÊµ¼ÊÃû×Ö
-PRIVATE char  *gPipelineName = "pipeline"; // ¶ÔPipeline×ÓÍ¼µÄÃüÃûÇ°×º£¬¼ÓÉÏĞòºÅ¾ÍÊÇÊµ¼ÊÃû×Ö
+GLOBAL Node *gCurrentInputStreamNode = NULL; // å½“å‰SplitJoin,PipeLineèŠ‚ç‚¹çš„ è¾“å…¥ è¾¹
+GLOBAL Node *gCurrentOutputStreamNode = NULL; // å½“å‰SplitJoin,PipeLineèŠ‚ç‚¹çš„ è¾“å‡º è¾¹
+GLOBAL List *gCurrentCompositeCallList = NULL; // å½“å‰SplitJoin,PipeLineèŠ‚ç‚¹è°ƒç”¨çš„compositeåˆ—è¡¨
+GLOBAL List *gCurrentParamList[64] = {NULL}; // å½“å‰åŒå±‚SPç»“æ„å¯èƒ½ä¼šç”¨åˆ°çš„å‚æ•°åˆ—è¡¨
+GLOBAL List *gCurrentDeclList[64] = {NULL}; // å½“å‰åŒå±‚SPç»“æ„å¯èƒ½ä¼šç”¨åˆ°çš„å‚æ•°å®šä¹‰åˆ—è¡¨
+GLOBAL List *gCurrentSplitList = NULL; // å½“å‰SplitJoinèŠ‚ç‚¹çš„Split
+GLOBAL List *gCurrentJoinList = NULL; // å½“å‰SplitJoinèŠ‚ç‚¹çš„Join
+GLOBAL int gMultiSPFlag = 0; // å½“å‰pipelineæ·±åº¦
+GLOBAL int gLevelPipeline = 0; // å½“å‰pipelineæ·±åº¦
+GLOBAL int gLevelSplitjoin = 0; // å½“å‰SplitJoinæ·±åº¦
+GLOBAL Bool gIsInSplitJoin = FALSE; // å½“å‰å±•å¼€æ˜¯å¦åœ¨SplitJoinèŠ‚ç‚¹
+GLOBAL Bool gIsInPipeline = FALSE; // å½“å‰å±•å¼€æ˜¯å¦åœ¨PipelineèŠ‚ç‚¹
+GLOBAL Bool gIsUnfold = FALSE; // å¤„äºå±•å¼€èŠ‚ç‚¹çŠ¶æ€ï¼Œå‘ŠçŸ¥DefineCompositeä¸è¦è¿›è¡ŒæŸäº›æ–­è¨€
+GLOBAL Bool gIsRoundrobin = FALSE; // å½“å‰SplitJoinèŠ‚ç‚¹çš„Splitçš„é£æ ¼æ˜¯å¦æ˜¯Roundrobin
+GLOBAL Bool gIsDuplicate = FALSE; // å½“å‰SplitJoinèŠ‚ç‚¹çš„Splitçš„é£æ ¼æ˜¯å¦æ˜¯Duplicate
+PRIVATE int  gCurrentCompositeNum = 0; // ç”±äºè¦å°†SplitJoin,PipeLineèŠ‚ç‚¹åšæˆå­å›¾æ¨¡å¼ï¼Œå› æ­¤è¦å¯¹å­å›¾å–åå­—ï¼Œè¯¥å˜é‡ç”¨æ¥æ ‡è¯†åºå·ï¼Œé˜²æ­¢é‡å
+PRIVATE int  gMultiSPCompositeNum = 0; // å¤šå±‚è¿­ä»£çš„splitjoinï¼Œpipelineç»“æ„å¼•è¿›çš„compositeæ„é€ 
+PRIVATE char  *gSplitJoinName = "splitjoin"; // å¯¹SplitJoinå­å›¾çš„å‘½åå‰ç¼€ï¼ŒåŠ ä¸Šåºå·å°±æ˜¯å®é™…åå­—
+PRIVATE char  *gPipelineName = "pipeline"; // å¯¹Pipelineå­å›¾çš„å‘½åå‰ç¼€ï¼ŒåŠ ä¸Šåºå·å°±æ˜¯å®é™…åå­—
 
 PRIVATE Node *MakeMyDecl(const char *name, Node *type, Node *init, ScopeState declStyle);
 GLOBAL Node *MakeNewStream(const char *name, Node *copyStream);
@@ -56,7 +56,7 @@ GLOBAL inline void IncCurrentCompositeNum()
 
 GLOBAL  inline char *MakeCompositeName(const char *name)
 {
-	char *newName = (char *)malloc(strlen(name) + 20); // ÄÜ±íÊ¾µÄ×î´óÕûÊıÓ¦¸Ã²»³¬¹ı20Î»
+	char *newName = (char *)malloc(strlen(name) + 20); // èƒ½è¡¨ç¤ºçš„æœ€å¤§æ•´æ•°åº”è¯¥ä¸è¶…è¿‡20ä½
 
 	assert(name);
 	sprintf(newName, "%s_%d", name, gCurrentCompositeNum);
@@ -128,7 +128,7 @@ GLOBAL Node *MakeNewStream(const char *name, Node *copyStream)
 	copyStream = NodeCopy(copyStream, Subtree);
 	copyStream->coord = UnknownCoord;
 
-	assert(Level == 0 || Level == 1); // Ö÷ÒªÎªÁËÉèÖÃDECL_LOCATION
+	assert(Level == 0 || Level == 1); // ä¸»è¦ä¸ºäº†è®¾ç½®DECL_LOCATION
 	if (Level == 0)
 		newStream = MakeMyDecl(name, copyStream, NULL, Commal);
 	else
@@ -183,9 +183,9 @@ GLOBAL Node *MakeDuplicateWork(List *outputs, Node *input, Node *argument)
 	List *decls = NULL, *stmts = NULL;
 	ListMarker marker;
 
-	//assert(outputs && input && input->typ == Id && Level == 2);  zww:20120319×¢ÊÍ
+	//assert(outputs && input && input->typ == Id && Level == 2);  zww:20120319æ³¨é‡Š
 
-	REFERENCE(decl);//ÎªÁË²»±¨ unused variable ¾¯¸æ
+	REFERENCE(decl);//ä¸ºäº†ä¸æŠ¥ unused variable è­¦å‘Š
 	id->u.id.decl = decl;
 
 	IterateList(&marker, outputs);
@@ -216,11 +216,11 @@ GLOBAL Node *MakeRoundrobinWork(List *outputs, Node *input, List *arguments)
 	ListMarker marker, marker2;
 
 	assert(outputs && input && input->typ == Id  && Level == 2);
-	//assert(ListLength(arguments) == ListLength(gCurrentCompositeCallList));   zww:20120319×¢ÊÍ
+	//assert(ListLength(arguments) == ListLength(gCurrentCompositeCallList));   zww:20120319æ³¨é‡Š
 
 	idI->u.id.decl = declI; 
 	idJ->u.id.decl = declJ; 
-	REFERENCE(declI); REFERENCE(declJ); // ÎªÁË²»±¨ unused variable ¾¯¸æ
+	REFERENCE(declI); REFERENCE(declJ); // ä¸ºäº†ä¸æŠ¥ unused variable è­¦å‘Š
 	decls = MakeNewList(declI);
 	decls = AppendItem(decls, declJ);
 
@@ -254,9 +254,9 @@ GLOBAL Node *MakeJoinWork(Node *output, List *inputs, List *arguments)
 	ListMarker marker, marker2;
 
 	assert(inputs && output && output->typ == Id  && Level == 2);
-	//assert(ListLength(arguments) == ListLength(gCurrentCompositeCallList)); zww:20120319×¢ÊÍ
+	//assert(ListLength(arguments) == ListLength(gCurrentCompositeCallList)); zww:20120319æ³¨é‡Š
 
-	REFERENCE(declI); REFERENCE(declJ);// ÎªÁË²»±¨ unused variable ¾¯¸æ
+	REFERENCE(declI); REFERENCE(declJ);// ä¸ºäº†ä¸æŠ¥ unused variable è­¦å‘Š
 	idI->u.id.decl = declI;
 	idJ->u.id.decl = declJ;
 	decls = MakeNewList(declI);
@@ -313,13 +313,13 @@ PRIVATE Node *ExtractStreamTypeOfCompositeInOut(Node *composite, int style)
 	Node *streamType = NULL, *tmpNode = NULL;
 	List *tmpList = NULL;
 
-	// 0ÌáÈ¡ÊäÈëstreamµÄStreamType, 1ÌáÈ¡Êä³östreamµÄStreamType
+	// 0æå–è¾“å…¥streamçš„StreamType, 1æå–è¾“å‡ºstreamçš„StreamType
 	assert(composite && composite->typ == Composite && (style == 0 || style == 1));
 	if (style == 0)
 	{
 		tmpList = composite->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.inputs;
 		assert(ListLength(tmpList) == 1);
-		streamType = (Node *)FirstItem(tmpList); // ×¢Òâ£ºÕâÀïÆäÊµÊÇ¸öDecl½Úµã
+		streamType = (Node *)FirstItem(tmpList); // æ³¨æ„ï¼šè¿™é‡Œå…¶å®æ˜¯ä¸ªDeclèŠ‚ç‚¹
 	}
 	else
 	{
@@ -333,7 +333,7 @@ PRIVATE Node *ExtractStreamTypeOfCompositeInOut(Node *composite, int style)
 	
 }
 
-// ĞŞ¸ÄoperdclµÄÊäÈëÊä³ö±ß
+// ä¿®æ”¹operdclçš„è¾“å…¥è¾“å‡ºè¾¹
 PRIVATE Node *ModifyOperdclInOut(Node *compositeCall, Node *output, Node *input)
 {
 	Node *operdcl = NULL;
@@ -370,13 +370,13 @@ GLOBAL Node *MakeSplitOperator(Node *input, List *arguments, int style)
 	int len = ListLength(gCurrentCompositeCallList), sum = 0, count = 0;
 	static int number = 0;
 
-	// style == 0, Duplicate·½Ê½£¬ style == 1, Roundrobin·½Ê½
+	// style == 0, Duplicateæ–¹å¼ï¼Œ style == 1, Roundrobinæ–¹å¼
 	assert(input && arguments && Level == 1 && (style == 0 || style == 1));
 	assert(input->typ == Id && input->u.id.decl);
-	assert(ListLength(arguments) == 1 || len == ListLength(arguments));// ²ÎÊıÆ¥Åä
+	assert(ListLength(arguments) == 1 || len == ListLength(arguments));// å‚æ•°åŒ¹é…
 
 	inputs = MakeNewList(input);
-	arg = (Node *)FirstItem(arguments);//È¡DuplicateºóÃæµÄ²ÎÊı
+	arg = (Node *)FirstItem(arguments);//å–Duplicateåé¢çš„å‚æ•°
 	assert(NodeConstantIntegralValue(arg) >= 0);
 
 	IterateList(&marker, arguments);
@@ -386,7 +386,7 @@ GLOBAL Node *MakeSplitOperator(Node *input, List *arguments, int style)
 	}
 	arguments = tmpList;
 
-	if (ListLength(arguments) == 1) // roundrobin·½Ê½£¨12.14ÌÖÂÛĞŞ¸ÄÎªDuplicate·½Ê½Ò²²ÉÓÃ£©
+	if (ListLength(arguments) == 1) // roundrobinæ–¹å¼ï¼ˆ12.14è®¨è®ºä¿®æ”¹ä¸ºDuplicateæ–¹å¼ä¹Ÿé‡‡ç”¨ï¼‰
 		for (count = 0; count < (len-1); ++count)
 			arguments = AppendItem(arguments, MakeConstSint(NodeConstantIntegralValue(arg)));
 
@@ -394,7 +394,7 @@ GLOBAL Node *MakeSplitOperator(Node *input, List *arguments, int style)
 	IterateList(&marker, arguments);
 	while (NextOnList(&marker, (GenericREF)&item))
 	{
-		char *tmp = (char *)malloc(strlen(streamName[style]) + 20);//Ò»¶¨ÒªÔÚ¶ÑÉÏÉêÇëÄÚ´æ£¬·ñÔòº¯ÊıÍË³öºó¾Í»áÊÍ·ÅÄÚ´æµÄ
+		char *tmp = (char *)malloc(strlen(streamName[style]) + 20);//ä¸€å®šè¦åœ¨å †ä¸Šç”³è¯·å†…å­˜ï¼Œå¦åˆ™å‡½æ•°é€€å‡ºåå°±ä¼šé‡Šæ”¾å†…å­˜çš„
 		sum += NodeConstantIntegralValue(item);
 		assert(NodeConstantIntegralValue(item) >= 0);
 
@@ -412,12 +412,12 @@ GLOBAL Node *MakeSplitOperator(Node *input, List *arguments, int style)
 	if(style == 0) sum = NodeConstantIntegralValue(arg);
 	windows = AppendItem(windows, MakeMyWindow(input, MakeConstSint(sum), 0));
 
-	if (style == 0) // duplicate·½Ê½
+	if (style == 0) // duplicateæ–¹å¼
 	{
 		work = MakeDuplicateWork(outputIds, input, arg);
 		splitOperator->u.operator_.ot = Duplicate_;
 	}
-	else // roundrobin·½Ê½
+	else // roundrobinæ–¹å¼
 	{
 		work = MakeRoundrobinWork(outputIds, input, arguments);
 		splitOperator->u.operator_.ot = Roundrobin_;
@@ -446,7 +446,7 @@ GLOBAL Node *MakeJoinOperator(Node *output, List *inputs, List *arguments)
 	assert(output && inputs && arguments && Level == 1);
 	assert(output->typ == Decl || (output->typ == Id && output->u.id.decl));
 	assert(ListLength(inputs) == len);
-	assert(ListLength(arguments) == 1 || len == ListLength(arguments));// ²ÎÊıÆ¥Åä
+	assert(ListLength(arguments) == 1 || len == ListLength(arguments));// å‚æ•°åŒ¹é…
 
 	if (output->typ == Decl)
 	{
@@ -463,7 +463,7 @@ GLOBAL Node *MakeJoinOperator(Node *output, List *inputs, List *arguments)
 	}
 	arguments = tmpList; // 2012.02.17
 
-	if (ListLength(arguments) == 1) // roundrobin·½Ê½
+	if (ListLength(arguments) == 1) // roundrobinæ–¹å¼
 		for (count = 0; count < (len-1); ++count)
 			arguments = AppendItem(arguments, MakeConstSint(NodeConstantIntegralValue(arg)));
 	
@@ -527,13 +527,13 @@ PRIVATE Node *UnfoldDuplicate(const char *comName, Node *node)
 	ListMarker marker, marker2;
 	Node *item = NULL, *stream = NULL, *streamId = NULL;
 
-	assert(ListLength(gCurrentSplitList) <= 1 && gIsDuplicate == TRUE && Level == 0);   //DuplicateºóÃæµÄ²ÎÊıµÄÒªÇó
+	assert(ListLength(gCurrentSplitList) <= 1 && gIsDuplicate == TRUE && Level == 0);   //Duplicateåé¢çš„å‚æ•°çš„è¦æ±‚
 	comHead = MakeCompositeHead(comName, gCurrentOutputStreamNode, gCurrentInputStreamNode);
 	duplicate = DefineComposite(comHead);
 
-	if (gCurrentSplitList == NULL) //ËµÃ÷ duplicate ²¿·ÖÎª¿Õ, ¸³Ä¬ÈÏÖµ 1
+	if (gCurrentSplitList == NULL) //è¯´æ˜ duplicate éƒ¨åˆ†ä¸ºç©º, èµ‹é»˜è®¤å€¼ 1
 		gCurrentSplitList = MakeNewList(MakeConstSint(1));
-	splitOperator = MakeSplitOperator(gCurrentInputStreamNode, gCurrentSplitList, 0);  //  splitOperatorÊÇÒ»¸öoperato_ÀàĞÍµÄ½Úµã
+	splitOperator = MakeSplitOperator(gCurrentInputStreamNode, gCurrentSplitList, 0);  //  splitOperatoræ˜¯ä¸€ä¸ªoperato_ç±»å‹çš„èŠ‚ç‚¹
 
 	tmpList = splitOperator->u.operator_.decl->u.decl.type->u.operdcl.outputs;
 	IterateList(&marker2, tmpList);
@@ -553,7 +553,7 @@ PRIVATE Node *UnfoldDuplicate(const char *comName, Node *node)
 	comCallList = MakeOperatorList(outputs, inputs, gCurrentCompositeCallList);
 
 	inputs = NULL;
-	if (gCurrentJoinList == NULL) //ËµÃ÷ roundrobin ²¿·ÖÎª¿Õ, ¸³Ä¬ÈÏÖµ 1
+	if (gCurrentJoinList == NULL) //è¯´æ˜ roundrobin éƒ¨åˆ†ä¸ºç©º, èµ‹é»˜è®¤å€¼ 1
 		gCurrentJoinList = MakeNewList(MakeConstSint(1));
 	IterateList(&marker, outputs);
 	while (NextOnList(&marker, (GenericREF)&item))
@@ -596,7 +596,7 @@ PRIVATE Node *UnfoldRoundrobin(const char *comName, Node *node)
 	comHead = MakeCompositeHead(comName, gCurrentOutputStreamNode, gCurrentInputStreamNode);
 	roundrobin = DefineComposite(comHead);
 
-	if (gCurrentSplitList == NULL) //ËµÃ÷ roundrobin ²¿·ÖÎª¿Õ, ¸³Ä¬ÈÏÖµ 1
+	if (gCurrentSplitList == NULL) //è¯´æ˜ roundrobin éƒ¨åˆ†ä¸ºç©º, èµ‹é»˜è®¤å€¼ 1
 		gCurrentSplitList = MakeNewList(MakeConstSint(1));
 	splitOperator = MakeSplitOperator(gCurrentInputStreamNode, gCurrentSplitList, 1);
 	tmpList = splitOperator->u.operator_.decl->u.decl.type->u.operdcl.outputs;
@@ -618,7 +618,7 @@ PRIVATE Node *UnfoldRoundrobin(const char *comName, Node *node)
 	comCallList = MakeOperatorList(outputs, inputs, gCurrentCompositeCallList);
 	
 	inputs = NULL;
-	if (gCurrentJoinList == NULL) //ËµÃ÷ roundrobin ²¿·ÖÎª¿Õ, ¸³Ä¬ÈÏÖµ 1
+	if (gCurrentJoinList == NULL) //è¯´æ˜ roundrobin éƒ¨åˆ†ä¸ºç©º, èµ‹é»˜è®¤å€¼ 1
 		gCurrentJoinList = MakeNewList(MakeConstSint(1));
 	IterateList(&marker, outputs);
 	while (NextOnList(&marker, (GenericREF)&item))
@@ -670,7 +670,7 @@ GLOBAL Node *UnfoldPipeline(Node *node)
 	while (NextOnList(&marker, (GenericREF)&item))
 	{
 		
-		if(len == 1) break; // µ±pipelineÖ»ÓĞÒ»¸ö³ÉÔ±Ê±£¬²»ĞèÒª¹¹ÔìinputsºÍoutputs lxx.2012.02.22
+		if(len == 1) break; // å½“pipelineåªæœ‰ä¸€ä¸ªæˆå‘˜æ—¶ï¼Œä¸éœ€è¦æ„é€ inputså’Œoutputs lxx.2012.02.22
 		newName = (char *)malloc(strlen(name) + 20);
 		sprintf(newName, "%s%d_%d", name, gCurrentCompositeNum, i);
 		stream = FirstItem(item->u.comCall.call->u.composite.decl->u.decl.type->u.comdcl.inout->u.comInOut.outputs);
@@ -681,7 +681,7 @@ GLOBAL Node *UnfoldPipeline(Node *node)
 		streamId = MakeNewStreamId(stream->u.decl.name, stream);
 		inputs = AppendItem(inputs, streamId);
 		++i;
-		if(i == (len-1)) break; // ²»ĞèÒªÌáÈ¡×îºóÒ»¸öcompositeCallµÄÊä³öÀàĞÍ
+		if(i == (len-1)) break; // ä¸éœ€è¦æå–æœ€åä¸€ä¸ªcompositeCallçš„è¾“å‡ºç±»å‹
 	}
 	
 	stream = gCurrentOutputStreamNode;
@@ -764,7 +764,7 @@ PRIVATE void *FindStreamReplace(List *list, Node **firstComCall, Node **lastComC
 		}
 	}
 }
-//ÔÚ¶àÖØSP½á¹¹ÖĞ½«Àï²ãµÄSP¹¹Ôì³ÉCompositeCall½Úµã
+//åœ¨å¤šé‡SPç»“æ„ä¸­å°†é‡Œå±‚çš„SPæ„é€ æˆCompositeCallèŠ‚ç‚¹
 GLOBAL Node *CreateCompositeInMultiSP(Node *node){
 	Node *stream,*streamId,*InputStream,*OutputStream,*input,*output,*newNode;
 	Node *comInOut = NULL,*comdcl = NULL, *comHead = NULL,*composite = NULL,*comBody = NULL,*operdcl = NULL,*comCall = NULL,*param = NULL;
@@ -774,7 +774,7 @@ GLOBAL Node *CreateCompositeInMultiSP(Node *node){
 	List *operators = NULL,*inputs = NULL,*outputs = NULL;
 	int firstTag = 0;
 	assert(node->typ==SplitJoin||node->typ==Pipeline);
-	//ÕÒµ½Àï²ãµÄfirstºÍlastµÄCompositeCall½Úµã£¬ÓÃÀ´×÷ÎªinputºÍoutputÁ÷µÄstreamtype¸±±¾
+	//æ‰¾åˆ°é‡Œå±‚çš„firstå’Œlastçš„CompositeCallèŠ‚ç‚¹ï¼Œç”¨æ¥ä½œä¸ºinputå’Œoutputæµçš„streamtypeå‰¯æœ¬
 	if(node->typ==SplitJoin)
 		FindStreamReplace(node->u.splitJoin.stmts,&firstComCall,&lastComCall,firstTag);
 	else if(node->typ==Pipeline)

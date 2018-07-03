@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "rename.h"
-int renameNumber[6];//定义符号表中各结构的项数
+int renameNumber[6];//瀹氫箟绗﹀彿琛ㄤ腑鍚勭粨鏋勭殑椤规暟
 //GLOBAL char tempName[300][2000];
 void New_astwalk(Node *n);
 /***********************************************************************\

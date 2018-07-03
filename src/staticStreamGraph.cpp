@@ -2,12 +2,12 @@
 
 using namespace std;
 
-/*ÉèÖÃ¸ÃcompositeÃû×Ö*/
+/*è®¾ç½®è¯¥compositeåå­—*/
 void StaticStreamGraph::SetName(const char *name)
 {
 	comName = name;
 }
-/*È¡³öflatnodeµÄ¹¤×÷Á¿(ÎÈÌ¬)*/
+/*å–å‡ºflatnodeçš„å·¥ä½œé‡(ç¨³æ€)*/
 int StaticStreamGraph::GetSteadyWork(FlatNode *n)
 {
 	std::map<FlatNode *,int> ::iterator pos;
@@ -18,7 +18,7 @@ int StaticStreamGraph::GetSteadyWork(FlatNode *n)
 	else
 		return pos->second;
 }
-/*È¡³öflatnodeµÄ¹¤×÷Á¿(³õÌ¬)*/
+/*å–å‡ºflatnodeçš„å·¥ä½œé‡(åˆæ€)*/
 int StaticStreamGraph::GetInitWork(FlatNode *n)
 {
 	std::map<FlatNode *,int> ::iterator pos;
@@ -30,7 +30,7 @@ int StaticStreamGraph::GetInitWork(FlatNode *n)
 		return pos->second;
 }
 
-/*ÖØÖÃssg½áµãflatnodesÄÚËùÓĞflatnodeÄÚµÄvisttimes*/
+/*é‡ç½®ssgç»“ç‚¹flatnodeså†…æ‰€æœ‰flatnodeå†…çš„visttimes*/
 void StaticStreamGraph::ResetFlatNodeVisitTimes()
 {
 	for (int i=0;i<flatNodes.size();i++)
@@ -40,7 +40,7 @@ void StaticStreamGraph::ResetFlatNodeVisitTimes()
 }
 
 
-/*ÖØÖÃssgÄÚflatnode½áµãÄÚËùÓĞflatnodeµÄnameÖµ,±£³ÖÃ¿¸öflatnodeµÄname¶¼ÊÇÎ¨Ò»*/
+/*é‡ç½®ssgå†…flatnodeç»“ç‚¹å†…æ‰€æœ‰flatnodeçš„nameå€¼,ä¿æŒæ¯ä¸ªflatnodeçš„nameéƒ½æ˜¯å”¯ä¸€*/
 void StaticStreamGraph::ResetFlatNodeNames()
 {
 	for (int i=0;i<flatNodes.size();i++)
@@ -55,7 +55,7 @@ void StaticStreamGraph::ResetFlatNodeNames()
 }
 bool StaticStreamGraph::IsUpBorder(FlatNode *actor)
 {
-	bool flag = false;   //cwb Èç¹ûÊÇcpuÓëgpuµÄ±ß½ç½áµã
+	bool flag = false;   //cwb å¦‚æœæ˜¯cpuä¸gpuçš„è¾¹ç•Œç»“ç‚¹
 	vector<FlatNode *>::iterator iter1;
 	if (actor->inFlatNodes.size() != 0)
 	{
@@ -73,7 +73,7 @@ bool StaticStreamGraph::IsUpBorder(FlatNode *actor)
 
 bool StaticStreamGraph::IsDownBorder(FlatNode *actor)
 {
-	bool flag = false;   //cwb Èç¹ûÊÇcpuÓëgpuµÄ±ß½ç½áµã
+	bool flag = false;   //cwb å¦‚æœæ˜¯cpuä¸gpuçš„è¾¹ç•Œç»“ç‚¹
 	vector<FlatNode *>::iterator iter1;
 	if (actor->outFlatNodes.size() != 0)
 	{
@@ -115,20 +115,20 @@ void StaticStreamGraph::GenerateFlatNodes(operatorNode *u, compositeNode *oldCom
 		else 
 			type = item->u.decl.type;
 
-		mapEdge2UpFlatNode.insert(make_pair(type, src)); //½«¡°ÓĞÏò±ß¡±ÓëÆä¡°ÉÏ¡±¶Ëoperator°ó¶¨
+		mapEdge2UpFlatNode.insert(make_pair(type, src)); //å°†â€œæœ‰å‘è¾¹â€ä¸å…¶â€œä¸Šâ€ç«¯operatorç»‘å®š
 	}
 	
 	AddFlatNode(src);
 
-	dest = src; //±ß±äÁË
+	dest = src; //è¾¹å˜äº†
 	IterateList(&marker, u->decl->u.decl.type->u.operdcl.inputs);
 	while (NextOnList(&marker, (GenericREF) &item)) 
 	{
 		type = item->u.id.decl->u.decl.type;
-		mapEdge2DownFlatNode.insert(make_pair(type,dest));//½«¡°ÓĞÏò±ß¡±ÓëÆä¡°ÏÂ¡±¶Ëoperator°ó¶¨
+		mapEdge2DownFlatNode.insert(make_pair(type,dest));//å°†â€œæœ‰å‘è¾¹â€ä¸å…¶â€œä¸‹â€ç«¯operatorç»‘å®š
 
 		pos = mapEdge2UpFlatNode.find(type);
-		assert(pos != mapEdge2UpFlatNode.end()); //È·±£Ã¿Ò»ÌõÊäÈë±ß¶¼ÓĞoperator
+		assert(pos != mapEdge2UpFlatNode.end()); //ç¡®ä¿æ¯ä¸€æ¡è¾“å…¥è¾¹éƒ½æœ‰operator
 		src = pos->second;
 		src->AddOutEdges(dest);
 		dest->AddInEdges(src);
@@ -136,7 +136,7 @@ void StaticStreamGraph::GenerateFlatNodes(operatorNode *u, compositeNode *oldCom
 }
 
 FlatNode * StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,FlatNode *oldFlatNode)
-{//20120917 zww Ìí¼Ó
+{//20120917 zww æ·»åŠ 
 	FlatNode *src = NULL, *dest = NULL;
 	std::vector<FlatNode *> tmp;
 	std::map<Node *, FlatNode *> ::iterator pos;
@@ -157,43 +157,43 @@ FlatNode * StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *ol
 		assert(type);
 		multimap<Node *, FlatNode *> ::iterator out_pos;
 		int out_count = mapEdge2DownFlatNode.count(type);
-		assert(out_count<=1);//±£Ö¤Ò»Ìõ±ßÖ»¶ÔÓ¦Ò»¸öÏÂ¶Ë½Úµã
+		assert(out_count<=1);//ä¿è¯ä¸€æ¡è¾¹åªå¯¹åº”ä¸€ä¸ªä¸‹ç«¯èŠ‚ç‚¹
 		out_pos = mapEdge2DownFlatNode.find(type);
-		Bool flag = TRUE;//Òª²åÈëµÄflatNodeÔÚËûµÄÏÂ¶ËÒÑ¾­´æÔÚ£¬Ôò²»²åÈë
+		Bool flag = TRUE;//è¦æ’å…¥çš„flatNodeåœ¨ä»–çš„ä¸‹ç«¯å·²ç»å­˜åœ¨ï¼Œåˆ™ä¸æ’å…¥
 		if(out_pos != mapEdge2DownFlatNode.end())
-		{//±íÊ¾ÕÒµ½
+		{//è¡¨ç¤ºæ‰¾åˆ°
 			FlatNode *buttomFlatNode = out_pos->second;
 			int InIter =0;
 			for (InIter = 0;InIter!= buttomFlatNode->inFlatNodes.size();InIter++)
 			{
 				if(buttomFlatNode->inFlatNodes[InIter] == oldFlatNode)break;
 			}
-			if(InIter< buttomFlatNode->inFlatNodes.size() && buttomFlatNode->inFlatNodes[InIter] == oldFlatNode) buttomFlatNode->inFlatNodes[InIter] = src;//ÕÒµ½,ĞŞ¸ÄÖµ(split),Èç¹ûÃ»ÕÒµ½Ê²Ã´Ò²²»×ö£¨Ö÷ÒªÊÇÎªÁË´¦Àí·ÖÁÑºó²úÉúµÄjoin½Úµã£©	
+			if(InIter< buttomFlatNode->inFlatNodes.size() && buttomFlatNode->inFlatNodes[InIter] == oldFlatNode) buttomFlatNode->inFlatNodes[InIter] = src;//æ‰¾åˆ°,ä¿®æ”¹å€¼(split),å¦‚æœæ²¡æ‰¾åˆ°ä»€ä¹ˆä¹Ÿä¸åšï¼ˆä¸»è¦æ˜¯ä¸ºäº†å¤„ç†åˆ†è£‚åäº§ç”Ÿçš„joinèŠ‚ç‚¹ï¼‰	
 		}
-		mapEdge2UpFlatNode.insert(make_pair(type, src)); //½«¡°ÓĞÏò±ß¡±ÓëÆä¡°ÉÏ¡±¶Ëoperator°ó¶¨
+		mapEdge2UpFlatNode.insert(make_pair(type, src)); //å°†â€œæœ‰å‘è¾¹â€ä¸å…¶â€œä¸Šâ€ç«¯operatorç»‘å®š
 	}
 	AddFlatNode(src);
 
-	dest = src; //±ß±äÁË
+	dest = src; //è¾¹å˜äº†
 	IterateList(&marker, u->decl->u.decl.type->u.operdcl.inputs);
 	while (NextOnList(&marker, (GenericREF) &item)) 
 	{
 		type = item->u.id.decl->u.decl.type;
 		assert(type);
-		mapEdge2DownFlatNode.insert(make_pair(type,dest));//½«¡°ÓĞÏò±ß¡±ÓëÆä¡°ÏÂ¡±¶Ëoperator°ó¶¨
+		mapEdge2DownFlatNode.insert(make_pair(type,dest));//å°†â€œæœ‰å‘è¾¹â€ä¸å…¶â€œä¸‹â€ç«¯operatorç»‘å®š
 
-		pos = mapEdge2UpFlatNode.find(type);//ÕÒ±ßµÄÉÏ¶Ë½Úµã
-		assert(pos != mapEdge2UpFlatNode.end()); //È·±£Ã¿Ò»ÌõÊäÈë±ß¶¼ÓĞoperator
+		pos = mapEdge2UpFlatNode.find(type);//æ‰¾è¾¹çš„ä¸Šç«¯èŠ‚ç‚¹
+		assert(pos != mapEdge2UpFlatNode.end()); //ç¡®ä¿æ¯ä¸€æ¡è¾“å…¥è¾¹éƒ½æœ‰operator
 		src = pos->second;
-		/*Èç¹û±äµÃÉÏ¶Ë½ÚµãÖĞµÄoutFlatNodesÖĞÒÑ¾­ÓĞµ±Ç°±ß¶ÔÓ¦µÄÏÂ¶ËµÄFlatNodeÔò²»Ìí¼Ó£¬Ö»ĞŞ¸ÄËüµÄµ±Ç°±ß¶ÔÓ¦µÄÖµ*/
+		/*å¦‚æœå˜å¾—ä¸Šç«¯èŠ‚ç‚¹ä¸­çš„outFlatNodesä¸­å·²ç»æœ‰å½“å‰è¾¹å¯¹åº”çš„ä¸‹ç«¯çš„FlatNodeåˆ™ä¸æ·»åŠ ï¼Œåªä¿®æ”¹å®ƒçš„å½“å‰è¾¹å¯¹åº”çš„å€¼*/
 		int outIter =0;
 		for (outIter = 0;outIter!= src->outFlatNodes.size();outIter++)
 		{
 			if(src->outFlatNodes[outIter] == oldFlatNode)break;
 		}
 		if(outIter< src->outFlatNodes.size()) 
-			src->outFlatNodes[outIter] = dest;//ÕÒµ½,ĞŞ¸ÄÖµ(split)	
-		else src->AddOutEdges(dest);//Ã»ÕÒµ½£¬²åÈë
+			src->outFlatNodes[outIter] = dest;//æ‰¾åˆ°,ä¿®æ”¹å€¼(split)	
+		else src->AddOutEdges(dest);//æ²¡æ‰¾åˆ°ï¼Œæ’å…¥
 		dest->AddInEdges(src);
 	}
 	return newFlatNode;
@@ -204,14 +204,14 @@ FlatNode * StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *ol
 // FullName:  StaticStreamGraph::InsertFlatNodes
 // Access:    public 
 // Returns:   FlatNode *
-// Qualifier: /*zww 20121011 Ìí¼Ó */
-// Parameter: operatorNode * u  ĞÂ½¨µÄoperator£¬ÓĞ´ı²åÈëµ½flatNodesÖĞ
-// Parameter: compositeNode * oldComposite £¨¿ÉÒÔÎª¿Õ£©
-// Parameter: compositeNode * newComposite £¨¿ÉÒÔÎª¿Õ£©
-// Parameter: std::set<FlatNode * > oldDownFlatNode¡ª¡ªuµÄÊäÈë±ßÀ´×ÔÓÚoldDownFlatNodeµÄ¸÷¸öÔªËØµÄÊäÈë±ß £¨¿ÉÒÔÎª¿Õ£©
-// Parameter: std::set<FlatNode * > oldUpFlatNode ¡ª¡ªuµÄÊä³ö±ßÀ´×ÔÓÚoldUpFlatNodeµÄ¸÷¸öÔªËØµÄÊä³ö±ß £¨¿ÉÒÔÎª¿Õ£©
+// Qualifier: /*zww 20121011 æ·»åŠ  */
+// Parameter: operatorNode * u  æ–°å»ºçš„operatorï¼Œæœ‰å¾…æ’å…¥åˆ°flatNodesä¸­
+// Parameter: compositeNode * oldComposite ï¼ˆå¯ä»¥ä¸ºç©ºï¼‰
+// Parameter: compositeNode * newComposite ï¼ˆå¯ä»¥ä¸ºç©ºï¼‰
+// Parameter: std::set<FlatNode * > oldDownFlatNodeâ€”â€”uçš„è¾“å…¥è¾¹æ¥è‡ªäºoldDownFlatNodeçš„å„ä¸ªå…ƒç´ çš„è¾“å…¥è¾¹ ï¼ˆå¯ä»¥ä¸ºç©ºï¼‰
+// Parameter: std::set<FlatNode * > oldUpFlatNode â€”â€”uçš„è¾“å‡ºè¾¹æ¥è‡ªäºoldUpFlatNodeçš„å„ä¸ªå…ƒç´ çš„è¾“å‡ºè¾¹ ï¼ˆå¯ä»¥ä¸ºç©ºï¼‰
 //************************************
-FlatNode *StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,std::set<FlatNode *> oldFlatNodeSet)//zww 20121011 Ìí¼Ó
+FlatNode *StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *oldComposite, compositeNode *newComposite,std::set<FlatNode *> oldFlatNodeSet)//zww 20121011 æ·»åŠ 
 {
 	FlatNode *src = NULL, *dest = NULL;
 	std::vector<FlatNode *> tmp;
@@ -233,40 +233,40 @@ FlatNode *StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *old
 		assert(type);
 		multimap<Node *, FlatNode *> ::iterator out_pos;
 		int out_count = mapEdge2DownFlatNode.count(type);
-		assert(out_count<=1);//±£Ö¤Ò»Ìõ±ßÖ»¶ÔÓ¦Ò»¸öÏÂ¶Ë½Úµã
+		assert(out_count<=1);//ä¿è¯ä¸€æ¡è¾¹åªå¯¹åº”ä¸€ä¸ªä¸‹ç«¯èŠ‚ç‚¹
 		out_pos = mapEdge2DownFlatNode.find(type);
-		Bool flag = TRUE;//Òª²åÈëµÄflatNodeÔÚËûµÄÏÂ¶ËÒÑ¾­´æÔÚ£¬Ôò²»²åÈë
-		if(out_pos != mapEdge2DownFlatNode.end()) // uµÄÏÂ¶Ë½ÚµãÒÑ¾­´æÔÚÁË
-		{//±íÊ¾ÕÒµ½
+		Bool flag = TRUE;//è¦æ’å…¥çš„flatNodeåœ¨ä»–çš„ä¸‹ç«¯å·²ç»å­˜åœ¨ï¼Œåˆ™ä¸æ’å…¥
+		if(out_pos != mapEdge2DownFlatNode.end()) // uçš„ä¸‹ç«¯èŠ‚ç‚¹å·²ç»å­˜åœ¨äº†
+		{//è¡¨ç¤ºæ‰¾åˆ°
 					
 			FlatNode *buttomFlatNode = out_pos->second;
 
-			//Èç¹ûnewflatNodeµÄÊä³ö±ß¶ÔÓ¦µÄÏÂ¶Ë½ÚµãÒÑ¾­ÔÚmapEdge2DownFlatNodeÖĞ£¬ÔònewflatNodeµÄnOut++£¬²¢ÇÒËüµÄoutFlatNodeÒªÌí¼Ó¸ÃÏÂ¶Ë½Úµã
+			//å¦‚æœnewflatNodeçš„è¾“å‡ºè¾¹å¯¹åº”çš„ä¸‹ç«¯èŠ‚ç‚¹å·²ç»åœ¨mapEdge2DownFlatNodeä¸­ï¼Œåˆ™newflatNodeçš„nOut++ï¼Œå¹¶ä¸”å®ƒçš„outFlatNodeè¦æ·»åŠ è¯¥ä¸‹ç«¯èŠ‚ç‚¹
 			//mapEdge2UpFlatNode.insert(make_pair(type,newFlatNode));
 			newFlatNode->AddOutEdges(buttomFlatNode);
 
 			int InIter =0;
-			for (InIter = 0;InIter!= buttomFlatNode->inFlatNodes.size();InIter++)//uµÄÏÂ¶Ë½ÚµãµÄÊäÈë±ß¶ÔÓ¦µÄ½Úµã
+			for (InIter = 0;InIter!= buttomFlatNode->inFlatNodes.size();InIter++)//uçš„ä¸‹ç«¯èŠ‚ç‚¹çš„è¾“å…¥è¾¹å¯¹åº”çš„èŠ‚ç‚¹
 			{
 				if(oldFlatNodeSet.count(buttomFlatNode->inFlatNodes[InIter]))
 				{
-					//cout<<"ÏÂ¶Ë  "<<buttomFlatNode->inFlatNodes[InIter]->name<<endl;
+					//cout<<"ä¸‹ç«¯  "<<buttomFlatNode->inFlatNodes[InIter]->name<<endl;
 					break;
 				}
 			}
 			if(InIter< buttomFlatNode->inFlatNodes.size() && oldFlatNodeSet.count(buttomFlatNode->inFlatNodes[InIter]))
 			{
-				buttomFlatNode->inFlatNodes[InIter] = src;//Ìæ»»ÎªĞÂµÄflatNode½Úµã
-				//cout<<"Ìæ»»  "<<src->name<<endl;
+				buttomFlatNode->inFlatNodes[InIter] = src;//æ›¿æ¢ä¸ºæ–°çš„flatNodeèŠ‚ç‚¹
+				//cout<<"æ›¿æ¢  "<<src->name<<endl;
 			}
 		}
 		
-		mapEdge2UpFlatNode.insert(make_pair(type, src)); //½«¡°ÓĞÏò±ß¡±ÓëÆä¡°ÉÏ¡±¶Ëoperator°ó¶¨
+		mapEdge2UpFlatNode.insert(make_pair(type, src)); //å°†â€œæœ‰å‘è¾¹â€ä¸å…¶â€œä¸Šâ€ç«¯operatorç»‘å®š
 	}
 	AddFlatNode(src);
 
-	dest = src; //±ß±äÁË
-	IterateList(&marker, u->decl->u.decl.type->u.operdcl.inputs); //uµÄÊäÈë±ß
+	dest = src; //è¾¹å˜äº†
+	IterateList(&marker, u->decl->u.decl.type->u.operdcl.inputs); //uçš„è¾“å…¥è¾¹
 	while (NextOnList(&marker, (GenericREF) &item)) 
 	{
 		if (item->typ == Id)
@@ -274,45 +274,45 @@ FlatNode *StaticStreamGraph::InsertFlatNodes(operatorNode *u, compositeNode *old
 		else 
 			type = item->u.decl.type;
 		assert(type);
-		mapEdge2DownFlatNode.insert(make_pair(type,dest));//½«¡°ÓĞÏò±ß¡±ÓëÆä¡°ÏÂ¡±¶Ëoperator°ó¶¨
+		mapEdge2DownFlatNode.insert(make_pair(type,dest));//å°†â€œæœ‰å‘è¾¹â€ä¸å…¶â€œä¸‹â€ç«¯operatorç»‘å®š
 
-		pos = mapEdge2UpFlatNode.find(type);//ÕÒÊäÈë±ßµÄÉÏ¶Ë½Úµã
-		assert(pos != mapEdge2UpFlatNode.end()); //È·±£Ã¿Ò»ÌõÊäÈë±ß¶¼ÓĞoperator£¨ÊäÈë±ßµÄÉÏ¶Ë½Úµã±ØĞëÒÑ¾­´æÔÚ£©
-		src = pos->second;//È¡ÊäÈë±ßµÄÉÏ¶Ë½Úµã
+		pos = mapEdge2UpFlatNode.find(type);//æ‰¾è¾“å…¥è¾¹çš„ä¸Šç«¯èŠ‚ç‚¹
+		assert(pos != mapEdge2UpFlatNode.end()); //ç¡®ä¿æ¯ä¸€æ¡è¾“å…¥è¾¹éƒ½æœ‰operatorï¼ˆè¾“å…¥è¾¹çš„ä¸Šç«¯èŠ‚ç‚¹å¿…é¡»å·²ç»å­˜åœ¨ï¼‰
+		src = pos->second;//å–è¾“å…¥è¾¹çš„ä¸Šç«¯èŠ‚ç‚¹
 
-// 		//Èç¹ûnewflatNodeµÄÊäÈë±ß¶ÔÓ¦µÄÉÏ¶Ë½ÚµãÒÑ¾­ÔÚmapEdge2UpFlatNodeÖĞ£¬ÔònewflatNodeµÄnIn++£¬²¢ÇÒËüµÄiinFlatNodeÒªÌí¼Ó¸ÃÏÂ¶Ë½Úµã
+// 		//å¦‚æœnewflatNodeçš„è¾“å…¥è¾¹å¯¹åº”çš„ä¸Šç«¯èŠ‚ç‚¹å·²ç»åœ¨mapEdge2UpFlatNodeä¸­ï¼Œåˆ™newflatNodeçš„nIn++ï¼Œå¹¶ä¸”å®ƒçš„iinFlatNodeè¦æ·»åŠ è¯¥ä¸‹ç«¯èŠ‚ç‚¹
 // 		mapEdge2UpFlatNode.insert(make_pair(type,buttomFlatNode));
 // 		newFlatNode->AddOutEdges(buttomFlatNode);
-		/*Èç¹û±äµÃÉÏ¶Ë½ÚµãÖĞµÄoutFlatNodesÖĞÒÑ¾­ÓĞµ±Ç°±ß¶ÔÓ¦µÄÏÂ¶ËµÄFlatNodeÔò²»Ìí¼Ó£¬Ö»ĞŞ¸ÄËüµÄµ±Ç°±ß¶ÔÓ¦µÄÖµ*/
+		/*å¦‚æœå˜å¾—ä¸Šç«¯èŠ‚ç‚¹ä¸­çš„outFlatNodesä¸­å·²ç»æœ‰å½“å‰è¾¹å¯¹åº”çš„ä¸‹ç«¯çš„FlatNodeåˆ™ä¸æ·»åŠ ï¼Œåªä¿®æ”¹å®ƒçš„å½“å‰è¾¹å¯¹åº”çš„å€¼*/
 		int outIter =0;
 		for (outIter = 0;outIter!= src->outFlatNodes.size();outIter++)
 		{
 			if(oldFlatNodeSet.count(src->outFlatNodes[outIter]))
 			{
-				//cout<<"ÉÏ¶Ë  "<<src->outFlatNodes[outIter]->name<<endl;
+				//cout<<"ä¸Šç«¯  "<<src->outFlatNodes[outIter]->name<<endl;
 				break;
 			}
 		}
-		if(outIter< src->outFlatNodes.size()) //ÉÏ¶Ë½ÚµãµÄÊä³ö±ß¶ÔÓ¦µÄÏÂ¶Ë½ÚµãÈç¹ûÔÚoldDownFlatNodeÖĞÔòÌæ»»
+		if(outIter< src->outFlatNodes.size()) //ä¸Šç«¯èŠ‚ç‚¹çš„è¾“å‡ºè¾¹å¯¹åº”çš„ä¸‹ç«¯èŠ‚ç‚¹å¦‚æœåœ¨oldDownFlatNodeä¸­åˆ™æ›¿æ¢
 		{
-			src->outFlatNodes[outIter] = dest;//ÕÒµ½,ĞŞ¸ÄÖµ	
-			//cout<<"Ìæ»»  "<<dest->name<<endl;
+			src->outFlatNodes[outIter] = dest;//æ‰¾åˆ°,ä¿®æ”¹å€¼	
+			//cout<<"æ›¿æ¢  "<<dest->name<<endl;
 		}
-		else src->AddOutEdges(dest);//Ã»ÕÒµ½£¬²åÈë
+		else src->AddOutEdges(dest);//æ²¡æ‰¾åˆ°ï¼Œæ’å…¥
 		dest->AddInEdges(src);
 	}
 	return newFlatNode;
 }
 
 /*
-1.Èô¸ÃoperatorÃ»ÓĞÊäÈë£¬ÔòFlatNode³ÉÔ±±äÁ¿inPeekWeights£¬inPopWeights¾ùÎª0
-2.Èô¸ÃoperatorÃ»ÓĞÊä³ö£¬ÔòFlatNode³ÉÔ±±äÁ¿inPeekWeights£¬inPopWeights¸ù¾İ4À´¶¨
-3.Èô¸ÃoperatorÓĞÊä³ö£¬ÓĞÊäÈë£¬ÔòFlatNode³ÉÔ±±äÁ¿inPeekWeights£¬inPopWeights¸ù¾İ4À´¶¨
-4.Ò»¸öwindowÊÇºÍÒ»Ìõ±ß¶ÔÓ¦µÄ£¬inPeekWeights£¬inPopWeights£¬outPushWeights°´ÈçÏÂ·½·¨¼ÆËã
-	(1)ËùÓĞwindowµÄoutPushWeights¾ùÓÃ´°¿Ú±êÊ¶IDºÍTumbling¹Ø¼ü×ÖÖ¸¶¨
-	(2)Èô¸ÃwindowÎªsliding·ç¸ñ£¬ÔòinPeekWeights£¬inPopWeightsÓÉµÚ1,2¸öcountÖµ¾ö¶¨
-	(3)Èô¸ÃwindowÎªtumbling·ç¸ñ£¬ÔòinPeekWeightsºÍinPopWeightsÏàµÈ¾ùÓÉµÚÒ»¸öcount¾ö¶¨
-	(4)ÓÉÓÚÊÇ¾²Ì¬¼ÆËã£¬Òò´Ë²»¶ÔwindowµÄÅÅ¿ÕºÍ´¥·¢²ßÂÔÎªtimeÀàĞÍ×ö¼ÆËã£¬Ö»ÏŞÓÚcountÀàĞÍµÄwindow²ßÂÔ
+1.è‹¥è¯¥operatoræ²¡æœ‰è¾“å…¥ï¼Œåˆ™FlatNodeæˆå‘˜å˜é‡inPeekWeightsï¼ŒinPopWeightså‡ä¸º0
+2.è‹¥è¯¥operatoræ²¡æœ‰è¾“å‡ºï¼Œåˆ™FlatNodeæˆå‘˜å˜é‡inPeekWeightsï¼ŒinPopWeightsæ ¹æ®4æ¥å®š
+3.è‹¥è¯¥operatoræœ‰è¾“å‡ºï¼Œæœ‰è¾“å…¥ï¼Œåˆ™FlatNodeæˆå‘˜å˜é‡inPeekWeightsï¼ŒinPopWeightsæ ¹æ®4æ¥å®š
+4.ä¸€ä¸ªwindowæ˜¯å’Œä¸€æ¡è¾¹å¯¹åº”çš„ï¼ŒinPeekWeightsï¼ŒinPopWeightsï¼ŒoutPushWeightsæŒ‰å¦‚ä¸‹æ–¹æ³•è®¡ç®—
+	(1)æ‰€æœ‰windowçš„outPushWeightså‡ç”¨çª—å£æ ‡è¯†IDå’ŒTumblingå…³é”®å­—æŒ‡å®š
+	(2)è‹¥è¯¥windowä¸ºslidingé£æ ¼ï¼Œåˆ™inPeekWeightsï¼ŒinPopWeightsç”±ç¬¬1,2ä¸ªcountå€¼å†³å®š
+	(3)è‹¥è¯¥windowä¸ºtumblingé£æ ¼ï¼Œåˆ™inPeekWeightså’ŒinPopWeightsç›¸ç­‰å‡ç”±ç¬¬ä¸€ä¸ªcountå†³å®š
+	(4)ç”±äºæ˜¯é™æ€è®¡ç®—ï¼Œå› æ­¤ä¸å¯¹windowçš„æ’ç©ºå’Œè§¦å‘ç­–ç•¥ä¸ºtimeç±»å‹åšè®¡ç®—ï¼Œåªé™äºcountç±»å‹çš„windowç­–ç•¥
 */
 void StaticStreamGraph::SetFlatNodesWeights()
  {
@@ -327,10 +327,10 @@ void StaticStreamGraph::SetFlatNodesWeights()
 		operatorNode *contents = flatNode->contents;
 		List *windowList = contents->body->u.operBody.window;
 
-		//ÏÈ¶ÔËùÓĞµÄpop, peek, push³õÊ¼»¯Îª1
+		//å…ˆå¯¹æ‰€æœ‰çš„pop, peek, pushåˆå§‹åŒ–ä¸º1
 		for(j = 0; j < flatNode->nIn; j++)
 		{
-			// ÔÚinPeekWeightsÎª¿ÕµÄÇé¿öÏÂ£¬²»ÄÜÊ¹ÓÃÊı×éÏÂ±ê£¨inPeekWeights[j]£©·ÃÎÊ£¬·ñÔò³öÏÖ¶ÏÑÔ´íÎó£¬ÒÔÏÂÀàÍ¬
+			// åœ¨inPeekWeightsä¸ºç©ºçš„æƒ…å†µä¸‹ï¼Œä¸èƒ½ä½¿ç”¨æ•°ç»„ä¸‹æ ‡ï¼ˆinPeekWeights[j]ï¼‰è®¿é—®ï¼Œå¦åˆ™å‡ºç°æ–­è¨€é”™è¯¯ï¼Œä»¥ä¸‹ç±»åŒ
 			(flatNode->inPeekWeights).push_back(1); 
 			(flatNode->inPopWeights).push_back(1);
 			sprintf(tmp, "nPeek_%d",j);
@@ -340,12 +340,12 @@ void StaticStreamGraph::SetFlatNodesWeights()
 		}
 		for(j = 0; j < flatNode->nOut; j++)
 		{
-			(flatNode->outPushWeights).push_back(1); // ¶ÔÓÚÃ¿Ò»¸öFlatNodeÀ´Ëµ¶¼Îª1£¬ÏÂÍ¬
+			(flatNode->outPushWeights).push_back(1); // å¯¹äºæ¯ä¸€ä¸ªFlatNodeæ¥è¯´éƒ½ä¸º1ï¼Œä¸‹åŒ
 			sprintf(tmp, "nPush_%d",j);
 			(flatNode->outPushString).push_back(tmp);
 		}
 			
-		// ´¦Àíwindow²»Îª¿ÕµÄoperator½Úµã£¬Îª¿ÕÔòÈ¡ÉÏÊöÄ¬ÈÏÖµ
+		// å¤„ç†windowä¸ä¸ºç©ºçš„operatorèŠ‚ç‚¹ï¼Œä¸ºç©ºåˆ™å–ä¸Šè¿°é»˜è®¤å€¼
 		if( windowList != NULL) 
 		{
 			ListMarker marker;
@@ -362,17 +362,17 @@ void StaticStreamGraph::SetFlatNodesWeights()
 				type = item->u.window.id->u.id.decl->u.decl.type;
 				pos = mapEdge2UpFlatNode.find(type);
 				assert(pos != mapEdge2UpFlatNode.end()); 
-				src = pos->second; // Ã¿Ìõ±ßÓĞÇÒÖ»ÓĞÒ»¸öÉÏ¶Ë½Úµã
-				if(src != flatNode) // ËµÃ÷¸ÃwindowÖ¸Ê¾µÄÊÇpeekºÍpopÖµ
+				src = pos->second; // æ¯æ¡è¾¹æœ‰ä¸”åªæœ‰ä¸€ä¸ªä¸Šç«¯èŠ‚ç‚¹
+				if(src != flatNode) // è¯´æ˜è¯¥windowæŒ‡ç¤ºçš„æ˜¯peekå’Œpopå€¼
 				{
 					NodeType nodeType = item->u.window.wtype->typ;
 					assert(nodeType == Sliding || nodeType == Tumbling);
 
-					for(j = 0; src != flatNode->inFlatNodes[j] ; j++); //ÕÒµ½¶ÔÓ¦µÄj,×¼±¸Ğ´ÈëÖµ
+					for(j = 0; src != flatNode->inFlatNodes[j] ; j++); //æ‰¾åˆ°å¯¹åº”çš„j,å‡†å¤‡å†™å…¥å€¼
 					if(nodeType == Sliding) // sliding window
 					{
 						int tmp = 0;
-						//È¡³ösliding½ÚµãµÄÖµ
+						//å–å‡ºslidingèŠ‚ç‚¹çš„å€¼
 						aptr = item->u.window.wtype->u.sliding.sliding_value->u.comma.exprs;
 						Node *trigger = (Node *)FirstItem(aptr);
 						aptr = Rest(aptr);
@@ -381,7 +381,7 @@ void StaticStreamGraph::SetFlatNodesWeights()
 						val = GetValue(eviction);
 						tmp = flatNode->inPopWeights[j] = val->u.Const.value.i;
 						
-						if(trigger) // Èôpeek²¿·Ö²»Îª¿Õ£¬ÔòÈ¡Öµ
+						if(trigger) // è‹¥peekéƒ¨åˆ†ä¸ä¸ºç©ºï¼Œåˆ™å–å€¼
 						{
 							val = GetValue(trigger);
 							if (tmp > val->u.Const.value.i)
@@ -393,7 +393,7 @@ void StaticStreamGraph::SetFlatNodesWeights()
 							flatNode->inPeekWeights[j] = val->u.Const.value.i;
 							//flatNode->inPeekString[j] = val->u.Const.value.i;
 						}
-						else // peek²¿·ÖÎª¿Õ£¬Ôòpeek == pop
+						else // peekéƒ¨åˆ†ä¸ºç©ºï¼Œåˆ™peek == pop
 						{
 							flatNode->inPeekWeights[j] = val->u.Const.value.i;
 							//flatNode->inPeekString[j] = val->u.Const.value.i;
@@ -406,15 +406,15 @@ void StaticStreamGraph::SetFlatNodesWeights()
 						flatNode->inPeekWeights[j] = val->u.Const.value.i;
 						flatNode->inPopWeights[j] = flatNode->inPeekWeights[j];
 
-//						flatNode->AddPopAtCodeGen[j] = 0;//zww:20120213,³õÊ¼AddPopAtCodeGen
+//						flatNode->AddPopAtCodeGen[j] = 0;//zww:20120213,åˆå§‹AddPopAtCodeGen
 						
 						//flatNode->inPeekString[j] = val->u.Const.value.i;
 						//flatNode->inPopString[j] = flatNode->inPeekWeights[j];
 					}
 				}
-				else // ËµÃ÷¸ÃwindowÖ¸Ê¾µÄÊÇpushÖµ
+				else // è¯´æ˜è¯¥windowæŒ‡ç¤ºçš„æ˜¯pushå€¼
 				{
-					int total = mapEdge2DownFlatNode.count(type); // ¸ÃmapÎªmultimap£¬ËùÒÔ»áÓĞ¶à¸ö¶ÔÓ¦Öµ£¬ÒªÖğÒ»²éÕÒ
+					int total = mapEdge2DownFlatNode.count(type); // è¯¥mapä¸ºmultimapï¼Œæ‰€ä»¥ä¼šæœ‰å¤šä¸ªå¯¹åº”å€¼ï¼Œè¦é€ä¸€æŸ¥æ‰¾
 
 					val = GetValue(item->u.window.wtype->u.tumbling.tumbling_value);
 					posMulti = mapEdge2DownFlatNode.find(type);
@@ -441,10 +441,10 @@ void StaticStreamGraph::SetFlatNodesWeights(FlatNode *flatNode)
 	operatorNode *contents = flatNode->contents;
 	List *windowList = contents->body->u.operBody.window;
 
-	//ÏÈ¶ÔËùÓĞµÄpop, peek, push³õÊ¼»¯Îª1
+	//å…ˆå¯¹æ‰€æœ‰çš„pop, peek, pushåˆå§‹åŒ–ä¸º1
 	for(j = 0; j < flatNode->nIn; j++)
 	{
-		// ÔÚinPeekWeightsÎª¿ÕµÄÇé¿öÏÂ£¬²»ÄÜÊ¹ÓÃÊı×éÏÂ±ê£¨inPeekWeights[j]£©·ÃÎÊ£¬·ñÔò³öÏÖ¶ÏÑÔ´íÎó£¬ÒÔÏÂÀàÍ¬
+		// åœ¨inPeekWeightsä¸ºç©ºçš„æƒ…å†µä¸‹ï¼Œä¸èƒ½ä½¿ç”¨æ•°ç»„ä¸‹æ ‡ï¼ˆinPeekWeights[j]ï¼‰è®¿é—®ï¼Œå¦åˆ™å‡ºç°æ–­è¨€é”™è¯¯ï¼Œä»¥ä¸‹ç±»åŒ
 		(flatNode->inPeekWeights).push_back(1); 
 		(flatNode->inPopWeights).push_back(1);
 		sprintf(tmp, "nPeek_%d",j);
@@ -454,12 +454,12 @@ void StaticStreamGraph::SetFlatNodesWeights(FlatNode *flatNode)
 	}
 	for(j = 0; j < flatNode->nOut; j++)
 	{
-		(flatNode->outPushWeights).push_back(1); // ¶ÔÓÚÃ¿Ò»¸öFlatNodeÀ´Ëµ¶¼Îª1£¬ÏÂÍ¬
+		(flatNode->outPushWeights).push_back(1); // å¯¹äºæ¯ä¸€ä¸ªFlatNodeæ¥è¯´éƒ½ä¸º1ï¼Œä¸‹åŒ
 		sprintf(tmp, "nPush_%d",j);
 		(flatNode->outPushString).push_back(tmp);
 	}
 		
-	// ´¦Àíwindow²»Îª¿ÕµÄoperator½Úµã£¬Îª¿ÕÔòÈ¡ÉÏÊöÄ¬ÈÏÖµ
+	// å¤„ç†windowä¸ä¸ºç©ºçš„operatorèŠ‚ç‚¹ï¼Œä¸ºç©ºåˆ™å–ä¸Šè¿°é»˜è®¤å€¼
 	if( windowList != NULL) 
 	{
 		ListMarker marker;
@@ -476,17 +476,17 @@ void StaticStreamGraph::SetFlatNodesWeights(FlatNode *flatNode)
 			type = item->u.window.id->u.id.decl->u.decl.type;
 			pos = mapEdge2UpFlatNode.find(type);
 			assert(pos != mapEdge2UpFlatNode.end()); 
-			src = pos->second; // Ã¿Ìõ±ßÓĞÇÒÖ»ÓĞÒ»¸öÉÏ¶Ë½Úµã
-			if(src != flatNode) // ËµÃ÷¸ÃwindowÖ¸Ê¾µÄÊÇpeekºÍpopÖµ
+			src = pos->second; // æ¯æ¡è¾¹æœ‰ä¸”åªæœ‰ä¸€ä¸ªä¸Šç«¯èŠ‚ç‚¹
+			if(src != flatNode) // è¯´æ˜è¯¥windowæŒ‡ç¤ºçš„æ˜¯peekå’Œpopå€¼
 			{
 				NodeType nodeType = item->u.window.wtype->typ;
 				assert(nodeType == Sliding || nodeType == Tumbling);
 
-				for(j = 0; src != flatNode->inFlatNodes[j] ; j++); //ÕÒµ½¶ÔÓ¦µÄj,×¼±¸Ğ´ÈëÖµ
+				for(j = 0; src != flatNode->inFlatNodes[j] ; j++); //æ‰¾åˆ°å¯¹åº”çš„j,å‡†å¤‡å†™å…¥å€¼
 				if(nodeType == Sliding) // sliding window
 				{
 					int tmp = 0;
-					//È¡³ösliding½ÚµãµÄÖµ
+					//å–å‡ºslidingèŠ‚ç‚¹çš„å€¼
 					aptr = item->u.window.wtype->u.sliding.sliding_value->u.comma.exprs;
 					Node *trigger = (Node *)FirstItem(aptr);
 					aptr = Rest(aptr);
@@ -495,9 +495,9 @@ void StaticStreamGraph::SetFlatNodesWeights(FlatNode *flatNode)
 					val = GetValue(item->u.window.wtype->u.sliding.sliding_value);
 					tmp = flatNode->inPopWeights[j] = val->u.Const.value.i;
 					
-//					flatNode->AddPopAtCodeGen[j] = 0;//zww:20120213,³õÊ¼AddPopAtCodeGen
+//					flatNode->AddPopAtCodeGen[j] = 0;//zww:20120213,åˆå§‹AddPopAtCodeGen
 
-					if(trigger) // Èôpeek²¿·Ö²»Îª¿Õ£¬ÔòÈ¡Öµ
+					if(trigger) // è‹¥peekéƒ¨åˆ†ä¸ä¸ºç©ºï¼Œåˆ™å–å€¼
 					{
 						val = GetValue(trigger);
 						if (tmp > val->u.Const.value.i)
@@ -508,7 +508,7 @@ void StaticStreamGraph::SetFlatNodesWeights(FlatNode *flatNode)
 						flatNode->inPeekWeights[j] = val->u.Const.value.i;
 						//flatNode->inPeekString[j] = val->u.Const.value.i;
 					}
-					else // peek²¿·ÖÎª¿Õ£¬Ôòpeek == pop
+					else // peekéƒ¨åˆ†ä¸ºç©ºï¼Œåˆ™peek == pop
 					{
 						flatNode->inPeekWeights[j] = val->u.Const.value.i;
 						//flatNode->inPeekString[j] = val->u.Const.value.i;
@@ -521,15 +521,15 @@ void StaticStreamGraph::SetFlatNodesWeights(FlatNode *flatNode)
 					flatNode->inPeekWeights[j] = val->u.Const.value.i;
 					flatNode->inPopWeights[j] = flatNode->inPeekWeights[j];
 
-//					flatNode->AddPopAtCodeGen[j] = 0;//zww:20120213,³õÊ¼AddPopAtCodeGen
+//					flatNode->AddPopAtCodeGen[j] = 0;//zww:20120213,åˆå§‹AddPopAtCodeGen
 
 					//flatNode->inPeekString[j] = val->u.Const.value.i;
 					//flatNode->inPopString[j] = flatNode->inPeekWeights[j];
 				}
 			}
-			else // ËµÃ÷¸ÃwindowÖ¸Ê¾µÄÊÇpushÖµ
+			else // è¯´æ˜è¯¥windowæŒ‡ç¤ºçš„æ˜¯pushå€¼
 			{
-				int total = mapEdge2DownFlatNode.count(type); // ¸ÃmapÎªmultimap£¬ËùÒÔ»áÓĞ¶à¸ö¶ÔÓ¦Öµ£¬ÒªÖğÒ»²éÕÒ
+				int total = mapEdge2DownFlatNode.count(type); // è¯¥mapä¸ºmultimapï¼Œæ‰€ä»¥ä¼šæœ‰å¤šä¸ªå¯¹åº”å€¼ï¼Œè¦é€ä¸€æŸ¥æ‰¾
 
 				val = GetValue(item->u.window.wtype->u.tumbling.tumbling_value);
 				posMulti = mapEdge2DownFlatNode.find(type);

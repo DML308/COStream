@@ -8,34 +8,34 @@ using namespace std;
 class ClusterStageAssignment
 {
 public:
-	ClusterStageAssignment(ClusterPartition *);//¹¹Ôìº¯Êı
+	ClusterStageAssignment(ClusterPartition *);//æ„é€ å‡½æ•°
 
-	void CreateStageAssignment();//¸ù¾İ¶ş¼¶»®·Ö½øĞĞ¼¯Èº¼äµÄ½×¶Î¸´ÖÆ
+	void CreateStageAssignment();//æ ¹æ®äºŒçº§åˆ’åˆ†è¿›è¡Œé›†ç¾¤é—´çš„é˜¶æ®µå¤åˆ¶
 
-	multimap<int,FlatNode *> GetCluster2Stage2Actor(int clusterNum);//È¡¼¯ÈºÉÏÒ»¸ö½ÚµãµÄ½×¶Î¸´ÖÆµÄ½á¹û
+	multimap<int,FlatNode *> GetCluster2Stage2Actor(int clusterNum);//å–é›†ç¾¤ä¸Šä¸€ä¸ªèŠ‚ç‚¹çš„é˜¶æ®µå¤åˆ¶çš„ç»“æœ
 	map<FlatNode*, int> GetCluster2Actor2Stage(int clusterNum);
 
-	map<int,multimap<int ,FlatNode *> > GetAllCluster2Stage2Actor();//·µ»ØËùÓĞµÄ½á¹û
+	map<int,multimap<int ,FlatNode *> > GetAllCluster2Stage2Actor();//è¿”å›æ‰€æœ‰çš„ç»“æœ
 	map<int,map<FlatNode * ,int> > GetAllCluster2Actor2Stage();
 	
-	vector<FlatNode*> GetActors(int clusterNum,int stage);//²ÎÊıÊÇ¼¯Èº½ÚµãµÄ±àºÅ£¬½×¶ÎºÅ
+	vector<FlatNode*> GetActors(int clusterNum,int stage);//å‚æ•°æ˜¯é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œé˜¶æ®µå·
 
-	vector<FlatNode *> CreateTopoLogicalOrder(vector<FlatNode *>original);//´´½¨ÍØÆËĞòÁĞ
+	vector<FlatNode *> CreateTopoLogicalOrder(vector<FlatNode *>original);//åˆ›å»ºæ‹“æ‰‘åºåˆ—
 
-	void CreateFlatNode2StageMap(map<FlatNode *,int>FlatNode2Core);////²ÎÊıÊÇFlatNodeÓëcoreÖ®¼äµÄÓ³Éä
+	void CreateFlatNode2StageMap(map<FlatNode *,int>FlatNode2Core);////å‚æ•°æ˜¯FlatNodeä¸coreä¹‹é—´çš„æ˜ å°„
 	
-	int GetStageNum(FlatNode*);//¸ù¾İ½áµãÑ°ÕÒÆäËùÔÚµÄ½×¶ÎºÅ
-	int GetMaxStageNum(int clusterNum);//·µ»ØÒ»Ì¨»úÆ÷½ÚµãÉÏµÄ×î´óµÄ½×¶Î±àºÅ
+	int GetStageNum(FlatNode*);//æ ¹æ®ç»“ç‚¹å¯»æ‰¾å…¶æ‰€åœ¨çš„é˜¶æ®µå·
+	int GetMaxStageNum(int clusterNum);//è¿”å›ä¸€å°æœºå™¨èŠ‚ç‚¹ä¸Šçš„æœ€å¤§çš„é˜¶æ®µç¼–å·
 
 protected:
-	vector<FlatNode *>actorTopoOrder;//ÓÃÓÚ´æ´¢actorµÄÍØÆËÅÅĞò
-	vector<FlatNode *>actorSet;//ÓÃÓÚ·µ»ØflatNode¼¯ºÏµÄ
-	map<int ,multimap<int,FlatNode *> > cluster2Stage2Actor;//¼¯Èº½ÚµãµÄ±àºÅ£¬½×¶ÎºÅ£¬actorÖ®¼äµÄÓ³Éä
-	map<int ,map<FlatNode*, int> > cluster2Actor2Stage;//¼¯Èº½ÚµãµÄ±àºÅ£¬actor£¬½×¶ÎºÅÖ®¼äµÄÓ³Éä
-	map<FlatNode *,pair<int, int> > actor2Cluster2stage;//actor ,¼¯Èº½ÚµãµÄ±àºÅ,½×¶ÎºÅÖ®¼äµÄÓ³Éä
-	ClusterPartition *cpartition;//¼¯Èº¶şÂ·»®·ÖµÄ½á¹û
+	vector<FlatNode *>actorTopoOrder;//ç”¨äºå­˜å‚¨actorçš„æ‹“æ‰‘æ’åº
+	vector<FlatNode *>actorSet;//ç”¨äºè¿”å›flatNodeé›†åˆçš„
+	map<int ,multimap<int,FlatNode *> > cluster2Stage2Actor;//é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œé˜¶æ®µå·ï¼Œactorä¹‹é—´çš„æ˜ å°„
+	map<int ,map<FlatNode*, int> > cluster2Actor2Stage;//é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œactorï¼Œé˜¶æ®µå·ä¹‹é—´çš„æ˜ å°„
+	map<FlatNode *,pair<int, int> > actor2Cluster2stage;//actor ,é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·,é˜¶æ®µå·ä¹‹é—´çš„æ˜ å°„
+	ClusterPartition *cpartition;//é›†ç¾¤äºŒè·¯åˆ’åˆ†çš„ç»“æœ
 private:
-	map<FlatNode *,int>actor2Stage;//ÓÃÓÚÁÙÊ±´æ´¢½×¶Î¸³ÖµµÄ½á¹û
-	multimap<int,FlatNode*>stage2Actor;//ÓÃÓÚÁÙÊ±´æ´¢½×¶Î¸³ÖµµÄ½á¹û
+	map<FlatNode *,int>actor2Stage;//ç”¨äºä¸´æ—¶å­˜å‚¨é˜¶æ®µèµ‹å€¼çš„ç»“æœ
+	multimap<int,FlatNode*>stage2Actor;//ç”¨äºä¸´æ—¶å­˜å‚¨é˜¶æ®µèµ‹å€¼çš„ç»“æœ
 };
 #endif

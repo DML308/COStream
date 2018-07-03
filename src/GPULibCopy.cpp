@@ -19,7 +19,7 @@ GPULibCopy::GPULibCopy()
 	lock_free_c_="barrier_sync.cpp";
 	Math_name_="MathExtension.h";
 	makefile_name_ = "Makefile";
-	time_file_name_ = "rdtsc.h";		//获取时钟周期函数
+	time_file_name_ = "rdtsc.h";		//鑾峰彇鏃堕挓鍛ㄦ湡鍑芥暟
 	setCpu_name_ = "setCpu.h";
 	content_ = NULL;
 }
@@ -77,7 +77,7 @@ void GPULibCopy::Run(const char *dir)
 	sprintf(tmp,"%s%s",dir, setCpu_name_);
 	TextFileWrite(tmp, content_);
 
-	//以下只为临时只用，以后需该为调用CGMAKEFILE
+	//浠ヤ笅鍙负涓存椂鍙敤锛屼互鍚庨渶璇ヤ负璋冪敤CGMAKEFILE
 	string str8 = libDir_;
 	str8 += makefile_name_;
 	content_ = TextFileRead(str8.c_str());

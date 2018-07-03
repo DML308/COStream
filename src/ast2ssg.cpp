@@ -69,9 +69,9 @@ GLOBAL StaticStreamGraph *AST2FlatStaticStreamGraph(Node *mainComposite)
 	ssg->SetTopLevel();
 	ssg->SetFlatNodesWeights();
 	ssg->GetPreName(); //cwb
-	//ssg->SetTemplateNode(); //»ñÈ¡ËùÓĞÄ£°å½áµã chenwenbin 20140724
+	//ssg->SetTemplateNode(); //è·å–æ‰€æœ‰æ¨¡æ¿ç»“ç‚¹ chenwenbin 20140724
 	//ssg->ResetTemplateName();
-	ssg->ResetFlatNodeNames(); /*ÖØÖÃssgÄÚflatNodesµÄÃ¿¸öflatNodeµÄname, ±ãÓÚ´òÓ¡dotÍ¼*/
+	ssg->ResetFlatNodeNames(); /*é‡ç½®ssgå†…flatNodesçš„æ¯ä¸ªflatNodeçš„name, ä¾¿äºæ‰“å°dotå›¾*/
 	
 
 #if 0

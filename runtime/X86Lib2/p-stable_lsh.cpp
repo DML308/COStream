@@ -6,29 +6,29 @@ using namespace std;
 
 #define PI 3.1415926
 const int MAX=255;
-const int dimention=512;//Î¬¶È
-const int hashcount=1;//¹şÏ£±íµÄÊıÁ¿
-multimap<int,vector<double> > stda[hashcount];//´æ·ÅÏòÁ¿ºÍÃû³Æ
-double a[1][512];//p-Stable·Ö²¼£¨L=2£»¸ßË¹·Ö²¼£©µÄËæ»úÏòÁ¿
+const int dimention=512;//ç»´åº¦
+const int hashcount=1;//å“ˆå¸Œè¡¨çš„æ•°é‡
+multimap<int,vector<double> > stda[hashcount];//å­˜æ”¾å‘é‡å’Œåç§°
+double a[1][512];//p-Stableåˆ†å¸ƒï¼ˆL=2ï¼›é«˜æ–¯åˆ†å¸ƒï¼‰çš„éšæœºå‘é‡
 
-//static double a[hashcount][dimention];//p-Stable·Ö²¼£¨L=2£»¸ßË¹·Ö²¼£©µÄËæ»úÏòÁ¿
-double w=4.0;//LSHµÄw
-double b=rand()/(w+1);//LSHµÄËæ»úÊıb
+//static double a[hashcount][dimention];//p-Stableåˆ†å¸ƒï¼ˆL=2ï¼›é«˜æ–¯åˆ†å¸ƒï¼‰çš„éšæœºå‘é‡
+double w=4.0;//LSHçš„w
+double b=rand()/(w+1);//LSHçš„éšæœºæ•°b
 
-double AverageRandom(double min,double max);//Æ½¾ù·Ö²¼
-double Normal(double x,double miu,double sigma);//¸ßË¹º¯Êı
-double NormalRandom(double miu,double sigma,double min,double max);//¸ßË¹·Ö²¼
-int hashfamily(double f[],double *a_temp,double b_temp,double w_temp);//fÎªÌØÕ÷£¬a_tempÎªaÏòÁ¿£¬b_tempÎªb£¬w_tempÎªw
-int pstableQuery(double *input_temp, double *output_temp);//²éÑ¯
-int pstableInsert(double *input_temp, double *output_temp);//²åÈë
-int pstablePreProccess();//Ô¤´¦Àí
+double AverageRandom(double min,double max);//å¹³å‡åˆ†å¸ƒ
+double Normal(double x,double miu,double sigma);//é«˜æ–¯å‡½æ•°
+double NormalRandom(double miu,double sigma,double min,double max);//é«˜æ–¯åˆ†å¸ƒ
+int hashfamily(double f[],double *a_temp,double b_temp,double w_temp);//fä¸ºç‰¹å¾ï¼Œa_tempä¸ºaå‘é‡ï¼Œb_tempä¸ºbï¼Œw_tempä¸ºw
+int pstableQuery(double *input_temp, double *output_temp);//æŸ¥è¯¢
+int pstableInsert(double *input_temp, double *output_temp);//æ’å…¥
+int pstablePreProccess();//é¢„å¤„ç†
 
 
 int pstablePreProccess()
 {
 #ifdef _PPPROCESS_
 #define _PPPROCESS_
-	for(int j=0;j<hashcount;j++)//²úÉúhashcount¸ö¹şÏ£±í
+	for(int j=0;j<hashcount;j++)//äº§ç”Ÿhashcountä¸ªå“ˆå¸Œè¡¨
 	{
 		for(int k=0;k<dimention;k++)
 		{
@@ -46,12 +46,12 @@ int pstableInsert(double *input_temp, double *output_temp, int inDim, int outDim
 	int outputLength = outDim;
 	for(int i=0;i<outputLength;i++)
 		vo.push_back(*(output_temp+i));
-	//¹şÏ£¹ı³Ì
-	for(int l=0;l<hashcount;l++)//Ã¿Ò»´ÎÊäÈëµÄhashcount¸ökey
+	//å“ˆå¸Œè¿‡ç¨‹
+	for(int l=0;l<hashcount;l++)//æ¯ä¸€æ¬¡è¾“å…¥çš„hashcountä¸ªkey
 	{
-		int hash_num=hashfamily(input_temp,&a[l][0],b,w);//¹şÏ£
-		int key=(int)hash_num/w;//¹şÏ£±íµÄkey
-		//¹şÏ£´æ´¢
+		int hash_num=hashfamily(input_temp,&a[l][0],b,w);//å“ˆå¸Œ
+		int key=(int)hash_num/w;//å“ˆå¸Œè¡¨çš„key
+		//å“ˆå¸Œå­˜å‚¨
 		if(stda[l].count(key)<3)
 			stda[l].insert(make_pair(key, vo));
 	}
@@ -59,7 +59,7 @@ int pstableInsert(double *input_temp, double *output_temp, int inDim, int outDim
 	return 0;
 }
 
-double AverageRandom(double min,double max)//Æ½¾ù·Ö²¼
+double AverageRandom(double min,double max)//å¹³å‡åˆ†å¸ƒ
 {
     int minInteger = (int)(min*10000);
     int maxInteger = (int)(max*10000);
@@ -69,11 +69,11 @@ double AverageRandom(double min,double max)//Æ½¾ù·Ö²¼
     return resultInteger/10000.0;
 }
 
-double Normal(double x,double miu,double sigma) //¸ÅÂÊÃÜ¶Èº¯Êı
+double Normal(double x,double miu,double sigma) //æ¦‚ç‡å¯†åº¦å‡½æ•°
 {
 	return 1.0/sqrt(2*PI*sigma) * exp(-1*(x-miu)*(x-miu)/(2*sigma*sigma));
 }
-double NormalRandom(double miu,double sigma,double min,double max)//²úÉúÕıÌ¬·Ö²¼Ëæ»úÊı
+double NormalRandom(double miu,double sigma,double min,double max)//äº§ç”Ÿæ­£æ€åˆ†å¸ƒéšæœºæ•°
 {
     double x;
     double dScope;
@@ -88,14 +88,14 @@ double NormalRandom(double miu,double sigma,double min,double max)//²úÉúÕıÌ¬·Ö²¼
      return x;
 }
 
-int hashfamily(double f[],double *a_temp,double b_temp,double w_temp)//¹şÏ£º¯Êı
+int hashfamily(double f[],double *a_temp,double b_temp,double w_temp)//å“ˆå¸Œå‡½æ•°
 {
 	double result=b_temp;
 	for(int i=0;i<dimention;i++)
 	{
 		result+=f[i]*(*(a_temp+i));
 	}
-	return (int)(result/w_temp);//·µ»Ø¹şÏ£½á¹û
+	return (int)(result/w_temp);//è¿”å›å“ˆå¸Œç»“æœ
 }
 
 int pstableQuery(double *input_temp, double *output_temp)
@@ -103,20 +103,20 @@ int pstableQuery(double *input_temp, double *output_temp)
 	
 	int hash_num=0;
 	int key[hashcount]={0};
-	for(int l=0;l<hashcount;l++)//hashcount¸ökey
+	for(int l=0;l<hashcount;l++)//hashcountä¸ªkey
 	{
-		hash_num=hashfamily(input_temp,&a[l][0],b,w);//¹şÏ£
-		key[l]=(int)hash_num/w;//¹şÏ£±íµÄkey
+		hash_num=hashfamily(input_temp,&a[l][0],b,w);//å“ˆå¸Œ
+		key[l]=(int)hash_num/w;//å“ˆå¸Œè¡¨çš„key
 	}
-	//´¦Àímultimap
+	//å¤„ç†multimap
 	multimap<int,vector<double> >::iterator itit;
-	int counts[hashcount]={0};//¼ÇÂ¼ÊıÄ¿
+	int counts[hashcount]={0};//è®°å½•æ•°ç›®
 	int count=0;	
 	vector<double> search_result;
 	for(int i=0;i<hashcount;i++)
 	{
-		counts[i]=stda[i].count(key[i]);//Ã¿¸ö¹şÏ£±íÖĞ¹Ø¼ü×ÖµÄ¸öÊı 
-		count=count+counts[i];//×ÜµÄÆ¥ÅäÊıÄ¿
+		counts[i]=stda[i].count(key[i]);//æ¯ä¸ªå“ˆå¸Œè¡¨ä¸­å…³é”®å­—çš„ä¸ªæ•° 
+		count=count+counts[i];//æ€»çš„åŒ¹é…æ•°ç›®
 	}
 	if(count==0)
 		return 0;

@@ -6,19 +6,19 @@
 #include <float.h>
 using namespace std;
 
-//È·¶¨¼ÆËãÊÕÒæµÄ·½Ê½
+//ç¡®å®šè®¡ç®—æ”¶ç›Šçš„æ–¹å¼
 #define SUBTRACT FALSE
 
 PRIVATE ClusterPartition* cpartition = NULL;
 
-ClusterPartition::ClusterPartition(ClusterGroupGraph* tmpgroupGraph)//Íê³ÉgroupµÄ±àºÅ
+ClusterPartition::ClusterPartition(ClusterGroupGraph* tmpgroupGraph)//å®Œæˆgroupçš„ç¼–å·
 {
 	groupGraph = tmpgroupGraph;
 	std::vector<ClusterGroup *> clusterGroupSet = groupGraph->GetClusterGroupSet();
 }
 
 void ClusterPartition::CreateClusterGraph()
-{//¸ù¾İclusterÓëgroupÖ®¼äµÄÓ³Éä¹ØÏµ¹¹ÔìclusterÖ®¼äµÄÒÀÀµ
+{//æ ¹æ®clusterä¸groupä¹‹é—´çš„æ˜ å°„å…³ç³»æ„é€ clusterä¹‹é—´çš„ä¾èµ–
 	cluster2PrecedenceCluster.clear();
 	cluster2SuccessorCluster.clear();
 	typedef multimap<int,ClusterGroup*>::iterator Num2GroupIter;
@@ -55,11 +55,11 @@ void ClusterPartition::CreateClusterGraph()
 	}
 }
 
-//µÚÒ»¼¶»®·Ö(½«groupÓ³Éä¼¯Èº½Úµã)
-void ClusterPartition::InitPartition(ClusterGroupGraph* groupGraph)//³õÊ¼»¯·Ö£¨µ±K²»È·¶¨»òÕßmnparts´óÓÚmnclustersÊ±ĞèÒªÍê³ÉgroupÓëcluster½ÚµãÖ®¼äµÄ»®·Ö£©
-{//½«groupGraphÖĞµÄgroupÓ³Éäµ½clusterµÄ½ÚµãÉÏ
-	std::vector<ClusterGroup *> clusterGroupSet = groupGraph->GetClusterGroupSet();//½«ËùÓĞµÄgroup½ÚµãÈ¡³öÀ´
-	if(clusterGroupSet.size()<= mnclusters)//Ö±½ÓÍê³ÉÓ³Éä
+//ç¬¬ä¸€çº§åˆ’åˆ†(å°†groupæ˜ å°„é›†ç¾¤èŠ‚ç‚¹)
+void ClusterPartition::InitPartition(ClusterGroupGraph* groupGraph)//åˆå§‹åŒ–åˆ†ï¼ˆå½“Kä¸ç¡®å®šæˆ–è€…mnpartså¤§äºmnclustersæ—¶éœ€è¦å®Œæˆgroupä¸clusterèŠ‚ç‚¹ä¹‹é—´çš„åˆ’åˆ†ï¼‰
+{//å°†groupGraphä¸­çš„groupæ˜ å°„åˆ°clusterçš„èŠ‚ç‚¹ä¸Š
+	std::vector<ClusterGroup *> clusterGroupSet = groupGraph->GetClusterGroupSet();//å°†æ‰€æœ‰çš„groupèŠ‚ç‚¹å–å‡ºæ¥
+	if(clusterGroupSet.size()<= mnclusters)//ç›´æ¥å®Œæˆæ˜ å°„
 	{
 		for (int i = 0; i != clusterGroupSet.size(); i++)
 		{
@@ -72,12 +72,12 @@ void ClusterPartition::InitPartition(ClusterGroupGraph* groupGraph)//³õÊ¼»¯·Ö£¨µ
 				flatNode2Cluster.insert(make_pair(tmpflatNode[j],i));
 			}
 		}
-		CreateClusterSteadyCount();//³õÊ¼»¯·ÖÍê³Éºó½øĞĞ½ÚµãÄÚ²¿½øĞĞÎÈÌ¬µ÷¶È£¨±£Ö¤ÔÚÃ»ÓĞ½øĞĞÏ¸»¯µÄÇ°ÌáÏÂ³ÌĞòÒ²ÄÜÕı³£ÔËĞĞ£©
+		CreateClusterSteadyCount();//åˆå§‹åŒ–åˆ†å®Œæˆåè¿›è¡ŒèŠ‚ç‚¹å†…éƒ¨è¿›è¡Œç¨³æ€è°ƒåº¦ï¼ˆä¿è¯åœ¨æ²¡æœ‰è¿›è¡Œç»†åŒ–çš„å‰æä¸‹ç¨‹åºä¹Ÿèƒ½æ­£å¸¸è¿è¡Œï¼‰
 	}
-	else//ÒªÓĞÒ»¸ö³õÊ¼»¯·Ö(groupµÄÊıÄ¿²»µÈÓÚclusterÊıÄ¿)==================ÔİÎ´Ê¹ÓÃ
-	{//ÔİÊ±²ÉÓÃmetis»®·Ö
-		MetisPartitionGroupGraph(groupGraph);//Íê³ÉgroupÓëclusterÖ®¼äµÄÓ³Éä
-		//flatNodeÓëclusterÖ®¼äµÄÓ³Éä
+	else//è¦æœ‰ä¸€ä¸ªåˆå§‹åŒ–åˆ†(groupçš„æ•°ç›®ä¸ç­‰äºclusteræ•°ç›®)==================æš‚æœªä½¿ç”¨
+	{//æš‚æ—¶é‡‡ç”¨metisåˆ’åˆ†
+		MetisPartitionGroupGraph(groupGraph);//å®Œæˆgroupä¸clusterä¹‹é—´çš„æ˜ å°„
+		//flatNodeä¸clusterä¹‹é—´çš„æ˜ å°„
 		for (std::map<ClusterGroup*, int>::iterator iter = group2Cluster.begin();iter != group2Cluster.end();iter++)
 		{
 			std::vector<FlatNode *> tmpflatNode = iter->first->GetFlatNodes();
@@ -91,7 +91,7 @@ void ClusterPartition::InitPartition(ClusterGroupGraph* groupGraph)//³õÊ¼»¯·Ö£¨µ
 }
 
 float ClusterPartition::ComputeCommDeltWeight(ClusterGroup *group)
-{//¼ÆËãgroup¶ÔÍâ(ÓëgroupÔÚÍ¬Ò»¸öclusterÖĞ)ºÍ¶ÔÄÚ(Óëgroup²»ÔÚÍ¬Ò»¸öclusterÖĞ)Í¨ĞÅÁ¿µÄ²îÖµ
+{//è®¡ç®—groupå¯¹å¤–(ä¸groupåœ¨åŒä¸€ä¸ªclusterä¸­)å’Œå¯¹å†…(ä¸groupä¸åœ¨åŒä¸€ä¸ªclusterä¸­)é€šä¿¡é‡çš„å·®å€¼
 	int curCluster = group2Cluster.find(group)->second;
 	vector<FlatNode *>curFlatNodes = group->GetFlatNodes();
 	assert(curFlatNodes.size() != 0);
@@ -100,8 +100,8 @@ float ClusterPartition::ComputeCommDeltWeight(ClusterGroup *group)
 	std::map<FlatNode *,int> flatNode2SteadyCount = group->GetSteadyCountMap();
 	std::map<FlatNode *,int>::iterator pos;
 	Bool flag;
-	int externalCommCost = 0;//±£´ægroup¶ÔÍâµÄÊı¾İÁ¿
-	int internalCommCost = 0;//±£´ægroup¶ÔÄÚµÄÊı¾İÁ¿
+	int externalCommCost = 0;//ä¿å­˜groupå¯¹å¤–çš„æ•°æ®é‡
+	int internalCommCost = 0;//ä¿å­˜groupå¯¹å†…çš„æ•°æ®é‡
 	for (int i = 0; i != srcFlatNode.size();i++)
 	{
 		flag = FALSE;
@@ -128,17 +128,17 @@ float ClusterPartition::ComputeCommDeltWeight(ClusterGroup *group)
 			else internalCommCost += (pos->second * snkFlatNode[i]->outPushWeights[j]);
 		}
 	}
-#if SUBTRACT //²ÉÓÃ¶ÔÍâ¼õ¶ÔÄÚµÄ
-	cout<<"¶ÔÍâÍ¨ĞÅÁ¿ "<<externalCommCost<<"   ¶ÔÄÚÍ¨ĞÅÁ¿ "<<internalCommCost<<"  ²îÖµ"<<externalCommCost - internalCommCost<<endl;
+#if SUBTRACT //é‡‡ç”¨å¯¹å¤–å‡å¯¹å†…çš„
+	cout<<"å¯¹å¤–é€šä¿¡é‡ "<<externalCommCost<<"   å¯¹å†…é€šä¿¡é‡ "<<internalCommCost<<"  å·®å€¼"<<externalCommCost - internalCommCost<<endl;
 	return externalCommCost - internalCommCost;
-#else //²ÉÓÃ¶ÔÍâÓë¶ÔÄÚ±ÈÖµ
+#else //é‡‡ç”¨å¯¹å¤–ä¸å¯¹å†…æ¯”å€¼
 	if(internalCommCost == 0) return numeric_limits <float> ::max();
 	else return externalCommCost / internalCommCost;
 #endif
 }
 
 int ClusterPartition::ComputeWorkloadOfCluster(int clusterNum)
-{//¼ÆËã¼¯Èº½ÚµãÉÏµÄ¹¤×÷Á¿
+{//è®¡ç®—é›†ç¾¤èŠ‚ç‚¹ä¸Šçš„å·¥ä½œé‡
 	vector<FlatNode *> flatNodes = GetFlatNodesInGroups(clusterNum);
 	map<FlatNode*, int >flatNode2SteadyCount = SteadySchedulingGroup(flatNodes);
 	int workload = 0;
@@ -150,12 +150,12 @@ int ClusterPartition::ComputeWorkloadOfCluster(int clusterNum)
 }
 
 void ClusterPartition::MovingGroup(ClusterGroup *srcGroup,int destCluster,ClusterGroupGraph *graph )
-{//½«src£¬ÓëdestºÏ²¢£¬²¢ĞŞ¸ÄgraphµÄÏà¹ØĞÅÏ¢£¬·µ»ØµÄÊÇÒÆ¶¯ºóµÄÊÕÒæ(×¢ÒâmoveµÄ¹ı³ÌÖĞ²¢Ã»ÓĞĞŞ¸ÄgroupµÄ±ß½ç)
+{//å°†srcï¼Œä¸deståˆå¹¶ï¼Œå¹¶ä¿®æ”¹graphçš„ç›¸å…³ä¿¡æ¯ï¼Œè¿”å›çš„æ˜¯ç§»åŠ¨åçš„æ”¶ç›Š(æ³¨æ„moveçš„è¿‡ç¨‹ä¸­å¹¶æ²¡æœ‰ä¿®æ”¹groupçš„è¾¹ç•Œ)
 	std::multimap<int,ClusterGroup*>::iterator cluster2Group_Iter;
 	std::map<ClusterGroup*, int>::iterator group2Cluster_Iter;
 	std::map<FlatNode *,int>::iterator flatNode2Cluster_Iter;
 	std::multimap<int,FlatNode*>::iterator cluster2FlatNode_Iter;
-	//ĞŞ¸ÄgroupÓëclusterÖ®¼äµÄmap
+	//ä¿®æ”¹groupä¸clusterä¹‹é—´çš„map
 	group2Cluster_Iter = group2Cluster.find(srcGroup);
 	group2Cluster_Iter->second = destCluster;
 	for(cluster2Group_Iter = cluster2Group.begin();cluster2Group_Iter != cluster2Group.end(); cluster2Group_Iter++)
@@ -165,7 +165,7 @@ void ClusterPartition::MovingGroup(ClusterGroup *srcGroup,int destCluster,Cluste
 	assert(cluster2Group_Iter != cluster2Group.end() );
 	cluster2Group.erase(cluster2Group_Iter);
 	cluster2Group.insert(make_pair(destCluster, srcGroup));
-	//ĞŞ¸ÄflatNodeÓëclusterÖ®¼äµÄmap
+	//ä¿®æ”¹flatNodeä¸clusterä¹‹é—´çš„map
 	vector<FlatNode *>srcFlatNodes = srcGroup->GetFlatNodes();
 	assert(srcFlatNodes.size() != 0);
 	for(int i = 0; i != srcFlatNodes.size(); i++)
@@ -190,8 +190,8 @@ void ClusterPartition::MovingGroup(ClusterGroup *srcGroup,int destCluster,Cluste
 }
 
 Bool ClusterPartition::HasClusterTopologicalSort()
-{	//¼ì²âcluster¼äÊÇ·ñÓĞ»·
-	vector<int> nInDegree;//ÓÃÓÚ±£´æ¸÷½ÚµãµÄÈë¶È
+{	//æ£€æµ‹clusteré—´æ˜¯å¦æœ‰ç¯
+	vector<int> nInDegree;//ç”¨äºä¿å­˜å„èŠ‚ç‚¹çš„å…¥åº¦
 	vector<int>clusterStack;
 	int count = 0;
 	for(std::map<int, std::vector<int> >::iterator iter = cluster2PrecedenceCluster.begin(); iter != cluster2PrecedenceCluster.end(); iter++)
@@ -212,7 +212,7 @@ Bool ClusterPartition::HasClusterTopologicalSort()
 		++count;
 		for(int i = 0; i != tmpProClusterVec.size(); i++)
 		{
-			if(!(--nInDegree[tmpProClusterVec[i]])) clusterStack.push_back(tmpProClusterVec[i]);//Èë¶ÈÎª0µã½øÕ»
+			if(!(--nInDegree[tmpProClusterVec[i]])) clusterStack.push_back(tmpProClusterVec[i]);//å…¥åº¦ä¸º0ç‚¹è¿›æ ˆ
 		}
 	}
 	if(count < mnclusters) return FALSE;
@@ -220,14 +220,14 @@ Bool ClusterPartition::HasClusterTopologicalSort()
 }
 
 //************************************
-// Qualifier: srcGroup½«ÒªÒÆ¶¯µÄgroup£¬destClusterVecÄ¿µÄ»®·Ö(ºòÑ¡)¼¯ºÏ£¬graphÊÇgroupµÄÍ¼£¬gainÊÇÒÆ¶¯µÄÊÕÒæ£¬·µ»ØµÄÊÇsrc¿ÉÄÜ±»ÒÆ¶¯µ½µÄcluster±àºÅ
+// Qualifier: srcGroupå°†è¦ç§»åŠ¨çš„groupï¼ŒdestClusterVecç›®çš„åˆ’åˆ†(å€™é€‰)é›†åˆï¼Œgraphæ˜¯groupçš„å›¾ï¼Œgainæ˜¯ç§»åŠ¨çš„æ”¶ç›Šï¼Œè¿”å›çš„æ˜¯srcå¯èƒ½è¢«ç§»åŠ¨åˆ°çš„clusterç¼–å·
 //************************************
 int ClusterPartition::RefineMoveGroup(ClusterGroup *srcGroup, vector<ClusterGroup *>destGroupVec, ClusterGroupGraph *graph)
 {
-	//Ô¤´¦Àí£¬²éÕÒsrcGroup½«Òª±»ÒÆ¶¯µ½µÄÄ¿±êcluster±àºÅ
+	//é¢„å¤„ç†ï¼ŒæŸ¥æ‰¾srcGroupå°†è¦è¢«ç§»åŠ¨åˆ°çš„ç›®æ ‡clusterç¼–å·
 	int srcCluster = group2Cluster.find(srcGroup)->second;
-	int srcClusterWorkload_begin = ComputeWorkloadOfCluster(srcCluster);//¼ÇÂ¼ÔÚsrcGroupÒÆ¶¯Ö®Ç°clusterÉÏµÄ¹¤×÷Á¿
-	int srcClusterWorkload_end;//¼ÇÂ¼ÔÚsrcGroupÒÆ¶¯Ö®ºóclusterÉÏµÄ¹¤×÷Á¿
+	int srcClusterWorkload_begin = ComputeWorkloadOfCluster(srcCluster);//è®°å½•åœ¨srcGroupç§»åŠ¨ä¹‹å‰clusterä¸Šçš„å·¥ä½œé‡
+	int srcClusterWorkload_end;//è®°å½•åœ¨srcGroupç§»åŠ¨ä¹‹åclusterä¸Šçš„å·¥ä½œé‡
 	set<int> destClusterSet;
 	for(int i = 0; i != destGroupVec.size(); i++)
 	{
@@ -242,33 +242,33 @@ int ClusterPartition::RefineMoveGroup(ClusterGroup *srcGroup, vector<ClusterGrou
 	map<int,int>destCluster2Workload;
 	for (int destClusterNum = 0; destClusterNum != destClusterVec.size(); destClusterNum++)
 	{
-		//0.ÒÆ¶¯+¼ÆËãÊÕÒæ£¨¶ÔÍâµÄÍ¨ĞÅÁ¿ºÍ¶ÔÄÚÍ¨ĞĞÁ¿µÄ²îºÍ¼ÆËãÁ¿Ö®¼äµÄ±È£©
+		//0.ç§»åŠ¨+è®¡ç®—æ”¶ç›Šï¼ˆå¯¹å¤–çš„é€šä¿¡é‡å’Œå¯¹å†…é€šè¡Œé‡çš„å·®å’Œè®¡ç®—é‡ä¹‹é—´çš„æ¯”ï¼‰
 		MovingGroup(srcGroup,destClusterVec[destClusterNum],graph);
-		//1.¸ù¾İmoveºóµÄclusterÓëgroupÖ®¼äµÄmap¹¹ÔìclusterÖ®¼äµÄÒÀÀµ¹ØÏµ
+		//1.æ ¹æ®moveåçš„clusterä¸groupä¹‹é—´çš„mapæ„é€ clusterä¹‹é—´çš„ä¾èµ–å…³ç³»
 		CreateClusterGraph();
-		//2.¼ì²âÒÆ¶¯ÊÇ·ñºÏ·¨£¨ÔÚcluster¼ä²»ÄÜÒıÈë»·£©
+		//2.æ£€æµ‹ç§»åŠ¨æ˜¯å¦åˆæ³•ï¼ˆåœ¨clusteré—´ä¸èƒ½å¼•å…¥ç¯ï¼‰
 		if(HasClusterTopologicalSort())
 		{
 #if SUBTRACT
-			float gain = - ComputeCommDeltWeight(srcGroup);//ÊÕÒæÊÇÍ¨ĞÅÁ¿²îÖµµÄÏà·´Êı
+			float gain = - ComputeCommDeltWeight(srcGroup);//æ”¶ç›Šæ˜¯é€šä¿¡é‡å·®å€¼çš„ç›¸åæ•°
 #else
-			float gain = ComputeCommDeltWeight(srcGroup); //gainÔ½´ó±»ÒÆ×ßµÄ¿ÉÄÜĞÔ¾ÍÔ½´ó
+			float gain = ComputeCommDeltWeight(srcGroup); //gainè¶Šå¤§è¢«ç§»èµ°çš„å¯èƒ½æ€§å°±è¶Šå¤§
 #endif
-			//cout<<"ÒÆ¶¯ÊÕÒæ  "<<gain<<endl;
+			//cout<<"ç§»åŠ¨æ”¶ç›Š  "<<gain<<endl;
 			cluster2Gain.insert(make_pair(destClusterVec[destClusterNum], gain));
-			srcClusterWorkload_end = ComputeWorkloadOfCluster(srcCluster);//´ÓsrcClusterÖĞÒÆ³ısrcGroupºóclusterÉÏµÄ¹¤×÷Á¿
-			destCluster2Workload.insert(make_pair(destClusterVec[destClusterNum],ComputeWorkloadOfCluster(destClusterVec[destClusterNum])+(srcClusterWorkload_begin-srcClusterWorkload_end)));//ÒÆ¶¯ºó´Ó¸ºÔØµÄ½Ç¶È²úÉúµÄÊÕÒæ
+			srcClusterWorkload_end = ComputeWorkloadOfCluster(srcCluster);//ä»srcClusterä¸­ç§»é™¤srcGroupåclusterä¸Šçš„å·¥ä½œé‡
+			destCluster2Workload.insert(make_pair(destClusterVec[destClusterNum],ComputeWorkloadOfCluster(destClusterVec[destClusterNum])+(srcClusterWorkload_begin-srcClusterWorkload_end)));//ç§»åŠ¨åä»è´Ÿè½½çš„è§’åº¦äº§ç”Ÿçš„æ”¶ç›Š
 		}
-		//3.³·ÏúÒÆ¶¯
+		//3.æ’¤é”€ç§»åŠ¨
 		MovingGroup(srcGroup,srcCluster,graph);
 		
 	}
 	assert(cluster2Gain.size() == destCluster2Workload.size());
 	map<int,int>::iterator workload_pos = destCluster2Workload.begin();
 	map<int,float>::iterator max_pos = cluster2Gain.end();
-		//4.ÕÒÊÕÒæµÄ×î´óÖµ
+		//4.æ‰¾æ”¶ç›Šçš„æœ€å¤§å€¼
 #if SUBTRACT
-	float max_gain = -numeric_limits <float> ::max();//È¡×îĞ¡¸¡µãÊı
+	float max_gain = -numeric_limits <float> ::max();//å–æœ€å°æµ®ç‚¹æ•°
 	for(map<int,float>::iterator iter = cluster2Gain.begin(); iter != cluster2Gain.end(); iter++)
 	{
 		cout<<workload_pos->second<<"  "<<srcClusterWorkload_end<<endl;
@@ -280,7 +280,7 @@ int ClusterPartition::RefineMoveGroup(ClusterGroup *srcGroup, vector<ClusterGrou
 		workload_pos++;
 	}
 #else
-	//4.ÕÒÊÕÒæµÄ×î´óÖµ
+	//4.æ‰¾æ”¶ç›Šçš„æœ€å¤§å€¼
 	float max_gain = COMMUNICATION_FACTOR;
 	for(map<int,float>::iterator iter = cluster2Gain.begin(); iter != cluster2Gain.end(); iter++)
 	{
@@ -294,29 +294,29 @@ int ClusterPartition::RefineMoveGroup(ClusterGroup *srcGroup, vector<ClusterGrou
 		workload_pos++;
 	}
 #endif	
-	//5.·µ»ØgroupÒª±»ÒÆ¶¯µ½µÄµÄ×î¼ÑÎ»ÖÃ£¨²»Ò»¶¨ÊÇÊÕÒæ×î´óµÄÎ»ÖÃ£©
+	//5.è¿”å›groupè¦è¢«ç§»åŠ¨åˆ°çš„çš„æœ€ä½³ä½ç½®ï¼ˆä¸ä¸€å®šæ˜¯æ”¶ç›Šæœ€å¤§çš„ä½ç½®ï¼‰
 	if(max_pos != cluster2Gain.end())
 	{
-		//cout<<"ÒÆ¶¯ºóµÄÊÕÒæ"<<max_pos->second<<"  Ä¿±êcluster±àºÅ  "<<max_pos->first<<"   Ô´cluster±àºÅ"<<srcCluster<<endl;
+		//cout<<"ç§»åŠ¨åçš„æ”¶ç›Š"<<max_pos->second<<"  ç›®æ ‡clusterç¼–å·  "<<max_pos->first<<"   æºclusterç¼–å·"<<srcCluster<<endl;
 		return max_pos->first;		
 	}
 	else return -1;
 }
-//*************Ï¸Á£¶Èµ÷Õû*********************
-// Qualifier: Ï¸Á£¶ÈÕ¹¿ªÊ±£¬ÔÚÍ¬Ò»¸öµÄclusterÉÏgroup¼äµÄÔÚµ÷ÕûÊ±¿ÉÒÔ²»ÒÆ¶¯£¬²»Í¬¼¯ÈºÉÏµÄÒª¶Ô¸÷¸öclusterÉÏµÄ±ß½çgroup½Úµã½øĞĞ¿¼ÂÇÊÇ·ñÒªÒÆ¶¯£¨Ò»±ßÕ¹¿ªÒ»±ßÒÆ¶¯±ß½çgroup£©
-			  /*Ã¿¸ögroupÖ»ÒÆ¶¯Ò»´Î,Ï¸Á£¶ÈÑ­»·ÖĞÖµµÄÌõ¼şÊÇÃ¿¸ögroupÖĞÖ»ÓĞÒ»¸öflatNode*/
+//*************ç»†ç²’åº¦è°ƒæ•´*********************
+// Qualifier: ç»†ç²’åº¦å±•å¼€æ—¶ï¼Œåœ¨åŒä¸€ä¸ªçš„clusterä¸Šgroupé—´çš„åœ¨è°ƒæ•´æ—¶å¯ä»¥ä¸ç§»åŠ¨ï¼Œä¸åŒé›†ç¾¤ä¸Šçš„è¦å¯¹å„ä¸ªclusterä¸Šçš„è¾¹ç•ŒgroupèŠ‚ç‚¹è¿›è¡Œè€ƒè™‘æ˜¯å¦è¦ç§»åŠ¨ï¼ˆä¸€è¾¹å±•å¼€ä¸€è¾¹ç§»åŠ¨è¾¹ç•Œgroupï¼‰
+			  /*æ¯ä¸ªgroupåªç§»åŠ¨ä¸€æ¬¡,ç»†ç²’åº¦å¾ªç¯ä¸­å€¼çš„æ¡ä»¶æ˜¯æ¯ä¸ªgroupä¸­åªæœ‰ä¸€ä¸ªflatNode*/
 //************************************
-void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£¨Ö÷ÒªÕë¶ÔµÄÊÇ±ß½çÉÏ½Úµã£©
+void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//ç»†åŒ–è°ƒæ•´ï¼ˆä¸»è¦é’ˆå¯¹çš„æ˜¯è¾¹ç•Œä¸ŠèŠ‚ç‚¹ï¼‰
 {	
-	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > coarseGroupSort = groupGraph->GetCoarseGroupSort();//È¡´Ö»¯ÊÇgroupºÏ²¢µÄË³Ğò
-	std::vector<ClusterGroup* > coarseGroupResult = groupGraph->GetCoarseGroupResult();//È¡Ã¿Ò»²½´Ö»¯ºÏ²¢ºóĞÎ³ÉµÄgroup
+	std::vector< std::pair<ClusterGroup*,ClusterGroup*> > coarseGroupSort = groupGraph->GetCoarseGroupSort();//å–ç²—åŒ–æ˜¯groupåˆå¹¶çš„é¡ºåº
+	std::vector<ClusterGroup* > coarseGroupResult = groupGraph->GetCoarseGroupResult();//å–æ¯ä¸€æ­¥ç²—åŒ–åˆå¹¶åå½¢æˆçš„group
 	assert(coarseGroupSort.size() == coarseGroupResult.size());
-	//¾ßÌåÏ¸»¯µÄ¹ı³Ì,Óë´Ö»¯µÄË³ĞòÏà·´
+	//å…·ä½“ç»†åŒ–çš„è¿‡ç¨‹,ä¸ç²—åŒ–çš„é¡ºåºç›¸å
 	for(int coarseIter = coarseGroupSort.size() - 1; coarseIter >= 0; coarseIter-- )
 	{
-		ClusterGroup *currentGroup = coarseGroupResult[coarseIter];//È¡µ±Ç°ÒªÏ¸»¯´¦ÀíµÄgroup
+		ClusterGroup *currentGroup = coarseGroupResult[coarseIter];//å–å½“å‰è¦ç»†åŒ–å¤„ç†çš„group
 		assert(coarseGroupResult[coarseIter] != NULL);
-		//1.ÏÈ½«currentGroup²ğ¿ª£¨³·ÏúcoarseGroupSort[coarseIter]µÄÒÆ¶¯,»¹Ô­µÚcoarseIter´ÎÒÆ¶¯£¬ĞŞ¸Ä»¹Ô­ÏàÓ¦±ßµÄĞÅÏ¢£©
+		//1.å…ˆå°†currentGroupæ‹†å¼€ï¼ˆæ’¤é”€coarseGroupSort[coarseIter]çš„ç§»åŠ¨,è¿˜åŸç¬¬coarseIteræ¬¡ç§»åŠ¨ï¼Œä¿®æ”¹è¿˜åŸç›¸åº”è¾¹çš„ä¿¡æ¯ï¼‰
 		vector<ClusterGroup *>tmpPreGroup = currentGroup->GetPrecedenceClusterGroup();
 		vector<ClusterGroup *>tmpSuccGroup = currentGroup->GetSuccessorClusterGroup();
 		vector<FlatNode *> tmpFlatNodes1 = coarseGroupSort[coarseIter].first->GetFlatNodes();
@@ -329,7 +329,7 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 			flag2 = FALSE;
 			if(tmpPreGroup[i]->DeleteSuccessorClusterGroup(currentGroup))
 			{
-				//Ç°ÇıµÄsnk½Úµã				
+				//å‰é©±çš„snkèŠ‚ç‚¹				
 				vector<FlatNode *> tmpSnkFlatNode = tmpPreGroup[i]->GetSnkFlatNode();
 				for(int j =0; j != tmpSnkFlatNode.size();j++)
 				{
@@ -337,12 +337,12 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 					{
 						for (int l = 0; l != tmpFlatNodes1.size(); l++)
 						{
-							//if(tmpSnkFlatNode[j]->outPushWeights[k] == 0)continue; ////20121204Ìí¼Ó£¨´¦ÀíÓĞ±ßÁ¬½Óµ«Ã»ÓĞÊı¾İ´«Êä£©
+							//if(tmpSnkFlatNode[j]->outPushWeights[k] == 0)continue; ////20121204æ·»åŠ ï¼ˆå¤„ç†æœ‰è¾¹è¿æ¥ä½†æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼‰
 							if(tmpSnkFlatNode[j]->outFlatNodes[k] == tmpFlatNodes1[l]) {flag1 = TRUE;break;}
 						}
 						for(int ll = 0; ll != tmpFlatNodes2.size(); ll++)
 						{
-							//if(tmpSnkFlatNode[j]->outPushWeights[k] == 0)continue; ////20121204Ìí¼Ó£¨´¦ÀíÓĞ±ßÁ¬½Óµ«Ã»ÓĞÊı¾İ´«Êä£©
+							//if(tmpSnkFlatNode[j]->outPushWeights[k] == 0)continue; ////20121204æ·»åŠ ï¼ˆå¤„ç†æœ‰è¾¹è¿æ¥ä½†æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼‰
 							if(tmpSnkFlatNode[j]->outFlatNodes[k] == tmpFlatNodes2[ll]) {flag2 = TRUE;break;}
 						}
 					}
@@ -357,7 +357,7 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 			flag2 = FALSE;
 			if(tmpSuccGroup[i]->DeletePrecedenceClusterGroup(currentGroup))
 			{
-				//Ç°ÇıµÄsnk½Úµã				
+				//å‰é©±çš„snkèŠ‚ç‚¹				
 				vector<FlatNode *> tmpSrcFlatNode = tmpSuccGroup[i]->GetSrcFlatNode();
 				for(int j =0; j != tmpSrcFlatNode.size();j++)
 				{
@@ -365,12 +365,12 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 					{
 						for (int l = 0; l != tmpFlatNodes1.size(); l++)
 						{
-							//if(tmpSrcFlatNode[j]->inPopWeights[k] == 0)continue;////20121204Ìí¼Ó£¨´¦ÀíÓĞ±ßÁ¬½Óµ«Ã»ÓĞÊı¾İ´«Êä£©
+							//if(tmpSrcFlatNode[j]->inPopWeights[k] == 0)continue;////20121204æ·»åŠ ï¼ˆå¤„ç†æœ‰è¾¹è¿æ¥ä½†æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼‰
 							if(tmpSrcFlatNode[j]->inFlatNodes[k] == tmpFlatNodes1[l]) {flag1 = TRUE;break;}
 						}
 						for(int ll = 0; ll != tmpFlatNodes2.size(); ll++)
 						{
-							//if(tmpSrcFlatNode[j]->inPopWeights[k] == 0)continue;////20121204Ìí¼Ó£¨´¦ÀíÓĞ±ßÁ¬½Óµ«Ã»ÓĞÊı¾İ´«Êä£©
+							//if(tmpSrcFlatNode[j]->inPopWeights[k] == 0)continue;////20121204æ·»åŠ ï¼ˆå¤„ç†æœ‰è¾¹è¿æ¥ä½†æ²¡æœ‰æ•°æ®ä¼ è¾“ï¼‰
 							if(tmpSrcFlatNode[j]->inFlatNodes[k] == tmpFlatNodes2[ll]) {flag2 = TRUE;break;}
 						}
 					}
@@ -379,7 +379,7 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 				if(flag2)  tmpSuccGroup[i]->AddPrecedenceClusterGroup(coarseGroupSort[coarseIter].second);
 			}								
 		}
-		//ĞŞ¸Äcluster2Group£¬group2ClusterÖĞµÄÄÚÈİ(½«µÚi²ãµÄgroupÖ±½Ó·Åµ½mapÖĞ£¬½«µÚi+1²ãµÄgroup´ÓmapÖĞ²Á³ı)
+		//ä¿®æ”¹cluster2Groupï¼Œgroup2Clusterä¸­çš„å†…å®¹(å°†ç¬¬iå±‚çš„groupç›´æ¥æ”¾åˆ°mapä¸­ï¼Œå°†ç¬¬i+1å±‚çš„groupä»mapä¸­æ“¦é™¤)
 		group2Cluster.erase(currentGroup);
 		std::multimap<int,ClusterGroup*>::iterator curiter = cluster2Group.end();
 		for(curiter = cluster2Group.begin();curiter != cluster2Group.end(); curiter++)
@@ -387,25 +387,25 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 			if(curiter->second == currentGroup) break;
 		}
 		assert(curiter != cluster2Group.end());
-		int curClusterNum = curiter->first;//µÚi+1²ãµÄgroupËùÔÚ¼¯Èº½ÚµãµÄcluster±àºÅ
+		int curClusterNum = curiter->first;//ç¬¬i+1å±‚çš„groupæ‰€åœ¨é›†ç¾¤èŠ‚ç‚¹çš„clusterç¼–å·
 		cluster2Group.erase(curiter);
 		cluster2Group.insert(make_pair(curClusterNum,coarseGroupSort[coarseIter].first ));
 		cluster2Group.insert(make_pair(curClusterNum,coarseGroupSort[coarseIter].second ));
 		group2Cluster.insert(make_pair(coarseGroupSort[coarseIter].first,curClusterNum));
 		group2Cluster.insert(make_pair(coarseGroupSort[coarseIter].second,curClusterNum));
-		//Ã¿¸ögroup(µÚi+1²ã)ÖĞ×î¶àÖ»ÓĞ2¸ö×Ógroup(µÚi²ã)£¬ÏÂÃæÈ¡ÓëÕâÁ½¸ö×ÓgroupÏàÁÚµÄËùÓĞgroup(µÚi²ã)
-		//È¡³öµÄµÚi²ãµÄgroupÓëµ±Ç°µÄµÚi+1²ãµÄgroup²»ÔÚÍ¬Ò»¸öpartitionÖĞ
-		vector<ClusterGroup *>neighborhoodGroup_first;//ÓëµÚÒ»¸ögroupµÄÏàÁÚµÄËùÓĞgroup£¨Âú×ãµÄÒªÇóÓëµ±Ç°µÄµÚi+1²ãµÄgroup²»ÔÚÍ¬Ò»¸öpartitionÖĞ£©
+		//æ¯ä¸ªgroup(ç¬¬i+1å±‚)ä¸­æœ€å¤šåªæœ‰2ä¸ªå­group(ç¬¬iå±‚)ï¼Œä¸‹é¢å–ä¸è¿™ä¸¤ä¸ªå­groupç›¸é‚»çš„æ‰€æœ‰group(ç¬¬iå±‚)
+		//å–å‡ºçš„ç¬¬iå±‚çš„groupä¸å½“å‰çš„ç¬¬i+1å±‚çš„groupä¸åœ¨åŒä¸€ä¸ªpartitionä¸­
+		vector<ClusterGroup *>neighborhoodGroup_first;//ä¸ç¬¬ä¸€ä¸ªgroupçš„ç›¸é‚»çš„æ‰€æœ‰groupï¼ˆæ»¡è¶³çš„è¦æ±‚ä¸å½“å‰çš„ç¬¬i+1å±‚çš„groupä¸åœ¨åŒä¸€ä¸ªpartitionä¸­ï¼‰
 		vector<ClusterGroup *>neighborhoodGroup_second;
-		vector<ClusterGroup *>tmpSubGroupSuccessor;//×ÓgroupÖĞºó¼Ìgroup
-		vector<ClusterGroup *>tmpSubGroupPrecedence;//×ÓgroupµÄÇ°Çıgroup
+		vector<ClusterGroup *>tmpSubGroupSuccessor;//å­groupä¸­åç»§group
+		vector<ClusterGroup *>tmpSubGroupPrecedence;//å­groupçš„å‰é©±group
 		tmpSubGroupPrecedence.clear();
 		tmpSubGroupSuccessor.clear();
 		tmpSubGroupPrecedence = coarseGroupSort[coarseIter].first->GetPrecedenceClusterGroup();
 		tmpSubGroupSuccessor = coarseGroupSort[coarseIter].first->GetSuccessorClusterGroup();
 		for (int i = 0; i != tmpSubGroupPrecedence.size(); i++)
 		{
-			int tmpClusterNum = group2Cluster.find(tmpSubGroupPrecedence[i])->second;//ÕÒgroupËùÔÚµÄclusterºÅ
+			int tmpClusterNum = group2Cluster.find(tmpSubGroupPrecedence[i])->second;//æ‰¾groupæ‰€åœ¨çš„clusterå·
 			if(tmpClusterNum != curClusterNum)
 			{
 				neighborhoodGroup_first.push_back(tmpSubGroupPrecedence[i]);
@@ -413,7 +413,7 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 		}
 		for (int i = 0; i != tmpSubGroupSuccessor.size(); i++)
 		{
-			int tmpClusterNum = group2Cluster.find(tmpSubGroupSuccessor[i])->second;//ÕÒgroupËùÔÚµÄclusterºÅ
+			int tmpClusterNum = group2Cluster.find(tmpSubGroupSuccessor[i])->second;//æ‰¾groupæ‰€åœ¨çš„clusterå·
 			if(tmpClusterNum != curClusterNum)
 			{
 				neighborhoodGroup_first.push_back(tmpSubGroupSuccessor[i]);
@@ -433,17 +433,17 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 		}
 		for (int i = 0; i != tmpSubGroupSuccessor.size(); i++)
 		{
-			int tmpClusterNum = group2Cluster.find(tmpSubGroupSuccessor[i])->second;//ÕÒgroupËùÔÚµÄclusterºÅ
+			int tmpClusterNum = group2Cluster.find(tmpSubGroupSuccessor[i])->second;//æ‰¾groupæ‰€åœ¨çš„clusterå·
 			if(tmpClusterNum != curClusterNum)
 			{
 				neighborhoodGroup_second.push_back(tmpSubGroupSuccessor[i]);
 			}
 		}
-		//¼ÆËã¸÷×ÔµÄÊÕÒæ
+		//è®¡ç®—å„è‡ªçš„æ”¶ç›Š
 		float gain_first = ComputeCommDeltWeight(coarseGroupSort[coarseIter].first);
 		float gain_second = ComputeCommDeltWeight(coarseGroupSort[coarseIter].second);
 		int destClusterNum;
-		//½«group½øĞĞÒÆ¶¯£¬ÕÒ³öÊÕÒæ×î´óµÄÒ»´ÎÒÆ¶¯
+		//å°†groupè¿›è¡Œç§»åŠ¨ï¼Œæ‰¾å‡ºæ”¶ç›Šæœ€å¤§çš„ä¸€æ¬¡ç§»åŠ¨
 		if (gain_first >= gain_second && gain_first >= 0)
 		{
 			 destClusterNum = RefineMoveGroup(coarseGroupSort[coarseIter].first,neighborhoodGroup_first ,groupGraph);
@@ -456,7 +456,7 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 		}
 		else continue;
 	}
-	CreateClusterSteadyCount();//Ï¸»¯Íê³É¹ıºóÔÚ¼¯ÈºµÄ½ÚµãÄÚ²¿½øĞĞÎÈÌ¬µ÷¶È
+	CreateClusterSteadyCount();//ç»†åŒ–å®Œæˆè¿‡ååœ¨é›†ç¾¤çš„èŠ‚ç‚¹å†…éƒ¨è¿›è¡Œç¨³æ€è°ƒåº¦
 // 	for (int i = 0; i < mnclusters;i++)
 // 	{
 // 		cout<<ComputeWorkloadOfCluster(i)<<endl;
@@ -464,7 +464,7 @@ void ClusterPartition::RefinePartition(ClusterGroupGraph *groupGraph)//Ï¸»¯µ÷Õû£
 }
 
 int ClusterPartition::GetClusterNum(ClusterGroup* group)
-{//¸ù¾İgroup²éÕÒclusterµÄ±àºÅ
+{//æ ¹æ®groupæŸ¥æ‰¾clusterçš„ç¼–å·
 	std::map<ClusterGroup*, int>::iterator pos;
 	pos = group2Cluster.find(group);
 	assert(pos != group2Cluster.end());
@@ -472,16 +472,16 @@ int ClusterPartition::GetClusterNum(ClusterGroup* group)
 }
 
 std::pair<int, int> ClusterPartition::GetClusterCoreNum(FlatNode *flatNode)
-{//¸ù¾İflatNode²éÕÒcluster±àºÅ
+{//æ ¹æ®flatNodeæŸ¥æ‰¾clusterç¼–å·
 	std::map<FlatNode *,std::pair<int ,int> >::iterator pos = flatNode2Cluster2Core.find(flatNode);
 	assert(pos != flatNode2Cluster2Core.end());
 	return pos->second;
 }
 
 std::vector<FlatNode*> ClusterPartition::GetFlatNodesInGroups(int clusterNum)
-{//¸ù¾İcluster±àºÅÕÒflatNode--------ÔÚÀàµÄÄÚ²¿Ê¹ÓÃ£¨private£©
+{//æ ¹æ®clusterç¼–å·æ‰¾flatNode--------åœ¨ç±»çš„å†…éƒ¨ä½¿ç”¨ï¼ˆprivateï¼‰
 	std::vector<FlatNode *> vecswap;
-	flatNodeSet.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	flatNodeSet.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	std::vector<ClusterGroup *> tmpGroup = GetGroups(clusterNum);
 	for(int i = 0; i != tmpGroup.size(); i++)
 	{
@@ -497,7 +497,7 @@ std::vector<FlatNode*> ClusterPartition::GetFlatNodesInGroups(int clusterNum)
 std::vector<FlatNode *>ClusterPartition::GetFlatNodes(int clusterNum, int coreNum )
 {
 	std::vector<FlatNode *> vecswap;
-	flatNodeSet.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	flatNodeSet.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	std::map<int, std::multimap<int, FlatNode *> >::iterator pos = cluster2Core2FlatNode.find(clusterNum);
 	
 	typedef multimap<int,FlatNode*>::iterator Num2NodeIter;
@@ -510,16 +510,16 @@ std::vector<FlatNode *>ClusterPartition::GetFlatNodes(int clusterNum, int coreNu
 }
 
 std::vector<FlatNode*> ClusterPartition::GetFlatNodes(int clusterNum)
-{//¸ù¾İcluster±àºÅÕÒflatNode
+{//æ ¹æ®clusterç¼–å·æ‰¾flatNode
 	std::vector<FlatNode *> vecswap;
-	flatNodeSet.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	flatNodeSet.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	map<int ,map<FlatNode *,int> >::iterator _cluster_iter = cluster2FlatNode2Core.find(clusterNum);
 	for(map<FlatNode *,int>::iterator _flatNode_iter = _cluster_iter->second.begin(); _flatNode_iter != _cluster_iter->second.end(); _flatNode_iter++)
 		flatNodeSet.push_back(_flatNode_iter->first);
 	return flatNodeSet;
 }
 std::map<FlatNode *,int > ClusterPartition::GetFlatNode2Core(int clusterNum)
-{//¸ù¾İ¸ø¶¨µÄ¼¯Èº½ÚµãµÄ±àºÅ£¬»ñµÃÔÚ¸Ã»úÆ÷ÉÏµÄ»®·Ö£¨FlatNodeÓëcoreÖ®¼äµÄÓ³Éä£©
+{//æ ¹æ®ç»™å®šçš„é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œè·å¾—åœ¨è¯¥æœºå™¨ä¸Šçš„åˆ’åˆ†ï¼ˆFlatNodeä¸coreä¹‹é—´çš„æ˜ å°„ï¼‰
 	std::map<int, std::map<FlatNode *, int > >::iterator pos; 
 	pos = cluster2FlatNode2Core.find(clusterNum);
 	assert(pos != cluster2FlatNode2Core.end());
@@ -527,7 +527,7 @@ std::map<FlatNode *,int > ClusterPartition::GetFlatNode2Core(int clusterNum)
 }
 
 std::multimap<int, FlatNode *> ClusterPartition::GetCore2FlatNode(int clusterNum)
-{//¸ù¾İ¸ø¶¨µÄ¼¯Èº½ÚµãµÄ±àºÅ£¬»ñµÃÔÚ¸Ã»úÆ÷ÉÏµÄ»®·Ö£¨coreÓëFlatNodeÖ®¼äµÄÓ³Éä£©
+{//æ ¹æ®ç»™å®šçš„é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œè·å¾—åœ¨è¯¥æœºå™¨ä¸Šçš„åˆ’åˆ†ï¼ˆcoreä¸FlatNodeä¹‹é—´çš„æ˜ å°„ï¼‰
 	std::map<int, std::multimap<int, FlatNode *> >::iterator pos;
 	pos = cluster2Core2FlatNode.find(clusterNum);
 	assert(pos != cluster2Core2FlatNode.end());
@@ -535,9 +535,9 @@ std::multimap<int, FlatNode *> ClusterPartition::GetCore2FlatNode(int clusterNum
 }
 
 std::vector<ClusterGroup *> ClusterPartition::GetGroups(int clusterNum)
-{	//¸ù¾İCluster±àºÅÕÒ¸Ã½ÚµãÉÏµÄËùÓĞGroup
+{	//æ ¹æ®Clusterç¼–å·æ‰¾è¯¥èŠ‚ç‚¹ä¸Šçš„æ‰€æœ‰Group
 	std::vector<ClusterGroup *> vecswap;
-	clusterGroupSet.swap(vecswap);//Çå¿ÕÔ­À´µÄÄÚÈİ£¬²¢ÊÍ·ÅÄÚ´æ
+	clusterGroupSet.swap(vecswap);//æ¸…ç©ºåŸæ¥çš„å†…å®¹ï¼Œå¹¶é‡Šæ”¾å†…å­˜
 	typedef std::multimap<int,ClusterGroup*>::iterator Num2NodeIter;
 	pair<Num2NodeIter,Num2NodeIter>range=cluster2Group.equal_range(clusterNum);
 	for(Num2NodeIter iter=range.first;iter!=range.second;++iter)
@@ -548,32 +548,32 @@ std::vector<ClusterGroup *> ClusterPartition::GetGroups(int clusterNum)
 }
 
 int ClusterPartition::GetClusters()
-{//·µ»Ø»®·Ö¸öÊımnclusters
+{//è¿”å›åˆ’åˆ†ä¸ªæ•°mnclusters
 	return mnclusters;
 }
-void ClusterPartition::SetClusters(int k)//ÉèÖÃ¼¯Èº½ÚµãÊıÄ¿£¨¼´½ø³ÌÊıÄ¿£©
+void ClusterPartition::SetClusters(int k)//è®¾ç½®é›†ç¾¤èŠ‚ç‚¹æ•°ç›®ï¼ˆå³è¿›ç¨‹æ•°ç›®ï¼‰
 {
 	mnclusters = k;
 }
 
 int ClusterPartition::GetCores()
-{//·µ»Ø»®·Ö¸öÊımnclusters
+{//è¿”å›åˆ’åˆ†ä¸ªæ•°mnclusters
 	return mnCores;
 }
-void ClusterPartition::SetCores(int k)//ÉèÖÃ¼¯ÈºÃ¿¸ö½ÚµãºËÊıÄ¿£¨¼´½ø³ÌÊıÄ¿£©
+void ClusterPartition::SetCores(int k)//è®¾ç½®é›†ç¾¤æ¯ä¸ªèŠ‚ç‚¹æ ¸æ•°ç›®ï¼ˆå³è¿›ç¨‹æ•°ç›®ï¼‰
 {
 	mnCores = k;
 }
 
 int ClusterPartition::findID(FlatNode *flatnode ,vector<FlatNode *> original)
-{//¸ù¾İflatnodeÕÒµ½ÆäÔÚvectorÖĞµÄ±àºÅ
+{//æ ¹æ®flatnodeæ‰¾åˆ°å…¶åœ¨vectorä¸­çš„ç¼–å·
 	for (int i=0;i<original.size();i++)
 		if(flatnode == original[i])
 			return i;
 }
 
 void ClusterPartition::CreateClusterSteadyCount()
-{//¹¹ÔìÎÈ¶¨×´Ì¬
+{//æ„é€ ç¨³å®šçŠ¶æ€
 	cluster2flatNodeSteadyCount.clear();
 	for(int i = 0; i < mnclusters; i++)
 	{
@@ -583,7 +583,7 @@ void ClusterPartition::CreateClusterSteadyCount()
 	}
 }
 int ClusterPartition::GetSteadyCount(FlatNode *flatNode)
-{//È¡Ò»¸öFlatNodeÉÏµÄ¾Ö²¿ÎÈÌ¬´ÎÊı
+{//å–ä¸€ä¸ªFlatNodeä¸Šçš„å±€éƒ¨ç¨³æ€æ¬¡æ•°
 	std::map<FlatNode *,int>::iterator pos = flatNode2Cluster.find(flatNode);
 	assert(pos != flatNode2Cluster.end());
 	std::map<FlatNode *,int> tmpSteadyCountMap = cluster2flatNodeSteadyCount[pos->second];
@@ -593,26 +593,26 @@ int ClusterPartition::GetSteadyCount(FlatNode *flatNode)
 
 
 void ClusterPartition::MetisPartitionGroupGraph(ClusterGroupGraph* groupGraph)
-{//ÔİÊ±Ã»ÓĞÓÃµ½
+{//æš‚æ—¶æ²¡æœ‰ç”¨åˆ°
 }
 
-//ÔİÊ±Ö»´¦ÀíÒ»¸ö»úÆ÷ÉÏÖ»ÓĞÒ»¸ögroupµÄÇé¿ö
+//æš‚æ—¶åªå¤„ç†ä¸€ä¸ªæœºå™¨ä¸Šåªæœ‰ä¸€ä¸ªgroupçš„æƒ…å†µ
 void ClusterPartition::MetisPartitionFlatNodeInCluster()
-{//µÚ¶ş¼¶»®·Ö£¨½«flatNodeÓ³Éäµ½ºËÉÏ£©
+{//ç¬¬äºŒçº§åˆ’åˆ†ï¼ˆå°†flatNodeæ˜ å°„åˆ°æ ¸ä¸Šï¼‰
 	//assert(mnclusters == clusterGroup2NO.size());
-	int *mxadj;//¶¨ÒåÖ¸ÕëÖ¸ÏòxadjÊı×é
-	int *madjncy;//¶¨ÒåÖ¸ÕëÖ¸ÏòadjncyÊı×é
-	int *mobjval;//¶¨ÒåÖ¸ÕëÖ¸Ïòobjval
-	int *mpart;//¶¨ÒåÖ¸ÕëÖ¸ÏòpartÊı×é
-	int *mvwgt;//¶¨ÒåÖ¸ÕëÖ¸ÏòvwgtÊı×é£¬ºóÕß´æ´¢Ã¿¸ö¶¥µãµÄÈ¨Öµ
-	int *madjwgt;//¶¨ÒåÖ¸ÕëÖ¸ÏòadjwgtÊı×é
-	int nvtxs;//¶¨Òå¶¥µã¸öÊı
+	int *mxadj;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘xadjæ•°ç»„
+	int *madjncy;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘adjncyæ•°ç»„
+	int *mobjval;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘objval
+	int *mpart;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘partæ•°ç»„
+	int *mvwgt;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘vwgtæ•°ç»„ï¼Œåè€…å­˜å‚¨æ¯ä¸ªé¡¶ç‚¹çš„æƒå€¼
+	int *madjwgt;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘adjwgtæ•°ç»„
+	int nvtxs;//å®šä¹‰é¡¶ç‚¹ä¸ªæ•°
 	float *tpwgts;
-	int *mvsize;//¶¨ÒåÖ¸ÕëÖ¸ÏòvsizeÊı×é
+	int *mvsize;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘vsizeæ•°ç»„
 	float *ubvec;
 	int mncon;
 	int objval;
-	int options[40];//²ÎÊıÊı×é
+	int options[40];//å‚æ•°æ•°ç»„
 	for (int i = 0; i < METIS_NOPTIONS; i++)
 		options[i] = 0;
 
@@ -644,11 +644,11 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 		std::vector<FlatNode *> tmpFlatNodes = GetFlatNodesInGroups(groupNum);
 		std::set<FlatNode *> tmpFlatNodeSet(tmpFlatNodes.begin(),tmpFlatNodes.end()); 
 		nvtxs = tmpFlatNodes.size();
-		if(mnCores == 1)//Èç¹ûÖ»ÓĞÒ»¸ö½Úµã»òÒ»¸öthreadÔò²»×÷»®·Ö
+		if(mnCores == 1)//å¦‚æœåªæœ‰ä¸€ä¸ªèŠ‚ç‚¹æˆ–ä¸€ä¸ªthreadåˆ™ä¸ä½œåˆ’åˆ†
 		{
 			for (int i=0;i<nvtxs;i++){
 				//cout<<part[i]<<endl;
-				tmpflatNode2Core.insert(make_pair(tmpFlatNodes[i],0));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+				tmpflatNode2Core.insert(make_pair(tmpFlatNodes[i],0));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 				tmpcore2FlatNode.insert(make_pair(0,tmpFlatNodes[i]));
 				flatNode2Cluster2Core.insert(make_pair(tmpFlatNodes[i],make_pair(groupNum, 0)));
 			}
@@ -656,9 +656,9 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 			cluster2FlatNode2Core.insert(make_pair(groupNum,tmpflatNode2Core));
 			continue;
 		}
-		if(nvtxs == 1)//Ö»ÓĞÒ»¸ö¶¥µã
+		if(nvtxs == 1)//åªæœ‰ä¸€ä¸ªé¡¶ç‚¹
 		{
-			tmpflatNode2Core.insert(make_pair(tmpFlatNodes[0],0));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+			tmpflatNode2Core.insert(make_pair(tmpFlatNodes[0],0));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 			tmpcore2FlatNode.insert(make_pair(0,tmpFlatNodes[0]));
 			flatNode2Cluster2Core.insert(make_pair(tmpFlatNodes[0],make_pair(groupNum, 0)));
 			cluster2Core2FlatNode.insert(make_pair(groupNum,tmpcore2FlatNode));
@@ -666,31 +666,31 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 			continue;
 		}
 		/************************************************************************/
-		/* metis ÈÎÎñµ÷¶È£¬½áºÏ±ßÍ¨ĞÅÒÔ¼°¸ºÔØ¾ùºâ                               */
+		/* metis ä»»åŠ¡è°ƒåº¦ï¼Œç»“åˆè¾¹é€šä¿¡ä»¥åŠè´Ÿè½½å‡è¡¡                               */
 		/************************************************************************/
-		vector<int>xadj(nvtxs+1,0);//¶¯Ì¬¶¨ÒåxadjÊı×é
+		vector<int>xadj(nvtxs+1,0);//åŠ¨æ€å®šä¹‰xadjæ•°ç»„
 		vector<int>vwgt(nvtxs);
 		vector<int>part(nvtxs);
 		vector<int>vsize(nvtxs,0);
-		int edgenum = 0;//Í¼µÄ±ßÊı,ÔÚÕâÀïÑ¡ÓÃ´óÍ¼µÄ±ßÊıÒ²¿ÉÒÔ£¬²»Ó°Ïì½á¹û
-		edgenum=SSG->GetMapEdge2DownFlatNode().size();//Í¼µÄ±ßÊı
+		int edgenum = 0;//å›¾çš„è¾¹æ•°,åœ¨è¿™é‡Œé€‰ç”¨å¤§å›¾çš„è¾¹æ•°ä¹Ÿå¯ä»¥ï¼Œä¸å½±å“ç»“æœ
+		edgenum=SSG->GetMapEdge2DownFlatNode().size();//å›¾çš„è¾¹æ•°
 		vector<int>adjncy(edgenum*2);
-		vector<long>adjwgt(edgenum*2);//ÓÃÓÚ´æ´¢±ßµÄÈ¨ÖØ
-		int k=0;//kÓÃÓÚ¼ÇÂ¼flatnodeµÄÏàÁÚ½ÚµãÊı
+		vector<long>adjwgt(edgenum*2);//ç”¨äºå­˜å‚¨è¾¹çš„æƒé‡
+		int k=0;//kç”¨äºè®°å½•flatnodeçš„ç›¸é‚»èŠ‚ç‚¹æ•°
 		map<FlatNode *, int>::iterator iter;
 		typedef multimap<int,FlatNode *>::iterator iter1;
 		map<FlatNode *, int> tmpflatNode2Steadycount = cluster2flatNodeSteadyCount[groupNum];
 		for(int i=0;i<nvtxs;i++)
 		{
 			FlatNode *node = tmpFlatNodes[i];
-			int flag = 0;//±£Ö¤sumÖ»¼ÓÒ»´Î
+			int flag = 0;//ä¿è¯sumåªåŠ ä¸€æ¬¡
 			int sum = 0;
 			sum += xadj[i];
 			int nOut = 0;
 			for (int j = 0;j < node->nOut;j++)
 			{
-				if(tmpFlatNodeSet.count(node->outFlatNodes[j]))	 //20121128 ×¢ÊÍÉÏÃæµÄÅĞ¶Ï£¬Ä¿µÄÊÇÏû³ı±àÒëÊ±´íÎó
-					++nOut; //²éÕÒ³É¹¦
+				if(tmpFlatNodeSet.count(node->outFlatNodes[j]))	 //20121128 æ³¨é‡Šä¸Šé¢çš„åˆ¤æ–­ï¼Œç›®çš„æ˜¯æ¶ˆé™¤ç¼–è¯‘æ—¶é”™è¯¯
+					++nOut; //æŸ¥æ‰¾æˆåŠŸ
 			}
 			if (nOut != 0)
 			{  
@@ -698,8 +698,8 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 				xadj[i+1] = sum + nOut;
 				for (int j = 0;j < node->nOut;j++)
 				{
-					if(!tmpFlatNodeSet.count(node->outFlatNodes[j]))  //20121128 ×¢ÊÍÉÏÃæµÄÅĞ¶Ï£¬Ä¿µÄÊÇÏû³ı±àÒëÊ±´íÎó	
-						continue;//¸ÃÊä³ö½Úµã²»ÔÚplaceÖĞ
+					if(!tmpFlatNodeSet.count(node->outFlatNodes[j]))  //20121128 æ³¨é‡Šä¸Šé¢çš„åˆ¤æ–­ï¼Œç›®çš„æ˜¯æ¶ˆé™¤ç¼–è¯‘æ—¶é”™è¯¯	
+						continue;//è¯¥è¾“å‡ºèŠ‚ç‚¹ä¸åœ¨placeä¸­
 					adjncy[k] = findID(node->outFlatNodes[j],tmpFlatNodes);
 					adjwgt[k] = node->outPushWeights[j] * tmpflatNode2Steadycount.find(node)->second;
 					vsize[i] += adjwgt[k];
@@ -710,8 +710,8 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 			int nIn = 0;
 			for (int j = 0;j < node->nIn;j++)
 			{
-				if(tmpFlatNodeSet.count(node->inFlatNodes[j]))	 //20121128 ×¢ÊÍÉÏÃæµÄÅĞ¶Ï£¬Ä¿µÄÊÇÏû³ı±àÒëÊ±´íÎó
-						++nIn; //²éÕÒ³É¹¦
+				if(tmpFlatNodeSet.count(node->inFlatNodes[j]))	 //20121128 æ³¨é‡Šä¸Šé¢çš„åˆ¤æ–­ï¼Œç›®çš„æ˜¯æ¶ˆé™¤ç¼–è¯‘æ—¶é”™è¯¯
+						++nIn; //æŸ¥æ‰¾æˆåŠŸ
 			}
 			if (nIn != 0)
 			{
@@ -725,8 +725,8 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 				}
 				for (int j = 0; j < node->nIn; j++)
 				{
-					if(!tmpFlatNodeSet.count(node->inFlatNodes[j])) //20121128 ×¢ÊÍÉÏÃæµÄÅĞ¶Ï£¬Ä¿µÄÊÇÏû³ı±àÒëÊ±´íÎó
-						continue;//¸ÃÊä³ö½Úµã²»ÔÚplaceÖĞ
+					if(!tmpFlatNodeSet.count(node->inFlatNodes[j])) //20121128 æ³¨é‡Šä¸Šé¢çš„åˆ¤æ–­ï¼Œç›®çš„æ˜¯æ¶ˆé™¤ç¼–è¯‘æ—¶é”™è¯¯
+						continue;//è¯¥è¾“å‡ºèŠ‚ç‚¹ä¸åœ¨placeä¸­
 					adjncy[k] = findID(node->inFlatNodes[j],tmpFlatNodes);
 					adjwgt[k] = node->inPopWeights[j] * tmpflatNode2Steadycount.find(node)->second;
 					vsize[i] += adjwgt[k];
@@ -736,15 +736,15 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 			iter = tmpflatNode2Steadycount.find(node);
 			vwgt[i] = SSG->GetSteadyWork(node)*iter->second;
 		} 
-		mxadj = &xadj[0]; //¶¥µãÏà¹Ø,¶¥µã±àºÅÔÚÁÚ½Ó±ßÊı×éÖĞµÄ·¶Î§
-		madjncy = &adjncy[0]; // ±ßÏà¹Ø, adjncy: adjacency
-		madjwgt = NULL;//±ßµÄÈ¨ÖØ
-		mvsize = &vsize[0];//¸÷½ÚµãµÄÍ¨ĞÅÁ¿(½Úµã·¢ËÍµÄÊı¾İÁ¿)
-		mpart = &part[0];//¸÷½ÚµãËù¶ÔÓ¦µÄ»®·Ö±àºÅ
-		mvwgt = &vwgt[0];//¸÷½ÚµãµÄ¹¤×÷Á¿
+		mxadj = &xadj[0]; //é¡¶ç‚¹ç›¸å…³,é¡¶ç‚¹ç¼–å·åœ¨é‚»æ¥è¾¹æ•°ç»„ä¸­çš„èŒƒå›´
+		madjncy = &adjncy[0]; // è¾¹ç›¸å…³, adjncy: adjacency
+		madjwgt = NULL;//è¾¹çš„æƒé‡
+		mvsize = &vsize[0];//å„èŠ‚ç‚¹çš„é€šä¿¡é‡(èŠ‚ç‚¹å‘é€çš„æ•°æ®é‡)
+		mpart = &part[0];//å„èŠ‚ç‚¹æ‰€å¯¹åº”çš„åˆ’åˆ†ç¼–å·
+		mvwgt = &vwgt[0];//å„èŠ‚ç‚¹çš„å·¥ä½œé‡
 		if(METIS_OK == METIS_PartGraphKway(&nvtxs,&mncon,mxadj,madjncy,mvwgt,mvsize,madjwgt,&mnCores,tpwgts,ubvec,options,&objval,mpart))
 		{
-			//¶Ôpart[i]×öÒ»¸öÅĞ¶Ï£¬Èç¹ûÖµÈ¨ÏàÍ¬Ôòµ÷ÓÃÒ»¸öĞÂµÄ·ÖÅäËã·¨
+			//å¯¹part[i]åšä¸€ä¸ªåˆ¤æ–­ï¼Œå¦‚æœå€¼æƒç›¸åŒåˆ™è°ƒç”¨ä¸€ä¸ªæ–°çš„åˆ†é…ç®—æ³•
 			int partTag = 0;
 			for (int i = 0; i < nvtxs -1; i++)
 			{
@@ -759,7 +759,7 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 			}
 			for (int i=0;i<nvtxs;i++)
 			{
-				tmpflatNode2Core.insert(make_pair(tmpFlatNodes[i],part[i]));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+				tmpflatNode2Core.insert(make_pair(tmpFlatNodes[i],part[i]));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 				tmpcore2FlatNode.insert(make_pair(part[i],tmpFlatNodes[i]));
 				flatNode2Cluster2Core.insert(make_pair(tmpFlatNodes[i],make_pair(groupNum, part[i])));
 			}
@@ -774,7 +774,7 @@ void ClusterPartition::MetisPartitionFlatNodeInCluster()
 }
 
 ClusterPartition* ClusterPartition::RevisionClusterPartition(ClusterPartition* _tmpcp,SchedulerSSG* sssg, std::map<int, std::map<FlatNode *, int > >& _tmpcluster2FlatNode2Core)
-{//¸ù¾İcluster2FlatNode2CoreºÍsssgĞÅÏ¢ĞŞÕı_tmpcp»®·ÖµÄ½á¹û----------20121128Ìí¼Ó
+{//æ ¹æ®cluster2FlatNode2Coreå’Œsssgä¿¡æ¯ä¿®æ­£_tmpcpåˆ’åˆ†çš„ç»“æœ----------20121128æ·»åŠ 
 	_tmpcp->flatNode2Cluster2Core.clear();
 	_tmpcp->cluster2Core2FlatNode.clear();
 	_tmpcp->cluster2FlatNode2Core.clear();
@@ -803,16 +803,16 @@ ClusterPartition* ClusterPartition::RevisionClusterPartition(ClusterPartition* _
 }
 
 GLOBAL ClusterPartition* SSGPartitionCluster(int nclusters, int nplaces)
-{//½øĞĞ¼¯Èº¼äµÄ¶ş¼¶»®·Ö
+{//è¿›è¡Œé›†ç¾¤é—´çš„äºŒçº§åˆ’åˆ†
 	ClusterGroupGraph *groupGraph = new ClusterGroupGraph(SSSG);
-	groupGraph->CreateCoarseGraph(nclusters);//¶ÔÍ¼½øĞĞ³õÊ¼×égroup»®·Ö
-	//groupGraph->CreateCoarseGraph();//¶ÔÍ¼½øĞĞ³õÊ¼×égroup»®·Ö(²»È·¶¨»®·Ö·ÖÊı)
+	groupGraph->CreateCoarseGraph(nclusters);//å¯¹å›¾è¿›è¡Œåˆå§‹ç»„groupåˆ’åˆ†
+	//groupGraph->CreateCoarseGraph();//å¯¹å›¾è¿›è¡Œåˆå§‹ç»„groupåˆ’åˆ†(ä¸ç¡®å®šåˆ’åˆ†åˆ†æ•°)
 	cpartition = new ClusterPartition(groupGraph);
-	cpartition->SetClusters(nclusters);//ÉèÖÃ¼¯Èº»úÆ÷½ÚµãÊıÄ¿
-	cpartition->SetCores(nplaces); //Éè¶¨»úÆ÷¼¯Èº½ÚµãµÄcoreµÄÊıÄ¿
-	cpartition->InitPartition(groupGraph);//½øĞĞ³õÊ¼»¯·Ö(µÚÒ»¼¶»®·Ö£¬»®·Öµ½¼¯ÈºÖĞ»úÆ÷µÄ½Úµã)
-	cpartition->RefinePartition(groupGraph);//Ï¸Á£¶Èµ÷Õû
-	cpartition->MetisPartitionFlatNodeInCluster();//µÚ¶ş¼¶»®·Ö(½«FlatNodeÓ³Éäµ½ºËÖĞ)
+	cpartition->SetClusters(nclusters);//è®¾ç½®é›†ç¾¤æœºå™¨èŠ‚ç‚¹æ•°ç›®
+	cpartition->SetCores(nplaces); //è®¾å®šæœºå™¨é›†ç¾¤èŠ‚ç‚¹çš„coreçš„æ•°ç›®
+	cpartition->InitPartition(groupGraph);//è¿›è¡Œåˆå§‹åŒ–åˆ†(ç¬¬ä¸€çº§åˆ’åˆ†ï¼Œåˆ’åˆ†åˆ°é›†ç¾¤ä¸­æœºå™¨çš„èŠ‚ç‚¹)
+	cpartition->RefinePartition(groupGraph);//ç»†ç²’åº¦è°ƒæ•´
+	cpartition->MetisPartitionFlatNodeInCluster();//ç¬¬äºŒçº§åˆ’åˆ†(å°†FlatNodeæ˜ å°„åˆ°æ ¸ä¸­)
 	return cpartition;
 }
 

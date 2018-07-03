@@ -9,7 +9,7 @@ public:
 	int bufferSize;
 	//T peek(int index);			//peak seems useless
 	T& operator[](const size_t); 
-	//析构函数~Buffer();
+	//鏋愭瀯鍑芥暟~Buffer();
 	~Buffer()
 	{
 		delete	[]buffer;
@@ -18,7 +18,7 @@ private:
 	T* buffer;
 };
 template<typename T>
-Buffer<T>::Buffer(int size){//constructor    分配缓冲区地址
+Buffer<T>::Buffer(int size){//constructor    鍒嗛厤缂撳啿鍖哄湴鍧�
 	bufferSize = size;
 	buffer = (T*)malloc(bufferSize*sizeof(T));
 }

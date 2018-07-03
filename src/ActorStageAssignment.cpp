@@ -3,13 +3,13 @@ void StageAssignment::actorTopologicalorder(vector<FlatNode *>original)
 {
 	vector<FlatNode *>::iterator iter1,iter2,iter4;
 	vector<FlatNode *>::iterator iter;
-	vector<int> nInSet;//ÓÃÓÚ±£´æ¸÷½ÚµãµÄnIn
+	vector<int> nInSet;//ç”¨äºä¿å­˜å„èŠ‚ç‚¹çš„nIn
 	vector<int>::iterator iter3;
 	int nsize=original.size();
 	int flag;
 	for (iter1=original.begin();iter1!=original.end();++iter1)
 	{
-		nInSet.push_back((*iter1)->nIn);//½«¸÷½ÚµãµÄnIn±£´æ
+		nInSet.push_back((*iter1)->nIn);//å°†å„èŠ‚ç‚¹çš„nInä¿å­˜
 	}
 	while (nsize)
 	{
@@ -22,7 +22,7 @@ void StageAssignment::actorTopologicalorder(vector<FlatNode *>original)
 				{
 					if ((*iter4)->name==(*iter1)->name)
 					{
-						flag=1;//Èç¹û½áµãÒÑ¾­´æÔÚÓÚÍØÆË¼¯ºÏÖĞ
+						flag=1;//å¦‚æœç»“ç‚¹å·²ç»å­˜åœ¨äºæ‹“æ‰‘é›†åˆä¸­
 					}
 				}
 				if (flag==0)
@@ -31,8 +31,8 @@ void StageAssignment::actorTopologicalorder(vector<FlatNode *>original)
 					{
 						(*iter2)->nIn--;
 					}
-					actortopo.push_back(*iter1);//½«ÊäÈë±ßÎª0µÄ½áµã·ÅÈëactortopoÖĞ
-				//original.erase(iter1);//É¾³ıÔ­Ê¼½áµã¼¯ºÏÖĞµÄÍØÆË½áµã
+					actortopo.push_back(*iter1);//å°†è¾“å…¥è¾¹ä¸º0çš„ç»“ç‚¹æ”¾å…¥actortopoä¸­
+				//original.erase(iter1);//åˆ é™¤åŸå§‹ç»“ç‚¹é›†åˆä¸­çš„æ‹“æ‰‘ç»“ç‚¹
 					nsize--;
 				}
 				
@@ -46,7 +46,7 @@ void StageAssignment::actorTopologicalorder(vector<FlatNode *>original)
 		iter3++;
 	}
 	//actortopo=original;
-	/*cout<<"ÍØÆËĞòÁĞÈçÏÂ"<<endl;
+	/*cout<<"æ‹“æ‰‘åºåˆ—å¦‚ä¸‹"<<endl;
 	for (iter=actortopo.begin();iter!=actortopo.end();++iter)
 	{
 		cout<<(*iter)->name<<endl;
@@ -72,8 +72,8 @@ void StageAssignment::actorStageMap(map<FlatNode *,int>processor2actor)
 			{
 				maxstage=iter->second;
 			}
-			iter3=processor2actor.find(*iter1);//²éÕÒ*iter1Ëù¶ÔÓ¦µÄ»®·ÖºÅ
-			iter4=processor2actor.find(*iter2);//²éÕÒ*iter2Ëù¶ÔÓ¦µÄ»®·ÖºÅ
+			iter3=processor2actor.find(*iter1);//æŸ¥æ‰¾*iter1æ‰€å¯¹åº”çš„åˆ’åˆ†å·
+			iter4=processor2actor.find(*iter2);//æŸ¥æ‰¾*iter2æ‰€å¯¹åº”çš„åˆ’åˆ†å·
 			if (iter3->second!=iter4->second)
 			{
 				flag=true;
@@ -90,7 +90,7 @@ void StageAssignment::actorStageMap(map<FlatNode *,int>processor2actor)
 		Actor2Stage.insert(make_pair(*iter1,stage));
 		Stage2Actor.insert(make_pair(stage,*iter1));
 	}
-	/*cout<<"½×¶Î¸³Öµ½á¹ûÈçÏÂ"<<endl;
+	/*cout<<"é˜¶æ®µèµ‹å€¼ç»“æœå¦‚ä¸‹"<<endl;
 	for (iter5=Actor2Stage.begin();iter5!=Actor2Stage.end();++iter5)
 	{
 		cout<<iter5->first->name<<"     "<<iter5->second<<endl;
@@ -115,8 +115,8 @@ void StageAssignment::actorStageMapForGPU(map<FlatNode *,int>processor2actor)
 			{
 				maxstage=iter->second;
 			}
-			iter3=processor2actor.find(*iter1);//²éÕÒ*iter1Ëù¶ÔÓ¦µÄ»®·ÖºÅ
-			iter4=processor2actor.find(*iter2);//²éÕÒ*iter2Ëù¶ÔÓ¦µÄ»®·ÖºÅ
+			iter3=processor2actor.find(*iter1);//æŸ¥æ‰¾*iter1æ‰€å¯¹åº”çš„åˆ’åˆ†å·
+			iter4=processor2actor.find(*iter2);//æŸ¥æ‰¾*iter2æ‰€å¯¹åº”çš„åˆ’åˆ†å·
 		    if ((iter3->second!=iter4->second)&&((*iter1)->GPUPart >= GpuNum || (*iter2)->GPUPart >= GpuNum))
 			{
 				flag = 1;
@@ -140,7 +140,7 @@ void StageAssignment::actorStageMapForGPU(map<FlatNode *,int>processor2actor)
 				Stage2DataOfActor.insert(make_pair(maxstage+1,tempactor));
 				tempmap.insert(make_pair(tempactor,2));
 				iter_datastage = datastage.find(maxstage+1);
-				//²âÊÔtempmapºÍtestmapÊÇ·ñÏàÍ¬
+				//æµ‹è¯•tempmapå’Œtestmapæ˜¯å¦ç›¸åŒ
 				iter_tempmap = tempmap.begin();
 				if (iter_datastage!=datastage.end())
 				{
@@ -215,7 +215,7 @@ void StageAssignment::actorStageMapForGPU(map<FlatNode *,int>processor2actor)
 				Stage2DataOfActor.insert(make_pair(maxstage+1,*iter1));
 				tempmap.insert(make_pair(*iter1,1));
 				iter_datastage = datastage.find(maxstage+1);
-				//²âÊÔtempmapºÍtestmapÊÇ·ñÏàÍ¬
+				//æµ‹è¯•tempmapå’Œtestmapæ˜¯å¦ç›¸åŒ
 				iter_tempmap = tempmap.begin();
 				if (iter_datastage!=datastage.end())
 				{
@@ -287,7 +287,7 @@ void StageAssignment::actorStageMapForGPU(map<FlatNode *,int>processor2actor)
 		Actor2Stage.insert(make_pair(*iter1,stage));
 		Stage2Actor.insert(make_pair(stage,*iter1));
 	}
-	/*cout<<"½×¶Î¸³Öµ½á¹ûÈçÏÂ"<<endl;
+	/*cout<<"é˜¶æ®µèµ‹å€¼ç»“æœå¦‚ä¸‹"<<endl;
 	for (iter5=Actor2Stage.begin();iter5!=Actor2Stage.end();++iter5)
 	{
 		cout<<iter5->first->name<<"     "<<iter5->second<<endl;

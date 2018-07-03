@@ -8,50 +8,50 @@
 GLOBAL extern SchedulerSSG *SSSG;
 
 class ClusterPartition
-{//½«»®·ÖºÃµÄgroupÓ³Éäµ½¼¯Èº½ÚµãÖĞ
+{//å°†åˆ’åˆ†å¥½çš„groupæ˜ å°„åˆ°é›†ç¾¤èŠ‚ç‚¹ä¸­
 public:
-	std::map<FlatNode *,std::pair<int ,int> >flatNode2Cluster2Core;//flatNode£¬¼¯ÈºÉÏ»úÆ÷µÄ±àºÅ£¬coreµÄ±àºÅ µÄmap
-	std::map<int, std::map<FlatNode *, int > > cluster2FlatNode2Core;//¼¯ÈºÉÏ»úÆ÷µÄ±àºÅ,flatNode,coreÖ®¼äµÄÓ³Éä
-	std::map<int, std::multimap<int, FlatNode *> > cluster2Core2FlatNode;//¼¯ÈºÉÏ»úÆ÷µÄ±àºÅ,core,flatNodeÖ®¼äµÄÓ³Éä
-	std::vector<std::map<FlatNode *, int> >cluster2flatNodeSteadyCount;//¼ÇÂ¼Ã¿¸öclusterÉÏµÄflatNodeµÄÎÈ¶¨×´Ì¬´ÎÊı
-	std::map<FlatNode *,int> flatNode2Cluster;//flatNodeÓë¼¯Èº½Úµã¼äµÄÓ³Éä
-	std::multimap<int,FlatNode*> cluster2FlatNode;//¼¯Èº½ÚµãÓëFlatNodeÖ®¼äÓ³Éä
+	std::map<FlatNode *,std::pair<int ,int> >flatNode2Cluster2Core;//flatNodeï¼Œé›†ç¾¤ä¸Šæœºå™¨çš„ç¼–å·ï¼Œcoreçš„ç¼–å· çš„map
+	std::map<int, std::map<FlatNode *, int > > cluster2FlatNode2Core;//é›†ç¾¤ä¸Šæœºå™¨çš„ç¼–å·,flatNode,coreä¹‹é—´çš„æ˜ å°„
+	std::map<int, std::multimap<int, FlatNode *> > cluster2Core2FlatNode;//é›†ç¾¤ä¸Šæœºå™¨çš„ç¼–å·,core,flatNodeä¹‹é—´çš„æ˜ å°„
+	std::vector<std::map<FlatNode *, int> >cluster2flatNodeSteadyCount;//è®°å½•æ¯ä¸ªclusterä¸Šçš„flatNodeçš„ç¨³å®šçŠ¶æ€æ¬¡æ•°
+	std::map<FlatNode *,int> flatNode2Cluster;//flatNodeä¸é›†ç¾¤èŠ‚ç‚¹é—´çš„æ˜ å°„
+	std::multimap<int,FlatNode*> cluster2FlatNode;//é›†ç¾¤èŠ‚ç‚¹ä¸FlatNodeä¹‹é—´æ˜ å°„
 private:
-	std::multimap<int,ClusterGroup*> cluster2Group;//¼¯Èº½ÚµãµÄ±àºÅÓëgroup±àºÅµÄÓ³Éä
-	std::map<ClusterGroup*, int> group2Cluster;//group±àºÅÓë¼¯Èº½ÚµãµÄ±àºÅµÄÓ³Éä
-	std::map<int, int> group2Amortize;//group±àºÅÓëÌ¯ÏúÒò×ÓµÄÓ³Éä
-	//³õÊ¼»¯·ÖÊ±ÒªÓÃµ½	
+	std::multimap<int,ClusterGroup*> cluster2Group;//é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ä¸groupç¼–å·çš„æ˜ å°„
+	std::map<ClusterGroup*, int> group2Cluster;//groupç¼–å·ä¸é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·çš„æ˜ å°„
+	std::map<int, int> group2Amortize;//groupç¼–å·ä¸æ‘Šé”€å› å­çš„æ˜ å°„
+	//åˆå§‹åŒ–åˆ†æ—¶è¦ç”¨åˆ°	
 	ClusterGroupGraph* groupGraph;
-	int mnclusters;//¼¯Èº½ÚµãµÄÊıÄ¿
-	int mnCores;//»úÆ÷ÄÚ²¿µÄºËµÄÊıÄ¿£¨´Ë´¦Ö»¿¼ÂÇÍ¬¹¹µÄ£©
-	std::vector<FlatNode*>flatNodeSet;//ÓÃÓÚ¼ÇÂ¼flatNodeµÄ¼¯ºÏ(cluster±àºÅ->flatNode)
-	std::vector<ClusterGroup *> clusterGroupSet;//ÓÃÓÚ¼ÇÂ¼groupµÄ¼¯ºÏ(cluster±àºÅ->group)
-	//ÎªÁË¼ì²â¼¯Èº¼äÓĞÃ»ÓĞ»·Â·£¬ÒıÈëÁ½¸ömap
-	std::map<int, std::vector<int> > cluster2PrecedenceCluster;//µ±Ç°clusterÓëÇ°ÇıÖ®¼äµÄmap
-	std::map<int, std::vector<int> > cluster2SuccessorCluster; //µ±Ç°clusterÓëºó¼ÌÖ®¼äµÄmap
+	int mnclusters;//é›†ç¾¤èŠ‚ç‚¹çš„æ•°ç›®
+	int mnCores;//æœºå™¨å†…éƒ¨çš„æ ¸çš„æ•°ç›®ï¼ˆæ­¤å¤„åªè€ƒè™‘åŒæ„çš„ï¼‰
+	std::vector<FlatNode*>flatNodeSet;//ç”¨äºè®°å½•flatNodeçš„é›†åˆ(clusterç¼–å·->flatNode)
+	std::vector<ClusterGroup *> clusterGroupSet;//ç”¨äºè®°å½•groupçš„é›†åˆ(clusterç¼–å·->group)
+	//ä¸ºäº†æ£€æµ‹é›†ç¾¤é—´æœ‰æ²¡æœ‰ç¯è·¯ï¼Œå¼•å…¥ä¸¤ä¸ªmap
+	std::map<int, std::vector<int> > cluster2PrecedenceCluster;//å½“å‰clusterä¸å‰é©±ä¹‹é—´çš„map
+	std::map<int, std::vector<int> > cluster2SuccessorCluster; //å½“å‰clusterä¸åç»§ä¹‹é—´çš„map
 public:
 	ClusterPartition(){ };
-	ClusterPartition(ClusterGroupGraph*);// Íê³ÉgroupµÄ±àºÅ
-	int GetClusters();//·µ»Ø»®·Ö¸öÊımnclusters
-	void SetClusters(int);//ÉèÖÃ¼¯Èº½ÚµãÊıÄ¿£¨¼´½ø³ÌÊıÄ¿£©
-	int GetCores();//·µ»Ø»®·Ö¸öÊımnCore
+	ClusterPartition(ClusterGroupGraph*);// å®Œæˆgroupçš„ç¼–å·
+	int GetClusters();//è¿”å›åˆ’åˆ†ä¸ªæ•°mnclusters
+	void SetClusters(int);//è®¾ç½®é›†ç¾¤èŠ‚ç‚¹æ•°ç›®ï¼ˆå³è¿›ç¨‹æ•°ç›®ï¼‰
+	int GetCores();//è¿”å›åˆ’åˆ†ä¸ªæ•°mnCore
 	void SetCores(int);
-	void InitPartition(ClusterGroupGraph* groupGraph);//³õÊ¼»¯·Ö£¨µ±K²»È·¶¨»òÕßmnparts´óÓÚmnclustersÊ±ĞèÒªÍê³ÉgroupÓëcluster½ÚµãÖ®¼äµÄ»®·Ö£©
-	void RefinePartition(ClusterGroupGraph *groupGraph);//Ï¸»¯µ÷Õû£¨Ö÷ÒªÕë¶ÔµÄÊÇ±ß½çÉÏ½Úµã£©
-	void MovingGroup(ClusterGroup *srcGroup,int destCluster,ClusterGroupGraph *graph );//½«src£¬ÓëdestºÏ²¢£¬²¢ĞŞ¸ÄgraphµÄÏà¹ØĞÅÏ¢£¬·µ»ØµÄÊÇÒÆ¶¯ºóµÄÊÕÒæ
-	int RefineMoveGroup(ClusterGroup *srcGroup, std::vector<ClusterGroup *>destClusterVec, ClusterGroupGraph *graph);//srcGroup½«ÒªÒÆ¶¯µÄgroup£¬destClusterVecÄ¿µÄ»®·Ö(ºòÑ¡)¼¯ºÏ£¬graphÊÇgroupµÄÍ¼£¬gainÊÇÒÆ¶¯µÄÊÕÒæ£¬·µ»ØµÄÊÇsrc¿ÉÄÜ±»ÒÆ¶¯µ½µÄcluster±àºÅ
-	float ComputeCommDeltWeight(ClusterGroup *group);//¼ÆËãgroup¶ÔÄÚ(ÓëgroupÔÚÍ¬Ò»¸öclusterÖĞ)ºÍ¶ÔÍâ(Óëgroup²»ÔÚÍ¬Ò»¸öclusterÖĞ)Í¨ĞÅµÄÔöÁ¿£¨²îÖµ»ò±ÈÀı£©
-	void MetisPartitionFlatNodeInCluster();//¶ÔclusterÄÚ²¿µÄflatnode½Úµã»®·Ö£¬Ö÷ÒªÊÇÓ³Éäµ½coreÉÏ
-	int GetClusterNum(ClusterGroup* group);//¸ù¾İgroup²éÕÒclusterµÄ±àºÅ
-	std::pair<int, int> GetClusterCoreNum(FlatNode *flatNode);//¸ù¾İflatNode²éÕÒcluster±àºÅºÍcoreµÄ±àºÅ
-	std::vector<FlatNode*> GetFlatNodes(int clusterNum);//¸ù¾İcluster±àºÅÕÒflatNode
-	std::vector<ClusterGroup *> GetGroups(int clusterNum);//¸ù¾İCluster±àºÅÕÒ¸Ã½ÚµãÉÏµÄËùÓĞGroup
-	std::vector<FlatNode*> GetFlatNodes(int clusterNum,int coreNum);//¸ù¾İcluster±àºÅºÍºËµÄ±àºÅÕÒflatNode
-	std::map<FlatNode *,int > GetFlatNode2Core(int clusterNum);//¸ù¾İ¸ø¶¨µÄ¼¯Èº½ÚµãµÄ±àºÅ£¬»ñµÃÔÚ¸Ã»úÆ÷ÉÏµÄ»®·Ö£¨FlatNodeÓëcoreÖ®¼äµÄÓ³Éä£©
-	std::multimap<int,FlatNode *> GetCore2FlatNode(int clusterNum);//¸ù¾İ¸ø¶¨µÄ¼¯Èº½ÚµãµÄ±àºÅ£¬»ñµÃÔÚ¸Ã»úÆ÷ÉÏµÄ»®·Ö£¨coreÓëFlatNodeÖ®¼äµÄÓ³Éä£©
-	int GetSteadyCount(FlatNode *flatNode);//È¡Ò»¸öFlatNodeÉÏµÄ¾Ö²¿ÎÈÌ¬´ÎÊı
-	ClusterPartition* RevisionClusterPartition(ClusterPartition* _tmpcp, SchedulerSSG* sssg,std::map<int, std::map<FlatNode *, int > >& _tmpcluster2FlatNode2Core); //¸ù¾İcluster2FlatNode2CoreºÍsssgĞŞÕı»®·ÖµÄ½á¹û
-	//È¡»®·ÖÍê³ÉºóµÄÏàÓ¦½á¹û¡ª¡ª121106 zww Ìí¼Ó
+	void InitPartition(ClusterGroupGraph* groupGraph);//åˆå§‹åŒ–åˆ†ï¼ˆå½“Kä¸ç¡®å®šæˆ–è€…mnpartså¤§äºmnclustersæ—¶éœ€è¦å®Œæˆgroupä¸clusterèŠ‚ç‚¹ä¹‹é—´çš„åˆ’åˆ†ï¼‰
+	void RefinePartition(ClusterGroupGraph *groupGraph);//ç»†åŒ–è°ƒæ•´ï¼ˆä¸»è¦é’ˆå¯¹çš„æ˜¯è¾¹ç•Œä¸ŠèŠ‚ç‚¹ï¼‰
+	void MovingGroup(ClusterGroup *srcGroup,int destCluster,ClusterGroupGraph *graph );//å°†srcï¼Œä¸deståˆå¹¶ï¼Œå¹¶ä¿®æ”¹graphçš„ç›¸å…³ä¿¡æ¯ï¼Œè¿”å›çš„æ˜¯ç§»åŠ¨åçš„æ”¶ç›Š
+	int RefineMoveGroup(ClusterGroup *srcGroup, std::vector<ClusterGroup *>destClusterVec, ClusterGroupGraph *graph);//srcGroupå°†è¦ç§»åŠ¨çš„groupï¼ŒdestClusterVecç›®çš„åˆ’åˆ†(å€™é€‰)é›†åˆï¼Œgraphæ˜¯groupçš„å›¾ï¼Œgainæ˜¯ç§»åŠ¨çš„æ”¶ç›Šï¼Œè¿”å›çš„æ˜¯srcå¯èƒ½è¢«ç§»åŠ¨åˆ°çš„clusterç¼–å·
+	float ComputeCommDeltWeight(ClusterGroup *group);//è®¡ç®—groupå¯¹å†…(ä¸groupåœ¨åŒä¸€ä¸ªclusterä¸­)å’Œå¯¹å¤–(ä¸groupä¸åœ¨åŒä¸€ä¸ªclusterä¸­)é€šä¿¡çš„å¢é‡ï¼ˆå·®å€¼æˆ–æ¯”ä¾‹ï¼‰
+	void MetisPartitionFlatNodeInCluster();//å¯¹clusterå†…éƒ¨çš„flatnodeèŠ‚ç‚¹åˆ’åˆ†ï¼Œä¸»è¦æ˜¯æ˜ å°„åˆ°coreä¸Š
+	int GetClusterNum(ClusterGroup* group);//æ ¹æ®groupæŸ¥æ‰¾clusterçš„ç¼–å·
+	std::pair<int, int> GetClusterCoreNum(FlatNode *flatNode);//æ ¹æ®flatNodeæŸ¥æ‰¾clusterç¼–å·å’Œcoreçš„ç¼–å·
+	std::vector<FlatNode*> GetFlatNodes(int clusterNum);//æ ¹æ®clusterç¼–å·æ‰¾flatNode
+	std::vector<ClusterGroup *> GetGroups(int clusterNum);//æ ¹æ®Clusterç¼–å·æ‰¾è¯¥èŠ‚ç‚¹ä¸Šçš„æ‰€æœ‰Group
+	std::vector<FlatNode*> GetFlatNodes(int clusterNum,int coreNum);//æ ¹æ®clusterç¼–å·å’Œæ ¸çš„ç¼–å·æ‰¾flatNode
+	std::map<FlatNode *,int > GetFlatNode2Core(int clusterNum);//æ ¹æ®ç»™å®šçš„é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œè·å¾—åœ¨è¯¥æœºå™¨ä¸Šçš„åˆ’åˆ†ï¼ˆFlatNodeä¸coreä¹‹é—´çš„æ˜ å°„ï¼‰
+	std::multimap<int,FlatNode *> GetCore2FlatNode(int clusterNum);//æ ¹æ®ç»™å®šçš„é›†ç¾¤èŠ‚ç‚¹çš„ç¼–å·ï¼Œè·å¾—åœ¨è¯¥æœºå™¨ä¸Šçš„åˆ’åˆ†ï¼ˆcoreä¸FlatNodeä¹‹é—´çš„æ˜ å°„ï¼‰
+	int GetSteadyCount(FlatNode *flatNode);//å–ä¸€ä¸ªFlatNodeä¸Šçš„å±€éƒ¨ç¨³æ€æ¬¡æ•°
+	ClusterPartition* RevisionClusterPartition(ClusterPartition* _tmpcp, SchedulerSSG* sssg,std::map<int, std::map<FlatNode *, int > >& _tmpcluster2FlatNode2Core); //æ ¹æ®cluster2FlatNode2Coreå’Œsssgä¿®æ­£åˆ’åˆ†çš„ç»“æœ
+	//å–åˆ’åˆ†å®Œæˆåçš„ç›¸åº”ç»“æœâ€”â€”121106 zww æ·»åŠ 
 	inline std::map<FlatNode *,std::pair<int ,int> > GetflatNode2Cluster2Core()
 	{
 		return flatNode2Cluster2Core;
@@ -66,13 +66,13 @@ public:
 	}
 	~ClusterPartition(){};
 private:
-	void MetisPartitionGroupGraph(ClusterGroupGraph* groupGraph);//Ê¹ÓÃMetis»®·ÖgroupÍ¼µÄ£¬²¢Íê³ÉgroupÓëcluster½Úµã¼äµÄÓ³Éä
-	int findID(FlatNode *flatnode,std::vector<FlatNode *> original);//¸ù¾İflatnodeÕÒµ½ÆäÏÂ±êºÅ Èçsource_0ÖĞµÄ0
-	//¹¹ÔìclusterÖ®¼äµÄÒÀÀµ¹ØÏµ
+	void MetisPartitionGroupGraph(ClusterGroupGraph* groupGraph);//ä½¿ç”¨Metisåˆ’åˆ†groupå›¾çš„ï¼Œå¹¶å®Œæˆgroupä¸clusterèŠ‚ç‚¹é—´çš„æ˜ å°„
+	int findID(FlatNode *flatnode,std::vector<FlatNode *> original);//æ ¹æ®flatnodeæ‰¾åˆ°å…¶ä¸‹æ ‡å· å¦‚source_0ä¸­çš„0
+	//æ„é€ clusterä¹‹é—´çš„ä¾èµ–å…³ç³»
 	void CreateClusterGraph();
-	void CreateClusterSteadyCount();//¹¹ÔìÎÈ¶¨×´Ì¬
+	void CreateClusterSteadyCount();//æ„é€ ç¨³å®šçŠ¶æ€
 	Bool HasClusterTopologicalSort(); 
-	int ComputeWorkloadOfCluster(int cluster);//¼ÆËã¼¯Èº½ÚµãÉÏµÄ¹¤×÷Á¿
+	int ComputeWorkloadOfCluster(int cluster);//è®¡ç®—é›†ç¾¤èŠ‚ç‚¹ä¸Šçš„å·¥ä½œé‡
 	std::vector<FlatNode*> GetFlatNodesInGroups(int clusterNum);
 	inline std::map<int, std::vector<int> > Getcluster2PrecedenceCluster()
 	{
@@ -85,8 +85,8 @@ private:
 
 };
 
-extern ClusterPartition* CCPartition;//¼¯Èº£¬ºË Á½¼¶»®·Ö
-GLOBAL ClusterPartition* SSGPartitionCluster(int nclusters, int nplaces);//½øĞĞ¼¯Èº¼äµÄ¶ş¼¶»®·Ö
+extern ClusterPartition* CCPartition;//é›†ç¾¤ï¼Œæ ¸ ä¸¤çº§åˆ’åˆ†
+GLOBAL ClusterPartition* SSGPartitionCluster(int nclusters, int nplaces);//è¿›è¡Œé›†ç¾¤é—´çš„äºŒçº§åˆ’åˆ†
 
 
 #endif

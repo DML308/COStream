@@ -2,14 +2,14 @@
 #define UPDATEEDGETAG 20
 GLOBAL void GenerateWorkEst(StaticStreamGraph *ssg,bool WorkEstimateByDataFlow)
 {
-	int len = ssg->GetFlatNodes().size();//»ñÈ¡operatorµÄ³¤¶È
+	int len = ssg->GetFlatNodes().size();//è·å–operatorçš„é•¿åº¦
 
 	for (int i=0;i<len;i++)
 	{
 		int w = 0,w_init = 0;
 		FlatNode *tmpFn = (ssg->GetFlatNodes())[i];
-		ChildNode *body =  tmpFn->contents->body;//È¡µÃoperatorµÄbody£¬Ö»ĞèÒª¼ì²éÕâÀï
-		if ( body != NULL)//¼ÆËãoperatorµÄbodyÄÚµÄ¹¤×÷Á¿
+		ChildNode *body =  tmpFn->contents->body;//å–å¾—operatorçš„bodyï¼Œåªéœ€è¦æ£€æŸ¥è¿™é‡Œ
+		if ( body != NULL)//è®¡ç®—operatorçš„bodyå†…çš„å·¥ä½œé‡
 		{
 			w_init = workEstimate_init(body, w);
 			if(WorkEstimateByDataFlow)
@@ -17,7 +17,7 @@ GLOBAL void GenerateWorkEst(StaticStreamGraph *ssg,bool WorkEstimateByDataFlow)
 			else
 				w = workEstimate(body, w);
 		}
-		w += (tmpFn->outFlatNodes.size()+tmpFn->inFlatNodes.size())*UPDATEEDGETAG;//¶àºËÏÂµ÷Õû»º³åÇøheadºÍtail
+		w += (tmpFn->outFlatNodes.size()+tmpFn->inFlatNodes.size())*UPDATEEDGETAG;//å¤šæ ¸ä¸‹è°ƒæ•´ç¼“å†²åŒºheadå’Œtail
 		ssg->AddInitWork(tmpFn, w_init);
 		ssg->AddSteadyWork(tmpFn, w);
 	}

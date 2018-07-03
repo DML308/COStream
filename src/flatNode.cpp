@@ -39,7 +39,7 @@ FlatNode::FlatNode(operatorNode *node, compositeNode *com, compositeNode *newCom
 }
 
 FlatNode::FlatNode(operatorNode *node)
-{//20120717 zww 添加 
+{//20120717 zww 娣诲姞 
 	name = std::string(node->decl->u.decl.name);
 	visitTimes = 0;
 	memorizedNode = false;
@@ -72,7 +72,7 @@ void FlatNode::SetIOStreams()
 	char tmp[50];
 
 	len = ListLength(oldContents->decl->u.decl.type->u.operdcl.outputs);
-	assert(len == nOut); // 暂不支持一条边被多个operator重用
+	assert(len == nOut); // 鏆備笉鏀寔涓�鏉¤竟琚涓猳perator閲嶇敤
 
 	IterateList(&marker, oldContents->decl->u.decl.type->u.operdcl.outputs); 
 	while (NextOnList(&marker, (GenericREF) &item)) {
@@ -89,7 +89,7 @@ void FlatNode::SetIOStreams()
 		}
 	}
 	len = ListLength(oldContents->decl->u.decl.type->u.operdcl.inputs);
-	assert(len == nIn);// 暂不支持一条边被多个operator重用
+	assert(len == nIn);// 鏆備笉鏀寔涓�鏉¤竟琚涓猳perator閲嶇敤
 	IterateList(&marker, oldContents->decl->u.decl.type->u.operdcl.inputs); 
 	while (NextOnList(&marker, (GenericREF) &item)) 
 	{

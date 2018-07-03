@@ -9,22 +9,22 @@ using namespace std;
 class StageAssignment
 {
 public:
-	void actorStageMap(map<FlatNode *,int>processor2actor);//²ÎÊıºÍFlatNodeÓëcoreÖ®¼äµÄÓ³Éä
+	void actorStageMap(map<FlatNode *,int>processor2actor);//å‚æ•°å’ŒFlatNodeä¸coreä¹‹é—´çš„æ˜ å°„
 	void actorStageMapForGPU(map<FlatNode *,int>processor2actor);
 	void actorTopologicalorder(vector<FlatNode *>original);
-	int FindStage(FlatNode*);//¸ù¾İ½áµãÑ°ÕÒÆäËùÔÚµÄ½×¶ÎºÅ
-	vector<FlatNode*> FindActor(int);//¸ù¾İ½×¶ÎºÅÑ°ÕÒ½áµã
-	vector<FlatNode*> FindDataOfActor(int);//¸ù¾İ½×¶ÎºÅÑ°ÕÒĞèÒª½øĞĞÊı¾İ´«ÊäµÄ½áµã
+	int FindStage(FlatNode*);//æ ¹æ®ç»“ç‚¹å¯»æ‰¾å…¶æ‰€åœ¨çš„é˜¶æ®µå·
+	vector<FlatNode*> FindActor(int);//æ ¹æ®é˜¶æ®µå·å¯»æ‰¾ç»“ç‚¹
+	vector<FlatNode*> FindDataOfActor(int);//æ ¹æ®é˜¶æ®µå·å¯»æ‰¾éœ€è¦è¿›è¡Œæ•°æ®ä¼ è¾“çš„ç»“ç‚¹
 	//map<FlatNode *,int> ReturnDataOfActor2Stage();
-	int MaxStageNum();//·µ»Ø×î´óµÄ½×¶Î±àºÅ
-	int MaxStageNumForGPU();//·µ»Ø×î´óµÄ½×¶Î±àºÅ
-	multimap<int,map<FlatNode*,int> >datastage;//ÓÃÓÚ±ê¼ÇÊı¾İ´«ÊäÊÇ·¢ËÍ»¹ÊÇÈ¡Êı¾İ£¬·½±ãthread.cppµÄÉú³É,¸ÃÊı¾İ½á¹¹ÖĞµÚÒ»¸öintÓÃÓÚ¼ÇÂ¼½×¶ÎºÅ£¬µÚ¶ş¸öintÓÃÓÚ¼ÇÂ¼±êÖ¾Î»,1:È¡Êı¾İ  2£º·¢Êı¾İ
+	int MaxStageNum();//è¿”å›æœ€å¤§çš„é˜¶æ®µç¼–å·
+	int MaxStageNumForGPU();//è¿”å›æœ€å¤§çš„é˜¶æ®µç¼–å·
+	multimap<int,map<FlatNode*,int> >datastage;//ç”¨äºæ ‡è®°æ•°æ®ä¼ è¾“æ˜¯å‘é€è¿˜æ˜¯å–æ•°æ®ï¼Œæ–¹ä¾¿thread.cppçš„ç”Ÿæˆ,è¯¥æ•°æ®ç»“æ„ä¸­ç¬¬ä¸€ä¸ªintç”¨äºè®°å½•é˜¶æ®µå·ï¼Œç¬¬äºŒä¸ªintç”¨äºè®°å½•æ ‡å¿—ä½,1:å–æ•°æ®  2ï¼šå‘æ•°æ®
 protected:
-	vector<FlatNode *>actortopo;//ÓÃÓÚ´æ´¢actorµÄÍØÆËÅÅĞò
-	map<FlatNode *,int>Actor2Stage;//ÓÃÓÚ´æ´¢½×¶Î¸³ÖµµÄ½á¹û
-	multimap<int,FlatNode*>Stage2Actor;//ÓÃÓÚ´æ´¢½×¶Î¸³ÖµµÄ½á¹û
+	vector<FlatNode *>actortopo;//ç”¨äºå­˜å‚¨actorçš„æ‹“æ‰‘æ’åº
+	map<FlatNode *,int>Actor2Stage;//ç”¨äºå­˜å‚¨é˜¶æ®µèµ‹å€¼çš„ç»“æœ
+	multimap<int,FlatNode*>Stage2Actor;//ç”¨äºå­˜å‚¨é˜¶æ®µèµ‹å€¼çš„ç»“æœ
 	vector<FlatNode *>ActorSet;//
-	/***ÒÔÏÂÁ½¸ö±äÁ¿ÎªGPU´úÂëÉú³É×¨ÓÃ£¬ÓÃÓÚ¼ÇÂ¼Êı¾İ´«ÊäËùÔÚµÄ½×¶Î***/
+	/***ä»¥ä¸‹ä¸¤ä¸ªå˜é‡ä¸ºGPUä»£ç ç”Ÿæˆä¸“ç”¨ï¼Œç”¨äºè®°å½•æ•°æ®ä¼ è¾“æ‰€åœ¨çš„é˜¶æ®µ***/
 	map<FlatNode *,int>DataOfActor2Stage;
 	multimap<int,FlatNode*>Stage2DataOfActor;
 private:

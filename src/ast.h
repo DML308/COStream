@@ -60,13 +60,13 @@ typedef enum {
   RoundRobin,	
   Duplicate,
   
-  /********1********ĞÂÎÄ·¨**********/
+  /********1********æ–°æ–‡æ³•**********/
   Add,
   Itco			/*iterator count*/
   /*
-  É¾³ıµôµÄ½Úµã£º Var,Graph,StreamFor,StreamIf,StreamIfElse,Eviction,Trigger,logic
-  ĞŞ¸Ä¹ıµÄ½Úµã£º comBodyNode,PipelineNode,SplitJoinNode,slidingNode,tumblingNode
-  ĞÂÔö¼ÓµÄ½Úµã£º Add
+  åˆ é™¤æ‰çš„èŠ‚ç‚¹ï¼š Var,Graph,StreamFor,StreamIf,StreamIfElse,Eviction,Trigger,logic
+  ä¿®æ”¹è¿‡çš„èŠ‚ç‚¹ï¼š comBodyNode,PipelineNode,SplitJoinNode,slidingNode,tumblingNode
+  æ–°å¢åŠ çš„èŠ‚ç‚¹ï¼š Add
   */
 } NodeType;
 
@@ -275,7 +275,7 @@ typedef struct {
   /* INSERT EXTENSIONS HERE */     \
     (et).base)
 
-typedef enum{S_Duplicate,S_RoundRobin}SplitStyle;//zww 20121016 Ìí¼Ósplit½ÚµãµÄÁ½ÖÖÀàĞÍ
+typedef enum{S_Duplicate,S_RoundRobin}SplitStyle;//zww 20121016 æ·»åŠ splitèŠ‚ç‚¹çš„ä¸¤ç§ç±»å‹
 
 
 typedef struct {
@@ -343,17 +343,17 @@ typedef struct {
 
 typedef struct {
 	OpType op;
-	opDataType opType;/*zww:define for spl,¼ÇÂ¼¸Ã2Ôª²Ù×÷µÄÊı¾İÀàĞÍ£ºÕûĞÍ£¬¸¡µãĞÍ*/
+	opDataType opType;/*zww:define for spl,è®°å½•è¯¥2å…ƒæ“ä½œçš„æ•°æ®ç±»å‹ï¼šæ•´å‹ï¼Œæµ®ç‚¹å‹*/
 	ChildNode *left;
 	ChildNode *right;
 	Node *type;
 	Node *value;
-	ChildList *valueList;/*zww:¶Ô½á¹¹Ìå³£Á¿´«²¥µÄdot²Ù×÷*/
+	ChildList *valueList;/*zww:å¯¹ç»“æ„ä½“å¸¸é‡ä¼ æ’­çš„dotæ“ä½œ*/
 } binopNode;
 
 typedef struct {
 	OpType op;
-	opDataType opType;/*zww:define for spl,¼ÇÂ¼¸Ã2Ôª²Ù×÷µÄÊı¾İÀàĞÍ£ºÕûĞÍ£¬¸¡µãĞÍ*/
+	opDataType opType;/*zww:define for spl,è®°å½•è¯¥2å…ƒæ“ä½œçš„æ•°æ®ç±»å‹ï¼šæ•´å‹ï¼Œæµ®ç‚¹å‹*/
 	ChildNode *expr;
 	Node *type;
 	Node *value;
@@ -386,7 +386,7 @@ typedef struct {
 	Node *type;
 	ChildNode *name;
 	ChildList *dims;
-	Node *value;//zww£º³£Á¿´«²¥ÓÃ
+	Node *value;//zwwï¼šå¸¸é‡ä¼ æ’­ç”¨
 } arrayNode;
 
 typedef struct {
@@ -574,7 +574,7 @@ typedef struct {
 	ChildNode *init;    /* in other versions of c-parser, init is
 			       overloaded to be the offset for structs -- 
 			       but NOT in c-to-c */
-	ChildNode *prim_init;//zww£ºÎªÁË±£ÁôÊı×é¶¨ÒåÊÇ³õÊ¼»¯ÁĞ±í 12.2.10
+	ChildNode *prim_init;//zwwï¼šä¸ºäº†ä¿ç•™æ•°ç»„å®šä¹‰æ˜¯åˆå§‹åŒ–åˆ—è¡¨ 12.2.10
 	ChildNode *bitsize;
 	int  references;    /* number of references to declared name */
 	List *attribs;      /* GCC __attribute__ declarations */
@@ -668,15 +668,15 @@ typedef struct {
 typedef struct {
 	ChildNode *param;
 	ChildList *decl;
-	ChildList *comstmts;	/*	Ìæ´úÒÔÇ°µÄvar½á¹¹ºÍgraph½á¹¹ 
-							SPL compositeÖĞµÄÌØÊâÓï¾ä ºÍ cÓï¾ä
-							°üÀ¨£º	ÆÕÍ¨cÓï¾ä
-									streamÀàĞÍµÄ¶¨ÒåÓï¾ä
-									compositeÖĞµÄif-elseÓï¾ä
-									operator_ Óï¾ä
-									compositeµ÷ÓÃÓï¾ä
-									splitjoinÓï¾ä
-									pipelineÓï¾ä
+	ChildList *comstmts;	/*	æ›¿ä»£ä»¥å‰çš„varç»“æ„å’Œgraphç»“æ„ 
+							SPL compositeä¸­çš„ç‰¹æ®Šè¯­å¥ å’Œ cè¯­å¥
+							åŒ…æ‹¬ï¼š	æ™®é€šcè¯­å¥
+									streamç±»å‹çš„å®šä¹‰è¯­å¥
+									compositeä¸­çš„if-elseè¯­å¥
+									operator_ è¯­å¥
+									compositeè°ƒç”¨è¯­å¥
+									splitjoinè¯­å¥
+									pipelineè¯­å¥
 							*/  
 	
 	Coord left_coord;
@@ -692,7 +692,7 @@ typedef struct {
 } paramNode;
 
 typedef struct {
-	ChildList *state;  /*declaration.list  ¸Ä¶¯£ºÎŞstate¹Ø¼ü×Ö£¬ÆäÓà½á¹¹²»±ä*/
+	ChildList *state;  /*declaration.list  æ”¹åŠ¨ï¼šæ— stateå…³é”®å­—ï¼Œå…¶ä½™ç»“æ„ä¸å˜*/
 	ChildNode *init;   /*compound.statement*/
 	ChildNode *work; /*compound.statement assert(work != null),kernel*/
 	ChildList *window; /*if window == null, its peek=pop=1;*/
@@ -718,10 +718,10 @@ typedef struct {
 	ChildNode *body;  /*body != null, it is a self-define operator*/
 	FlowValue oper_values;
 	OperatorType ot;
-	paramList *params; //chenwenbin 20140723 operatorÒıÓÃµÄparam±äÁ¿
-	int paramSize;  //chenwenbin ÒıÓÃµÄparam±äÁ¿¸öÊı
-	paramList *dimParams;//chenwenbin ÓÃ×÷Êı×éÎ¬¶ÈµÄparam±äÁ¿
-	constArrayList *ArrayInit; //cwb ¼ÇÂ¼³õÊ¼»¯µÄÊı×é±äÁ¿aaa
+	paramList *params; //chenwenbin 20140723 operatorå¼•ç”¨çš„paramå˜é‡
+	int paramSize;  //chenwenbin å¼•ç”¨çš„paramå˜é‡ä¸ªæ•°
+	paramList *dimParams;//chenwenbin ç”¨ä½œæ•°ç»„ç»´åº¦çš„paramå˜é‡
+	constArrayList *ArrayInit; //cwb è®°å½•åˆå§‹åŒ–çš„æ•°ç»„å˜é‡aaa
 } operatorNode;
 
 typedef struct {
@@ -744,18 +744,18 @@ typedef struct {
 	ChildNode *call;/*call->operDeclNode*/
 	ChildNode *operdcl;
 	Bool style;/*if style == true_, it is a SPL style call, else it is a StreamIt style call*/
-	ChildNode *actual_composite;// zww£ºÔÚÖ¸ÏòÉî¿½±´Êµ¼ÊÕ¹¿ªºóµÄcomposite
+	ChildNode *actual_composite;// zwwï¼šåœ¨æŒ‡å‘æ·±æ‹·è´å®é™…å±•å¼€åçš„composite
 } comCallNode;
 
 typedef struct {
 	ChildNode *output;
 	ChildNode *input;
 	ChildList *decl;
-	ChildList *stmts;	/*splitjoin ºÍ pipelineÖĞµÄÓï¾ä
-						°üÀ¨£º	ÆÕÍ¨cÓïÑÔÓï¾ä
-								'add'¹Ø¼ü×Ö¿ªÍ·µÄµ÷ÓÃÓï¾ä
-								·ÖÖ§ÅĞ¶ÏÓï¾ä spIfºÍspIfElse
-								Ñ­»·Óï¾äspfor
+	ChildList *stmts;	/*splitjoin å’Œ pipelineä¸­çš„è¯­å¥
+						åŒ…æ‹¬ï¼š	æ™®é€šcè¯­è¨€è¯­å¥
+								'add'å…³é”®å­—å¼€å¤´çš„è°ƒç”¨è¯­å¥
+								åˆ†æ”¯åˆ¤æ–­è¯­å¥ spIfå’ŒspIfElse
+								å¾ªç¯è¯­å¥spfor
 						*/
 	ChildNode *replace_composite; // SPL, for unfold.c
 } PipelineNode;
@@ -765,13 +765,13 @@ typedef struct {
 	ChildNode *input;
 
 	ChildList *decl;
-	ChildList *initstmts;/* ÎªcÓïÑÔ³õÊ¼»¯Óï¾ä*/
+	ChildList *initstmts;/* ä¸ºcè¯­è¨€åˆå§‹åŒ–è¯­å¥*/
 	ChildNode *split;
-	ChildList *stmts;	/*splitjoin ºÍ pipelineÖĞµÄÓï¾ä
-						°üÀ¨£º	ÆÕÍ¨cÓïÑÔÓï¾ä
-								'add'¹Ø¼ü×Ö¿ªÍ·µÄµ÷ÓÃÓï¾ä
-								·ÖÖ§ÅĞ¶ÏÓï¾ä spIfºÍspIfElse
-								Ñ­»·Óï¾äspfor
+	ChildList *stmts;	/*splitjoin å’Œ pipelineä¸­çš„è¯­å¥
+						åŒ…æ‹¬ï¼š	æ™®é€šcè¯­è¨€è¯­å¥
+								'add'å…³é”®å­—å¼€å¤´çš„è°ƒç”¨è¯­å¥
+								åˆ†æ”¯åˆ¤æ–­è¯­å¥ spIfå’ŒspIfElse
+								å¾ªç¯è¯­å¥spfor
 						*/
 	ChildNode *join;
 	ChildNode *replace_composite; // SPL, for unfold.c
@@ -795,7 +795,7 @@ typedef struct {
 	ChildNode *expr;
 } duplicateNode;
 
-/**********1*****ĞÂÎÄ·¨*******************/
+/**********1*****æ–°æ–‡æ³•*******************/
 typedef struct {
 	ChildNode *content;/* */
 } addNode;
@@ -895,7 +895,7 @@ struct nodeStruct {
 		roundrobinNode	roundrobin;				
 		duplicateNode	duplicate;
 		
-		/**********1*****ĞÂÎÄ·¨*******************/
+		/**********1*****æ–°æ–‡æ³•*******************/
 		addNode			add;
 		itcoNode		itco;
 		
@@ -1034,7 +1034,7 @@ switch (n->typ) { \
  case Join:			 CODE(Join, n, &n->u.join); break; \
  case RoundRobin:	 CODE(RoundRobin, n, &n->u.roundrobin); break; \
  case Duplicate:	 CODE(Duplicate, n, &n->u.duplicate); break; \
- /**************ĞÂÎÄ·¨******2*************/\
+ /**************æ–°æ–‡æ³•******2*************/\
  case Add:	 		CODE(Add, n, &n->u.add); break; \
  /***********************--------------Define For SPL----------****************************/ \
  default:            FAIL("unexpected node type"); break; \
@@ -1102,7 +1102,7 @@ switch ((n)->typ) { \
  case Join:			 if ((n)->u.join.type) {CODE((n)->u.join.type);} break; \
  case RoundRobin:	 if ((n)->u.roundrobin.arguments){LISTWALK((n)->u.roundrobin.arguments ,CODE);}break; \
  case Duplicate:	 if ((n)->u.duplicate.expr) {CODE((n)->u.duplicate.expr);} break; \
- /***********1***ĞÂÎÄ·¨***************/\
+ /***********1***æ–°æ–‡æ³•***************/\
  case Add:	 		if ((n)->u.add.content){CODE((n)->u.add.content);} break;\
  /***********************--------------zww:Define For SPL----------****************************/ \
  default:            FAIL("Unrecognized node type"); break; \
@@ -1217,7 +1217,7 @@ GLOBAL inline Node *MakeTextCoord(const char *text, Bool start_new_line, Coord c
 /* Insert your new constructors here */
 /***********************--------------Define For SPL----------****************************/
 /*
-ĞŞ¸ÄÁËcomBodyNode PipelineNode SplitJoinNode
+ä¿®æ”¹äº†comBodyNode PipelineNode SplitJoinNode
 */
 GLOBAL void SetIsInComposite(Bool inSteamit);
 GLOBAL Node *InsertStreamIds(Node *decl);
@@ -1279,16 +1279,16 @@ GLOBAL inline Node *MakeDuplicateCoord(Node *expr, Coord coord);
 
 GLOBAL inline Node *MakeSTRdcl(TypeQual tq, StreamType *type);
 GLOBAL inline Node *MakeSTRdclCoord(TypeQual tq, StreamType *type, Coord coord);
-/***************ĞÂÎÄ·¨*************/
+/***************æ–°æ–‡æ³•*************/
 GLOBAL inline Node *MakeAdd(Node *content);
 GLOBAL inline Node *MakeAddCoord(Node *content,Coord coord);
 
 GLOBAL inline Node *MakeOutput(Node *node,Node *output);
 GLOBAL inline Node *MakeOutputList(Node *node,List *outputs);
 
-/**************ĞÂÎÄ·¨½áÊø***************/
+/**************æ–°æ–‡æ³•ç»“æŸ***************/
 
-/**************ÎÄ·¨ÓÅ»¯***************/
+/**************æ–‡æ³•ä¼˜åŒ–***************/
 GLOBAL inline Node *MakeIterCount();
 GLOBAL inline Node *MakeIterCountCoord(Coord coord);
 
@@ -1309,7 +1309,7 @@ GLOBAL Node *compositeCopy(Node *from,List *composite_inputList,List *composite_
 GLOBAL int workEstimate(Node *from,int w);/*define for spl*/
 GLOBAL int workEstimate_init(Node *from,int w);/*define for spl*/
 GLOBAL int workEstimateUseDataFlow(Node *from,int w);/*use dataflow method to estimate work */
-/* ĞŞ¸ÄC2CÔ­ÓĞº¯ÊıµÄ·ÃÎÊÈ¨ÏŞ */
+/* ä¿®æ”¹C2CåŸæœ‰å‡½æ•°çš„è®¿é—®æƒé™ */
 GLOBAL BasicType BasicTypeOfConstantValue(Node *type);
 /***********************--------------Define For SPL----------****************************/
 
@@ -1358,7 +1358,7 @@ typedef int Kinds;
 #define KIND_EXPR  1
 #define KIND_STMT  2
 #define KIND_TYPE  4
-#define KIND_DECL  8//1,2,4,8¶ÔÓ¦µÄ¶ş½øÖÆÎ»¾ù²»ÖØ¸´
+#define KIND_DECL  8//1,2,4,8å¯¹åº”çš„äºŒè¿›åˆ¶ä½å‡ä¸é‡å¤
 
 GLOBAL inline Kinds KindsOfNode(Node *node);
 

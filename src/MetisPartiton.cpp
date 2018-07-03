@@ -30,11 +30,11 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 {
 	assert(level==1);
 	nvtxs=sssg->GetFlatNodes().size();
-	if(this->mnparts ==1 ){//Èç¹ûÖ»ÓĞÒ»¸öplaceÔò²»×÷»®·Ö
+	if(this->mnparts ==1 ){//å¦‚æœåªæœ‰ä¸€ä¸ªplaceåˆ™ä¸ä½œåˆ’åˆ†
 		if (X86Backend)
 		{
 			for (int i=0;i<nvtxs;i++)
-				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+				FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 			for (int i=0;i<nvtxs;i++)
 				PartitonNum2FlatNode.insert(make_pair(0,sssg->GetFlatNodes()[i]));
 		}
@@ -44,11 +44,11 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 			{
 				if (!DetectiveActorState(sssg->GetFlatNodes()[i]))
 				{
-					FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+					FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],0));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 				}
 				else
 				{
-					FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],1));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+					FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],1));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 				}
 			}
 			for (int i=0;i<nvtxs;i++)
@@ -65,33 +65,33 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 		}
 		
 
-#if 1 //´òÓ¡Í¼
+#if 1 //æ‰“å°å›¾
         // delete by mobinsheng for  BSPartitionGraph.dot generate path error!
-        // DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605Ìí¼ÓµÚËÄ¸ö²ÎÊı
+        // DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605æ·»åŠ ç¬¬å››ä¸ªå‚æ•°
         // delete by mobinsheng for  BSPartitionGraph.dot generate path error!
 #endif
 
 		return;
 	}
 	/************************************************************************/
-	/* metis ÈÎÎñµ÷¶È£¬½áºÏ±ßÍ¨ĞÅÒÔ¼°¸ºÔØ¾ùºâ                               */
+	/* metis ä»»åŠ¡è°ƒåº¦ï¼Œç»“åˆè¾¹é€šä¿¡ä»¥åŠè´Ÿè½½å‡è¡¡                               */
 	/************************************************************************/
-	vector<int>xadj(nvtxs+1,0);//¶¯Ì¬¶¨ÒåxadjÊı×é
+	vector<int>xadj(nvtxs+1,0);//åŠ¨æ€å®šä¹‰xadjæ•°ç»„
 	vector<int>vwgt(nvtxs);
 	vector<int>part(nvtxs);
 	vector<int>vsize(nvtxs,0);
 	//xadj[0]=0;
-	int edgenum=sssg->GetMapEdge2DownFlatNode().size();//Í¼µÄ±ßÊı
+	int edgenum=sssg->GetMapEdge2DownFlatNode().size();//å›¾çš„è¾¹æ•°
 	vector<int>adjncy(edgenum*2);
-	vector<int>adjwgt(edgenum*2);//ÓÃÓÚ´æ´¢±ßµÄÈ¨ÖØ
-	int k=0;//kÓÃÓÚ¼ÇÂ¼flagnodeµÄÏàÁÚ½ÚµãÊı
+	vector<int>adjwgt(edgenum*2);//ç”¨äºå­˜å‚¨è¾¹çš„æƒé‡
+	int k=0;//kç”¨äºè®°å½•flagnodeçš„ç›¸é‚»èŠ‚ç‚¹æ•°
 	map<FlatNode *, int>::iterator iter;
 	typedef multimap<int,FlatNode *>::iterator iter1;
 	map<FlatNode *, int> tmp = sssg->GetSteadyWorkMap();
 
 	for(int i=0;i<nvtxs;i++){
 		// vsize[i]=0;
-		int flag=0;//±£Ö¤sumÖ»¼ÓÒ»´Î
+		int flag=0;//ä¿è¯sumåªåŠ ä¸€æ¬¡
 		int sum=0;
 		sum+=xadj[i];             
 		if (sssg->GetFlatNodes()[i]->nOut!=0){  
@@ -157,7 +157,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 	{
 		for (int i=0;i<nvtxs;i++){
 			//cout<<part[i]<<endl;
-			FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],part[i]));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+			FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],part[i]));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 		}
 
 		for (int i=0;i<nvtxs;i++)
@@ -172,7 +172,7 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 			{
 				part[i] = Num;
 			}
-			FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],part[i]));//½¨Á¢½Úµãµ½»®·Ö±àºÅµÄÓ³Éä
+			FlatNode2PartitionNum.insert(make_pair(sssg->GetFlatNodes()[i],part[i]));//å»ºç«‹èŠ‚ç‚¹åˆ°åˆ’åˆ†ç¼–å·çš„æ˜ å°„
 		}
 
 		for (int i=0;i<nvtxs;i++)
@@ -183,31 +183,31 @@ MetisPartiton::MetisPartiton(int objtype,int contig):Partition()
 
 	cout<<"The total communication volume or edge-cut of the solution is:"<<objval<<endl;
 
-#if 1 //´òÓ¡Í¼
+#if 1 //æ‰“å°å›¾
 	// delete by mobinsheng for  BSPartitionGraph.dot generate path error!
-	//DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605Ìí¼ÓµÚËÄ¸ö²ÎÊı
+	//DumpStreamGraph(sssg,this,"BSPartitionGraph.dot",NULL);//zww_20120605æ·»åŠ ç¬¬å››ä¸ªå‚æ•°
 #endif
 }
 
 
- //************************************20120924 zww Ìí¼Ó
+ //************************************20120924 zww æ·»åŠ 
  // Method:    metisPartition
  // FullName:  MetisPartiton::metisPartition
  // Access:    public 
  // Returns:   void
  // Qualifier:
- // Parameter: int nvtx Í¼µÄ¶¥µãÊıÄ¿
- // Parameter: int mncon »®·ÖµÄÏŞÖÆÌõ¼şµÄÊıÄ¿£¨ÖÁÉÙÎª1£©
- // Parameter: int * mxadj£¬int * madjncy ´æ´¢µÄÊÇÍ¼µÄ½á¹¹£¨¶¥µãÒÔ¼°¶¥µã¼äµÄÁ¬½Ó¹ØÏµ£©
- // Parameter: int * mvwgt ¶¥µãµÄÈ¨Öµ(¹¤×÷Á¿)
- // Parameter: int * mvsize ½Úµã·¢ËÍºÍ½ÓÊÜµÄÊı¾İÁ¿
- // Parameter: int * madjwgt ±ßµÄÈ¨ÖØ
- // Parameter: int mnparts ×îÖÕ»®·ÖµÄ·İÊı
- // Parameter: float * tpwgts Ã¿Ò»¸ö»®·ÖÓëÃ¿Ò»¸öÏŞÖÆÌõ¼şµÄ¹ØÁªµÄÈ¨Öµ£¬Îª¿Õ±íÊ¾¾ùÔÈ»®·Ö
- // Parameter: float * ubvec ¼ÇÂ¼»®·Ö²»Í¬ÏŞÖÆÌõ¼şÔÚ»®·Ö¹ı³ÌÖĞÕ¼µÃÈ¨Öµ£¬Îª¿Õ´ú±íÖ»¿¼ÂÇ¸ºÔØ
- // Parameter: int options[40] »®·ÖµÄ¸÷ÖÖÑ¡Ïî
- // Parameter: int objval »®·ÖÍê³Éºó¼ÇÂ¼Í¼µÄÍ¨ĞÅÁ¿
- // Parameter: int *mpart ´æ´¢µÄÊÇ½Úµã¶ÔÓ¦µÄ»®·Ö±àºÅ
+ // Parameter: int nvtx å›¾çš„é¡¶ç‚¹æ•°ç›®
+ // Parameter: int mncon åˆ’åˆ†çš„é™åˆ¶æ¡ä»¶çš„æ•°ç›®ï¼ˆè‡³å°‘ä¸º1ï¼‰
+ // Parameter: int * mxadjï¼Œint * madjncy å­˜å‚¨çš„æ˜¯å›¾çš„ç»“æ„ï¼ˆé¡¶ç‚¹ä»¥åŠé¡¶ç‚¹é—´çš„è¿æ¥å…³ç³»ï¼‰
+ // Parameter: int * mvwgt é¡¶ç‚¹çš„æƒå€¼(å·¥ä½œé‡)
+ // Parameter: int * mvsize èŠ‚ç‚¹å‘é€å’Œæ¥å—çš„æ•°æ®é‡
+ // Parameter: int * madjwgt è¾¹çš„æƒé‡
+ // Parameter: int mnparts æœ€ç»ˆåˆ’åˆ†çš„ä»½æ•°
+ // Parameter: float * tpwgts æ¯ä¸€ä¸ªåˆ’åˆ†ä¸æ¯ä¸€ä¸ªé™åˆ¶æ¡ä»¶çš„å…³è”çš„æƒå€¼ï¼Œä¸ºç©ºè¡¨ç¤ºå‡åŒ€åˆ’åˆ†
+ // Parameter: float * ubvec è®°å½•åˆ’åˆ†ä¸åŒé™åˆ¶æ¡ä»¶åœ¨åˆ’åˆ†è¿‡ç¨‹ä¸­å å¾—æƒå€¼ï¼Œä¸ºç©ºä»£è¡¨åªè€ƒè™‘è´Ÿè½½
+ // Parameter: int options[40] åˆ’åˆ†çš„å„ç§é€‰é¡¹
+ // Parameter: int objval åˆ’åˆ†å®Œæˆåè®°å½•å›¾çš„é€šä¿¡é‡
+ // Parameter: int *mpart å­˜å‚¨çš„æ˜¯èŠ‚ç‚¹å¯¹åº”çš„åˆ’åˆ†ç¼–å·
  //************************************
  void MetisPartiton::metisPartition(int nvtx,int mncon,int *mxadj,int *madjncy,int *mvwgt,int *mvsize,int *madjwgt,int mnparts,float *tpwgts,float *ubvec,int objval,int *mpart)
  {

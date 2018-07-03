@@ -163,7 +163,7 @@ extern int  pclose(FILE *pipe);
 extern int yydebug;
 
 GLOBAL const char * Executable;
-GLOBAL const float VersionNumber = 0.6;
+GLOBAL const float VersionNumber = 1.0;
 GLOBAL const char * const VersionDate = __DATE__;
 GLOBAL const char *PhaseName = "???";
 
@@ -184,7 +184,7 @@ PRIVATE const char *stdin_name    = NULL;
 /*FileReader和FileWriter的路径*/
 GLOBAL const char *infileName   = NULL;
 GLOBAL const char *outfileName   = NULL;
-GLOBAL int posbuf = -2; 
+GLOBAL int posbuf = -2;
 
 PRIVATE const char *default_preproc = DEFAULT_PREPROC;
 PRIVATE const char *ansi_preproc = ANSI_PREPROC;
@@ -228,12 +228,12 @@ GLOBAL Bool Analyze           = FALSE;
 GLOBAL Bool Propagate        = TRUE; // 常量传播开关
 GLOBAL Bool AST2FlatSSG      = TRUE;  // AST转平面图开关
 
-GLOBAL Bool SSG2Graph		  = TRUE; // 打印SSG的dot图开关 
+GLOBAL Bool SSG2Graph		  = TRUE; // 打印SSG的dot图开关
 GLOBAL Bool Transform         = FALSE;
 //正对不同的后端使用的不同开关
 GLOBAL Bool SchedulingFlatSSG  = TRUE; // 对平面图进行初始化调度 和稳态调度开关*/
 GLOBAL Bool WorkEstimate	  = TRUE; // 工作量估计——静态工作量估计
-GLOBAL Bool MakeProfile       = FALSE; // 生成actor工作量的profile文件（通过运行代码做工作量估计） 
+GLOBAL Bool MakeProfile       = FALSE; // 生成actor工作量的profile文件（通过运行代码做工作量估计）
 GLOBAL Bool GetTemplate       = TRUE; //cwb生成模板类
 GLOBAL Bool WorkEstimateByDataFlow = FALSE;	//使用数据流估计稳态工作量
 GLOBAL Bool Speedup			  = TRUE;/*开关：打印加速比情况*/
@@ -294,7 +294,7 @@ GLOBAL int NCpuThreads = 1;//cwb cputhread个数初始值
 /*为GPU代码生成添加*****************************************/
 GLOBAL int MultiNum = 1;     //默认扩大倍数
 GLOBAL int LocalSize = 1;    //为数据传输分配空间 用于传输
-GLOBAL int LocalSizeofWork = 32;    
+GLOBAL int LocalSizeofWork = 32;
 GLOBAL Bool IsMod = TRUE;//缓冲区取数据时是否使用取余操作
 GLOBAL int PrintFlag = TRUE;//是否打印结果，默认不输出
 GLOBAL int Comm_num = 1;  //cwb CPU-GPU通信传输数据的批次数
@@ -469,7 +469,7 @@ PRIVATE void unknown_option(char *option)
 /* Generate a filename with a new suffix.
    If <filename> ends with <old_suffix>, replace the suffix with <new_suffix>;
    otherwise just append <new_suffix>. */
-PRIVATE const char *with_suffix(const char *filename, 
+PRIVATE const char *with_suffix(const char *filename,
                                 const char *old_suffix,
                                 const char *new_suffix)
 { int root_len, old_len, len;
@@ -1028,7 +1028,7 @@ GLOBAL int main(int argc, char *argv[])
             output_dir += '\\';
         }
         string tmpbuf=output_dir;
-        posbuf=tmpbuf.find_last_of('\');
+        posbuf=tmpbuf.find_last_of('\\');
         if(posbuf==-1)//只是指定了目标文件的名称
         {
         }
@@ -1361,7 +1361,7 @@ GLOBAL int main(int argc, char *argv[])
         //delete tmp;
         delete pSA;
         //tmp = NULL;
-#endif	
+#endif
     }
 
     //system("pause");

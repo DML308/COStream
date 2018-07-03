@@ -11,23 +11,23 @@ class MetisPartiton:public Partition
 public:
 	MetisPartiton(int objtype=-1,int contig=1);
 	~MetisPartiton();
-	void SssgPartition(SchedulerSSG *sssg , int level);//ÀûÓÃmetis½øĞĞ»®·Ö
-	void metisPartition(int nvtx,int mncon,int *mxadj,int *madjncy,int *mvwgt,int *mvsize,int *madjwgt,int mnparts,float *tpwgts,float *ubvec,int objval,int *mpart);//zww 20120924 Ìí¼Ó
+	void SssgPartition(SchedulerSSG *sssg , int level);//åˆ©ç”¨metisè¿›è¡Œåˆ’åˆ†
+	void metisPartition(int nvtx,int mncon,int *mxadj,int *madjncy,int *mvwgt,int *mvsize,int *madjwgt,int mnparts,float *tpwgts,float *ubvec,int objval,int *mpart);//zww 20120924 æ·»åŠ 
 private:
-	//Êøµ÷¶È£¨BS£©metis»áĞèÒªÓÃµ½µÄ³ÉÔ±±äÁ¿
-	int *mxadj;//¶¨ÒåÖ¸ÕëÖ¸ÏòxadjÊı×é
-	int *madjncy;//¶¨ÒåÖ¸ÕëÖ¸ÏòadjncyÊı×é
-	int *mobjval;//¶¨ÒåÖ¸ÕëÖ¸Ïòobjval
-	int *mpart;//¶¨ÒåÖ¸ÕëÖ¸ÏòpartÊı×é
-	int *mvwgt;//¶¨ÒåÖ¸ÕëÖ¸ÏòvwgtÊı×é£¬ºóÕß´æ´¢Ã¿¸ö¶¥µãµÄÈ¨Öµ
-	int *madjwgt;//¶¨ÒåÖ¸ÕëÖ¸ÏòadjwgtÊı×é
-	int nvtxs;//¶¨Òå¶¥µã¸öÊı
+	//æŸè°ƒåº¦ï¼ˆBSï¼‰metisä¼šéœ€è¦ç”¨åˆ°çš„æˆå‘˜å˜é‡
+	int *mxadj;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘xadjæ•°ç»„
+	int *madjncy;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘adjncyæ•°ç»„
+	int *mobjval;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘objval
+	int *mpart;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘partæ•°ç»„
+	int *mvwgt;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘vwgtæ•°ç»„ï¼Œåè€…å­˜å‚¨æ¯ä¸ªé¡¶ç‚¹çš„æƒå€¼
+	int *madjwgt;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘adjwgtæ•°ç»„
+	int nvtxs;//å®šä¹‰é¡¶ç‚¹ä¸ªæ•°
 	float *tpwgts;
-	int *mvsize;//¶¨ÒåÖ¸ÕëÖ¸ÏòvsizeÊı×é
+	int *mvsize;//å®šä¹‰æŒ‡é’ˆæŒ‡å‘vsizeæ•°ç»„
 	float *ubvec;
-	int mncon; //Æ½ºâÏŞÖÆÌõ¼şµÄÊıÄ¿£¬ÖÁÉÙÎª1
+	int mncon; //å¹³è¡¡é™åˆ¶æ¡ä»¶çš„æ•°ç›®ï¼Œè‡³å°‘ä¸º1
 	int objval;
-	int options[40];//²ÎÊıÊı×é
+	int options[40];//å‚æ•°æ•°ç»„
 };
 extern "C"
 {

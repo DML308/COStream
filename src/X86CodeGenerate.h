@@ -14,17 +14,17 @@ extern bool libPath;
 //#include "process.h"
 using namespace std;
 						/***************************************************/
-						/*********************X86´úÂëÉú³É*******************/
+						/*********************X86ä»£ç ç”Ÿæˆ*******************/
 						/***************************************************/
 
-//Éú³É¶à¸öÎÄ¼ş
+//ç”Ÿæˆå¤šä¸ªæ–‡ä»¶
 class X86CodeGenerate
 {
 public:
-	/******************¹¹Ôìº¯Êı******************/
+	/******************æ„é€ å‡½æ•°******************/
 	X86CodeGenerate(SchedulerSSG *, int, const char *,StageAssignment *,MetisPartiton *,TemplateClass*);
 	/********************************************/
-	void OutputToFile(std::string, std::string);//Êä³öµ½ÎÄ¼ş
+	void OutputToFile(std::string, std::string);//è¾“å‡ºåˆ°æ–‡ä»¶
 	string GetPrimDataType(Node *);
 	string GetNodeDataType(Node *);
 	string GetArrayDataType(Node *);
@@ -35,8 +35,8 @@ public:
 	void RecursiveAdclInit(List *init);
 	void AdclInit(Node * from,int offset);
 /***********************************************/
-	void CGactors(); // Éú³É¸÷¸öactor³ÌĞò
-	void CGactor(FlatNode *actor,string name, OperatorType ot);//Éú³ÉÖ¸¶¨actor³ÌĞò
+	void CGactors(); // ç”Ÿæˆå„ä¸ªactorç¨‹åº
+	void CGactor(FlatNode *actor,string name, OperatorType ot);//ç”ŸæˆæŒ‡å®šactorç¨‹åº
 	void CGwork(FlatNode *actor, OperatorType ot, stringstream &);
 /***********************************************/
 	void OutputCRSpaceAndTabs(int );
@@ -53,12 +53,12 @@ public:
 	void AddSemicolon();
 	string MakeTabs(int );
 /********************************************/
-	void CGrun(stringstream &buf, string initFun); // Éú³Érun·½·¨
+	void CGrun(stringstream &buf, string initFun); // ç”Ÿæˆrunæ–¹æ³•
 	void CGrunInitScheduleWork(FlatNode *actor,stringstream &buf);
 	void CGrunSteadyScheduleWork(FlatNode *actor,stringstream &buf);
 	void CGrecv(FlatNode *, OperatorType , string, stringstream & ,stringstream & ,stringstream & ,stringstream &); 
 	void CGsend(FlatNode *, OperatorType , string, stringstream & ,stringstream & ,stringstream & ,stringstream & ,stringstream &); 
-	void CGflush(stringstream &, string);// Éú³Éflush·½·¨
+	void CGflush(stringstream &, string);// ç”Ÿæˆflushæ–¹æ³•
 	void CGinitWork(stringstream &);
 	void CGinitPeek(stringstream &, string);
 	void CGinitPush(stringstream &, string);
@@ -71,19 +71,19 @@ public:
 	void CGthis(FlatNode *actor, OperatorType ot, stringstream &,string name);
 	void CGEdgeParam(FlatNode *actor,stringstream &);
 /********************************************/
-	void CGGlobalvar(); // Éú³ÉÈ«¾Ö±äÁ¿
+	void CGGlobalvar(); // ç”Ÿæˆå…¨å±€å˜é‡
 	void CGGlobalvarextern();
-	void CGExternType(); //Ç¶ÈëÊ½ÖĞÉú³É½Ó¿ÚÀàĞÍ
-	void CGglobalHeader();//Éú³ÉÈ«¾Ö±äÁ¿¡ª¡ª±ßµÄĞÅÏ¢
+	void CGExternType(); //åµŒå…¥å¼ä¸­ç”Ÿæˆæ¥å£ç±»å‹
+	void CGglobalHeader();//ç”Ÿæˆå…¨å±€å˜é‡â€”â€”è¾¹çš„ä¿¡æ¯
 	void CGglobalCpp();
-	void CGAllActor();//Éú³ÉËùÓĞactorµÄÀà
-	void CGThreads();//Éú³ÉËùÓĞÏß³ÌÎÄ¼ş
+	void CGAllActor();//ç”Ÿæˆæ‰€æœ‰actorçš„ç±»
+	void CGThreads();//ç”Ÿæˆæ‰€æœ‰çº¿ç¨‹æ–‡ä»¶
 	void CGThread(int,stringstream&);
-	void CGAllActorHeader();//ÎªÃ¿¸öactorÉú³ÉÒ»¸öÀà²¢·ÅÔÚÍ¬Ò»¸öÎÄ¼şÖĞ,´Ëº¯ÊıÉú³ÉÍ·ÎÄ¼ş
-	void CGAllActorCpp();//ÎªÃ¿¸öactorÉú³ÉÒ»¸öÀà²¢·ÅÔÚÍ¬Ò»¸öÎÄ¼şÖĞ,´Ëº¯ÊıÉú³É.cppÎÄ¼ş
-	void CGMain();//Éú³ÉÆô¶¯¸÷¸öÏß³ÌµÄº¯Êı
+	void CGAllActorHeader();//ä¸ºæ¯ä¸ªactorç”Ÿæˆä¸€ä¸ªç±»å¹¶æ”¾åœ¨åŒä¸€ä¸ªæ–‡ä»¶ä¸­,æ­¤å‡½æ•°ç”Ÿæˆå¤´æ–‡ä»¶
+	void CGAllActorCpp();//ä¸ºæ¯ä¸ªactorç”Ÿæˆä¸€ä¸ªç±»å¹¶æ”¾åœ¨åŒä¸€ä¸ªæ–‡ä»¶ä¸­,æ­¤å‡½æ•°ç”Ÿæˆ.cppæ–‡ä»¶
+	void CGMain();//ç”Ÿæˆå¯åŠ¨å„ä¸ªçº¿ç¨‹çš„å‡½æ•°
 /**********************************************/
-	void CGMakefile();//ÎªlinuxÏÂµÄ´úÂëÉú³ÉMakefileÎÄ¼ş
+	void CGMakefile();//ä¸ºlinuxä¸‹çš„ä»£ç ç”ŸæˆMakefileæ–‡ä»¶
 /**********************************************/
 	~X86CodeGenerate(){delete pEdgeInfo;}
 private:
@@ -92,34 +92,34 @@ private:
 	SchedulerSSG *sssg_;	
 	TemplateClass *Tc;
 	std::vector<FlatNode *> flatNodes_;
-	std::vector<FlatNode *> vTemplateNode_; //chenwenbin 20140724 ´æ´¢ËùÓĞÄ£°å½áµã
-	std::vector<std::string> vTemplateName_; //chenwenbin ¼ÇÂ¼Ã¿¸öÄ£°åÀàµÄÃû×Ö
-	std::map<FlatNode *,std::string> mapFlatnode2Template_; //chenwenbin ´æ·Åflatnode¶ÔÓ¦µÄÄ£°åÀà
-	ActorEdgeInfo* pEdgeInfo;//´æ·Å¸÷¸ö±ßµÄÀàĞÍĞÅÏ¢£¬by lihe 2012-09-04
+	std::vector<FlatNode *> vTemplateNode_; //chenwenbin 20140724 å­˜å‚¨æ‰€æœ‰æ¨¡æ¿ç»“ç‚¹
+	std::vector<std::string> vTemplateName_; //chenwenbin è®°å½•æ¯ä¸ªæ¨¡æ¿ç±»çš„åå­—
+	std::map<FlatNode *,std::string> mapFlatnode2Template_; //chenwenbin å­˜æ”¾flatnodeå¯¹åº”çš„æ¨¡æ¿ç±»
+	ActorEdgeInfo* pEdgeInfo;//å­˜æ”¾å„ä¸ªè¾¹çš„ç±»å‹ä¿¡æ¯ï¼Œby lihe 2012-09-04
 	int nCpucore_;
 	int nActors_;
 	int nTemplateNode_;
 	string dir_;
-	string _profile_Name;//ÓÃÓÚÉú³ÉprofileÓÃµÄ£¬±£´æprofileÎÄ¼şÃû 20121127 zww
-	//int buffer_size_;				//lihe buffer_size²»ĞèÒª
+	string _profile_Name;//ç”¨äºç”Ÿæˆprofileç”¨çš„ï¼Œä¿å­˜profileæ–‡ä»¶å 20121127 zww
+	//int buffer_size_;				//lihe buffer_sizeä¸éœ€è¦
 	bool extractDecl, isInParam;
 	FlatNode* curactor;
-	std::map<FlatNode *, int> mapFlatNode2Place; // ´æ·Å¸÷ FlatNode ¶ÔÓ¦µÄ placeĞòºÅ
+	std::map<FlatNode *, int> mapFlatNode2Place; // å­˜æ”¾å„ FlatNode å¯¹åº”çš„ placeåºå·
 	stringstream declList, declInitList, stateInit;
 	stringstream strScheduler, parameterBuf, thisBuf;
-	stringstream ExternTypeBuf; //Ç¶ÈëÊ½ÖĞµÄ½Ó¿ÚÀàĞÍ
-	stringstream globalvarbuf,temp_declInitList;//globalvarbuf°üº¬È«¾Ö±äÁ¿µÄÉùÃ÷
+	stringstream ExternTypeBuf; //åµŒå…¥å¼ä¸­çš„æ¥å£ç±»å‹
+	stringstream globalvarbuf,temp_declInitList;//globalvarbufåŒ…å«å…¨å±€å˜é‡çš„å£°æ˜
 	stringstream declInitList_temp;
 	string OutputPath;
 	string InputPath;
-	FlatNode *readerActor,*writerActor;//±êÊ¶¶ÁĞ´ÎÄ¼ş²Ù×÷µÄactor
-	map<operatorNode *, std::string> mapOperator2ClassName; // ´æ·Å¸÷ class ¶ÔÓ¦µÄ composite
-	multimap<FlatNode*,string> mapActor2InEdge;		//actor¶ÔÓ¦ÊäÈë±ßµÄÃû³Æ
-	multimap<FlatNode*,string> mapActor2OutEdge;	//actor¶ÔÓ¦Êä³ö±ßµÄÃû³Æ
-	map<int,set<int> > mapNum2Stage;//´¦ÀíÆ÷±àºÅµ½stageµÄ¶ÔÓ¦¹ØÏµ
-	vector<string> staticNameInit;	//´æ·ÅactorÄÚstateºÍvar³ÉÔ±µÄ³õÊ¼»¯£¬±»Êä³öµ½actor¶ÔÓ¦µÄÔ´ÎÄ¼şÖĞ
-	vector<string> ptrname;//ÓÃÓÚ´æ·ÅÃ¿¸öactorÖĞ¶¯Ì¬Éú³ÉµÄÊı×éµÄÃû³Æ£¬ÒÔ±ãÓÚºóÃæµÄdelete²Ù×÷
-	vector<string> nDeclDim;//ÓÃÓÚ´æ·ÅÎ´¶¨ÒåµÄÈ«¾ÖÊı×éÎ¬¶È
+	FlatNode *readerActor,*writerActor;//æ ‡è¯†è¯»å†™æ–‡ä»¶æ“ä½œçš„actor
+	map<operatorNode *, std::string> mapOperator2ClassName; // å­˜æ”¾å„ class å¯¹åº”çš„ composite
+	multimap<FlatNode*,string> mapActor2InEdge;		//actorå¯¹åº”è¾“å…¥è¾¹çš„åç§°
+	multimap<FlatNode*,string> mapActor2OutEdge;	//actorå¯¹åº”è¾“å‡ºè¾¹çš„åç§°
+	map<int,set<int> > mapNum2Stage;//å¤„ç†å™¨ç¼–å·åˆ°stageçš„å¯¹åº”å…³ç³»
+	vector<string> staticNameInit;	//å­˜æ”¾actorå†…stateå’Œvaræˆå‘˜çš„åˆå§‹åŒ–ï¼Œè¢«è¾“å‡ºåˆ°actorå¯¹åº”çš„æºæ–‡ä»¶ä¸­
+	vector<string> ptrname;//ç”¨äºå­˜æ”¾æ¯ä¸ªactorä¸­åŠ¨æ€ç”Ÿæˆçš„æ•°ç»„çš„åç§°ï¼Œä»¥ä¾¿äºåé¢çš„deleteæ“ä½œ
+	vector<string> nDeclDim;//ç”¨äºå­˜æ”¾æœªå®šä¹‰çš„å…¨å±€æ•°ç»„ç»´åº¦
 /*********************************************/
 	void CGFileReaderActor(stringstream &buf);
 	void CGFileWriterActor(stringstream &buf);
@@ -185,7 +185,7 @@ private:
 	void SPL2X86_Join(Node *node, joinNode *u, int offset) { }
 	void SPL2X86_RoundRobin(Node *node, roundrobinNode *u, int offset) { }
 	void SPL2X86_Duplicate(Node *node, duplicateNode *u, int offset) { }
-	/*****************ĞÂÎÄ·¨ĞÂÔö½áµã***********/
+	/*****************æ–°æ–‡æ³•æ–°å¢ç»“ç‚¹***********/
 	void SPL2X86_Add(Node *node, addNode *u, int offset) { }
 	void SPL2X86_Itco(Node *node, itcoNode *u, int offset);
 	
