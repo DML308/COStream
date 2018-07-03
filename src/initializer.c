@@ -74,7 +74,7 @@ GLOBAL void SemCheckDeclInit(Node *decl, Bool blockp)
   /* Recursively walk the initialization list */
   if (IsInitializer(init))
   {
-	  decl->u.decl.prim_init = NodeCopy(init,NodeOnly);  //zww£º¼ÇÂ¼³õÊ¼»¯ÁÐ±íµÄÔ­Ê¼Êý¾Ý   12.2.10
+	  decl->u.decl.prim_init = NodeCopy(init,NodeOnly);  //zwwï¼šè®°å½•åˆå§‹åŒ–åˆ—è¡¨çš„åŽŸå§‹æ•°æ®   12.2.10
     decl->u.decl.init = SemCheckInitList(decl, dtype, InitializerCopy(init), TRUE);
   }
   else

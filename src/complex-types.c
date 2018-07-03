@@ -391,7 +391,7 @@ GLOBAL Node *SetDeclType(Node *decl, Node *type, ScopeState redeclare)
 	}
 	/* falls through to Redecl */
       case Redecl:
-	//if (decl->u.decl.type->typ == Operdcl) break;//OperatorId²»ÄÜ½øIdentifiers·ûºÅ±í, ±ØĞë½ø£¬12.2ĞŞ¸Ä
+	//if (decl->u.decl.type->typ == Operdcl) break;//OperatorIdä¸èƒ½è¿›Identifiersç¬¦å·è¡¨, å¿…é¡»è¿›ï¼Œ12.2ä¿®æ”¹
 	NodeSetDeclLocation(decl, Level == 0 ? T_TOP_DECL : T_BLOCK_DECL);
 
 	/* add to current scope */
@@ -470,7 +470,7 @@ GLOBAL Node *SetDeclInit(Node *decl, Node *init)
 
 
 GLOBAL inline Node *MakeNewDecl(const char *name, Node *type, Node *init, ScopeState declStyle)
-{//zww 20120918 Ìí¼Ó
+{//zww 20120918 æ·»åŠ 
 	Node *id = NULL, *tmp = NULL;
 
 	assert(name && type);

@@ -92,7 +92,7 @@ struct tablestruct {
 };
 
 /************************************************************************/
-/* define for SPL transforms.c ¹¹ÔìĞÂµÄ·ûºÅ±í£¬Óï·¨Ê÷¸´ÖÆ·şÎñ£º¶¯Ì¬Æ¥Åä */
+/* define for SPL transforms.c æ„é€ æ–°çš„ç¬¦å·è¡¨ï¼Œè¯­æ³•æ ‘å¤åˆ¶æœåŠ¡ï¼šåŠ¨æ€åŒ¹é… */
 /************************************************************************/
 typedef struct ASTsymbolstruct ASTSymbol;
 struct ASTsymbolstruct {
@@ -168,7 +168,7 @@ PRIVATE void free_symbol(Symbol *sym)
 }
 
 /***********************************************************************\
-* zww£ºNewASTSymbolTable define for SPL
+* zwwï¼šNewASTSymbolTable define for SPL
 \***********************************************************************/
 
 GLOBAL ASTSymbolTable *NewASTSymbolTable(const char *name,TableType kind)
@@ -181,7 +181,7 @@ GLOBAL ASTSymbolTable *NewASTSymbolTable(const char *name,TableType kind)
     return(create);
 }
  /***********************************************************************\
-*zww£º ResetASTSymbolTable define for spl
+*zwwï¼š ResetASTSymbolTable define for spl
 \***********************************************************************/
 PRIVATE void ASTfree_symbol(ASTSymbol *sym)
 {
@@ -239,7 +239,7 @@ PRIVATE ASTSymbol *ASTmake_symbol(const char *name,const char *newname, Generic 
     return(sym);
 }
 /***********************************************************************\
-* zww:ASTFillSymbol define for spl²¹È«ĞÅÏ¢
+* zww:ASTFillSymbol define for splè¡¥å…¨ä¿¡æ¯
 \***********************************************************************/
 GLOBAL Bool ASTFillSymbol(ASTSymbolTable *table, const char *name,Generic *old)
 {
@@ -284,15 +284,15 @@ GLOBAL Generic *ASTInsertSymbol(ASTSymbolTable *table, const char *name,const ch
 	    ASTSymbol *next = chain->next;
 		while (chain != NULL  ) {
 			ASTSymbol *tmp = chain->shadow;
-			if (chain->oldID == oldNode) {/*ÕÒµ½ÏàÍ¬ÉùÃ÷idºÍÃû×ÖµÄ±¨´í,Ö»»áÔÚcompositeÄÚµÄgraphÏÂµÄstrdclºÍoperatorµÄoutputµÄstrdcl»á·¢ÉúÖØ¸´*/
+			if (chain->oldID == oldNode) {/*æ‰¾åˆ°ç›¸åŒå£°æ˜idå’Œåå­—çš„æŠ¥é”™,åªä¼šåœ¨compositeå†…çš„graphä¸‹çš„strdclå’Œoperatorçš„outputçš„strdclä¼šå‘ç”Ÿé‡å¤*/
 				//printf("found the same node when inserting a decl node to ToTransformDecl \n");
 				newNode = chain->newID;
-				gIsInSymbolTable = TRUE;/*±íÊ¾ÒÑ¾­²éÕÒµ½ÏàÍ¬µÄ¸´ÖÆ¶ÔÏó£¬ÔòÈ¡Ç°Ò»¸ö¶ÔÏó£¬²¢²»ÔÙ¶ÔËü½øĞĞ¸´ÖÆ*/
+				gIsInSymbolTable = TRUE;/*è¡¨ç¤ºå·²ç»æŸ¥æ‰¾åˆ°ç›¸åŒçš„å¤åˆ¶å¯¹è±¡ï¼Œåˆ™å–å‰ä¸€ä¸ªå¯¹è±¡ï¼Œå¹¶ä¸å†å¯¹å®ƒè¿›è¡Œå¤åˆ¶*/
 				return newNode;
 			}
 			chain = tmp;
 		}
-		if (chain == NULL)/*¸Ã´ı¸´ÖÆdecl·ÇÒÑ¾­±»¸´ÖÆ£¬¹Ê²ÎÈëµ½Í·²¿¼´¿É*/
+		if (chain == NULL)/*è¯¥å¾…å¤åˆ¶decléå·²ç»è¢«å¤åˆ¶ï¼Œæ•…å‚å…¥åˆ°å¤´éƒ¨å³å¯*/
 		{
 			*handle = sym;
 			sym->shadow = now;
@@ -336,11 +336,11 @@ GLOBAL Generic *LookupPARAMSymbol(ASTSymbolTable *table,
     chain = *handle; /* loop invariant */
 
     while (chain != NULL) {
-	if (chain->name == name) {/*Æ¥Åäµ½·µ»Ø*/
+	if (chain->name == name) {/*åŒ¹é…åˆ°è¿”å›*/
 		if (oldID == NULL)
 		{
 			return chain->newID;
-		}else if (chain->oldID == oldID)/*Èô²»ÏàµÈÔò±íÃ÷¸ÃidÊÇÒ»¸ö¾Ö²¿ÉùÃ÷µÄ±äÁ¿£¬²»ÊÇ²ÎÊı*/
+		}else if (chain->oldID == oldID)/*è‹¥ä¸ç›¸ç­‰åˆ™è¡¨æ˜è¯¥idæ˜¯ä¸€ä¸ªå±€éƒ¨å£°æ˜çš„å˜é‡ï¼Œä¸æ˜¯å‚æ•°*/
 			return chain->newID;
 		
 	    /* unreachable */
@@ -402,7 +402,7 @@ GLOBAL Generic *LookupASTSymbol(ASTSymbolTable *table,
 	if (chain->name == name) {
 		while (chain != NULL  ) {
 			ASTSymbol *tmp = chain->shadow;
-			/*if (chain->oldID == oldID) / *Æ¥Åäµ½·µ»Ø* /*/
+			/*if (chain->oldID == oldID) / *åŒ¹é…åˆ°è¿”å›* /*/
 				return chain->newID;
 			chain = tmp;
 		}
@@ -419,7 +419,7 @@ GLOBAL Generic *LookupASTSymbol(ASTSymbolTable *table,
 	chain = chain->next; /* == *handle */
 	
     }
-	if(!LookupSymbol(Externals,name,&trash))/*µ½È«¾Ö·ûºÅ±í¼ì²é£¬Èç¹û²»´æÔÚÔò±íÃ÷¸ÃidÎ´ÉùÃ÷*/
+	if(!LookupSymbol(Externals,name,&trash))/*åˆ°å…¨å±€ç¬¦å·è¡¨æ£€æŸ¥ï¼Œå¦‚æœä¸å­˜åœ¨åˆ™è¡¨æ˜è¯¥idæœªå£°æ˜*/
 	{
 		printf("error not hound this id's decl\n");
 		system("pause");
@@ -663,7 +663,7 @@ GLOBAL void MoveToOuterScope(SymbolTable *table, const char *name)
 }
 
 /***********************************************************************\
-* ly:LookupExternalsSymbol£¬²»ÄÜĞ´GLOBAL·ñÔò»á³öÏÖÖØ¸´ÉùÃ÷
+* ly:LookupExternalsSymbolï¼Œä¸èƒ½å†™GLOBALå¦åˆ™ä¼šå‡ºç°é‡å¤å£°æ˜
 \***********************************************************************/
 
 Bool LookupExternalsSymbol(SymbolTable *table,

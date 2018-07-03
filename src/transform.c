@@ -74,8 +74,8 @@ GLOBAL Bool gIsInSymbolTable = FALSE;
 GLOBAL Bool gIsTransform = FALSE; 
 GLOBAL Bool gIsTypelist = FALSE;
 GLOBAL Bool gIsCall = FALSE;
-GLOBAL List *gDeclList = NULL;//存放外部变量定义，代码生成时置于接口内，作为常量定义
-GLOBAL List *gProcList = NULL;//存放外部函数定义
+GLOBAL List *gDeclList = NULL;//瀛樻斁澶栭儴鍙橀噺瀹氫箟锛屼唬鐮佺敓鎴愭椂缃簬鎺ュ彛鍐咃紝浣滀负甯搁噺瀹氫箟
+GLOBAL List *gProcList = NULL;//瀛樻斁澶栭儴鍑芥暟瀹氫箟
 /*
  * TransformProgram should convert a type-checked source language tree
  * into a standard C tree.  Type information does not need to be preserved,

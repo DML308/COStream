@@ -274,7 +274,7 @@ GLOBAL Node *ArrayType(Node *array)
       if (btype->typ == Adcl)
 		 btype = NodeDataType(btype->u.adcl.type);
 	  else if (btype->typ == STRdcl/* SPL */)
-		 btype = NodeDataType(btype);/* SPL 目前只支持一维的StreamType*/
+		 btype = NodeDataType(btype);/* SPL 鐩墠鍙敮鎸佷竴缁寸殑StreamType*/
       else if (btype->typ == Ptr)
 		 btype = NodeDataType(btype->u.ptr.type);
       else {
