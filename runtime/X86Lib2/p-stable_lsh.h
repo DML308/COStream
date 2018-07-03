@@ -13,20 +13,20 @@ using namespace std;
 
 #define PI 3.1415926
 extern const int MAX;
-extern const int dimention;//Î¬¶È
-extern const int hashcount;//¹şÏ£±íµÄÊıÁ¿
-extern multimap<int,vector<double> > stda[];//´æ·ÅÏòÁ¿ºÍÃû³Æ
+extern const int dimention;//ç»´åº¦
+extern const int hashcount;//å“ˆå¸Œè¡¨çš„æ•°é‡
+extern multimap<int,vector<double> > stda[];//å­˜æ”¾å‘é‡å’Œåç§°
 
-extern double a[1][512];//p-Stable·Ö²¼£¨L=2£»¸ßË¹·Ö²¼£©µÄËæ»úÏòÁ¿
-extern double w;//LSHµÄw
-extern double b;//LSHµÄËæ»úÊıb
+extern double a[1][512];//p-Stableåˆ†å¸ƒï¼ˆL=2ï¼›é«˜æ–¯åˆ†å¸ƒï¼‰çš„éšæœºå‘é‡
+extern double w;//LSHçš„w
+extern double b;//LSHçš„éšæœºæ•°b
 
-extern double AverageRandom(double min,double max);//Æ½¾ù·Ö²¼
-extern double Normal(double x,double miu,double sigma);//¸ßË¹º¯Êı
-extern double NormalRandom(double miu,double sigma,double min,double max);//¸ßË¹·Ö²¼
-extern int hashfamily(double f[],double *a_temp,double b_temp,double w_temp);//fÎªÌØÕ÷£¬a_tempÎªaÏòÁ¿£¬b_tempÎªb£¬w_tempÎªw
-extern int pstableQuery(double *input_temp, double *output_temp);//²éÑ¯
-extern int pstableInsert(double *input_temp, double *output_temp, int inDim, int outDim);//²åÈë
-extern int pstablePreProccess();//Ô¤´¦Àí
+extern double AverageRandom(double min,double max);//å¹³å‡åˆ†å¸ƒ
+extern double Normal(double x,double miu,double sigma);//é«˜æ–¯å‡½æ•°
+extern double NormalRandom(double miu,double sigma,double min,double max);//é«˜æ–¯åˆ†å¸ƒ
+extern int hashfamily(double f[],double *a_temp,double b_temp,double w_temp);//fä¸ºç‰¹å¾ï¼Œa_tempä¸ºaå‘é‡ï¼Œb_tempä¸ºbï¼Œw_tempä¸ºw
+extern int pstableQuery(double *input_temp, double *output_temp);//æŸ¥è¯¢
+extern int pstableInsert(double *input_temp, double *output_temp, int inDim, int outDim);//æ’å…¥
+extern int pstablePreProccess();//é¢„å¤„ç†
 
 #endif
