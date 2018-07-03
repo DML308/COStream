@@ -163,7 +163,7 @@ extern int  pclose(FILE *pipe);
 extern int yydebug;
 
 GLOBAL const char * Executable;
-GLOBAL const float VersionNumber = 0.6;
+GLOBAL const float VersionNumber = 1.0;
 GLOBAL const char * const VersionDate = __DATE__;
 GLOBAL const char *PhaseName = "???";
 
