@@ -1,4 +1,4 @@
-//本测试用例用来测试任务水平分裂 add by wangliang
+//本测试用例用来测试基础文法的有效性
 int a[8] = {1,2,3,4,5,6,7,8};
 composite B(output stream<int x>Out,input stream<int x>In)
 {
@@ -22,22 +22,6 @@ composite B(output stream<int x>Out,input stream<int x>In)
 	};
 }
 
-composite A_1_Fission(output stream<int x>Out, input stream<int x>In)
-{
-param
-	int size,int B_param1,int B_param2;
-		Out = splitjoin(In)
-		{
-			int i;
-			split roundrobin(1);
-			for (i = 0; i < size; i++)
-			{
-				add B(B_param1,B_param2);
-			}
-			join roundrobin(1);
-	};
-}
-
 composite Main(){
 	int N;
 	stream<int x>S,P;
@@ -55,7 +39,7 @@ composite Main(){
 			S tumbling(8);
 		}
 	};
-	P = A_1_Fission(S)(8,88,99);
+	P = B(S)(88,99);
 	Sink(P){
 		work{
 			println(P[0].x);
