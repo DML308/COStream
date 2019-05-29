@@ -1,6 +1,6 @@
 # [](#header-1)简介
 
-[COStream](http://costream.site)编程语言是一种面向并行体系结构的高性能流编程语言，由[华中科技大学数字媒体处理与检索实验室](media.hust.edu.cn)多核计算与流编译组设计与开发。语言的名称由3个关键字：composite、operator和stream组合而来。COStream程序采用数据流图的方式来描述应用的处理过程，图中节点表示计算，边表示数据的流动。COStream语言具有广泛的应用领域，当前主要用于面向大数据量处理应用，如媒体处理、信号处理、搜索应用、数据文件处理等。
+[COStream](https://cn.costream.org)编程语言是一种面向并行体系结构的高性能流编程语言，由[华中科技大学数字媒体处理与检索实验室](media.hust.edu.cn)多核计算与流编译组设计与开发。语言的名称由3个关键字：composite、operator和stream组合而来。COStream程序采用数据流图的方式来描述应用的处理过程，图中节点表示计算，边表示数据的流动。COStream语言具有广泛的应用领域，当前主要用于面向大数据量处理应用，如媒体处理、信号处理、搜索应用、数据文件处理等。
 
 # [](#header-1)COStream语言主要特性
 >流程序，即有序处理数据序列的程序，最常出现在声音、视频、数字信号处理的上下文中。流程序非常适合多核系统结构。对流应用的兴趣催生了一系列的作用于流域的程序语言，如COStream, Cg, StreamIt等。
@@ -311,4 +311,4 @@ COStream各actor的输入输出速率在运行时恒定。一些应用程序需�
 
 * * *
 
-关于COStream语言的定义、编程规范和编译器行为（包括静态和动态）的详细说明等，详见[COStream参考文档列表](http://costream.site/book)。
+关于COStream语言的定义、编程规范和编译器行为（包括静态和动态）的详细说明等，详见[COStream参考文档列表](https://cn.costream.org/guide/index.html)。
